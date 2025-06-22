@@ -25,7 +25,7 @@
                         </select>
                         <input type="date" id="date_from" class="form-control" style="width: 170px; height: 48px; font-size: 1.1em;" t-att-disabled="state.loading" t-model="state.dateFrom" t-on-change="onDateFromChange" placeholder="From Date"/>
                         <input type="date" id="date_to" class="form-control" style="width: 170px; height: 48px; font-size: 1.1em;" t-att-disabled="state.loading" t-model="state.dateTo" t-on-change="onDateToChange" placeholder="To Date"/>
-                        <input type="text" id="upic_no" class="form-control" style="width: 170px; height: 48px; font-size: 1.1em;" t-att-disabled="state.loading" t-model="state.upicNo" t-on-change="onUpicNoChange" placeholder="UPIC No"/>
+                        <input type="text" id="upic_no" class="form-control" style="width: 170px; height: 48px; font-size: 1.1em;" t-att-disabled="state.loading" t-model="state.upicNo" t-on-input="onUpicNoInput" placeholder="UPIC No"/>
                         <button class="btn btn-gradient d-flex align-items-center gap-1" style="background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%); color: #fff; border: none; border-radius: 6px; font-weight: 500; min-width: 120px; height: 48px; font-size: 1.1em;" t-att-disabled="state.loading" t-on-click="onFilter">
                             <i class="fa fa-filter"/> Filter
                         </button>
