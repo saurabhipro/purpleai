@@ -484,30 +484,60 @@
             </div>
           </section>
 
-          <!-- Government Payment Services -->
-          <t t-foreach="services" t-as="srv">
-            <section class="py-1">
-              <h2 class="text-center fw-bold mb-3" style="font-size:1.3rem; letter-spacing:1px;">Government Payment Services</h2>
-              <div class="d-flex justify-content-center align-items-stretch payment-services-row">
-
-                <t t-foreach="srv.govt_line_ids" t-as="govt"> 
-                  <t t-if="govt.is_active">
-                    <div class="payment-service-box text-center">
-                      <div class="icon-gradient-box mb-2 mx-auto">
-                        <div class="govt-service-label">
-                          <t t-raw="govt.icon"/>
-                        </div>
-                      </div>
-                      <div class="govt-service-label">
-                        <t t-out="govt.name"/>
-                      </div>
+          <!-- Captured Images Section -->
+          <div class="center-section mt-3">
+            <div class="card p-4 position-relative border border-white rounded-4">
+              <div class="row g-3">
+                <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
+                  <t t-set="img1" t-value="property.survey_line_ids[0].image1_s3_url"/>
+                  <t t-set="img2" t-value="property.survey_line_ids[0].image2_s3_url"/>
+                  <t t-if="img1 or img2">
+                    <div class="col-12">
+                      <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Captured Images</h3>
                     </div>
                   </t>
+                  <div class="col-6" t-if="img1">
+                    <div class="card shadow-sm border-0">
+                      <img t-att-src="img1" class="img-fluid rounded-3" alt="Captured Image 1"/>
+                    </div>
+                  </div>
+                  <div class="col-6" t-if="img2">
+                    <div class="card shadow-sm border-0">
+                      <img t-att-src="img2" class="img-fluid rounded-3" alt="Captured Image 2"/>
+                    </div>
+                  </div>
                 </t>
+              </div>
+            </div>
+          </div>
+          <!-- End Captured Images Section -->
+
+          <!-- Government Payment Services -->
+          <t t-foreach="services" t-as="srv">
+            <div class="center-section mt-3">
+              <div class="card p-4 position-relative border border-white rounded-4">
+                <h2 class="fw-bold mb-3 px-1" style="font-size:1.3rem;">Government Payment Services</h2>
+                <div class="d-flex justify-content-center align-items-stretch payment-services-row">
+
+                  <t t-foreach="srv.govt_line_ids" t-as="govt">
+                    <t t-if="govt.is_active">
+                      <div class="payment-service-box text-center">
+                        <div class="icon-gradient-box mb-2 mx-auto">
+                          <div class="govt-service-label">
+                            <t t-raw="govt.icon"/>
+                          </div>
+                        </div>
+                        <div class="govt-service-label">
+                          <t t-out="govt.name"/>
+                        </div>
+                      </div>
+                    </t>
+                  </t>
 
                 </div>
-            </section>
-          
+              </div>
+            </div>
+
 
             <!-- Emergency Services -->
             <section class="py-1">
