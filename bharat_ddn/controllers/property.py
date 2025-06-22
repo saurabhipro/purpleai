@@ -100,10 +100,10 @@ class PropertyDetailsAPI(http.Controller):
             "latitude": survey.latitude,
             "surveyer_id": survey.surveyer_id.id,
             "installer_id": survey.installer_id.id,
+            "image1_s3_url": survey.image1_s3_url,
+            "image2_s3_url": survey.image2_s3_url,
             "is_solar": survey.is_solar,
             "is_rainwater_harvesting": survey.is_rainwater_harvesting,
-            "property_image": str(survey.property_image),
-            "property_image1": str(survey.property_image1),
         }
 
     @http.route('/api/property/create_survey', type='http', auth='public', methods=['POST'], csrf=False)
@@ -195,8 +195,7 @@ class PropertyDetailsAPI(http.Controller):
             if mobile_no:
                 data['mobile_no'] = mobile_no
             
-            print(data)
-
+            
             survey_line_vals = self._prepare_survey_line_vals(data)
             # Now update the survey and other fields
             property_record.write({
@@ -282,8 +281,8 @@ class PropertyDetailsAPI(http.Controller):
             'longitude': data.get("longitude", ''),
             'latitude': data.get("latitude", ''),
             'surveyer_id': data.get("surveyer_id", False),
-            'property_image': data.get("property_image", False),
-            'property_image1': data.get("property_image1", False),
+            'image1_s3_url': data.get("image1_s3_url", False),
+            'image2_s3_url': data.get("image2_s3_url", False),
             'is_solar': data.get("is_solar", True),  # Default to True if not provided
             'is_rainwater_harvesting': data.get("is_rainwater_harvesting", True),  # Default to True if not provided
         }
