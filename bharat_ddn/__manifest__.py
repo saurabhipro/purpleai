@@ -2,13 +2,13 @@
 {
     'name': 'Bharat DDN',
     'summary': """
-        Property Survey Management System for Suryabinayak Municipality
+        Digital Pata
     """,
     'description': """
-        Property Survey Management System for Suryabinayak Municipality
+        Property Survey Management 
     """,
-    'author': 'Windsurf',
-    'website': 'https://www.windsurf.io',
+    'author': 'IPROSONIC',
+    'website': 'https://www.iprosonic.com',
     'category': 'Services/Property',
     'version': '0.1',
     'depends': ['base', 'mail', 'web', 'report_xlsx'],
@@ -35,7 +35,6 @@
         'views/res_company_views.xml',
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
-
         'views/property_id_data_views.xml',
         'views/menuitems.xml',  # Load menus last
         # 'views/assets.xml',
@@ -43,8 +42,6 @@
     'assets': {
         'web.assets_backend': [
             # Components
-            # 'bharat_ddn/static/src/components/kpi_card/kpi_card.js',
-            # 'bharat_ddn/static/src/components/kpi_card/kpi_card.xml',
             'bharat_ddn/static/src/components/google_map/property_map.js',
             'bharat_ddn/static/src/components/google_map/property_map_template.xml',
             'bharat_ddn/static/src/components/dashboard/dashboard.js',
