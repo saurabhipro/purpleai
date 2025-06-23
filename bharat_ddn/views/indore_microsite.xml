@@ -450,24 +450,22 @@
             <!-- Full-width Carousel -->
             <div id="headerCarousel" class="carousel slide header-carousel" data-bs-ride="carousel" data-bs-interval="4000">
               <div class="carousel-inner">
-                <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
-                  <div class="carousel-content-hero">
-                    <h1 class="carousel-title-hero">Digital Property Registration</h1>
-                    <p class="carousel-subtitle-hero">Get your property registered digitally with ease</p>
-                  </div>
-                </div>
-                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
-                  <div class="carousel-content-hero">
-                    <h1 class="carousel-title-hero">Smart City Services</h1>
-                    <p class="carousel-subtitle-hero">Access all government services at your fingertips</p>
-                  </div>
-                </div>
-                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1577760258779-e787a1733016?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
-                  <div class="carousel-content-hero">
-                    <h1 class="carousel-title-hero">24/7 Emergency Support</h1>
-                    <p class="carousel-subtitle-hero">Quick access to emergency services and officials</p>
-                  </div>
-                </div>
+
+
+
+                <t t-foreach="services" t-as="srv">
+                  <t t-foreach="srv.banner_line_ids" t-as="banner">
+                    <div class="carousel-item active"       t-attf-style="background-image: url('/web/image?model=banner.officer.line&amp;id={{ banner.id }}&amp;field=icon');">
+                      <div class="carousel-content-hero">
+                        <h1 class="carousel-title-hero"><t t-out="banner.name"/></h1>
+                        <p class="carousel-subtitle-hero"><t t-out="banner.text"/></p>
+                      </div>
+                    </div>
+                  </t>
+                </t>
+
+
+                
               </div>
               <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>

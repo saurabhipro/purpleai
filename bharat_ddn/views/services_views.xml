@@ -206,7 +206,7 @@
                             <group>
                                 <group>
                                     <field name="name"/>
-                                    <field name="icon"/>
+                                    <field name="icon" widget="image"/>
                                     <field name="text"/>
                                 </group>
                                 <group>

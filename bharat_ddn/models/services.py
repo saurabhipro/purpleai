@@ -97,7 +97,7 @@ class BannerOfficerLine(models.Model):
     name = fields.Char(string="Name")
     text = fields.Text(string="Text")
     hyperlink = fields.Char(string="Hyperlink")
-    icon = fields.Char(string="Icon")
+    icon = fields.Binary(string="BG Image")
     is_global = fields.Boolean(string="Is Global", default=False)
     is_active = fields.Boolean(string="Is Active", default=True)
     service_id = fields.Many2one('ddn.services', string="Service")
