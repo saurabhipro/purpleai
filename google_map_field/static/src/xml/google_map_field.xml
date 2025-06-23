@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="google_map_field.GoogleMapField" t-inherit="web.CharField" t-inherit-mode="primary" owl="1">
+        <xpath expr="." position="replace">
+            <div class="o_google_map_field_container">
+                <t t-if="!props.readonly">
+                    <div class="map_search_wrapper">
+                        <i class="fa fa-search map_search_icon" />
+                        <input class="o_input" t-ref="input"
+                               t-att-placeholder="props.placeholder || 'Search for a location...'"/>
+                    </div>
+                    <div class="map_canvas" t-ref="geomap_ref"/>
+                </t>
+                <t t-else="">
+                    <div class="map_canvas" t-ref="geomap_ref"/>
+                </t>
+
+                <div t-if="state.isShowingApiInput" class="popup-overlay">
+                    <div class="backdrop"></div>
+                    <div class="popup popup-med">
+                        <div class="popup-header"><h2>Enter API Key</h2></div>
+                        <div class="popup-body">
+                            <p>Please enter your Google Maps API key below. This key will be stored securely in the system parameters, ensuring it is available whenever needed. Rest assured, your key will not be exposed or shared.</p>
+                            <input type="text" placeholder="Enter your API key" class="api-input" t-ref="api_input" />
+                        </div>
+                        <div class="popup-footer">
+                            <button t-on-click="inputApiKey" class="btn-save">Save</button>
+                            <button t-on-click="closePopup" class="btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

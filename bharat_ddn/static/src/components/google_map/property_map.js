@@ -119,21 +119,6 @@ export class PropertyMapView extends Component {
         }
     }
 
-    convertDMSToDecimal(dms) {
-        if (!dms) return null;
-        const parts = dms.split(/[°'"\s]+/);
-        if (parts.length < 4) return null;
-        const degrees = parseFloat(parts[0]);
-        const minutes = parseFloat(parts[1]);
-        const seconds = parseFloat(parts[2]);
-        const direction = parts[3];
-        let decimal = degrees + minutes/60 + seconds/3600;
-        if (direction === 'S' || direction === 'W') {
-            decimal = -decimal;
-        }
-        return decimal;
-    }
-
     onZoneChange(ev) {
         const zoneId = ev.target.value;
         this.state.selectedZone = zoneId;
@@ -165,6 +150,11 @@ export class PropertyMapView extends Component {
 
     onDateToChange(ev) {
         this.state.dateTo = ev.target.value;
+    }
+
+    onUpicNoInput(ev) {
+        this.state.upicNo = ev.target.value;
+        this.onFilter();
     }
 
     onUpicNoChange(ev) {
@@ -212,12 +202,12 @@ export class PropertyMapView extends Component {
                 ]
             });
             console.log('Properties returned:', properties.length, properties);
-            const markersToAdd = [];
+            const bounds = new google.maps.LatLngBounds();
             for (const prop of properties) {
                 if (prop.latitude && prop.longitude) {
-                    const lat = this.convertDMSToDecimal(prop.latitude);
-                    const lng = this.convertDMSToDecimal(prop.longitude);
-                    if (lat && lng) {
+                    const lat = parseFloat(prop.latitude);
+                    const lng = parseFloat(prop.longitude);
+                    if (!isNaN(lat) && !isNaN(lng)) {
                         // Pin color logic
                         let pinColor = '#1976d2'; // blue default
                         let barColor = '#1976d2';
@@ -237,8 +227,9 @@ export class PropertyMapView extends Component {
                             scale: 2,
                             anchor: new google.maps.Point(12, 24),
                         };
+                        const position = { lat, lng };
                         const marker = new google.maps.Marker({
-                            position: { lat, lng },
+                            position,
                             map: this.map,
                             title: prop.upic_no,
                             icon: markerIcon,
@@ -294,19 +285,22 @@ export class PropertyMapView extends Component {
                             });
                             infowindow.open(this.map, marker);
                         });
-                        markersToAdd.push(marker);
-                        this.bounds.extend(marker.getPosition());
+                        this.markers.push(marker);
+                        bounds.extend(position);
                     }
                 }
             }
-            // Add all markers to the map, then fit bounds once
-            if (markersToAdd.length > 0) {
-                this.map.fitBounds(this.bounds);
+
+            if (this.markers.length === 1) {
+                this.map.setCenter(this.markers[0].getPosition());
+                this.map.setZoom(18); // Zoom in close for a single property
+            } else if (this.markers.length > 1) {
+                this.map.fitBounds(bounds); // Adjust map to show all markers
             }
-            this.markers = markersToAdd;
+
         } catch (error) {
-            console.error("Error in onFilter:", error);
-            this.state.error = error.message;
+            console.error("Error during filter:", error);
+            this.state.error = "An error occurred while filtering properties.";
         } finally {
             this.state.loading = false;
         }

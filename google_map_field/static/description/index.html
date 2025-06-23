@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Google Map Field Widget Description</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+
+            h1 {
+                color: #333;
+            }
+
+            .description {
+                margin-top: 20px;
+            }
+
+            .steps {
+                margin-top: 20px;
+            }
+
+            .steps ol {
+                margin-left: 20px;
+            }
+
+            .highlight {
+                color: #0066cc;
+                font-weight: bold;
+            }
+
+            .note {
+                background-color: #f9f9f9;
+                border-left: 5px solid #ffcc00;
+                padding: 10px;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Google Map Field Widget for Odoo</h1>
+
+        <div class="description">
+            <p>
+                This Google Map field widget is designed for use in your Odoo application. It allows
+                users to enter addresses efficiently by integrating Google Maps, providing address
+                suggestions as they type. The selected address is then stored in the field for later
+                use, and users can interact with the map to visually update the address.
+            </p>
+            <p>
+                The widget is linked to a <span class="highlight">char field</span> with the widget
+                property set to <span class="highlight">google_map_field</span>.
+            </p>
+            <img src="widget_name.png" class="oe_picture oe_screenshot" />
+        </div>
+
+        <div class="steps">
+            <h2>How the Google Map Field Works:</h2>
+            <ol>
+                <li>
+                    <strong>Activate Google Maps API:</strong> Before using the widget, you must
+                    activate your Google Maps API key once. The key is necessary to enable the
+                    address search and map functionalities. If you don't have an API key, you can
+                    easily obtain one from the
+                    <a href="https://developers.google.com/maps/gmp-get-started" target="_blank"
+                        >Google Maps Platform</a
+                    >.
+                </li>
+
+                <li>
+                    <strong>Start Typing an Address:</strong> As soon as the user starts typing an
+                    address in the field, the widget communicates with Google Maps to suggest
+                    possible address matches in real-time. This provides an easy way to find the
+                    correct address without having to manually enter the full details.
+                    <img src="banner.png" class="oe_picture oe_screenshot" />
+
+                </li>
+
+                <li>
+                    <strong>Select an Address:</strong> After typing, the user can choose from the
+                    list of suggested addresses. Once an address is selected, it is automatically
+                    saved to the field. The selected address is stored in its proper format, ready
+                    for use throughout the application.
+                </li>
+
+                <li>
+                    <strong>Open the Map View:</strong> To ensure the address is correct, the user
+                    can click the pin icon. This opens a map view of the selected address, which
+                    provides a visual representation of the location.
+                    <img src="map_pick.png" class="oe_picture oe_screenshot" />
+                </li>
+
+                <li>
+                    <strong>Update the Address on the Map:</strong> If the user wants to make
+                    adjustments to the selected address, they can drag the pin on the map to a new
+                    location. The address will automatically update to reflect the new position,
+                    ensuring that the stored address is always accurate.
+                </li>
+            </ol>
+        </div>
+
+        <div class="note">
+            <p>
+                <strong>Note:</strong> The widget only requires the Google Maps API key to be
+                activated once. If the API key is missing or incorrect, the widget will not function
+                properly, so make sure to enter a valid API key.
+            </p>
+        </div>
+    </body>
+</html>
+s
