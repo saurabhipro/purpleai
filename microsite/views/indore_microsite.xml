@@ -382,22 +382,101 @@
         .o_mail_navbar_item, .o_notification_counter, .o_mail_navbar_systray_item {
             display: none !important;
         }
+        /* Header Carousel Styles */
+        .header-carousel {
+          width: 100vw;
+          min-height: 320px;
+          max-height: 420px;
+          margin: 0;
+          border-radius: 0;
+          box-shadow: none;
+          overflow: hidden;
+          position: relative;
+        }
+        .carousel-item {
+          min-height: 320px;
+          max-height: 420px;
+          width: 100vw;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          position: relative;
+        }
+        .carousel-item::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(135deg, rgba(123,34,60,0.7) 0%, rgba(184,91,44,0.7) 100%);
+          z-index: 1;
+        }
+        .carousel-content-hero {
+          position: relative;
+          z-index: 2;
+          height: 100%;
+          min-height: 320px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          color: #fff;
+          padding: 2.5rem 1rem;
+        }
+        .carousel-title-hero {
+          font-size: 2.5rem;
+          font-weight: 800;
+          margin-bottom: 1rem;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .carousel-subtitle-hero {
+          font-size: 1.3rem;
+          font-weight: 400;
+          opacity: 0.95;
+          text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 767.98px) {
+          .header-carousel, .carousel-item, .carousel-content-hero {
+            min-height: 180px;
+            max-height: 220px;
+          }
+          .carousel-title-hero { font-size: 1.3rem; }
+          .carousel-subtitle-hero { font-size: 0.95rem; }
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
-          <!-- Header Section -->
-          <header class="header-gradient text-white py-4">
-            <div class="container">
-              <div class="row justify-content-center">
-                <t t-foreach="services" t-as="service">
-                  <div class="col-12 text-center">
-                    <h1 class="display-6 fw-bold mb-1" style="letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.08); padding-top: 1rem; padding-bottom: 1rem;">
-                      <t t-out="service.header"/> <span class="highlight-hindi"><t t-out="service.header2"/></span>
-                    </h1>
-                    <div class="h5 fw-light mb-0" style="letter-spacing: 1px;"><t t-out="service.sub_header"/></div>
+          <!-- Header Section with Carousel -->
+          <header class="header-gradient text-white py-0" style="position:relative;">
+            <!-- Full-width Carousel -->
+            <div id="headerCarousel" class="carousel slide header-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+              <div class="carousel-inner">
+                <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">Digital Property Registration</h1>
+                    <p class="carousel-subtitle-hero">Get your property registered digitally with ease</p>
                   </div>
-                </t>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">Smart City Services</h1>
+                    <p class="carousel-subtitle-hero">Access all government services at your fingertips</p>
+                  </div>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1577760258779-e787a1733016?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">24/7 Emergency Support</h1>
+                    <p class="carousel-subtitle-hero">Quick access to emergency services and officials</p>
+                  </div>
+                </div>
               </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#headerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
             </div>
           </header>
       
@@ -631,9 +710,6 @@
         <footer class="footer-gradient mt-5 custom-microsite-footer" style="border-radius: 0; display: block !important;">
           <div class="container py-4">
             <div class="row align-items-center">
-              <div class="col-12 text-center footer-section mb-2">
-                <span class="fw-bold">Bharat DDN Microsite</span> &amp;copy; 2025 All rights reserved.
-              </div>
               <div class="col-12 text-center footer-social mb-2">
                 <a href="https://www.facebook.com/" class="social-link me-2" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
                 <a href="https://twitter.com/" class="social-link me-2" target="_blank" title="Twitter"><i class="bi bi-twitter"></i></a>
@@ -641,13 +717,14 @@
               </div>
             </div>
             <div class="row mt-2">
-              <div class="col-12 text-center footer-bottom">
-                <span>Made with <span style="color:#e25555;">&#10084;</span> by Redmelon team</span>
+              <div class="col-12 text-center" style="font-size:1rem;">
+                This project is being undertaken by Indore Municipal Corporation
               </div>
             </div>
-            <div class="row mt-1">
-              <div class="col-12 text-center">
-                <span class="powered-by">Powered by <a href="https://redmelon.co.in" target="_blank" class="powered-link">Redmelon.co.in</a></span>
+            <div class="row mt-2">
+              <div class="col-12 text-center" style="font-size:1rem; margin-top:1rem;">
+                Designed and Implemented by<br/>
+                <span style="font-weight:600;">Redmelon Buisiness Solutions Pvt Ltd</span>
               </div>
             </div>
           </div>
@@ -659,9 +736,6 @@
             color: #fff;
             position: relative;
             z-index: 1000;
-          }
-          .footer-section {
-            font-size: 1rem;
           }
           .footer-social .social-link {
             color: #fffde7;
