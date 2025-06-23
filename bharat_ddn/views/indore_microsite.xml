@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="id_indore_microsite_template" name="UDAN Property Info">
+  <template id="id_indore_microsite_template" name="Bharat DDN">
     <t t-call="website.layout">
       <!-- External CSS -->
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -379,22 +379,104 @@
             font-size: 0.92rem;
           }
         }
+        .o_mail_navbar_item, .o_notification_counter, .o_mail_navbar_systray_item {
+            display: none !important;
+        }
+        /* Header Carousel Styles */
+        .header-carousel {
+          width: 100vw;
+          min-height: 320px;
+          max-height: 420px;
+          margin: 0;
+          border-radius: 0;
+          box-shadow: none;
+          overflow: hidden;
+          position: relative;
+        }
+        .carousel-item {
+          min-height: 320px;
+          max-height: 420px;
+          width: 100vw;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          position: relative;
+        }
+        .carousel-item::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(135deg, rgba(123,34,60,0.7) 0%, rgba(184,91,44,0.7) 100%);
+          z-index: 1;
+        }
+        .carousel-content-hero {
+          position: relative;
+          z-index: 2;
+          height: 100%;
+          min-height: 320px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          color: #fff;
+          padding: 2.5rem 1rem;
+        }
+        .carousel-title-hero {
+          font-size: 2.5rem;
+          font-weight: 800;
+          margin-bottom: 1rem;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .carousel-subtitle-hero {
+          font-size: 1.3rem;
+          font-weight: 400;
+          opacity: 0.95;
+          text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+        @media (max-width: 767.98px) {
+          .header-carousel, .carousel-item, .carousel-content-hero {
+            min-height: 180px;
+            max-height: 220px;
+          }
+          .carousel-title-hero { font-size: 1.3rem; }
+          .carousel-subtitle-hero { font-size: 0.95rem; }
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
-          <!-- Header Section -->
-          <header class="header-gradient text-white py-4">
-            <div class="container">
-              <div class="row justify-content-center">
-                <t t-foreach="services" t-as="service">
-                  <div class="col-12 text-center">
-                    <h1 class="display-6 fw-bold mb-1" style="letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.08); padding-top: 1rem; padding-bottom: 1rem;">
-                      <t t-out="service.header"/> <span class="highlight-hindi"><t t-out="service.header2"/></span>
-                    </h1>
-                    <div class="h5 fw-light mb-0" style="letter-spacing: 1px;"><t t-out="service.sub_header"/></div>
+          <!-- Header Section with Carousel -->
+          <header class="header-gradient text-white py-0" style="position:relative;">
+            <!-- Full-width Carousel -->
+            <div id="headerCarousel" class="carousel slide header-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+              <div class="carousel-inner">
+                <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">Digital Property Registration</h1>
+                    <p class="carousel-subtitle-hero">Get your property registered digitally with ease</p>
                   </div>
-                </t>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">Smart City Services</h1>
+                    <p class="carousel-subtitle-hero">Access all government services at your fingertips</p>
+                  </div>
+                </div>
+                <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1577760258779-e787a1733016?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=1200&amp;q=80');">
+                  <div class="carousel-content-hero">
+                    <h1 class="carousel-title-hero">24/7 Emergency Support</h1>
+                    <p class="carousel-subtitle-hero">Quick access to emergency services and officials</p>
+                  </div>
+                </div>
               </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#headerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
             </div>
           </header>
       
@@ -406,8 +488,31 @@
                   <h2 class="fw-bold mb-3" style="font-size:1.3rem; letter-spacing:1px;">Property Details</h2>
                   <t t-if="property.uuid">
                     <t t-set="property_url" t-value="(property.company_id.website or request.httprequest.url_root).strip('/') + '/get/' + property.uuid"/>
-                    <t t-set="maps_url" t-value="'https://www.google.com/maps/search/?api=1&amp;query=' + (property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude and (property.survey_line_ids[0].latitude + ',' + property.survey_line_ids[0].longitude) or '')"/>
-                    <a t-att-href="'https://wa.me/?text=' + property_url + '%0ACheck%20out%20this%20property%20on%20Bharat%20DDN!%0A%0ALocation:%20' + maps_url"
+                    <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude"/>
+                    <t t-if="has_coordinates">
+                      <t t-set="lat" t-value="str(property.survey_line_ids[0].latitude)"/>
+                      <t t-set="lng" t-value="str(property.survey_line_ids[0].longitude)"/>
+                      <t t-set="valid_coords" t-value="lat != '1.2' and lng != '1.1' and lat != '0.0' and lng != '0.0' and float(lat) != 0.0 and float(lng) != 0.0"/>
+                      <t t-if="valid_coords">
+                        <!-- Google Maps URL with pin -->
+                        <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
+                        <!-- Enhanced Navigation URL using the more reliable format -->
+                        <t t-set="directions_url" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng"/>
+                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🧭 Get Directions: ' + directions_url"/>
+                      </t>
+                      <t t-else="">
+                        <t t-set="maps_url" t-value="''"/>
+                        <t t-set="directions_url" t-value="''"/>
+                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                      </t>
+                    </t>
+                    <t t-else="">
+                      <t t-set="maps_url" t-value="''"/>
+                      <t t-set="directions_url" t-value="''"/>
+                      <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                      <t t-set="valid_coords" t-value="False"/>
+                    </t>
+                    <a t-att-href="'https://wa.me/?text=' + share_text"
                        class="btn btn-success btn-sm d-flex align-items-center"
                        style="font-weight:600;"
                        target="_blank">
@@ -484,30 +589,60 @@
             </div>
           </section>
 
-          <!-- Government Payment Services -->
-          <t t-foreach="services" t-as="srv">
-            <section class="py-1">
-              <h2 class="text-center fw-bold mb-3" style="font-size:1.3rem; letter-spacing:1px;">Government Payment Services</h2>
-              <div class="d-flex justify-content-center align-items-stretch payment-services-row">
-
-                <t t-foreach="srv.govt_line_ids" t-as="govt"> 
-                  <t t-if="govt.is_active">
-                    <div class="payment-service-box text-center">
-                      <div class="icon-gradient-box mb-2 mx-auto">
-                        <div class="govt-service-label">
-                          <t t-raw="govt.icon"/>
-                        </div>
-                      </div>
-                      <div class="govt-service-label">
-                        <t t-out="govt.name"/>
-                      </div>
+          <!-- Captured Images Section -->
+          <div class="center-section mt-3">
+            <div class="card p-4 position-relative border border-white rounded-4">
+              <div class="row g-3">
+                <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
+                  <t t-set="img1" t-value="property.survey_line_ids[0].image1_s3_url"/>
+                  <t t-set="img2" t-value="property.survey_line_ids[0].image2_s3_url"/>
+                  <t t-if="img1 or img2">
+                    <div class="col-12">
+                      <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Captured Images</h3>
                     </div>
                   </t>
+                  <div class="col-6" t-if="img1">
+                    <div class="card shadow-sm border-0">
+                      <img t-att-src="img1" class="img-fluid rounded-3" alt="Captured Image 1"/>
+                    </div>
+                  </div>
+                  <div class="col-6" t-if="img2">
+                    <div class="card shadow-sm border-0">
+                      <img t-att-src="img2" class="img-fluid rounded-3" alt="Captured Image 2"/>
+                    </div>
+                  </div>
                 </t>
+              </div>
+            </div>
+          </div>
+          <!-- End Captured Images Section -->
+
+          <!-- Government Payment Services -->
+          <t t-foreach="services" t-as="srv">
+            <div class="center-section mt-3">
+              <div class="card p-4 position-relative border border-white rounded-4">
+                <h2 class="fw-bold mb-3 px-1" style="font-size:1.3rem;">Government Payment Services</h2>
+                <div class="d-flex justify-content-center align-items-stretch payment-services-row">
+
+                  <t t-foreach="srv.govt_line_ids" t-as="govt">
+                    <t t-if="govt.is_active">
+                      <div class="payment-service-box text-center">
+                        <div class="icon-gradient-box mb-2 mx-auto">
+                          <div class="govt-service-label">
+                            <t t-raw="govt.icon"/>
+                          </div>
+                        </div>
+                        <div class="govt-service-label">
+                          <t t-out="govt.name"/>
+                        </div>
+                      </div>
+                    </t>
+                  </t>
 
                 </div>
-            </section>
-          
+              </div>
+            </div>
+
 
             <!-- Emergency Services -->
             <section class="py-1">
@@ -570,6 +705,67 @@
 
           </t>
         </section>
+
+        <!-- Custom Microsite Footer -->
+        <footer class="footer-gradient mt-5 custom-microsite-footer" style="border-radius: 0; display: block !important;">
+          <div class="container py-4">
+            <div class="row align-items-center">
+              <div class="col-12 text-center footer-social mb-2">
+                <a href="https://www.facebook.com/" class="social-link me-2" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="https://twitter.com/" class="social-link me-2" target="_blank" title="Twitter"><i class="bi bi-twitter"></i></a>
+                <a href="https://www.instagram.com/" class="social-link" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-12 text-center" style="font-size:1rem;">
+                This project is being undertaken by Indore Municipal Corporation
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-12 text-center" style="font-size:1rem; margin-top:1rem;">
+                Designed and Implemented by<br/>
+                <span style="font-weight:600;">Redmelon Buisiness Solutions Pvt Ltd</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+        <style>
+          .custom-microsite-footer {
+            display: block !important;
+            background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+            color: #fff;
+            position: relative;
+            z-index: 1000;
+          }
+          .footer-social .social-link {
+            color: #fffde7;
+            font-size: 1.3rem;
+            margin-right: 0.5rem;
+            transition: color 0.2s;
+          }
+          .footer-social .social-link:hover {
+            color: #ffd54f;
+          }
+          .footer-bottom {
+            font-size: 0.95rem;
+          }
+          .powered-by {
+            font-size: 0.9rem;
+            opacity: 0.9;
+          }
+          .powered-link {
+            color: #ffd54f;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+          }
+          .powered-link:hover {
+            color: #fff;
+            text-decoration: underline;
+          }
+        </style>
+        <!-- End Custom Microsite Footer -->
+
       </div>
     </t>
   </template>

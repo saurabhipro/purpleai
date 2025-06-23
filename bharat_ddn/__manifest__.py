@@ -53,7 +53,7 @@
         ],
 
         'web.assets_frontend': [
-            'microsite/static/src/scss/microsite.scss',
+            'bharat_ddn/static/src/scss/microsite.scss',
         ],
 
     },
