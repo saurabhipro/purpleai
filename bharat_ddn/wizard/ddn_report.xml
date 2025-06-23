@@ -1,19 +1,4 @@
 <odoo>
-    <data>
-        <record id="action_report_property_survey_xlsx" model="ir.actions.report">
-    <field name="name">Survey XLSX</field>
-    <field name="model">ddn.report</field>
-    <field name="report_type">xlsx</field>
-    <field name="report_name">bharat_ddn.report_property_survey_xlsx</field>
-    <field name="report_file">property_survey</field>
-    <field name="binding_model_id" ref="model_ddn_report"/>
-    <field name="binding_type">report</field>
-    <field name="print_report_name">'Survey_Report'</field>
-    <field name="attachment_use" eval="False"/>
-</record>
-
-    </data>
-
 
     <record id="view_ddn_report_wizard" model="ir.ui.view">
         <field name="name">ddn.report.form</field>
@@ -28,7 +13,7 @@
                     <field name="ward_id" domain="[('zone_id','=',zone_id),('company_id','=',company_id)]"  widget="many2many_tags"  options="{'no_create_edit':True, 'no_create':True, 'no_open':True}"/>
                 </group>
                 <footer>
-                    <button string="Generate" type="object" name="print_xlsx_report" class="btn-primary"/>
+                    <button string="Generate" type="object" name="generate_xlsx_report" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

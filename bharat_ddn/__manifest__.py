@@ -11,7 +11,7 @@
     'website': 'https://www.iprosonic.com',
     'category': 'Services/Property',
     'version': '0.1',
-    'depends': ['base', 'mail', 'web', 'report_xlsx', 'website'],
+    'depends': ['base', 'mail', 'web', 'website'],
     'data': [
         # Security
         'security/ir_rule.xml',
