@@ -379,6 +379,9 @@
             font-size: 0.92rem;
           }
         }
+        .o_mail_navbar_item, .o_notification_counter, .o_mail_navbar_systray_item {
+            display: none !important;
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -414,22 +417,26 @@
                       <t t-if="valid_coords">
                         <!-- Google Maps URL with pin -->
                         <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
-                        <!-- Navigation URL -->
-                        <t t-set="nav_url" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;z=16'"/>
+                        <!-- Enhanced Navigation URL for directions from current location -->
+                        <t t-set="nav_url" t-value="'https://www.google.com/maps/dir/Current+Location/' + lat + ',' + lng + '/@' + lat + ',' + lng + ',16z'"/>
+                        <!-- Alternative navigation URL for better mobile experience -->
+                        <t t-set="nav_url_mobile" t-value="'https://maps.google.com/maps?daddr=' + lat + ',' + lng + '&amp;dirflg=d'"/>
                       </t>
                       <t t-else="">
                         <t t-set="maps_url" t-value="''"/>
                         <t t-set="nav_url" t-value="''"/>
+                        <t t-set="nav_url_mobile" t-value="''"/>
                       </t>
                     </t>
                     <t t-else="">
                       <t t-set="maps_url" t-value="''"/>
                       <t t-set="nav_url" t-value="''"/>
+                      <t t-set="nav_url_mobile" t-value="''"/>
                       <t t-set="valid_coords" t-value="False"/>
                     </t>
                     <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
                     <t t-if="valid_coords">
-                      <t t-set="share_text" t-value="share_text + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🧭 Get Directions: ' + nav_url"/>
+                      <t t-set="share_text" t-value="share_text + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🧭 Get Directions: ' + nav_url_mobile"/>
                     </t>
                     <a t-att-href="'https://wa.me/?text=' + share_text"
                        class="btn btn-success btn-sm d-flex align-items-center"
