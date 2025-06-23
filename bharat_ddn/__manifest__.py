@@ -11,7 +11,7 @@
     'website': 'https://www.windsurf.io',
     'category': 'Services/Property',
     'version': '0.1',
-    'depends': ['base', 'mail', 'web', 'report_xlsx'],
+    'depends': ['base', 'mail', 'web', 'report_xlsx', 'website'],
     'data': [
         # Security
         'security/ir_rule.xml',
@@ -35,6 +35,7 @@
         'views/res_company_views.xml',
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
+        'views/indore_microsite.xml',
 
         'views/property_id_data_views.xml',
         'views/menuitems.xml',  # Load menus last
@@ -53,6 +54,11 @@
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
             'https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C2gCIiCjtgFE&callback=Function.prototype',
         ],
+
+        'web.assets_frontend': [
+            'microsite/static/src/scss/microsite.scss',
+        ],
+
     },
     'installable': True,
     'application': True,

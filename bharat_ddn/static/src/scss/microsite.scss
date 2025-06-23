@@ -1,0 +1,25 @@
+.id_indore_microsite_template{
+
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+      }
+      .highlight-hindi {
+        font-weight: 600;
+        color: #ffc107;
+      }
+    
+    .header-gradient {
+        background: linear-gradient(90deg, #3a7bd5 0%, #00d2ff 100%);
+        box-shadow: 0 2px 16px rgba(58,123,213,0.08);
+      }
+      @media (max-width: 767.98px) {
+        .header-gradient h1 {
+          font-size: 1.6rem;
+        }
+        .header-gradient .h5 {
+          font-size: 1.1rem;
+        }
+      }
+}
