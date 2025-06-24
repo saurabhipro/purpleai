@@ -16,4 +16,3 @@ class CustomWebsite(http.Controller):
         if not property:
             return "No property found"
         return request.render('bharat_ddn.id_indore_microsite_template', {'property':property, 'services':services})
-5

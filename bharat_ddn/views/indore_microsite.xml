@@ -50,7 +50,10 @@
           flex-wrap: nowrap;
         }
         .header-gradient {
-          background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%) !important;
+          background: none !important; /* Remove brown gradient */
+          border: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
         .emergency-card {
           border: 2.5px solid #e0e0e0;   /* Light gray border for all */
@@ -382,120 +385,144 @@
         .o_mail_navbar_item, .o_notification_counter, .o_mail_navbar_systray_item {
             display: none !important;
         }
-        /* Header Carousel Styles */
-        .header-carousel, .carousel-item {
-          min-height: 320px;
-          max-height: 420px;
+        .welcome-strip {
           width: 100vw;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
+          background: linear-gradient(90deg, #7b223c 0%, #b85b2c 100%);
+          color: #fff;
+          font-weight: 600;
+          font-size: 1rem;
+          letter-spacing: 1px;
+          text-align: center;
+          padding: 0.4rem 0;
+          margin: 0;
+          border: none;
+          box-shadow: 0 2px 8px rgba(123,34,60,0.08);
+          z-index: 100;
           position: relative;
         }
-        .carousel-item::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: transparent !important;
-          z-index: 1;
+        .header-carousel,
+        .carousel-inner,
+        .carousel-item,
+        .carousel-content-hero {
+          border-radius: 0 !important;
+          overflow: hidden;
         }
         .carousel-content-hero {
-          position: relative;
-          z-index: 2;
-          height: 100%;
-          min-height: 320px;
           width: 100%;
-          box-sizing: border-box;
+          height: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: center; /* vertical center */
-          align-items: center;
-          text-align: center;
-          padding: 2.5rem 1rem;
+          justify-content: center;      /* Vertically center */
+          align-items: center;          /* Horizontally center */
+          text-align: center;           /* Center text */
+          padding: 2rem 3vw;
+          background: rgba(0,0,0,0.25); /* Optional: overlay for readability */
+          z-index: 2;
         }
-        .carousel-text-block {
-          background: rgba(0,0,0,0.22);
-          backdrop-filter: blur(2px);
-          border-radius: 0 0 24px 24px;
-          padding: 1.2rem 2rem;
-          max-width: 700px;
-          width: 100%;
-          margin: 0 auto;
-          display: inline-block;
-          box-shadow: 0 6px 32px 0 rgba(0,0,0,0.18);
+        .carousel-title-hero, .carousel-subtitle-hero {
+          /* Keep or enhance text shadow for readability */
+          text-shadow: 0 4px 24px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), 0 1px 0 #000;
         }
         .carousel-title-hero {
-          font-size: 2.2rem;
+          font-size: clamp(1.5rem, 5vw, 2.5rem);
           font-weight: 900;
           letter-spacing: 1.5px;
           color: #fff;
-          text-shadow:
-            0 4px 24px rgba(0,0,0,0.7),
-            0 2px 8px rgba(0,0,0,0.5),
-            0 1px 0 #000;
-          margin-bottom: 0.7rem;
+          margin-bottom: 1rem;
           line-height: 1.1;
           text-transform: uppercase;
         }
         .carousel-subtitle-hero {
-          font-size: 1.15rem;
-          font-weight: 600;
+          font-size: clamp(1rem, 2.5vw, 1.25rem);
+          font-weight: 500;
           color: #fff;
-          text-shadow:
-            0 2px 12px rgba(0,0,0,0.7),
-            0 1px 4px rgba(0,0,0,0.5);
           margin-bottom: 0;
-          line-height: 1.3;
+          line-height: 1.5;
           letter-spacing: 0.5px;
         }
+        .carousel-control-prev,
+        .carousel-control-next {
+          z-index: 3;
+          width: 5%;
+        }
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+          filter: drop-shadow(0 0 4px #000);
+        }
         @media (max-width: 767.98px) {
-          .header-carousel, .carousel-item, .carousel-content-hero {
-            min-height: 160px;
+          .header-carousel, .carousel-inner, .carousel-item {
+            min-height: 180px;
             max-height: 220px;
-            padding: 0.5rem 0.2rem;
+            height: 180px;
+            padding: 0;
           }
           .carousel-content-hero {
             padding: 0.5rem 0.2rem;
-          }
-          .carousel-text-block {
-            padding: 0.7rem 0.7rem;
             max-width: 98vw;
-            border-radius: 0 0 14px 14px;
+            border-radius: 8px;
           }
-          .carousel-title-hero { font-size: 1.1rem; }
-          .carousel-subtitle-hero { font-size: 0.85rem; }
+          .carousel-title-hero {
+            font-size: 1rem;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+          }
+          .carousel-subtitle-hero {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            margin-bottom: 0;
+          }
         }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
           <!-- Header Section with Carousel -->
+          <div class="welcome-strip">
+            Welcome to DDN Indore...
+          </div>
           <header class="header-gradient text-white py-0" style="position:relative;">
-            <!-- Full-width Carousel -->
+            <!-- 1. Build a flat list of banners -->
+            <t t-set="banners" t-value="[]"/>
+            <t t-foreach="services" t-as="srv">
+              <t t-foreach="srv.banner_line_ids" t-as="banner">
+                <t t-if="banner.is_active and banner.icon">
+                  <t t-set="banners" t-value="banners + [banner]"/>
+                </t>
+              </t>
+            </t>
+            
+            <!-- 2. Render the carousel with only one .active -->
             <div id="headerCarousel" class="carousel slide header-carousel" data-bs-ride="carousel" data-bs-interval="4000">
               <div class="carousel-inner">
                 <t t-set="first" t-value="True"/>
-                <t t-foreach="services" t-as="srv">
-                  <t t-foreach="srv.banner_line_ids" t-as="banner">
-                    <div t-attf-class="carousel-item #{'active' if first else ''}" t-attf-style="background-image: url('/web/image?model=banner.officer.line&amp;id={{ banner.id }}&amp;field=icon');">
-                      <div class="carousel-content-hero">
-                        <div class="carousel-text-block">
-                          <h1 class="carousel-title-hero"><t t-out="banner.name"/></h1>
-                          <p class="carousel-subtitle-hero"><t t-out="banner.text"/></p>
-                        </div>
-                      </div>
+                <t t-foreach="banners" t-as="banner">
+                  <div t-attf-class="carousel-item #{'active' if first else ''}"
+                       t-attf-style="background-image: url('/web/image?model=banner.officer.line&amp;id={{ banner.id }}&amp;field=icon&amp;unique=1');">
+                    <div class="carousel-content-hero">
+                      <h1 class="carousel-title-hero"><t t-out="banner.name"/></h1>
+                      <p class="carousel-subtitle-hero"><t t-out="banner.text"/></p>
                     </div>
-                    <t t-set="first" t-value="False"/>
-                  </t>
+                  </div>
+                  <t t-set="first" t-value="False"/>
+                </t>
+                <t t-if="not banners">
+                  <div class="carousel-item active" style="background-image: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);">
+                    <div class="carousel-content-hero">
+                      <h1 class="carousel-title-hero">Welcome to DDN Indore</h1>
+                      <p class="carousel-subtitle-hero">Digital Door Number System</p>
+                    </div>
+                  </div>
                 </t>
               </div>
-              <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-                <span class="visually-hidden">Previous</span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#headerCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-                <span class="visually-hidden">Next</span>
-              </button>
+              <t t-if="banners and len(banners) > 1">
+                <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#headerCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+              </t>
             </div>
           </header>
       
