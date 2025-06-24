@@ -383,17 +383,7 @@
             display: none !important;
         }
         /* Header Carousel Styles */
-        .header-carousel {
-          width: 100vw;
-          min-height: 320px;
-          max-height: 420px;
-          margin: 0;
-          border-radius: 0;
-          box-shadow: none;
-          overflow: hidden;
-          position: relative;
-        }
-        .carousel-item {
+        .header-carousel, .carousel-item {
           min-height: 320px;
           max-height: 420px;
           width: 100vw;
@@ -406,7 +396,7 @@
           content: '';
           position: absolute;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: linear-gradient(135deg, rgba(123,34,60,0.7) 0%, rgba(184,91,44,0.7) 100%);
+          background: transparent !important;
           z-index: 1;
         }
         .carousel-content-hero {
@@ -414,33 +404,66 @@
           z-index: 2;
           height: 100%;
           min-height: 320px;
+          width: 100%;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: center; /* vertical center */
           align-items: center;
           text-align: center;
-          color: #fff;
           padding: 2.5rem 1rem;
         }
+        .carousel-text-block {
+          background: rgba(0,0,0,0.22);
+          backdrop-filter: blur(2px);
+          border-radius: 0 0 24px 24px;
+          padding: 1.2rem 2rem;
+          max-width: 700px;
+          width: 100%;
+          margin: 0 auto;
+          display: inline-block;
+          box-shadow: 0 6px 32px 0 rgba(0,0,0,0.18);
+        }
         .carousel-title-hero {
-          font-size: 2.5rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          font-size: 2.2rem;
+          font-weight: 900;
+          letter-spacing: 1.5px;
+          color: #fff;
+          text-shadow:
+            0 4px 24px rgba(0,0,0,0.7),
+            0 2px 8px rgba(0,0,0,0.5),
+            0 1px 0 #000;
+          margin-bottom: 0.7rem;
+          line-height: 1.1;
+          text-transform: uppercase;
         }
         .carousel-subtitle-hero {
-          font-size: 1.3rem;
-          font-weight: 400;
-          opacity: 0.95;
-          text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: #fff;
+          text-shadow:
+            0 2px 12px rgba(0,0,0,0.7),
+            0 1px 4px rgba(0,0,0,0.5);
+          margin-bottom: 0;
+          line-height: 1.3;
+          letter-spacing: 0.5px;
         }
         @media (max-width: 767.98px) {
           .header-carousel, .carousel-item, .carousel-content-hero {
-            min-height: 180px;
+            min-height: 160px;
             max-height: 220px;
+            padding: 0.5rem 0.2rem;
           }
-          .carousel-title-hero { font-size: 1.3rem; }
-          .carousel-subtitle-hero { font-size: 0.95rem; }
+          .carousel-content-hero {
+            padding: 0.5rem 0.2rem;
+          }
+          .carousel-text-block {
+            padding: 0.7rem 0.7rem;
+            max-width: 98vw;
+            border-radius: 0 0 14px 14px;
+          }
+          .carousel-title-hero { font-size: 1.1rem; }
+          .carousel-subtitle-hero { font-size: 0.85rem; }
         }
       </style>
       <div class="body-gradient-bg">
@@ -450,22 +473,20 @@
             <!-- Full-width Carousel -->
             <div id="headerCarousel" class="carousel slide header-carousel" data-bs-ride="carousel" data-bs-interval="4000">
               <div class="carousel-inner">
-
-
-
+                <t t-set="first" t-value="True"/>
                 <t t-foreach="services" t-as="srv">
                   <t t-foreach="srv.banner_line_ids" t-as="banner">
-                    <div class="carousel-item active"       t-attf-style="background-image: url('/web/image?model=banner.officer.line&amp;id={{ banner.id }}&amp;field=icon');">
+                    <div t-attf-class="carousel-item #{'active' if first else ''}" t-attf-style="background-image: url('/web/image?model=banner.officer.line&amp;id={{ banner.id }}&amp;field=icon');">
                       <div class="carousel-content-hero">
-                        <h1 class="carousel-title-hero"><t t-out="banner.name"/></h1>
-                        <p class="carousel-subtitle-hero"><t t-out="banner.text"/></p>
+                        <div class="carousel-text-block">
+                          <h1 class="carousel-title-hero"><t t-out="banner.name"/></h1>
+                          <p class="carousel-subtitle-hero"><t t-out="banner.text"/></p>
+                        </div>
                       </div>
                     </div>
+                    <t t-set="first" t-value="False"/>
                   </t>
                 </t>
-
-
-                
               </div>
               <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
