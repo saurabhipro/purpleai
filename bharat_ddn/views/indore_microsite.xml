@@ -477,7 +477,8 @@
         <section class="id_indore_microsite_template">
           <!-- Header Section with Carousel -->
           <div class="welcome-strip">
-            Welcome to Digital Pata | Indore Municipal Corporation.
+            <span>Welcome to Digital Pata</span><br/>
+            <span>Indore Municipal Corporation.</span>
           </div>
           <header class="header-gradient text-white py-0" style="position:relative;">
             <!-- 1. Build a flat list of banners -->
