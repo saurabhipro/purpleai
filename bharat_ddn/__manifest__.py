@@ -38,6 +38,7 @@
         'views/indore_microsite.xml',
         'views/property_id_data_views.xml',
         'views/menuitems.xml',  # Load menus last
+
         # 'views/assets.xml',
     ],
     'assets': {
@@ -48,6 +49,7 @@
             'bharat_ddn/static/src/components/dashboard/dashboard.js',
             'bharat_ddn/static/src/components/dashboard/dashboard.xml',
             'bharat_ddn/static/src/components/dashboard/dashboard.scss',
+            'bharat_ddn/static/xml/hide_notification.xml',
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
             'https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C2gCIiCjtgFE&callback=Function.prototype',
         ],

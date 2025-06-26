@@ -67,18 +67,18 @@
                         </group>
                         <group string="Property Images">
                             <group>
-                                <field name="property_image" widget="image" class="oe_avatar" string="Property Image"/>
+                                <field name="property_image" widget="image" class="oe_avatar" string="Property Image" invisible="image1_s3_url"/>
                             </group>
                             <group>
-                                <field name="property_image1" widget="image" class="oe_avatar" string="Property Image1"/>
+                                <field name="property_image1" widget="image" class="oe_avatar" string="Property Image1" invisible="image2_s3_url"/>
                             </group>
                         </group>
                         <group string="Image URLs">
                             <group>
-                                <field name="image1_s3_url" widget="url"/>
+                                <field name="image1_s3_url" widget="image_url"/>
                             </group>
                             <group>
-                                <field name="image2_s3_url" widget="url"/>
+                                <field name="image2_s3_url" widget="image_url"/>
                             </group>
                         </group>
                         <button name="action_upload_all_images" type="object" string="Upload to S3" class="btn-primary" invisible="image2_s3_url and image2_s3_url"/>
