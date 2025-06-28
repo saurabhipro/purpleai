@@ -1,0 +1,58 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Send Email: Deployment Started"
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.mail.us-east-1.awsapps.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "🚀 BharatDDN Deployment Started"
+          to: "saurabh@iprosonic.com,hem587ant@gmail.com,anjali@iprosonic.com"
+          from: anjali@iprosonic.com
+          body: |
+            🚀 CI/CD process has started for a new deployment.
+
+            🔀 **Commit**: ${{ github.sha }}
+            ✍️ **Author**: ${{ github.actor }}
+            📝 **Message**: ${{ github.event.head_commit.message }}
+            🔗 **Commit URL**: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+            Branch: ${{ github.ref_name }}            
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/odoo18/bharatddn
+            sudo git pull origin main
+            sudo service odoo restart
+
+      - name: "Send Email: Deployment Completed"
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.mail.us-east-1.awsapps.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "✅ BharatDDN Deployment Complete"
+          to: "saurabh@iprosonic.com,hem587ant@gmail.com,anjali@iprosonic.com"
+          from: anjali@iprosonic.com
+          body: |
+            The CI/CD process has completed and the service has been restarted on EC2.
