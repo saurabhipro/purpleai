@@ -719,7 +719,39 @@
                   </div>
                 </div>
               </div>
-            </section>        
+            </section>
+
+            <!-- Your Officer Section -->
+            <section class="py-1">
+              <div class="center-section">
+                <div class="card p-4 position-relative border border-white rounded-4">
+                  <div class="card-body p-4">
+                    <h2 class="text-center fw-bold mb-4" style="font-size:1.6rem;">Your Officers</h2>
+                    <div class="row g-3">
+                      <t t-foreach="srv.know_officer_line_ids" t-as="officer"> 
+
+                        <t t-if="property.zone_id == officer.zone_id and property.ward_id == officer.ward_id and officer.is_active or officer.is_global">
+                          <!-- Zone Officer -->
+                          <div class="col-6 col-md-3">
+                            <div class="officer-card text-center">
+                              <div>
+                                <t t-raw="officer.icon"/>
+                                <div class="officer-label"><t t-raw="officer.header"/></div>
+                                <div class="officer-name"><t t-raw="officer.name"/></div>
+                                <a href="tel:+919988776655" class="officer-phone"><t t-raw="officer.mobile"/></a>
+                              </div>
+                            </div>
+                          </div>
+                        </t>
+                      </t>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+            
+            </section>
+
           </t>
         </section>
 
