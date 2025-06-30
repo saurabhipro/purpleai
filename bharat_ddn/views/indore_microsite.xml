@@ -676,7 +676,7 @@
                       <div class="payment-service-box text-center">
                         <div class="icon-gradient-box mb-2 mx-auto">
                           <div class="govt-service-label">
-                            <t t-raw="govt.icon"/>
+                            <t t-out="Markup(govt.icon)"/>
                           </div>
                         </div>
                         <div class="govt-service-label">
@@ -706,8 +706,8 @@
                               <a t-att-href="'tel:+%s' % dial.mobile" class="ui-link text-decoration-none">
                                 <div t-att-class="'emergency-card emergency-bg-' + dial.bg_color + ' text-center'">
                                   <div>
-                                    <t t-raw="dial.icon"/>
-                                    <div class="emergency-label"><t t-raw="dial.name"/></div>
+                                    <t t-out="Markup(dial.icon)"/>
+                                    <div class="emergency-label"><t t-out="dial.name"/></div>
                                   </div>
                                 </div>
                               </a>
@@ -735,10 +735,10 @@
                           <div class="col-6 col-md-3">
                             <div class="officer-card text-center">
                               <div>
-                                <t t-raw="officer.icon"/>
-                                <div class="officer-label"><t t-raw="officer.header"/></div>
-                                <div class="officer-name"><t t-raw="officer.name"/></div>
-                                <a href="tel:+919988776655" class="officer-phone"><t t-raw="officer.mobile"/></a>
+                                <t t-out="Markup(officer.icon)"/>
+                                <div class="officer-label"><t t-out="officer.header"/></div>
+                                <div class="officer-name"><t t-out="officer.name"/></div>
+                                <a href="tel:+919988776655" class="officer-phone"><t t-out="officer.mobile"/></a>
                               </div>
                             </div>
                           </div>

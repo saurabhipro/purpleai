@@ -4,6 +4,7 @@ from odoo.addons.web.controllers.utils import ensure_db, _get_login_redirect_url
 import pandas as pd
 from io import BytesIO
 import logging
+from markupsafe import Markup
 _logger = logging.getLogger(__name__)
 
 class CustomWebsite(http.Controller):
@@ -15,4 +16,11 @@ class CustomWebsite(http.Controller):
 
         if not property:
             return "No property found"
-        return request.render('bharat_ddn.id_indore_microsite_template', {'property':property, 'services':services})
+        return request.render(
+            'bharat_ddn.id_indore_microsite_template',
+            {
+                'property': property,
+                'services': services,
+                'Markup': Markup,
+            }
+        )
