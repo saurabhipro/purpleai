@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 import itertools
+from datetime import datetime, timedelta
 
 
 class Dashboard(models.Model):
@@ -12,6 +13,21 @@ class Dashboard(models.Model):
         sorted_records = sorted(PropertyInfo, key=lambda rec: rec.ward_id.name if rec.ward_id else '')
         grouped_records = itertools.groupby(sorted_records, key=lambda rec: rec.ward_id.name if rec.ward_id else '') 
         result = {}
+
+        # Calculate today's date range
+        today = datetime.now().date()
+        today_start = datetime.combine(today, datetime.min.time())
+        today_end = datetime.combine(today, datetime.max.time())
+
+        # Calculate today's surveys
+        surveys_today = self.env['ddn.property.survey'].search_count([
+            ('create_date', '>=', today_start),
+            ('create_date', '<=', today_end)
+        ])
+
+        # Calculate today's QR scans (you'll need to implement this based on your QR scan tracking)
+        # For now, I'll set it to 0 - you'll need to replace this with actual QR scan logic
+        qr_scans_today = 0  # TODO: Implement QR scan tracking
 
         for group_key, grp in grouped_records:
             count = 0
@@ -62,6 +78,8 @@ class Dashboard(models.Model):
             'total_zones': self.env['ddn.zone'].search_count([]),
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_users': self.env['res.users'].search_count([]),
+            'surveys_today': surveys_today,
+            'qr_scans_today': qr_scans_today,
             'ward_data': [
                 {
                     'ward': ward,
