@@ -75,6 +75,7 @@ class Dashboard(models.Model):
             'total_surveyed': self.search_count([('property_status', '=', 'surveyed')]),
             'total_unlocked': self.search_count([('property_status', '=', 'unlocked')]),
             'total_discovered': self.search_count([('property_status', '=', 'discovered')]),
+            'total_visit_again': self.search_count([('property_status', '=', 'visit_again')]),
             'total_zones': self.env['ddn.zone'].search_count([]),
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_users': self.env['res.users'].search_count([]),

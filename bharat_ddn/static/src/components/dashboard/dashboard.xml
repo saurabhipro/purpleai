@@ -1,6 +1,21 @@
 <templates xml:space="preserve">
     <t t-name="smkc.OwlCrmTemplate" owl="1">
         <style>
+        .dashboard-card.visit-again {
+            background: #f9c846; /* Example: yellow/orange, pick any color you like */
+            color: #fff;
+            border: 1px solid #f9c846;
+        }
+        .dashboard-card.visit-again .icon,
+        .dashboard-card.visit-again .bg-icon {
+            color: #fff;
+            opacity: 0.7;
+        }
+        .dashboard-card.uploaded {
+            background: #2196f3;
+            color: #fff;
+            border: 1px solid #2196f3;
+        }
         </style>
         <div class="vh-100 overflow-auto bg-muted">
             <div class="row m-3">
@@ -47,10 +62,10 @@
                             <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
                             <div class="label">Surveys Done Today</div>
                         </div>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22unlocked%22%5D%5D'" class="dashboard-card unlocked" target="_blank">
-                            <span class="icon"><i class="fa fa-unlock-alt"></i></span>
-                            <span class="bg-icon"><i class="fa fa-unlock-alt"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_unlocked']"/></div>
+                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22visit_again%22%5D%5D'" class="dashboard-card visit-again" target="_blank">
+                            <span class="icon"><i class="fa fa-repeat"></i></span>
+                            <span class="bg-icon"><i class="fa fa-repeat"></i></span>
+                            <div class="count"><t t-esc="this.state.property_info['total_visit_again']"/></div>
                             <div class="label">Visit Again</div>
                         </a>
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22discovered%22%5D%5D'" class="dashboard-card discovered" target="_blank">

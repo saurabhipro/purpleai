@@ -174,11 +174,14 @@ class Property(models.Model):
 
 
     property_status = fields.Selection([
-        ('uploaded','Uploaded'),
-        ('pdf_downloaded','PDF Downloaded'),
+        ('new', 'New'),
+        ('uploaded', 'Uploaded'),
+        ('pdf_downloaded', 'PDF Downloaded'),
         ('surveyed', 'Surveyed'),
-        ('discovered', 'Discovered')
-         ], string="Property Status", default="uploaded")
+        ('unlocked', 'Unlocked'),
+        ('discovered', 'Discovered'),
+        ('visit_again', 'Visit Again'),
+    ], string="Property Status", default="new")
     
     property_type = fields.Many2one('ddn.property.type', string='Property Type', tracking=True)
     
