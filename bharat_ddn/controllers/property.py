@@ -115,69 +115,84 @@ class PropertyDetailsAPI(http.Controller):
             upic_no = data.get('upic_no', '')
             property_type_id = data.get('property_type_id')
             mobile_no = data.get('mobile_no', '')
-            property_id = data.get('property_id')  # This is the value from the POST parameter
-
-            # Validate required fields
-            if not property_type_id:
-                return Response(json.dumps({'error': 'property_type_id is required'}), status=400, content_type='application/json')
+            uuid = data.get('uuid')
             
-            # Find property record either by upic_no or property_id
+            # Accept property_status (or survey_status for backward compatibility)
+            property_status = data.get('property_status') or data.get('survey_status', 'surveyed')
+
+            # Validate property_status
+            if property_status not in ['surveyed', 'visit_again']:
+                return Response(
+                    json.dumps({'error': 'property_status/survey_status must be either "surveyed" or "visit_again"'}),
+                    status=400,
+                    content_type='application/json'
+                )
+
+            # Find property record either by upic_no or uuid
             domain = []
             if upic_no:
                 domain = [('upic_no', '=', upic_no)]
-            elif property_id:
-                domain = [('property_id', '=', property_id)]  # Changed to search on property_id field
+            elif uuid:
+                domain = [('uuid', '=', uuid)]
             else:
-                return Response(json.dumps({'error': 'Either upic_no or property_id is required'}), status=400, content_type='application/json')
+                return Response(json.dumps({'error': 'Either upic_no or uuid is required'}), status=400, content_type='application/json')
             
             property_record = request.env['ddn.property.info'].sudo().search(domain)
 
             if not property_record:
                 return Response(json.dumps({'error': 'Property not found'}), status=404, content_type='application/json')
-            
-            # Always update property_id if provided
-            if property_id:
-                property_record.write({'property_id': property_id})
 
-            # Check if property status is pdf_downloaded
-            if property_record.property_status != 'pdf_downloaded':
-                return Response(
-                    json.dumps({
-                        'error': 'Survey can only be created for properties with status "pdf_downloaded"'
-                    }), 
-                    status=400, 
-                    content_type='application/json'
-                )
+            # Status validation logic
+            if property_status == 'visit_again':
+                if property_record.property_status == 'surveyed':
+                    return Response(
+                        json.dumps({'error': 'Cannot mark property as visit_again when it is already surveyed'}),
+                        status=400,
+                        content_type='application/json'
+                    )
+            else:
+                if property_record.property_status != 'pdf_downloaded':
+                    return Response(
+                        json.dumps({'error': 'Survey can only be created for properties with status "pdf_downloaded"'}),
+                        status=400,
+                        content_type='application/json'
+                    )
 
-            # Get company details for S3
-            company_id = property_record.company_id
-            if not company_id:
-                return Response(json.dumps({'error': 'Company not found for the property'}), status=400, content_type='application/json')
-
-            # Get image URLs directly from payload
+            # Use image URLs directly from payload (no S3 upload)
             property_image_url = data.get('property_image_url')
-            property_image1_url = data.get('property_image_url1')
-            
-            # Add property_id to the data
-            data['property_id'] = property_id  # Use the value from the POST parameter
+            property_image1_url = data.get('property_image1_url')
             data['image1_s3_url'] = property_image_url
             data['image2_s3_url'] = property_image1_url
-            
+            data['uuid'] = uuid
+
             # Update mobile_no if provided
             if mobile_no:
                 data['mobile_no'] = mobile_no
             
+            # Validate required fields only for 'surveyed' status
+            if property_status == 'surveyed' and not property_type_id:
+                return Response(json.dumps({'error': 'property_type_id is required when property_status is "surveyed"'}), status=400, content_type='application/json')
             
-            survey_line_vals = self._prepare_survey_line_vals(data)
-            # Now update the survey and other fields
-            property_record.write({
+            # Prepare survey line values (all fields optional for visit_again)
+            survey_line_vals = self._prepare_survey_line_vals(data, property_status)
+            
+            # Update the survey and other fields
+            update_vals = {
                 'survey_line_ids': [(0, 0, survey_line_vals)],
-                'property_status': 'surveyed',
-                'property_type': property_type_id,
+                'property_status': property_status,
                 'mobile_no': mobile_no if mobile_no else property_record.mobile_no
-            })
+            }
+            if property_status == 'surveyed' and property_type_id:
+                update_vals['property_type'] = property_type_id
+            
+            property_record.write(update_vals)
 
-            return Response(json.dumps({'message': 'Survey created successfully'}), status=200, content_type='application/json')
+            # Always return the same message and the actual uuid from the property record
+            return Response(json.dumps({
+                'message': 'Survey created successfully',
+                'property_status': property_status,
+                'uuid': property_record.uuid
+            }), status=200, content_type='application/json')
 
         except jwt.ExpiredSignatureError:
             _logger.error("JWT token has expired")
@@ -186,57 +201,10 @@ class PropertyDetailsAPI(http.Controller):
             _logger.error("Invalid JWT token")
             raise AccessError('Invalid JWT token')
         except Exception as e:
+            _logger.error(f"Error in create_survey: {str(e)}")
             return Response(json.dumps({'error': str(e)}), status=500, content_type='application/json')
 
-    def _upload_image_to_s3(self, image_data, s3_filename, company_id):
-        """Upload image to S3 bucket and return the URL."""
-        try:
-            AWS_ACCESS_KEY = company_id.aws_acsess_key
-            AWS_SECRET_KEY = company_id.aws_secret_key
-            AWS_REGION = company_id.aws_region
-            S3_BUCKET_NAME = company_id.s3_bucket_name
-
-            if not all([AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION, S3_BUCKET_NAME]):
-                raise ValueError("Missing AWS credentials in company settings")
-
-            s3_client = boto3.client(
-                's3',
-                aws_access_key_id=AWS_ACCESS_KEY,   
-                aws_secret_access_key=AWS_SECRET_KEY,
-                region_name=AWS_REGION
-            )
-
-            # ✅ Fix base64 padding
-            def fix_base64_padding(b64_string):
-                if not b64_string:
-                    raise ValueError("Empty base64 string")
-                missing_padding = len(b64_string) % 4
-                if missing_padding:
-                    b64_string += '=' * (4 - missing_padding)
-                return b64_string
-
-
-            fixed_b64 = fix_base64_padding(image_data)
-            decoded_image = base64.b64decode(fixed_b64)
-
-
-            s3_key = f"{s3_filename}.jpg"
-
-            s3_client.put_object(
-                Bucket=S3_BUCKET_NAME,
-                Key=s3_key,
-                Body=decoded_image,
-                ContentType='image/jpeg'
-            )
-
-
-            return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
-
-        except Exception as e:
-            _logger.error(f"Error in _upload_image_to_s3: {str(e)}")
-            raise UserError(f"Failed to upload image to S3: {str(e)}")
-
-    def _prepare_survey_line_vals(self, data):
+    def _prepare_survey_line_vals(self, data, property_status):
         """Prepare survey line values from data."""
         return {
             'company_id': data.get("company_id"),
