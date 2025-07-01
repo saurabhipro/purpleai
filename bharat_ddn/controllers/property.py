@@ -1,7 +1,7 @@
 from odoo import http
 from .main import *
 from odoo import http
-from odoo.http import request, Response
+from odoo.http import request, Response, route, Controller
 from datetime import datetime, date, timedelta
 import json
 import logging
@@ -154,37 +154,9 @@ class PropertyDetailsAPI(http.Controller):
             if not company_id:
                 return Response(json.dumps({'error': 'Company not found for the property'}), status=400, content_type='application/json')
 
-            # Upload images to S3 if they exist
-            property_image_url = None
-            property_image1_url = None
-
-            if data.get('property_image'):
-                # Validate base64 string
-                if not data['property_image'].strip():
-                    return Response(json.dumps({'error': 'Empty property_image data'}), status=400, content_type='application/json')
-                
-                try:
-                    property_image_url = self._upload_image_to_s3(
-                        data['property_image'],
-                        f"{upic_no or property_id}_1",  # Using property_id field for filename
-                        company_id
-                    )
-                except ValueError as ve:
-                    return Response(json.dumps({'error': str(ve)}), status=400, content_type='application/json')
-                except Exception as e:
-                    _logger.error(f"Error uploading property_image: {str(e)}")
-                    return Response(json.dumps({'error': f'Error uploading property_image: {str(e)}'}), status=500, content_type='application/json')
-
-            if data.get('property_image1'):
-                try:
-                    property_image1_url = self._upload_image_to_s3(
-                        data['property_image1'],
-                        f"{upic_no or property_id}_2",  # Using property_id field for filename
-                        company_id
-                    )
-                except Exception as e:
-                    _logger.error(f"Error uploading property_image1: {str(e)}")
-                    return Response(json.dumps({'error': f'Error uploading property_image1: {str(e)}'}), status=500, content_type='application/json')
+            # Get image URLs directly from payload
+            property_image_url = data.get('property_image_url')
+            property_image1_url = data.get('property_image_url1')
             
             # Add property_id to the data
             data['property_id'] = property_id  # Use the value from the POST parameter
@@ -759,5 +731,33 @@ def extract_user_id_from_token(token):
         token = token[7:]
     decoded_token = jwt.decode(token, options={"verify_signature": False})
     return decoded_token['user_id']
+
+class S3PresignAPI(Controller):
+    @route('/api/s3_presigned_url', type='json', auth='public', methods=['POST'], csrf=False)
+    def get_presigned_url(self, **kwargs):
+        data = kwargs or request.httprequest.get_json(force=True, silent=True) or {}
+        filename = data.get('filename')
+        company_id = data.get('company_id')
+
+        # Fetch company S3 credentials (adjust as per your model)
+        company = request.env['res.company'].sudo().browse(company_id)
+        AWS_ACCESS_KEY = company.aws_acsess_key
+        AWS_SECRET_KEY = company.aws_secret_key
+        AWS_REGION = company.aws_region
+        S3_BUCKET_NAME = company.s3_bucket_name
+
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=AWS_ACCESS_KEY,
+            aws_secret_access_key=AWS_SECRET_KEY,
+            region_name=AWS_REGION
+        )
+
+        presigned_url = s3_client.generate_presigned_url(
+            'put_object',
+            Params={'Bucket': S3_BUCKET_NAME, 'Key': filename},
+            ExpiresIn=3600  # 1 hour
+        )
+        return {'url': presigned_url}
 
 
