@@ -46,6 +46,44 @@ export class OwlCrmDashboard extends Component {
                 };
                 
                 console.log("Processed ward data:", this.state.property_info.ward_data);
+                console.log("Surveyed per day:", this.state.property_info.surveyed_per_day);
+
+                // Render surveyed per day chart if Chart.js is loaded
+                setTimeout(() => {
+                    if (window.Chart && document.getElementById('surveyedPerDayChart')) {
+                        const ctx = document.getElementById('surveyedPerDayChart').getContext('2d');
+                        const chartData = this.state.property_info.surveyed_per_day || [];
+                        const labels = chartData.map(item => item.date);
+                        const counts = chartData.map(item => item.count);
+                        if (window.surveyedPerDayChartInstance) {
+                            window.surveyedPerDayChartInstance.destroy();
+                        }
+                        window.surveyedPerDayChartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Surveyed',
+                                    data: counts,
+                                    backgroundColor: 'rgba(33, 150, 243, 0.7)',
+                                    borderColor: 'rgba(21, 101, 192, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { display: false },
+                                    title: { display: false }
+                                },
+                                scales: {
+                                    x: { grid: { display: false } },
+                                    y: { beginAtZero: true, grid: { color: '#e3f2fd' } }
+                                }
+                            }
+                        });
+                    }
+                }, 0);
             } else {
                 console.warn("No property details found.");
                 this.state.property_info.ward_data = [];

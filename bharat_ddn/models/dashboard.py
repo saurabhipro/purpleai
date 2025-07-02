@@ -38,6 +38,22 @@ class Dashboard(models.Model):
             ('scan_time', '<=', today_end)
         ]).mapped('uuid'))
         unique_qr_scans_today = len(unique_uuids_today)
+        # Unique property uuids scanned all time
+        unique_uuids_all = set(qr_scan_env.search([]).mapped('uuid'))
+        unique_qr_scans = len(unique_uuids_all)
+
+        # Day-wise surveyed count for the last 14 days
+        surveyed_per_day = []
+        Survey = self.env['ddn.property.survey']
+        for i in range(13, -1, -1):
+            day = today - timedelta(days=i)
+            day_start = datetime.combine(day, datetime.min.time())
+            day_end = datetime.combine(day, datetime.max.time())
+            count = Survey.search_count([
+                ('create_date', '>=', day_start),
+                ('create_date', '<=', day_end)
+            ])
+            surveyed_per_day.append({'date': day.strftime('%Y-%m-%d'), 'count': count})
 
         for group_key, grp in grouped_records:
             count = 0
@@ -88,11 +104,14 @@ class Dashboard(models.Model):
             'total_visit_again': self.search_count([('property_status', '=', 'visit_again')]),
             'total_zones': self.env['ddn.zone'].search_count([]),
             'total_wards': self.env['ddn.ward'].search_count([]),
+            'total_colonies': self.env['ddn.colony'].search_count([]),
             'total_users': self.env['res.users'].search_count([]),
             'surveys_today': surveys_today,
             'total_qr_scans_today': qr_scans_today,
             'unique_qr_scans_today': unique_qr_scans_today,
             'total_qr_scans': total_qr_scans,
+            'unique_qr_scans': unique_qr_scans,
+            'surveyed_per_day': surveyed_per_day,
             'ward_data': [
                 {
                     'ward': ward,

@@ -1,20 +1,57 @@
 <templates xml:space="preserve">
     <t t-name="smkc.OwlCrmTemplate" owl="1">
         <style>
-        .dashboard-card.visit-again {
-            background: #f9c846; /* Example: yellow/orange, pick any color you like */
+        .dashboard-card {
+            background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
             color: #fff;
-            border: 1px solid #f9c846;
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 4px 18px rgba(33, 150, 243, 0.13);
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+            min-width: 0;
+            min-height: 70px;
+            max-width: 100%;
+            max-height: 90px;
+            flex: 1 1 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 12px 12px 8px 12px;
         }
-        .dashboard-card.visit-again .icon,
-        .dashboard-card.visit-again .bg-icon {
-            color: #fff;
-            opacity: 0.7;
+        .property-dashboard {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            column-gap: 10px;
+            row-gap: 4px;
+            width: 100%;
+            margin-left: 0;
+            padding-left: 0;
         }
-        .dashboard-card.uploaded {
-            background: #2196f3;
-            color: #fff;
-            border: 1px solid #2196f3;
+        .dashboard-card:hover {
+            box-shadow: 0 4px 16px rgba(33, 150, 243, 0.18);
+        }
+        .dashboard-card .count {
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .dashboard-card .label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #e3f2fd;
+            margin-top: 0.2em;
+        }
+        .dashboard-card .bg-icon {
+            color: #90caf9;
+            opacity: 0.25;
+            font-size: 1.3rem;
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
         }
         </style>
         <div class="vh-100 overflow-auto bg-muted">
@@ -31,65 +68,68 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="property-dashboard">
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22uploaded%22%5D%5D'" class="dashboard-card uploaded" target="_blank">
-                            <span class="icon"><i class="fa fa-upload"></i></span>
                             <span class="bg-icon"><i class="fa fa-upload"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_count']"/></div>
                             <div class="label">Total Properties</div>
                         </a>
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22pdf_downloaded%22%5D%5D'" class="dashboard-card pdf" target="_blank">
-                            <span class="icon"><i class="fa fa-file-pdf-o"></i></span>
                             <span class="bg-icon"><i class="fa fa-file-pdf-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_pdf_downloaded']"/></div>
                             <div class="label">Pdf Downloaded</div>
                         </a>
                         <div class="dashboard-card plate">
-                            <span class="icon"><i class="bi bi-qr-code-scan"></i></span>
                             <span class="bg-icon"><i class="bi bi-qr-code-scan"></i></span>
                             <div class="count">
                                 <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
                             </div>
-                            <div class="label">Total QR Scans Today</div>
+                            <div class="label">Scans Today</div>
+                        </div>
+                        <div class="dashboard-card plate">
+                            <span class="bg-icon"><i class="bi bi-qr-code-scan"></i></span>
+                            <div class="count">
+                                <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
+                            </div>
+                            <div class="label">Total Scans</div>
                         </div>
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22surveyed%22%5D%5D'" class="dashboard-card surveyed" target="_blank">
-                            <span class="icon"><i class="fa fa-check-square-o"></i></span>
                             <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
                             <div class="label">Surveyed</div>
                         </a>
                         <div class="dashboard-card today">
-                            <span class="icon"><i class="fa fa-calendar-check-o"></i></span>
                             <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
-                            <div class="label">Surveys Done Today</div>
+                            <div class="label">Surveyed Today</div>
                         </div>
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22visit_again%22%5D%5D'" class="dashboard-card visit-again" target="_blank">
-                            <span class="icon"><i class="fa fa-repeat"></i></span>
                             <span class="bg-icon"><i class="fa fa-repeat"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_visit_again']"/></div>
                             <div class="label">Visit Again</div>
                         </a>
                         <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22discovered%22%5D%5D'" class="dashboard-card discovered" target="_blank">
-                            <span class="icon"><i class="fa fa-search"></i></span>
                             <span class="bg-icon"><i class="fa fa-search"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_discovered']"/></div>
                             <div class="label">Discovered</div>
                         </a>
                         <div class="dashboard-card zones">
-                            <span class="icon"><i class="fa fa-th-large"></i></span>
                             <span class="bg-icon"><i class="fa fa-th-large"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_zones']"/></div>
                             <div class="label">Zones</div>
                         </div>
                         <div class="dashboard-card wards">
-                            <span class="icon"><i class="fa fa-th-list"></i></span>
                             <span class="bg-icon"><i class="fa fa-th-list"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_wards']"/></div>
                             <div class="label">Wards</div>
                         </div>
+                        <div class="dashboard-card colonies">
+                            <span class="bg-icon"><i class="fa fa-building"></i></span>
+                            <div class="count"><t t-esc="this.state.property_info['total_colonies']"/></div>
+                            <div class="label">Colonies</div>
+                        </div>
                         <div class="dashboard-card users">
-                            <span class="icon"><i class="fa fa-users"></i></span>
                             <span class="bg-icon"><i class="fa fa-users"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_users']"/></div>
                             <div class="label">Users</div>
