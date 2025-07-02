@@ -34,3 +34,4 @@ access_other_officer_line,other.officer.line,model_other_officer_line,base.group
 access_banner_officer_line,banner.officer.line,model_banner_officer_line,base.group_user,1,1,1,1
 access_ddn_report,ddn.report,model_ddn_report,base.group_user,1,1,1,1
 access_banner_officer_line_public,Banner Officer Line public,model_banner_officer_line,base.group_public,1,0,0,0
+access_ddn_qr_scan_user,access.ddn.qr.scan.user,model_ddn_qr_scan,base.group_user,1,1,1,1

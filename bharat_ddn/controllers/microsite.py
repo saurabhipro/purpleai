@@ -11,8 +11,15 @@ class CustomWebsite(http.Controller):
     
     @http.route('/get/<string:uuid>', auth='public', website=True)
     def get_property_details_by_uuid(self, uuid, **kw):
+        # Log the scan
+        scan_url = request.httprequest.url
         property = request.env['ddn.property.info'].sudo().search([('uuid', '=', uuid)], limit=1)
-        services = request.env['ddn.services'].sudo().search([('company_id','=',property.company_id.id)])
+        request.env['ddn.qr.scan'].sudo().create({
+            'uuid': uuid,
+            'scan_url': scan_url,
+            'property_id': property.id if property else False,
+        })
+        services = request.env['ddn.services'].sudo().search([('company_id','=',property.company_id.id)]) if property else request.env['ddn.services'].sudo().search([])
 
         if not property:
             return "No property found"

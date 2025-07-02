@@ -19,3 +19,4 @@ from . import colony
 # from . import kml
 
 from . import services
+from . import qr_scan

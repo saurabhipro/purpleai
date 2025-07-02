@@ -25,9 +25,19 @@ class Dashboard(models.Model):
             ('create_date', '<=', today_end)
         ])
 
-        # Calculate today's QR scans (you'll need to implement this based on your QR scan tracking)
-        # For now, I'll set it to 0 - you'll need to replace this with actual QR scan logic
-        qr_scans_today = 0  # TODO: Implement QR scan tracking
+        # Calculate today's QR scans
+        qr_scan_env = self.env['ddn.qr.scan']
+        qr_scans_today = qr_scan_env.search_count([
+            ('scan_time', '>=', today_start),
+            ('scan_time', '<=', today_end)
+        ])
+        total_qr_scans = qr_scan_env.search_count([])
+        # Unique property uuids scanned today (count each uuid only once, even if scanned multiple times)
+        unique_uuids_today = set(qr_scan_env.search([
+            ('scan_time', '>=', today_start),
+            ('scan_time', '<=', today_end)
+        ]).mapped('uuid'))
+        unique_qr_scans_today = len(unique_uuids_today)
 
         for group_key, grp in grouped_records:
             count = 0
@@ -80,7 +90,9 @@ class Dashboard(models.Model):
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_users': self.env['res.users'].search_count([]),
             'surveys_today': surveys_today,
-            'qr_scans_today': qr_scans_today,
+            'total_qr_scans_today': qr_scans_today,
+            'unique_qr_scans_today': unique_qr_scans_today,
+            'total_qr_scans': total_qr_scans,
             'ward_data': [
                 {
                     'ward': ward,
