@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="property-dashboard">
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22uploaded%22%5D%5D'" class="dashboard-card uploaded" target="_blank">
+                        <a t-att-href="'/web/action-325'" class="dashboard-card uploaded" target="_blank">
                             <span class="bg-icon"><i class="fa fa-upload"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_count']"/></div>
                             <div class="label">Total Properties</div>

@@ -19,9 +19,6 @@ class DdnReport(models.TransientModel):
     ward_id = fields.Many2many('ddn.ward', string='Ward')
 
 
-
-
-
     def generate_xlsx_report(self):
         # Create workbook and sheet
         wb = Workbook()
@@ -30,6 +27,9 @@ class DdnReport(models.TransientModel):
 
         # Styles
         header_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
+        green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")  # Light green
+        red_fill = PatternFill(start_color="FFB6C1", end_color="FFB6C1", fill_type="solid")    # Light red
+        orange_fill = PatternFill(start_color="FFD700", end_color="FFD700", fill_type="solid")  # Gold/Orange for visit again
         border = Border(left=Side(style='thin'), right=Side(style='thin'),
                         top=Side(style='thin'), bottom=Side(style='thin'))
         
@@ -38,7 +38,7 @@ class DdnReport(models.TransientModel):
         align_left = Alignment(horizontal="left", vertical="center")
 
         # Title Row
-        ws.merge_cells('A2:R2')
+        ws.merge_cells('A2:T2')  # Updated to accommodate new columns
         title_cell = ws['A2']
         title_cell.value = "Survey Report"
         title_cell.font = title_font
@@ -50,7 +50,6 @@ class DdnReport(models.TransientModel):
         ws.cell(row=4, column=1, value="Date From").border = border
         ws.cell(row=4, column=1).alignment = align_left
         ws.cell(row=4, column=2, value=self.date_from.strftime('%d-%m-%Y') if self.date_from else "").border = border
-
         ws.cell(row=5, column=1, value="Date To").border = border
         ws.cell(row=5, column=2, value=self.date_to.strftime('%d-%m-%Y') if self.date_to else "").border = border
 
@@ -59,7 +58,8 @@ class DdnReport(models.TransientModel):
             "UPIC No", "Property Id", "Zone", "Ward", "Colony", "Owner Name", 
             "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
             "Latitude", "Longitude", "Total Floors", "Floor Number", 
-            "Surveyor", "Surveyor Datetime", "Property Type", "Microsite Url"
+            "Surveyor", "Surveyor Datetime", "Property Type", "Microsite Url",
+            "Property Status", "Is Solar", "Is Rain Water Harvesting"
         ]
 
         header_row = 7
@@ -105,12 +105,29 @@ class DdnReport(models.TransientModel):
                 rec.create_date.strftime('%d-%m-%Y %H:%M:%S') if rec.create_date else '',
                 prop.property_type.name or '',
                 prop.microsite_url or '',
+                prop.property_status or '',
+                'Yes' if rec.is_solar else 'No',
+                'Yes' if rec.is_rainwater_harvesting else 'No',
             ]
 
             for col_num, val in enumerate(values, 1):
                 cell = ws.cell(row=row, column=col_num, value=val)
                 cell.border = border
                 cell.alignment = align_left
+                
+                # Apply color coding for Property Status column
+                if col_num == 19:  # Property Status column
+                    if prop.property_status == 'surveyed':
+                        cell.fill = green_fill
+                    elif prop.property_status == 'visit_again':
+                        cell.fill = orange_fill
+                
+                # Apply color coding for solar and rainwater harvesting columns
+                elif col_num == 20:  # Is Solar column
+                    cell.fill = green_fill if rec.is_solar else red_fill
+                elif col_num == 21:  # Is Rain Water Harvesting column
+                    cell.fill = green_fill if rec.is_rainwater_harvesting else red_fill
+                    
             row += 1
 
         # Prepare output for download
