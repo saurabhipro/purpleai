@@ -100,8 +100,8 @@ class PropertyDetailsAPI(http.Controller):
             "latitude": survey.latitude,
             "surveyer_id": survey.surveyer_id.id,
             "installer_id": survey.installer_id.id,
-            "image1_s3_url": survey.image1_s3_url,
-            "image2_s3_url": survey.image2_s3_url,
+            "image1_s3_url": survey.image1_s3_url or "",
+            "image2_s3_url": survey.image2_s3_url or "",
             "is_solar": survey.is_solar,
             "is_rainwater_harvesting": survey.is_rainwater_harvesting,
         }
@@ -687,8 +687,8 @@ class PropertyIdDataAPI(http.Controller):
                         'father_name': survey.father_name,
                         'survey_date': survey.create_date.strftime('%Y-%m-%d %H:%M:%S') if survey.create_date else '',
                         'images': {
-                            'image1': survey.image1_s3_url,
-                            'image2': survey.image2_s3_url
+                            'image1': survey.image1_s3_url or "",
+                            'image2': survey.image2_s3_url or ""
                         }
                     }
                     survey_data['survey_details'].append(survey_details)
