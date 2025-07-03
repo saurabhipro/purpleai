@@ -361,6 +361,45 @@
           color: #222;
           font-weight: 600;
         }
+        /* New styles for section titles with colored background strips */
+        .section-title-container {
+          position: relative;
+          margin-top: 1.5rem;
+          margin-bottom: 1.5rem;
+          text-align: center;
+          display: flex;
+          justify-content: center;
+        }
+        .section-title-bg {
+          background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+          color: #fff;
+          padding: 0.8rem 2rem;
+          border-radius: 25px;
+          font-weight: 700;
+          font-size: 1.3rem;
+          letter-spacing: 1px;
+          box-shadow: 0 4px 12px rgba(123,34,60,0.2);
+          position: relative;
+          z-index: 2;
+          width: 350px;         /* Set a fixed width for all headers */
+          max-width: 90vw;      /* Responsive for small screens */
+          text-align: center;
+          display: block;       /* Ensures width is respected */
+        }
+        .section-title-bg::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: -20px;
+          right: -20px;
+          height: 12px;
+          background: none;
+          box-shadow: 0 0 16px 4px #7b223c33;
+          opacity: 0.3;
+          transform: translateY(-50%);
+          z-index: -1;
+          pointer-events: none;
+        }
         @media (max-width: 767.98px) {
           .payment-services-row {
             gap: 0.5rem;
@@ -380,6 +419,17 @@
           }
           .govt-service-label {
             font-size: 0.92rem;
+          }
+          .section-title-bg {
+            font-size: 1.1rem;
+            padding: 0.6rem 1.5rem;
+          }
+        }
+        @media (max-width: 400px) {
+          .section-title-bg {
+            width: 98vw;
+            font-size: 1.1rem;
+            padding: 0.6rem 0.2rem;
           }
         }
         .o_mail_navbar_item, .o_notification_counter, .o_mail_navbar_systray_item {
@@ -471,6 +521,27 @@
             line-height: 1.2;
             margin-bottom: 0;
           }
+        }
+        .captured-image-wrapper {
+          height: 180px; /* or your preferred height */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2.5px solid #e0e0e0;
+          border-radius: 16px;
+          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+          background: #fff;
+          overflow: hidden;
+          margin-bottom: 1rem;
+        }
+        .captured-image-wrapper img {
+          height: 100%;
+          width: 100%;
+          object-fit: cover;
+          border-radius: 12px;
+          border: none;
+          box-shadow: none;
+          background: #f8f8f8;
         }
       </style>
       <div class="body-gradient-bg">
@@ -649,13 +720,13 @@
                     </div>
                   </t>
                   <div class="col-6" t-if="img1">
-                    <div class="card shadow-sm border-0">
-                      <img t-att-src="img1" class="img-fluid rounded-3" alt="Captured Image 1"/>
+                    <div class="captured-image-wrapper">
+                      <img t-att-src="img1" class="img-fluid" alt="Captured Image 1"/>
                     </div>
                   </div>
                   <div class="col-6" t-if="img2">
-                    <div class="card shadow-sm border-0">
-                      <img t-att-src="img2" class="img-fluid rounded-3" alt="Captured Image 2"/>
+                    <div class="captured-image-wrapper">
+                      <img t-att-src="img2" class="img-fluid" alt="Captured Image 2"/>
                     </div>
                   </div>
                 </t>
@@ -668,7 +739,9 @@
           <t t-foreach="services" t-as="srv">
             <div class="center-section mt-3">
               <div class="card p-4 position-relative border border-white rounded-4">
-                <h2 class="fw-bold mb-3 px-1" style="font-size:1.3rem;">Government Payment Services</h2>
+                <div class="section-title-container">
+                  <div class="section-title-bg">Government Payment Services</div>
+                </div>
                 <div class="d-flex justify-content-center align-items-stretch payment-services-row">
 
                   <t t-foreach="srv.govt_line_ids" t-as="govt">
@@ -693,9 +766,11 @@
 
             <!-- Emergency Services -->
             <section class="py-1">
-              <h2 class="text-center fw-bold mb-4" style="font-size:1.3rem; letter-spacing:1px;">Emergency Services</h2>
               <div class="center-section">
                 <div class="card p-4 position-relative border border-white rounded-4">
+                  <div class="section-title-container">
+                    <div class="section-title-bg">Emergency Services</div>
+                  </div>
                   <div class="card-body p-4">
                     <div class="row g-3">
 
@@ -726,21 +801,25 @@
               <div class="center-section">
                 <div class="card p-4 position-relative border border-white rounded-4">
                   <div class="card-body p-4">
-                    <h2 class="text-center fw-bold mb-4" style="font-size:1.6rem;">Your Officers</h2>
+                    <div class="section-title-container">
+                      <div class="section-title-bg">Know Your Officers</div>
+                    </div>
                     <div class="row g-3">
                       <t t-foreach="srv.know_officer_line_ids" t-as="officer"> 
 
                         <t t-if="property.zone_id == officer.zone_id and property.ward_id == officer.ward_id and officer.is_active or officer.is_global">
                           <!-- Zone Officer -->
                           <div class="col-6 col-md-3">
-                            <div class="officer-card text-center">
-                              <div>
-                                <t t-out="Markup(officer.icon)"/>
-                                <div class="officer-label"><t t-out="officer.header"/></div>
-                                <div class="officer-name"><t t-out="officer.name"/></div>
-                                <a href="tel:+919988776655" class="officer-phone"><t t-out="officer.mobile"/></a>
+                            <a t-att-href="'tel:+%s' % officer.mobile" class="ui-link text-decoration-none">
+                              <div class="officer-card text-center">
+                                <div>
+                                  <t t-out="Markup(officer.icon)"/>
+                                  <div class="officer-label"><t t-out="officer.header"/></div>
+                                  <div class="officer-name"><t t-out="officer.name"/></div>
+                                  <t t-out="officer.mobile"/>
+                                </div>
                               </div>
-                            </div>
+                            </a>
                           </div>
                         </t>
                       </t>
