@@ -294,7 +294,7 @@ class PropertyDetailsAPI(http.Controller):
             surveyor_id = data.get('surveyor_id')
             company_id = data.get('company_id')
 
-            # Get surveyor's ward
+            # Get surveyor's information
             surveyor = request.env['res.users'].sudo().browse(surveyor_id)
             if not surveyor:
                 return Response(
@@ -304,6 +304,7 @@ class PropertyDetailsAPI(http.Controller):
                 )
             
             ward_id = surveyor.ward_id.id if surveyor.ward_id else False
+            zone_id = surveyor.zone_id.id if surveyor.zone_id else False
 
             if not ward_id:
                 return Response(
@@ -320,14 +321,14 @@ class PropertyDetailsAPI(http.Controller):
                 today_start = datetime.combine(today, datetime.min.time())
                 today_end = datetime.combine(today, datetime.max.time())
 
-                # Total properties in the ward (not filtered by surveyor)
+                # Total properties in the ward
                 total = Property.search_count([
                     ('company_id', '=', company_id),
                     ('ward_id', '=', ward_id)
                 ])
 
-                # Today's surveyed count in the ward by this surveyor
-                today_surveyed = Survey.search_count([
+                # My Today's Stats - surveyed by this surveyor today
+                my_today_surveyed = Survey.search_count([
                     ('company_id', '=', company_id),
                     ('property_id.ward_id', '=', ward_id),
                     ('surveyer_id', '=', surveyor_id),
@@ -335,96 +336,128 @@ class PropertyDetailsAPI(http.Controller):
                     ('create_date', '<=', today_end)
                 ])
 
-                # Today's discovered count
-                today_discovered = Property.search_count([
+                # My Today's Stats - discovered by this surveyor today
+                my_today_discovered = Property.search_count([
                     ('company_id', '=', company_id),
                     ('ward_id', '=', ward_id),
                     ('property_status', '=', 'discovered'),
+                    ('surveyer_id', '=', surveyor_id),
                     ('create_date', '>=', today_start),
                     ('create_date', '<=', today_end)
                 ])
 
-                # Calculate today's pending (total - today's surveyed - today's discovered)
-                today_pending = total - today_surveyed - today_discovered
+                # My Today's Stats - visit_again by this surveyor today
+                my_today_visit_again = Property.search_count([
+                    ('company_id', '=', company_id),
+                    ('ward_id', '=', ward_id),
+                    ('property_status', '=', 'visit_again'),
+                    ('surveyer_id', '=', surveyor_id),
+                    ('create_date', '>=', today_start),
+                    ('create_date', '<=', today_end)
+                ])
 
-                # Overall counts (without date filter)
-                surveyed = Survey.search_count([
+                # My Overall Stats - total surveyed by this surveyor
+                my_total_surveyed = Survey.search_count([
                     ('company_id', '=', company_id),
                     ('property_id.ward_id', '=', ward_id),
                     ('surveyer_id', '=', surveyor_id)
                 ])
 
-                discovered = Property.search_count([
+                # My Overall Stats - total discovered by this surveyor
+                my_total_discovered = Property.search_count([
+                    ('company_id', '=', company_id),
+                    ('ward_id', '=', ward_id),
+                    ('property_status', '=', 'discovered'),
+                    ('surveyer_id', '=', surveyor_id)
+                ])
+
+                # My Overall Stats - total visit_again by this surveyor
+                my_total_visit_again = Property.search_count([
+                    ('company_id', '=', company_id),
+                    ('ward_id', '=', ward_id),
+                    ('property_status', '=', 'visit_again'),
+                    ('surveyer_id', '=', surveyor_id)
+                ])
+
+                # Overall Stats - total surveyed in ward (all surveyors)
+                overall_total_surveyed = Survey.search_count([
+                    ('company_id', '=', company_id),
+                    ('property_id.ward_id', '=', ward_id)
+                ])
+
+                # Overall Stats - total discovered in ward (all surveyors)
+                overall_total_discovered = Property.search_count([
                     ('company_id', '=', company_id),
                     ('ward_id', '=', ward_id),
                     ('property_status', '=', 'discovered')
                 ])
 
-                pending = total - surveyed - discovered
+                # Overall Stats - total visit_again in ward (all surveyors)
+                overall_total_visit_again = Property.search_count([
+                    ('company_id', '=', company_id),
+                    ('ward_id', '=', ward_id),
+                    ('property_status', '=', 'visit_again')
+                ])
+
+                # Calculate pending counts
+                my_today_pending = total - my_today_surveyed - my_today_discovered - my_today_visit_again
+                my_total_pending = total - my_total_surveyed - my_total_discovered - my_total_visit_again
+                overall_total_pending = total - overall_total_surveyed - overall_total_discovered - overall_total_visit_again
 
                 return {
                     'total': total,
-                    'today_surveyed': today_surveyed,
-                    'today_discovered': today_discovered,
-                    'today_pending': today_pending,
-                    'surveyed': surveyed,
-                    'discovered': discovered,
-                    'pending': pending,
+                    'my_today_surveyed': my_today_surveyed,
+                    'my_today_discovered': my_today_discovered,
+                    'my_today_visit_again': my_today_visit_again,
+                    'my_today_pending': my_today_pending,
+                    'my_total_surveyed': my_total_surveyed,
+                    'my_total_discovered': my_total_discovered,
+                    'my_total_visit_again': my_total_visit_again,
+                    'my_total_pending': my_total_pending,
+                    'overall_total_surveyed': overall_total_surveyed,
+                    'overall_total_discovered': overall_total_discovered,
+                    'overall_total_visit_again': overall_total_visit_again,
+                    'overall_total_pending': overall_total_pending,
                 }
 
             counts = get_counts(company_id, ward_id, surveyor_id)
 
-            def percent(val):
-                # Dummy logic, replace with real calculation if available
-                return round(5 + 20 * (0.5 - (val % 2)), 1)
+            # Get surveyor name and ward/zone names
+            surveyor_name = surveyor.name or "Unknown"
+            ward_name = surveyor.ward_id.name if surveyor.ward_id else "Unknown"
+            zone_name = surveyor.zone_id.name if surveyor.zone_id else "Unknown"
 
             response = {
                 "status": "success",
                 "message": "Dashboard data fetched successfully",
-                "today": [
-                    {
-                        "label": "Total Properties",
-                        "value": counts['total'],
-                        "percent": f"+{percent(counts['total'])}%",
-                    },
-                    {
-                        "label": "Today's Surveyed",
-                        "value": counts['today_surveyed'],
-                        "percent": f"+{percent(counts['today_surveyed'])}%",
-                    },
-                    {
-                        "label": "Today's Discovered",
-                        "value": counts['today_discovered'],
-                        "percent": f"+{percent(counts['today_discovered'])}%",
-                    },
-                    {
-                        "label": "Today's Pending",
-                        "value": counts['today_pending'],
-                        "percent": f"{percent(counts['today_pending'])}%",
-                    },
-                ],
-                "overall": [
-                    {
-                        "label": "Total Properties",
-                        "value": counts['total'],
-                        "percent": f"+{percent(counts['total'])}%",
-                    },
-                    {
-                        "label": "Surveyed",
-                        "value": counts['surveyed'],
-                        "percent": f"+{percent(counts['surveyed'])}%",
-                    },
-                    {
-                        "label": "Discovered",
-                        "value": counts['discovered'],
-                        "percent": f"+{percent(counts['discovered'])}%",
-                    },
-                    {
-                        "label": "Pending",
-                        "value": counts['pending'],
-                        "percent": f"{percent(counts['pending'])}%",
-                    },
-                ]
+                "surveyor_info": {
+                    "name": surveyor_name,
+                    "zone": zone_name,
+                    "ward": ward_name,
+                    "selected_ward": ward_name
+                },
+                "total_properties": {
+                    "ward_name": ward_name,
+                    "total_count": counts['total']
+                },
+                "my_todays_stats": {
+                    "surveyed_today": counts['my_today_surveyed'],
+                    "discovered": counts['my_today_discovered'],
+                    "visit_again": counts['my_today_visit_again'],
+                    "pending": counts['my_today_pending']
+                },
+                "my_overall_stats": {
+                    "total_surveyed": counts['my_total_surveyed'],
+                    "total_discovered": counts['my_total_discovered'],
+                    "total_visit_again": counts['my_total_visit_again'],
+                    "pending": counts['my_total_pending']
+                },
+                "overall_stats": {
+                    "total_surveyed": counts['overall_total_surveyed'],
+                    "total_discovered": counts['overall_total_discovered'],
+                    "total_visit_again": counts['overall_total_visit_again'],
+                    "pending": counts['overall_total_pending']
+                }
             }
             return Response(json.dumps(response), status=200, content_type='application/json')
 
