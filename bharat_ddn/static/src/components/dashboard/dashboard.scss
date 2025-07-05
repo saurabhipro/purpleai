@@ -1,6 +1,6 @@
 // Variables
-$primary-color: #1976d2;
-$primary-light: #42a5f5;
+$primary-color: #7B4A41;
+$primary-light: #A06B61;
 $border-radius: 8px;
 $transition-duration: 0.2s;
 
@@ -42,26 +42,37 @@ $transition-duration: 0.2s;
 
 // Dashboard Cards
 .dashboard-card {
-    @include card-base;
-    padding: 8px;
-    min-width: 120px;
-    min-height: 45px;
-    background: #f8fafc;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 1px 4px rgba($primary-color, 0.06);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.10);
+    margin-bottom: 16px;
+    min-width: 0;
+    min-height: 78px;
+    height: 78px;
+    max-width: 100%;
+    flex: 1 1 0;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 8px 8px 18px;
+    transition: box-shadow 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
 
     // Card variants
     &.uploaded { @include gradient-bg($primary-color, $primary-light); }
-    &.pdf { @include gradient-bg(#e53935, #ff7043); }
-    &.plate { @include gradient-bg(#43a047, #a5d6a7); }
-    &.surveyed { @include gradient-bg(#fbc02d, #fff176); }
-    &.today { @include gradient-bg(#ffb300, #ffe082); }
-    &.unlocked { @include gradient-bg(#6d4c41, #a1887f); }
-    &.discovered { @include gradient-bg(#8e24aa, #ce93d8); }
-    &.zones { @include gradient-bg(#00bcd4, #4dd0e1); }
-    &.wards { @include gradient-bg(#ff9800, #ffb74d); }
-    &.users { @include gradient-bg(#607d8b, #b0bec5); }
+    &.pdf { @include gradient-bg(#8B3A2F, #C97B6A); }
+    &.plate { @include gradient-bg(#A06B61, #D7B8B0); }
+    &.surveyed { @include gradient-bg(#A06B61, #E5CFC7); }
+    &.today { @include gradient-bg(#A06B61, #E5CFC7); }
+    &.unlocked { @include gradient-bg(#5D3A32, #A06B61); }
+    &.discovered { @include gradient-bg(#A06B61, #D7B8B0); }
+    &.zones { @include gradient-bg(#7B4A41, #A06B61); }
+    &.wards { @include gradient-bg(#A06B61, #E5CFC7); }
+    &.users { @include gradient-bg(#5D3A32, #A06B61); }
 
     // Card elements
     * {
@@ -76,15 +87,16 @@ $transition-duration: 0.2s;
     }
 
     .count {
-        font-size: 1.1em;
-        font-weight: 700;
-        margin-bottom: 2px;
+        font-size: 1.17rem;
+        font-weight: bold;
+        margin-bottom: 0.1em;
+        text-align: center;
     }
 
     .label {
-        font-size: 0.9em;
-        font-weight: 600;
-        margin-bottom: 1px;
+        font-size: 0.91rem;
+        font-weight: 700;
+        text-align: center;
     }
 
     .status-link {
@@ -96,13 +108,11 @@ $transition-duration: 0.2s;
     }
 
     .bg-icon {
+        opacity: 0.18;
+        font-size: 1.2rem;
         position: absolute;
-        bottom: 4px;
-        right: 8px;
-        font-size: 2.4em;
-        color: rgba(255,255,255,0.25);
-        pointer-events: none;
-        z-index: 0;
+        right: 10px;
+        bottom: 8px;
     }
 
     &:hover, &:active, &:focus {
@@ -110,6 +120,33 @@ $transition-duration: 0.2s;
         border: 1px solid #e0e0e0 !important;
         outline: none;
     }
+}
+
+.bg-orange {
+    background-image: url('https://bihan.gov.in/assets/images/bg/orange-pattern.jpg');
+    border-left: 4px solid #ffa726;
+}
+
+.bg-green {
+    background-image: url('https://bihan.gov.in/assets/images/bg/green-pattern.jpg');
+    border-left: 4px solid #66bb6a;
+    position: relative;
+}
+
+.bg-green::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.35);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.dashboard-card .count,
+.dashboard-card .label,
+.dashboard-card .bg-icon {
+    color: #111 !important;
+    z-index: 2;
 }
 
 // Dashboard Header
@@ -146,7 +183,7 @@ $transition-duration: 0.2s;
 
     &-count {
         font-size: 0.6em;
-        color: #e3f2fd;
+        color: #f5eae7;
         margin-left: 5px;
     }
 }
@@ -249,7 +286,7 @@ $transition-duration: 0.2s;
     color: #fff;
 
     &:hover {
-        @include gradient-bg(#1565c0, $primary-color);
+        @include gradient-bg(#5D3A32, $primary-color);
     }
 }
 
@@ -259,6 +296,6 @@ $transition-duration: 0.2s;
     border: 1px solid #e0e0e0;
 
     &:hover {
-        background: #f0f4f8;
+        background: #f5eae7;
     }
 }
