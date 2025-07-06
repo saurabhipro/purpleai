@@ -105,7 +105,7 @@ class Dashboard(models.Model):
             'total_zones': self.env['ddn.zone'].search_count([]),
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_colonies': self.env['ddn.colony'].search_count([]),
-            'total_users': self.env['res.users'].search_count([]),
+            'total_surveyors': self.env['res.users'].search_count([('is_surveyor', '=', True)]),
             'surveys_today': surveys_today,
             'total_qr_scans_today': qr_scans_today,
             'unique_qr_scans_today': unique_qr_scans_today,

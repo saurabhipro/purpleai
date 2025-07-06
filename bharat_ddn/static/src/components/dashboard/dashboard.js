@@ -42,7 +42,8 @@ export class OwlCrmDashboard extends Component {
                 // Ensure ward_data is always an array
                 this.state.property_info = {
                     ...data,
-                    ward_data: Array.isArray(data.ward_data) ? data.ward_data : []
+                    ward_data: Array.isArray(data.ward_data) ? data.ward_data : [],
+                    total_surveyors: data.total_surveyors || 0
                 };
                 
                 console.log("Processed ward data:", this.state.property_info.ward_data);

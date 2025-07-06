@@ -144,9 +144,9 @@
                             <div class="label">Colonies</div>
                         </div>
                         <div class="dashboard-card bg-green">
-                            <span class="bg-icon"><i class="fa fa-users"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_users']"/></div>
-                            <div class="label">Users</div>
+                            <span class="bg-icon"><i class="fa fa-user"></i></span>
+                            <div class="count"><t t-esc="this.state.property_info['total_surveyors']"/></div>
+                            <div class="label">Surveyors</div>
                         </div>
                     </div>
                     <div>
