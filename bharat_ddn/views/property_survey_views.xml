@@ -9,12 +9,15 @@
                 <list string="Property Types">
                     <field name="property_id"/>
                     <field name="survey_date"/>
+                    <field name="surveyer_id"/>
                     <field name="owner_name"/>
                     <field name="father_name"/>
                     <field name="longitude"/>
                     <field name="latitude"/>
-                    <field name="surveyer_id"/>
-                    <field name="installer_id"/>
+                    <field name="mobile_no"/>
+                    <field name="company_id"/>
+                    <field name="address_line_1"/>
+                    <field name="address_line_2"/>
                 </list>
             </field>
         </record>
