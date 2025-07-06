@@ -593,6 +593,252 @@ class PropertyDetailsAPI(http.Controller):
                 content_type='application/json'
             )
 
+    @http.route('/api/properties/list', type='http', auth='public', methods=['POST'], csrf=False)
+    @check_permission
+    def list_properties_by_status(self, **kwargs):
+        """Get properties list based on status with pagination for infinite scroll."""
+        try:
+            data = json.loads(request.httprequest.data or "{}")
+            
+            # Get parameters
+            status = data.get('status', '').strip()
+            page = int(data.get('page', DEFAULT_PAGE))
+            limit = int(data.get('limit', DEFAULT_LIMIT))
+            company_id = data.get('company_id')
+            zone_id = data.get('zone_id')
+            ward_id = data.get('ward_id')
+            surveyor_id = data.get('surveyor_id')
+            search_term = data.get('search_term', '').strip()
+            
+            # Validate status
+            valid_statuses = ['surveyed', 'discovered', 'visit_again']
+            if status and status not in valid_statuses:
+                return Response(
+                    json.dumps({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}),
+                    status=400,
+                    content_type='application/json'
+                )
+            
+            # Build domain
+            domain = []
+            
+            # Add status filter
+            if status:
+                domain.append(('property_status', '=', status))
+            
+            # Add company filter
+            if company_id:
+                domain.append(('company_id', '=', company_id))
+            
+            # Add zone filter
+            if zone_id:
+                domain.append(('zone_id', '=', zone_id))
+            
+            # Add ward filter
+            if ward_id:
+                domain.append(('ward_id', '=', ward_id))
+            
+            # Add surveyor filter
+            if surveyor_id:
+                domain.append(('surveyer_id', '=', surveyor_id))
+            
+            # Add search term filter (search in upic_no, property_id, owner_name, mobile_no)
+            if search_term:
+                domain.append('|')
+                domain.append('|')
+                domain.append('|')
+                domain.append(('upic_no', 'ilike', search_term))
+                domain.append(('property_id', 'ilike', search_term))
+                domain.append(('owner_name', 'ilike', search_term))
+                domain.append(('mobile_no', 'ilike', search_term))
+            
+            # Calculate offset for pagination
+            offset = (page - 1) * limit
+            
+            # Get total count for pagination info
+            total_count = request.env['ddn.property.info'].sudo().search_count(domain)
+            
+            # Get properties with pagination
+            properties = request.env['ddn.property.info'].sudo().search(
+                domain,
+                offset=offset,
+                limit=limit,
+                order='create_date desc'  # Most recent first
+            )
+            
+            # Format properties data
+            property_data = []
+            for property in properties:
+                property_info = {
+                    "id": property.id,
+                    "uuid": property.uuid,
+                    "property_id": property.property_id or "",
+                    "upic_no": property.upic_no or "",
+                    "unit_no": property.unit_no or "",
+                    "status": property.property_status,
+                    "owner_name": property.owner_name or "",
+                    "mobile_no": property.mobile_no or "",
+                    "address_line_1": property.address_line_1 or "",
+                    "address_line_2": property.address_line_2 or "",
+                    "latitude": property.latitude or "",
+                    "longitude": property.longitude or "",
+                    "zone": {
+                        "id": property.zone_id.id if property.zone_id else None,
+                        "name": property.zone_id.name if property.zone_id else ""
+                    },
+                    "ward": {
+                        "id": property.ward_id.id if property.ward_id else None,
+                        "name": property.ward_id.name if property.ward_id else ""
+                    },
+                    "colony": {
+                        "id": property.colony_id.id if property.colony_id else None,
+                        "name": property.colony_id.name if property.colony_id else ""
+                    },
+                    "property_type": {
+                        "id": property.property_type.id if property.property_type else None,
+                        "name": property.property_type.name if property.property_type else ""
+                    },
+                    "surveyer": {
+                        "id": property.surveyer_id.id if property.surveyer_id else None,
+                        "name": property.surveyer_id.name if property.surveyer_id else ""
+                    },
+                    "microsite_url": property.microsite_url or "",
+                    "create_date": property.create_date.strftime('%Y-%m-%d %H:%M:%S') if property.create_date else "",
+                    "write_date": property.write_date.strftime('%Y-%m-%d %H:%M:%S') if property.write_date else "",
+                    "survey_count": len(property.survey_line_ids),
+                    "has_survey_images": False
+                }
+                
+                # Check if property has survey images
+                if property.survey_line_ids:
+                    latest_survey = property.survey_line_ids[0]  # Most recent survey
+                    property_info["has_survey_images"] = bool(
+                        latest_survey.image1_s3_url or latest_survey.image2_s3_url
+                    )
+                    property_info["latest_survey"] = {
+                        "survey_date": latest_survey.survey_date.strftime('%Y-%m-%d') if latest_survey.survey_date else "",
+                        "area": latest_survey.area or 0,
+                        "total_floors": latest_survey.total_floors or "",
+                        "floor_number": latest_survey.floor_number or "",
+                        "image1_url": latest_survey.image1_s3_url or "",
+                        "image2_url": latest_survey.image2_s3_url or ""
+                    }
+                
+                property_data.append(property_info)
+            
+            # Calculate pagination info
+            total_pages = (total_count + limit - 1) // limit  # Ceiling division
+            has_next_page = page < total_pages
+            has_prev_page = page > 1
+            
+            response_data = {
+                "properties": property_data,
+                "pagination": {
+                    "current_page": page,
+                    "total_pages": total_pages,
+                    "total_count": total_count,
+                    "limit": limit,
+                    "has_next_page": has_next_page,
+                    "has_prev_page": has_prev_page,
+                    "next_page": page + 1 if has_next_page else None,
+                    "prev_page": page - 1 if has_prev_page else None
+                },
+                "filters": {
+                    "status": status,
+                    "company_id": company_id,
+                    "zone_id": zone_id,
+                    "ward_id": ward_id,
+                    "surveyor_id": surveyor_id,
+                    "search_term": search_term
+                },
+                "message": f"Found {len(property_data)} properties" if property_data else "No properties found"
+            }
+            
+            return Response(
+                json.dumps(response_data, default=str),
+                status=200,
+                content_type='application/json'
+            )
+            
+        except jwt.ExpiredSignatureError:
+            _logger.error("JWT token has expired")
+            raise AccessError('JWT token has expired')
+        except jwt.InvalidTokenError:
+            _logger.error("Invalid JWT token")
+            raise AccessError('Invalid JWT token')
+        except Exception as e:
+            _logger.error(f"Error in list_properties_by_status: {str(e)}")
+            return Response(
+                json.dumps({'error': str(e)}),
+                status=500,
+                content_type='application/json'
+            )
+
+    @http.route('/api/properties/status_counts', type='http', auth='public', methods=['POST'], csrf=False)
+    @check_permission
+    def get_property_status_counts(self, **kwargs):
+        """Get count of properties by status for dashboard/filtering."""
+        try:
+            data = json.loads(request.httprequest.data or "{}")
+            company_id = data.get('company_id')
+            zone_id = data.get('zone_id')
+            ward_id = data.get('ward_id')
+            surveyor_id = data.get('surveyor_id')
+            
+            # Build base domain
+            domain = []
+            if company_id:
+                domain.append(('company_id', '=', company_id))
+            if zone_id:
+                domain.append(('zone_id', '=', zone_id))
+            if ward_id:
+                domain.append(('ward_id', '=', ward_id))
+            if surveyor_id:
+                domain.append(('surveyer_id', '=', surveyor_id))
+            
+            # Get counts for each status
+            status_counts = {}
+            valid_statuses = ['new', 'uploaded', 'pdf_downloaded', 'surveyed', 'unlocked', 'discovered', 'visit_again']
+            
+            for status in valid_statuses:
+                status_domain = domain + [('property_status', '=', status)]
+                count = request.env['ddn.property.info'].sudo().search_count(status_domain)
+                status_counts[status] = count
+            
+            # Get total count
+            total_count = request.env['ddn.property.info'].sudo().search_count(domain) if domain else request.env['ddn.property.info'].sudo().search_count([])
+            
+            response_data = {
+                "status_counts": status_counts,
+                "total_count": total_count,
+                "filters": {
+                    "company_id": company_id,
+                    "zone_id": zone_id,
+                    "ward_id": ward_id,
+                    "surveyor_id": surveyor_id
+                }
+            }
+            
+            return Response(
+                json.dumps(response_data),
+                status=200,
+                content_type='application/json'
+            )
+            
+        except jwt.ExpiredSignatureError:
+            _logger.error("JWT token has expired")
+            raise AccessError('JWT token has expired')
+        except jwt.InvalidTokenError:
+            _logger.error("Invalid JWT token")
+            raise AccessError('Invalid JWT token')
+        except Exception as e:
+            _logger.error(f"Error in get_property_status_counts: {str(e)}")
+            return Response(
+                json.dumps({'error': str(e)}),
+                status=500,
+                content_type='application/json'
+            )
+
 class PropertyIdDataAPI(http.Controller):
     @http.route('/api/property_id_data/search', type='http', auth='public', methods=['POST'], csrf=False)
     def search_property_id_data(self, **kwargs):
@@ -715,12 +961,9 @@ class PropertyIdDataAPI(http.Controller):
             )
 
         except Exception as e:
+            _logger.error(f"Error in get_recent_surveys: {str(e)}")
             return Response(
-                json.dumps({
-                    'status': 'error',
-                    'message': 'An error occurred',
-                    'details': str(e)
-                }),
+                json.dumps({'error': str(e)}),
                 status=500,
                 content_type='application/json'
             )

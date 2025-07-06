@@ -613,7 +613,7 @@
                       <t t-set="valid_coords" t-value="lat != '1.2' and lng != '1.1' and lat != '0.0' and lng != '0.0' and float(lat) != 0.0 and float(lng) != 0.0"/>
                       <t t-if="valid_coords">
                         <!-- Google Maps URL with pin -->
-                        <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
+                        <!-- <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/> -->
                         <!-- Enhanced Navigation URL using the more reliable format -->
                         <t t-set="directions_url" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng"/>
                         <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🧭 Get Directions: ' + directions_url"/>
@@ -718,17 +718,21 @@
                     <div class="col-12">
                       <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Captured Images</h3>
                     </div>
+                    <t t-if="img1">
+                      <div class="col-6">
+                        <div class="captured-image-wrapper">
+                          <img t-att-src="img1" class="img-fluid" alt="Captured Image 1" onerror="this.style.display='none'"/>
+                        </div>
+                      </div>
+                    </t>
+                    <t t-if="img2">
+                      <div class="col-6">
+                        <div class="captured-image-wrapper">
+                          <img t-att-src="img2" class="img-fluid" alt="Captured Image 2" onerror="this.style.display='none'"/>
+                        </div>
+                      </div>
+                    </t>
                   </t>
-                  <div class="col-6" t-if="img1">
-                    <div class="captured-image-wrapper">
-                      <img t-att-src="img1" class="img-fluid" alt="Captured Image 1"/>
-                    </div>
-                  </div>
-                  <div class="col-6" t-if="img2">
-                    <div class="captured-image-wrapper">
-                      <img t-att-src="img2" class="img-fluid" alt="Captured Image 2"/>
-                    </div>
-                  </div>
                 </t>
               </div>
             </div>

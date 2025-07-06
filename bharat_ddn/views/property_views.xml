@@ -8,7 +8,7 @@
             <field name="model">ddn.property.info</field>
             <field name="arch" type="xml">
                 <list>
-                    <field name="uuid" optional="show"/>
+                    <field name="uuid" optional="hide"/>
                     <field name="upic_no" optional="show"/>
                     <field name="mobile_no" optional="show"/>
                     <field name="zone_id" optional="show"/>
