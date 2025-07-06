@@ -142,21 +142,21 @@ class PropertyDetailsAPI(http.Controller):
             if not property_record:
                 return Response(json.dumps({'error': 'Property not found'}), status=404, content_type='application/json')
 
-            # Status validation logic
-            if property_status == 'visit_again':
-                if property_record.property_status == 'surveyed':
-                    return Response(
-                        json.dumps({'error': 'Cannot mark property as visit_again when it is already surveyed'}),
-                        status=400,
-                        content_type='application/json'
-                    )
-            else:
-                if property_record.property_status != 'pdf_downloaded':
-                    return Response(
-                        json.dumps({'error': 'Survey can only be created for properties with status "pdf_downloaded"'}),
-                        status=400,
-                        content_type='application/json'
-                    )
+            # # Status validation logic
+            # if property_status == 'visit_again':
+            #     if property_record.property_status == 'surveyed':
+            #         return Response(
+            #             json.dumps({'error': 'Cannot mark property as visit_again when it is already surveyed'}),
+            #             status=400,
+            #             content_type='application/json'
+            #         )
+            # else:
+            #     if property_record.property_status != 'pdf_downloaded':
+            #         return Response(
+            #             json.dumps({'error': 'Survey can only be created for properties with status "pdf_downloaded"'}),
+            #             status=400,
+            #             content_type='application/json'
+            #         )
 
             # Use image URLs directly from payload (no S3 upload)
             property_image_url = data.get('property_image_url')
@@ -164,8 +164,10 @@ class PropertyDetailsAPI(http.Controller):
             data['image1_s3_url'] = property_image_url
             data['image2_s3_url'] = property_image1_url
             data['uuid'] = uuid
-
-            # Update mobile_no if provided
+            
+            # Set the property_id to the actual property record's ID from database
+            data['property_id'] = data.get("property_id")
+                
             if mobile_no:
                 data['mobile_no'] = mobile_no
             
@@ -180,7 +182,8 @@ class PropertyDetailsAPI(http.Controller):
             update_vals = {
                 'survey_line_ids': [(0, 0, survey_line_vals)],
                 'property_status': property_status,
-                'mobile_no': mobile_no if mobile_no else property_record.mobile_no
+                'mobile_no': mobile_no if mobile_no else property_record.mobile_no,
+                'property_id': data.get("property_id")
             }
             if property_status == 'surveyed' and property_type_id:
                 update_vals['property_type'] = property_type_id
