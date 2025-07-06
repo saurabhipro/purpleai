@@ -614,19 +614,25 @@
                       <t t-if="valid_coords">
                         <!-- Google Maps URL with pin -->
                         <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
-                        <!-- Enhanced Navigation URL using the more reliable format -->
-                        <t t-set="directions_url" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng"/>
-                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🧭 Get Directions: ' + directions_url"/>
+                        <!-- Enhanced Navigation URLs for different travel modes -->
+                        <t t-set="directions_driving" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=driving'"/>
+                        <t t-set="directions_walking" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=walking'"/>
+                        <t t-set="directions_transit" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=transit'"/>
+                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🚗 Drive: ' + directions_driving + '%0A🚶 Walk: ' + directions_walking + '%0A🚌 Transit: ' + directions_transit"/>
                       </t>
                       <t t-else="">
                         <t t-set="maps_url" t-value="''"/>
-                        <t t-set="directions_url" t-value="''"/>
+                        <t t-set="directions_driving" t-value="''"/>
+                        <t t-set="directions_walking" t-value="''"/>
+                        <t t-set="directions_transit" t-value="''"/>
                         <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
                       </t>
                     </t>
                     <t t-else="">
                       <t t-set="maps_url" t-value="''"/>
-                      <t t-set="directions_url" t-value="''"/>
+                      <t t-set="directions_driving" t-value="''"/>
+                      <t t-set="directions_walking" t-value="''"/>
+                      <t t-set="directions_transit" t-value="''"/>
                       <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
                       <t t-set="valid_coords" t-value="False"/>
                     </t>
