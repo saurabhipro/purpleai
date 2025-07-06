@@ -666,65 +666,8 @@ class PropertyDetailsAPI(http.Controller):
                 order='create_date desc'  # Most recent first
             )
             
-            # Format properties data
-            property_data = []
-            for property in properties:
-                property_info = {
-                    "id": property.id,
-                    "uuid": property.uuid,
-                    "property_id": property.property_id or "",
-                    "upic_no": property.upic_no or "",
-                    "unit_no": property.unit_no or "",
-                    "status": property.property_status,
-                    "owner_name": property.owner_name or "",
-                    "mobile_no": property.mobile_no or "",
-                    "address_line_1": property.address_line_1 or "",
-                    "address_line_2": property.address_line_2 or "",
-                    "latitude": property.latitude or "",
-                    "longitude": property.longitude or "",
-                    "zone": {
-                        "id": property.zone_id.id if property.zone_id else None,
-                        "name": property.zone_id.name if property.zone_id else ""
-                    },
-                    "ward": {
-                        "id": property.ward_id.id if property.ward_id else None,
-                        "name": property.ward_id.name if property.ward_id else ""
-                    },
-                    "colony": {
-                        "id": property.colony_id.id if property.colony_id else None,
-                        "name": property.colony_id.name if property.colony_id else ""
-                    },
-                    "property_type": {
-                        "id": property.property_type.id if property.property_type else None,
-                        "name": property.property_type.name if property.property_type else ""
-                    },
-                    "surveyer": {
-                        "id": property.surveyer_id.id if property.surveyer_id else None,
-                        "name": property.surveyer_id.name if property.surveyer_id else ""
-                    },
-                    "microsite_url": property.microsite_url or "",
-                    "create_date": property.create_date.strftime('%Y-%m-%d %H:%M:%S') if property.create_date else "",
-                    "write_date": property.write_date.strftime('%Y-%m-%d %H:%M:%S') if property.write_date else "",
-                    "survey_count": len(property.survey_line_ids),
-                    "has_survey_images": False
-                }
-                
-                # Check if property has survey images
-                if property.survey_line_ids:
-                    latest_survey = property.survey_line_ids[0]  # Most recent survey
-                    property_info["has_survey_images"] = bool(
-                        latest_survey.image1_s3_url or latest_survey.image2_s3_url
-                    )
-                    property_info["latest_survey"] = {
-                        "survey_date": latest_survey.survey_date.strftime('%Y-%m-%d') if latest_survey.survey_date else "",
-                        "area": latest_survey.area or 0,
-                        "total_floors": latest_survey.total_floors or "",
-                        "floor_number": latest_survey.floor_number or "",
-                        "image1_url": latest_survey.image1_s3_url or "",
-                        "image2_url": latest_survey.image2_s3_url or ""
-                    }
-                
-                property_data.append(property_info)
+            # Format properties data using the same format as get_property_details
+            property_data = [self._format_property_data(property) for property in properties]
             
             # Calculate pagination info
             total_pages = (total_count + limit - 1) // limit  # Ceiling division
@@ -732,7 +675,8 @@ class PropertyDetailsAPI(http.Controller):
             has_prev_page = page > 1
             
             response_data = {
-                "properties": property_data,
+                "property_details": property_data,
+                "matched_count": len(property_data),
                 "pagination": {
                     "current_page": page,
                     "total_pages": total_pages,
