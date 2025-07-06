@@ -25,6 +25,15 @@ class Dashboard(models.Model):
             ('create_date', '<=', today_end)
         ])
 
+        # Calculate active surveyors today (surveyors who did surveys today)
+        active_surveyors_today = len(set(self.env['ddn.property.survey'].search([
+            ('create_date', '>=', today_start),
+            ('create_date', '<=', today_end)
+        ]).mapped('surveyer_id')))
+
+        # Calculate total surveyors
+        total_surveyors = self.env['res.users'].search_count([('is_surveyor', '=', True)])
+
         # Calculate today's QR scans
         qr_scan_env = self.env['ddn.qr.scan']
         qr_scans_today = qr_scan_env.search_count([
@@ -105,7 +114,7 @@ class Dashboard(models.Model):
             'total_zones': self.env['ddn.zone'].search_count([]),
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_colonies': self.env['ddn.colony'].search_count([]),
-            'total_surveyors': self.env['res.users'].search_count([('is_surveyor', '=', True)]),
+            'total_surveyors': f"{total_surveyors} / {active_surveyors_today}",
             'surveys_today': surveys_today,
             'total_qr_scans_today': qr_scans_today,
             'unique_qr_scans_today': unique_qr_scans_today,
