@@ -104,6 +104,7 @@ class PropertyDetailsAPI(http.Controller):
             "image2_s3_url": survey.image2_s3_url or "",
             "is_solar": survey.is_solar,
             "is_rainwater_harvesting": survey.is_rainwater_harvesting,
+            "created_date": survey.create_date and survey.create_date.strftime('%Y-%m-%d') or ""
         }
 
     @http.route('/api/property/create_survey', type='http', auth='public', methods=['POST'], csrf=False)
@@ -612,6 +613,7 @@ class PropertyDetailsAPI(http.Controller):
             ward_id = data.get('ward_id')
             surveyor_id = data.get('surveyor_id')
             search_term = data.get('search_term', '').strip()
+            created_date = data.get('created_date', '').strip()  # Optional date filter (YYYY-MM-DD)
             
             # Validate status
             valid_statuses = ['surveyed', 'discovered', 'visit_again']
@@ -655,6 +657,24 @@ class PropertyDetailsAPI(http.Controller):
                 domain.append(('owner_name', 'ilike', search_term))
                 domain.append(('mobile_no', 'ilike', search_term))
             
+            # Add created_date filter if provided (filter by survey create_date, not property create_date)
+            if created_date:
+                try:
+                    from datetime import datetime, timedelta
+                    date_obj = datetime.strptime(created_date, '%Y-%m-%d')
+                    start_dt = date_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+                    end_dt = date_obj.replace(hour=23, minute=59, second=59, microsecond=999999)
+                    # Find all property_ids with a survey created on this date
+                    survey_domain = [('create_date', '>=', start_dt), ('create_date', '<=', end_dt)]
+                    survey_property_ids = request.env['ddn.property.survey'].sudo().search(survey_domain).mapped('property_id.id')
+                    if survey_property_ids:
+                        domain.append(('id', 'in', survey_property_ids))
+                    else:
+                        # No surveys on this date, return empty result
+                        domain.append(('id', '=', 0))
+                except Exception as e:
+                    _logger.error(f"Invalid created_date format: {created_date} - {str(e)}")
+            
             # Calculate offset for pagination
             offset = (page - 1) * limit
             
@@ -696,7 +716,8 @@ class PropertyDetailsAPI(http.Controller):
                     "zone_id": zone_id,
                     "ward_id": ward_id,
                     "surveyor_id": surveyor_id,
-                    "search_term": search_term
+                    "search_term": search_term,
+                    "created_date": created_date
                 },
                 "message": f"Found {len(property_data)} properties" if property_data else "No properties found"
             }
