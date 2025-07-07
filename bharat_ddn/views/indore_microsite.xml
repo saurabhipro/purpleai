@@ -522,29 +522,38 @@
             margin-bottom: 0;
           }
         }
-        .captured-image-wrapper {
-          min-height: 220px;
-          height: 100%;
-          width: 100%;
+        .captured-images-row {
           display: flex;
-          align-items: center;
+          flex-wrap: nowrap;
+          width: 100%;
+          max-width: 380px;
+          margin: 0 auto;
           justify-content: center;
-          border: 6px double #7b223c;
-          border-radius: 28px;
-          box-shadow: 0 8px 32px 0 rgba(123,34,60,0.18);
+          gap: 1.2rem;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .captured-image-wrapper {
+          width: 100%;
+          max-width: 180px;
+          min-width: 150px;
+          flex: 1 1 150px;
+          height: 286px;
+          border: 1.5px solid #e0bfc9;
+          border-radius: 18px;
+          box-shadow: 0 4px 18px 0 rgba(123,34,60,0.10);
           background: #fff;
           overflow: hidden;
-          margin-bottom: 0.5rem;
-          margin-top: 0.5rem;
+          padding: 0;
+          margin: 0 0 0.5rem 0;
         }
         .captured-image-wrapper img {
-          height: 100%;
           width: 100%;
+          height: 100%;
           object-fit: cover;
-          border-radius: 18px;
-          border: none;
-          box-shadow: none;
-          background: #f8f8f8;
+          border-radius: inherit;
+          display: block;
+          margin: 0;
         }
         .property-icon-theme {
           color: #7b223c !important;
@@ -624,7 +633,7 @@
                   <div class="carousel-item active" style="background-image: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);">
                     <div class="carousel-content-hero">
                       <h1 class="carousel-title-hero">Welcome to DDN Indore</h1>
-                      <p class="carousel-subtitle-hero">Digital Door Number System</p>
+                      <p class="carousel-subtitle-hero">Digital Pata</p>
                     </div>
                   </div>
                 </t>
@@ -702,7 +711,7 @@
                   </div>
                   <div class="col-6">
                     <div class="property-label">
-                      <i class="bi bi-qr-code me-1 property-icon-theme"></i> Digital Door Number
+                      <i class="bi bi-qr-code me-1 property-icon-theme"></i> Digital Pata
                     </div>
                     <div class="property-value">
                       <t t-if="property.upic_no"><t t-out="property.upic_no"/></t>
@@ -779,28 +788,22 @@
           <!-- Captured Images Section -->
           <div class="center-section mt-3">
             <div class="card p-4 position-relative border border-white rounded-4 property-card-container">
-              <div class="row g-2">
+              <div class="col-12">
+                <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Property Images</h3>
+              </div>
+              <div class="captured-images-row">
                 <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                   <t t-set="img1" t-value="property.survey_line_ids[0].image1_s3_url"/>
                   <t t-set="img2" t-value="property.survey_line_ids[0].image2_s3_url"/>
-                  <t t-if="img1 or img2">
-                    <div class="col-12">
-                      <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Captured Images</h3>
+                  <t t-if="img1">
+                    <div class="captured-image-wrapper">
+                      <img t-att-src="img1" class="img-fluid" alt="Captured Image 1" onerror="this.style.display='none'"/>
                     </div>
-                    <t t-if="img1">
-                      <div class="col-6">
-                        <div class="captured-image-wrapper">
-                          <img t-att-src="img1" class="img-fluid" alt="Captured Image 1" onerror="this.style.display='none'"/>
-                        </div>
-                      </div>
-                    </t>
-                    <t t-if="img2">
-                      <div class="col-6">
-                        <div class="captured-image-wrapper">
-                          <img t-att-src="img2" class="img-fluid" alt="Captured Image 2" onerror="this.style.display='none'"/>
-                        </div>
-                      </div>
-                    </t>
+                  </t>
+                  <t t-if="img2">
+                    <div class="captured-image-wrapper">
+                      <img t-att-src="img2" class="img-fluid" alt="Captured Image 2" onerror="this.style.display='none'"/>
+                    </div>
                   </t>
                 </t>
               </div>
