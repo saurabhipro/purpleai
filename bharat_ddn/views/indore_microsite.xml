@@ -39,11 +39,10 @@
           color: #e65100;
         }
         .govt-service-label {
-          font-weight: 600;
           font-size: 1.08rem;
+          margin-top: 0.1rem;
           color: #222;
-          margin-top: 0.5rem;
-          text-align: center;
+          font-weight: 800;
         }
         .govt-services-row {
           overflow-x: auto;
@@ -359,7 +358,7 @@
           font-size: 1.08rem;
           margin-top: 0.1rem;
           color: #222;
-          font-weight: 600;
+          font-weight: 800;
         }
         /* New styles for section titles with colored background strips */
         .section-title-container {
@@ -570,12 +569,12 @@
           padding-bottom: 0.3rem;
         }
         .property-label {
-          font-weight: 700 !important;
+          font-weight: 800 !important;
           border-bottom: 2px solid #e0e0e0;
           padding-bottom: 2px;
           margin-bottom: 0.2rem;
           display: inline-block;
-          font-size: 1.08rem;
+          font-size: 1.19rem;
           color: #7b223c !important;
           letter-spacing: 0.5px;
         }
@@ -660,45 +659,6 @@
                     <i class="bi bi-house-door-fill property-icon-theme" style="font-size:1.5em;"></i>
                     <span>Property Details</span>
                   </div>
-                  <t t-if="property.uuid">
-                    <t t-set="property_url" t-value="(property.company_id.website or request.httprequest.url_root).strip('/') + '/get/' + property.uuid"/>
-                    <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude"/>
-                    <t t-if="has_coordinates">
-                      <t t-set="lat" t-value="str(property.survey_line_ids[0].latitude)"/>
-                      <t t-set="lng" t-value="str(property.survey_line_ids[0].longitude)"/>
-                      <t t-set="valid_coords" t-value="lat != '1.2' and lng != '1.1' and lat != '0.0' and lng != '0.0' and float(lat) != 0.0 and float(lng) != 0.0"/>
-                      <t t-if="valid_coords">
-                        <!-- Google Maps URL with pin -->
-                        <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
-                        <!-- Enhanced Navigation URLs for different travel modes -->
-                        <t t-set="directions_driving" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=driving'"/>
-                        <t t-set="directions_walking" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=walking'"/>
-                        <t t-set="directions_transit" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=transit'"/>
-                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🚗 Drive: ' + directions_driving + '%0A🚶 Walk: ' + directions_walking + '%0A🚌 Transit: ' + directions_transit"/>
-                      </t>
-                      <t t-else="">
-                        <t t-set="maps_url" t-value="''"/>
-                        <t t-set="directions_driving" t-value="''"/>
-                        <t t-set="directions_walking" t-value="''"/>
-                        <t t-set="directions_transit" t-value="''"/>
-                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
-                      </t>
-                    </t>
-                    <t t-else="">
-                      <t t-set="maps_url" t-value="''"/>
-                      <t t-set="directions_driving" t-value="''"/>
-                      <t t-set="directions_walking" t-value="''"/>
-                      <t t-set="directions_transit" t-value="''"/>
-                      <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
-                      <t t-set="valid_coords" t-value="False"/>
-                    </t>
-                    <a t-att-href="'https://wa.me/?text=' + share_text"
-                       class="btn btn-success btn-sm d-flex align-items-center"
-                       style="font-weight:600;"
-                       target="_blank">
-                      <i class="bi bi-whatsapp me-1"></i> Share
-                    </a>
-                  </t>
                 </div>
                 <div class="row g-2">
                   <div class="col-6">
@@ -754,29 +714,46 @@
                     </div>
                   </div>
                   <div class="col-12">
-                    <div class="property-label">
-                      <i class="bi bi-geo-alt me-1 property-icon-theme"></i> Address
-                    </div>
-                    <div class="property-value">
-                      <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
-                        <t t-if="property.survey_line_ids[0].address_line_1">
-                          <t t-out="property.survey_line_ids[0].address_line_1"/>,
+                    <div class="d-flex align-items-center property-label" style="gap: 0.5rem;">
+                      <span><i class="bi bi-globe me-1 property-icon-theme"></i> Latitude &amp; Longitude</span>
+                      <t t-if="property.uuid">
+                        <t t-set="property_url" t-value="(property.company_id.website or request.httprequest.url_root).strip('/') + '/get/' + property.uuid"/>
+                        <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude"/>
+                        <t t-if="has_coordinates">
+                          <t t-set="lat" t-value="str(property.survey_line_ids[0].latitude)"/>
+                          <t t-set="lng" t-value="str(property.survey_line_ids[0].longitude)"/>
+                          <t t-set="valid_coords" t-value="lat != '1.2' and lng != '1.1' and lat != '0.0' and lng != '0.0' and float(lat) != 0.0 and float(lng) != 0.0"/>
+                          <t t-if="valid_coords">
+                            <!-- Google Maps URL with pin -->
+                            <t t-set="maps_url" t-value="'https://www.google.com/maps?q=' + lat + ',' + lng + '&amp;z=16'"/>
+                            <!-- Enhanced Navigation URLs for different travel modes -->
+                            <t t-set="directions_driving" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=driving'"/>
+                            <t t-set="directions_walking" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=walking'"/>
+                            <t t-set="directions_transit" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=transit'"/>
+                            <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🚗 Drive: ' + directions_driving + '%0A🚶 Walk: ' + directions_walking + '%0A🚌 Transit: ' + directions_transit"/>
+                          </t>
+                          <t t-else="">
+                            <t t-set="maps_url" t-value="''"/>
+                            <t t-set="directions_driving" t-value="''"/>
+                            <t t-set="directions_walking" t-value="''"/>
+                            <t t-set="directions_transit" t-value="''"/>
+                            <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                          </t>
                         </t>
-                        <t t-if="property.survey_line_ids[0].address_line_2">
-                          <t t-out="property.survey_line_ids[0].address_line_2"/>,
+                        <t t-else="">
+                          <t t-set="maps_url" t-value="''"/>
+                          <t t-set="directions_driving" t-value="''"/>
+                          <t t-set="directions_walking" t-value="''"/>
+                          <t t-set="directions_transit" t-value="''"/>
+                          <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                          <t t-set="valid_coords" t-value="False"/>
                         </t>
-                      </t>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="property-label">
-                      <i class="bi bi-globe me-1 property-icon-theme"></i> Latitude &amp; Longitude
-                    </div>
-                    <div class="property-value" style="margin-bottom:0;">
-                      <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
-                        <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
-                          <t t-out="property.survey_line_ids[0].latitude"/> &amp; <t t-out="property.survey_line_ids[0].longitude"/>
-                        </t>
+                        <a t-att-href="'https://wa.me/?text=' + share_text"
+                           class="btn btn-success btn-sm d-flex align-items-center"
+                           style="font-weight:600; padding:2px 8px; font-size:0.95rem;"
+                           target="_blank">
+                          <i class="bi bi-share me-1"></i>
+                        </a>
                       </t>
                     </div>
                   </div>
@@ -789,7 +766,10 @@
           <div class="center-section mt-3">
             <div class="card p-4 position-relative border border-white rounded-4 property-card-container">
               <div class="col-12">
-                <h3 class="fw-bold mb-2 px-1" style="font-size:1.1rem;">Property Images</h3>
+                <h3 class="fw-bold mb-2 px-1 d-flex align-items-center" style="font-size:1.1rem; border-bottom: 2.5px solid #7b223c; padding-bottom: 0.2rem;">
+                  <i class="bi bi-images property-icon-theme me-2" style="font-size:1.3rem;"></i>
+                  Property Images
+                </h3>
               </div>
               <div class="captured-images-row">
                 <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
