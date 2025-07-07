@@ -599,6 +599,16 @@
         .row.g-2 > .col-12 {
           margin-bottom: 0.7rem;
         }
+        .btn-theme-brown {
+          background: #7b223c !important;
+          color: #fff !important;
+          border: none;
+          
+        }
+        .btn-theme-brown:hover, .btn-theme-brown:focus {
+          background: #5a182c !important;
+          color: #fff !important;
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -722,7 +732,7 @@
                       <span><i class="bi bi-globe me-1 property-icon-theme"></i> Latitude &amp; Longitude</span>
                       <t t-if="property.uuid">
                         <t t-set="property_url" t-value="(property.company_id.website or request.httprequest.url_root).strip('/') + '/get/' + property.uuid"/>
-                        <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude"/>
+                        <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude is not None and property.survey_line_ids[0].longitude is not None and property.survey_line_ids[0].latitude != '' and property.survey_line_ids[0].longitude != ''"/>
                         <t t-if="has_coordinates">
                           <t t-set="lat" t-value="str(property.survey_line_ids[0].latitude)"/>
                           <t t-set="lng" t-value="str(property.survey_line_ids[0].longitude)"/>
@@ -752,13 +762,21 @@
                           <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
                           <t t-set="valid_coords" t-value="False"/>
                         </t>
-                        <a t-att-href="'https://wa.me/?text=' + share_text"
-                           class="btn btn-success btn-sm d-flex align-items-center"
-                           style="font-weight:600; padding:2px 8px; font-size:0.95rem;"
-                           target="_blank">
-                          <i class="bi bi-share me-1"></i>
-                        </a>
                       </t>
+                      <t t-else="">
+                        <t t-set="maps_url" t-value="''"/>
+                        <t t-set="directions_driving" t-value="''"/>
+                        <t t-set="directions_walking" t-value="''"/>
+                        <t t-set="directions_transit" t-value="''"/>
+                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                        <t t-set="valid_coords" t-value="False"/>
+                      </t>
+                      <a t-att-href="'https://wa.me/?text=' + share_text"
+                         class="btn btn-theme-brown btn-sm d-flex align-items-center"
+                         style="font-weight:600; padding:2px 12px; font-size:0.95rem;"
+                         target="_blank">
+                        <i class="bi bi-share me-1"></i> Share Now
+                      </a>
                     </div>
                     <div class="property-value" style="margin-bottom:0;">
                       <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
