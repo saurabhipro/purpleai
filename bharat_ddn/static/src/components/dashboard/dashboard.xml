@@ -6,7 +6,7 @@
             background-repeat: no-repeat;
             background-position: center;
             border: none;
-            border-radius: 10px;
+            border-radius: 0px;
             box-shadow: 0 4px 16px rgba(33, 150, 243, 0.10);
             margin-bottom: 16px;
             min-width: 0;
@@ -24,12 +24,28 @@
             clip-path: polygon(8px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 8px);
         }
         .bg-orange {
-            background-image: url('https://bihan.gov.in/assets/images/bg/orange-pattern.jpg');
+            background-image: url('/bharat_ddn/static/images/orange_pattern.jpg');
             border-left: 4px solid #ffa726;
         }
         .bg-green {
-            background-image: url('https://bihan.gov.in/assets/images/bg/green-pattern.jpg');
+            background-image: url('/bharat_ddn/static/images/green_pattern.jpg');
             border-left: 4px solid #66bb6a;
+        }
+        .bg-blue {
+            background-image: url('/bharat_ddn/static/images/blue_pattern.jpg');
+            border-left: 4px solid #42a5f5;
+        }
+        .bg-pink {
+            background-image: url('/bharat_ddn/static/images/pink_pattern.jpg');
+            border-left: 4px solid #ec407a;
+        }
+        .bg-purple {
+            background-image: url('/bharat_ddn/static/images/purple_pattern.jpg');
+            border-left: 4px solid #ab47bc;
+        }
+        .bg-yellow {
+            background-image: url('/bharat_ddn/static/images/yellow_pattern.jpg');
+            border-left: 4px solid #ffee58;
         }
         .dashboard-card .count,
         .dashboard-card .label,
@@ -73,6 +89,32 @@
             /* Optional: add max-width if needed */
             /* max-width: 100%; */
         }
+        /* Tablet: 3 columns */
+        @media (max-width: 1024px) {
+            .property-dashboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        /* Mobile: 1 column */
+        @media (max-width: 600px) {
+            .property-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-card {
+                min-width: 0;
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            .dashboard-card .count {
+                font-size: 1rem;
+            }
+            .dashboard-card .label {
+                font-size: 0.75rem;
+            }
+            .dashboard-card {
+                padding: 8px 4px 6px 10px;
+            }
+        }
         </style>
         <div class="vh-100 overflow-auto bg-muted">
             <div class="row m-3">
@@ -94,26 +136,26 @@
                             <div class="count"><t t-esc="this.state.property_info['total_pdf_downloaded']"/></div>
                             <div class="label">Pdf Downloaded</div>
                         </a>
-                        <div class="dashboard-card bg-orange">
+                        <div class="dashboard-card bg-blue">
                             <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
                             <div class="count">
                                 <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
                             </div>
                             <div class="label">Scans Today</div>
                         </div>
-                        <div class="dashboard-card bg-green">
+                        <div class="dashboard-card bg-pink">
                             <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
                             <div class="count">
                                 <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
                             </div>
                             <div class="label">Total Scans</div>
                         </div>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22surveyed%22%5D%5D'" class="dashboard-card bg-orange" target="_blank">
+                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22surveyed%22%5D%5D'" class="dashboard-card bg-purple" target="_blank">
                             <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
                             <div class="label">Surveyed</div>
                         </a>
-                        <div class="dashboard-card bg-green">
+                        <div class="dashboard-card bg-yellow">
                             <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
                             <div class="label">Surveyed Today</div>
