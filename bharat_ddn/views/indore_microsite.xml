@@ -523,22 +523,25 @@
           }
         }
         .captured-image-wrapper {
-          height: 180px; /* or your preferred height */
+          min-height: 220px;
+          height: 100%;
+          width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 2.5px solid #e0e0e0;
-          border-radius: 16px;
-          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+          border: 6px double #7b223c;
+          border-radius: 28px;
+          box-shadow: 0 8px 32px 0 rgba(123,34,60,0.18);
           background: #fff;
           overflow: hidden;
-          margin-bottom: 1rem;
+          margin-bottom: 0.5rem;
+          margin-top: 0.5rem;
         }
         .captured-image-wrapper img {
           height: 100%;
           width: 100%;
           object-fit: cover;
-          border-radius: 12px;
+          border-radius: 18px;
           border: none;
           box-shadow: none;
           background: #f8f8f8;
@@ -571,6 +574,18 @@
           font-weight: 600;
           font-size: 1.15rem;
           color: #222;
+        }
+        .property-card-container {
+          margin-left: 1.5rem;
+          margin-right: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+        @media (max-width: 767.98px) {
+          .property-card-container {
+            margin-left: 0.2rem;
+            margin-right: 0.2rem;
+            margin-bottom: 0.2rem;
+          }
         }
       </style>
       <div class="body-gradient-bg">
@@ -630,7 +645,7 @@
           <!-- Property Details Section -->
           <section class="py-1">
             <div class="center-section">
-              <div class="card p-4 position-relative border border-white rounded-4">
+              <div class="card p-4 position-relative border border-white rounded-4 property-card-container" style="margin-top:0;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <div class="property-header">
                     <i class="bi bi-house-door-fill property-icon-theme" style="font-size:1.5em;"></i>
@@ -676,7 +691,7 @@
                     </a>
                   </t>
                 </div>
-                <div class="row g-3 align-items-center">
+                <div class="row g-2">
                   <div class="col-6">
                     <div class="property-label">
                       <i class="bi bi-hash me-1 property-icon-theme"></i> Unit No.
@@ -748,7 +763,7 @@
                     <div class="property-label">
                       <i class="bi bi-globe me-1 property-icon-theme"></i> Latitude &amp; Longitude
                     </div>
-                    <div class="property-value">
+                    <div class="property-value" style="margin-bottom:0;">
                       <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                         <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
                           <t t-out="property.survey_line_ids[0].latitude"/> &amp; <t t-out="property.survey_line_ids[0].longitude"/>
@@ -763,8 +778,8 @@
 
           <!-- Captured Images Section -->
           <div class="center-section mt-3">
-            <div class="card p-4 position-relative border border-white rounded-4">
-              <div class="row g-3">
+            <div class="card p-4 position-relative border border-white rounded-4 property-card-container">
+              <div class="row g-2">
                 <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                   <t t-set="img1" t-value="property.survey_line_ids[0].image1_s3_url"/>
                   <t t-set="img2" t-value="property.survey_line_ids[0].image2_s3_url"/>
