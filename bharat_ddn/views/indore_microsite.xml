@@ -543,6 +543,35 @@
           box-shadow: none;
           background: #f8f8f8;
         }
+        .property-icon-theme {
+          color: #7b223c !important;
+        }
+        .property-header {
+          font-size: 1.45rem;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          margin-bottom: 1.2rem;
+          border-bottom: 3px solid #7b223c;
+          padding-bottom: 0.3rem;
+        }
+        .property-label {
+          font-weight: 700 !important;
+          border-bottom: 2px solid #e0e0e0;
+          padding-bottom: 2px;
+          margin-bottom: 0.2rem;
+          display: inline-block;
+          font-size: 1.08rem;
+          color: #7b223c !important;
+          letter-spacing: 0.5px;
+        }
+        .property-value {
+          font-weight: 600;
+          font-size: 1.15rem;
+          color: #222;
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -603,7 +632,10 @@
             <div class="center-section">
               <div class="card p-4 position-relative border border-white rounded-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h2 class="fw-bold mb-3" style="font-size:1.3rem; letter-spacing:1px;">Property Details</h2>
+                  <div class="property-header">
+                    <i class="bi bi-house-door-fill property-icon-theme" style="font-size:1.5em;"></i>
+                    <span>Property Details</span>
+                  </div>
                   <t t-if="property.uuid">
                     <t t-set="property_url" t-value="(property.company_id.website or request.httprequest.url_root).strip('/') + '/get/' + property.uuid"/>
                     <t t-set="has_coordinates" t-value="property.survey_line_ids and property.survey_line_ids[0] and property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude"/>
@@ -646,48 +678,62 @@
                 </div>
                 <div class="row g-3 align-items-center">
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Unit No.</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-hash me-1 property-icon-theme"></i> Unit No.
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.unit_no"><t t-out="property.unit_no"/></t>
                     </div>
                   </div>
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Digital Door Number</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-qr-code me-1 property-icon-theme"></i> Digital Door Number
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.upic_no"><t t-out="property.upic_no"/></t>
                     </div>
                   </div>
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Zone</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-geo-alt-fill me-1 property-icon-theme"></i> Zone
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.zone_id and property.zone_id.name"><t t-out="property.zone_id.name"/></t>
                     </div>
                   </div>
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Ward</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-grid-1x2-fill me-1 property-icon-theme"></i> Ward
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.ward_id and property.ward_id.name"><t t-out="property.ward_id.name"/></t>
                     </div>
                   </div>
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Colony</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-house-door-fill me-1 property-icon-theme"></i> Colony
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.colony_id and property.colony_id.name">
                         <t t-out="property.colony_id.name"/>
                       </t>
                     </div>
                   </div>
                   <div class="col-6">
-                    <div class="text-secondary" style="font-size:1rem;">Property Id</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-fingerprint me-1 property-icon-theme"></i> Property Id
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.property_id">
                         <t t-out="property.property_id"/>
                       </t>
                     </div>
                   </div>
                   <div class="col-12">
-                    <div class="text-secondary" style="font-size:1rem;">Address</div>
-                    <div class="fw-bold text-uppercase" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-geo-alt me-1 property-icon-theme"></i> Address
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                         <t t-if="property.survey_line_ids[0].address_line_1">
                           <t t-out="property.survey_line_ids[0].address_line_1"/>,
@@ -699,8 +745,10 @@
                     </div>
                   </div>
                   <div class="col-12">
-                    <div class="text-secondary" style="font-size:1rem;">Latitude &amp; Longitude</div>
-                    <div class="fw-bold" style="font-size:1.1rem;">
+                    <div class="property-label">
+                      <i class="bi bi-globe me-1 property-icon-theme"></i> Latitude &amp; Longitude
+                    </div>
+                    <div class="property-value">
                       <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                         <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
                           <t t-out="property.survey_line_ids[0].latitude"/> &amp; <t t-out="property.survey_line_ids[0].longitude"/>
