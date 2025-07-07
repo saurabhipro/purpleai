@@ -595,6 +595,10 @@
             margin-bottom: 0.2rem;
           }
         }
+        .row.g-2 > .col-6,
+        .row.g-2 > .col-12 {
+          margin-bottom: 0.7rem;
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -754,6 +758,13 @@
                            target="_blank">
                           <i class="bi bi-share me-1"></i>
                         </a>
+                      </t>
+                    </div>
+                    <div class="property-value" style="margin-bottom:0;">
+                      <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
+                        <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
+                          <t t-out="property.survey_line_ids[0].latitude"/> &amp; <t t-out="property.survey_line_ids[0].longitude"/>
+                        </t>
                       </t>
                     </div>
                   </div>
