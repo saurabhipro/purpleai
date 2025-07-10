@@ -27,8 +27,29 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='login']" position="after">
                     <field name="mobile"/>
+                    <field name="is_surveyor"/>
                 </xpath>
             </field>
         </record>
+
+
+        <record id="inherit_res_users_form_views" model="ir.ui.view">
+            <field name="name">res.users.inherit.list</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='login']" position="after">
+                    <group>
+                        <group>
+                            <field name="mobile"/>
+                            <field name="is_surveyor"/>
+                        
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+
     </data>
 </odoo>

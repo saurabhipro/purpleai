@@ -8,7 +8,12 @@ class ResCompany(models.Model):
     aws_acsess_key = fields.Char(string='AWS Access Key') 
     aws_secret_key = fields.Char(string='AWS Secret Key') 
     aws_region = fields.Char(string='AWS Region') 
-
     company_registry_placeholder = fields.Char()
 
 
+from odoo import models, fields
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    partner_company_registry_placeholder = fields.Char(string="Placeholder for Company Registry")
