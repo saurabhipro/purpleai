@@ -10,6 +10,7 @@
                 <list>
                     <field name="uuid" optional="hide"/>
                     <field name="upic_no" optional="show"/>
+                    <field name="digipin" optional="show"/>
                     <field name="mobile_no" optional="show"/>
                     <field name="zone_id" optional="show"/>
                     <field name="ward_id" optional="show"/>
@@ -110,6 +111,7 @@
                         <group col="2">
                             <group>
                                 <field name="uuid"/>
+                                <field name="digipin"/>
                                 <field name="microsite_url" widget="url" string="Open Microsite"/>
                             </group>
                             <group>
@@ -305,6 +307,7 @@
             <field name="arch" type="xml">
                 <search string="Property Information">
                     <field name="upic_no"/>
+                    <field name="digipin"/>
                     <field name="zone_id"/>
                     <field name="ward_id"/>
                     <field name="property_status"/>

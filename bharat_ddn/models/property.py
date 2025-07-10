@@ -189,6 +189,69 @@ class Property(models.Model):
         ('unique_upic_no', 'UNIQUE(upic_no)', 'The UPICNO must be unique.')
     ]
 
+    digipin = fields.Char('Digi Pin', compute='_compute_digipin', store=True)
+
+    DIGIPIN_GRID = [
+        ['F', 'C', '9', '8'],
+        ['J', '3', '2', '7'],
+        ['K', '4', '5', '6'],
+        ['L', 'M', 'P', 'T']
+    ]
+
+    BOUNDS = {
+        'minLat': 2.5,
+        'maxLat': 38.5,
+        'minLon': 63.5,
+        'maxLon': 99.5
+    }
+
+    @api.depends('latitude', 'longitude')
+    def _compute_digipin(self):
+        for rec in self:
+            try:
+                lat = float(rec.latitude) if rec.latitude else None
+                lon = float(rec.longitude) if rec.longitude else None
+                if lat is not None and lon is not None:
+                    rec.digipin = rec._get_digi_pin(lat, lon)
+                else:
+                    rec.digipin = ''
+            except Exception:
+                rec.digipin = ''
+
+    def _get_digi_pin(self, lat, lon):
+        if not (self.BOUNDS['minLat'] <= lat <= self.BOUNDS['maxLat']):
+            return ''
+        if not (self.BOUNDS['minLon'] <= lon <= self.BOUNDS['maxLon']):
+            return ''
+
+        min_lat = self.BOUNDS['minLat']
+        max_lat = self.BOUNDS['maxLat']
+        min_lon = self.BOUNDS['minLon']
+        max_lon = self.BOUNDS['maxLon']
+
+        digi_pin = ''
+
+        for level in range(1, 11):
+            lat_div = (max_lat - min_lat) / 4.0
+            lon_div = (max_lon - min_lon) / 4.0
+
+            row = 3 - int((lat - min_lat) / lat_div)
+            col = int((lon - min_lon) / lon_div)
+
+            row = max(0, min(row, 3))
+            col = max(0, min(col, 3))
+
+            digi_pin += self.DIGIPIN_GRID[row][col]
+
+            if level == 3 or level == 6:
+                digi_pin += '-'
+
+            max_lat = min_lat + lat_div * (4 - row)
+            min_lat = min_lat + lat_div * (3 - row)
+            min_lon = min_lon + lon_div * col
+            max_lon = min_lon + lon_div
+
+        return digi_pin
    
     @api.depends('uuid')
     def _compute_qr_code(self):

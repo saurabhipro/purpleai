@@ -791,6 +791,43 @@
             </div>
           </section>
 
+          <!-- DIGIPIN Section -->
+          <div class="center-section mt-3">
+            <div class="card p-4 position-relative rounded-4 property-card-container"
+                 style="max-width: 420px; overflow:visible; border:3px solid #e53935; box-shadow:0 2px 16px 0 rgba(229,57,53,0.10);">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div style="font-weight:700; color:#7b223c; font-size:1.1rem;">Marked DIGIPIN</div>
+                <button type="button" class="btn-close" aria-label="Close" style="opacity:0.5; pointer-events:none;"></button>
+              </div>
+              <div style="font-size:2.2rem; font-weight:900; letter-spacing:2px; color:#222;">
+                <t t-if="property.digipin"><t t-out="property.digipin"/></t>
+              </div>
+              <div style="font-size:1.1rem; color:#7b223c; font-weight:600;">
+                <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
+                  <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
+                    <t t-out="property.survey_line_ids[0].latitude"/>, <t t-out="property.survey_line_ids[0].longitude"/>
+                  </t>
+                </t>
+              </div>
+              <div class="d-flex align-items-center mt-3" style="gap:1.2rem;">
+                <button class="btn btn-link p-0" title="Favourite" style="color:#e91e63;">
+                  <i class="bi bi-heart" style="font-size:1.5rem;"></i>
+                </button>
+                <button class="btn btn-link p-0" title="Speak" style="color:#e65100;">
+                  <i class="bi bi-volume-up" style="font-size:1.5rem;"></i>
+                </button>
+                <button class="btn btn-link p-0" title="Share" style="color:#e53935;">
+                  <i class="bi bi-share" style="font-size:1.5rem;"></i>
+                </button>
+              </div>
+              <!-- India Post Logo, absolutely positioned at bottom right -->
+              <img src="/bharat_ddn/static/images/india_post.svg"
+                   alt="India Post"
+                   style="position:absolute; bottom:10px; right:10px; height:70px; width:auto; z-index:2; background:transparent; box-shadow:none;"/>
+            </div>
+          </div>
+          <!-- End DIGIPIN Section -->
+
           <!-- Captured Images Section -->
           <div class="center-section mt-3">
             <div class="card p-4 position-relative border border-white rounded-4 property-card-container">
