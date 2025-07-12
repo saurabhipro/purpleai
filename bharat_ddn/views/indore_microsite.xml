@@ -810,10 +810,10 @@
               </div>
               <div class="d-flex align-items-center mt-3" style="gap:1.2rem;">
                  <a t-att-href="'https://wa.me/?text=' + share_text"
-                         class="btn btn-theme-brown btn-sm d-flex align-items-center"
-                         style="font-weight:600; padding:2px 12px; font-size:0.95rem;"
+                         class="btn btn-sm d-flex align-items-center"
+                         style="font-weight:600; padding:2px 12px; font-size:0.95rem; background:#e53935; color:#fff;"
                          target="_blank">
-                         <i class="bi bi-share" style="font-size:1.5rem;"></i>
+                         <i class="bi bi-share" style="font-size:1.5rem; color:#fff;"></i>
                  </a>
               </div>
               <!-- India Post Logo, absolutely positioned at bottom right -->
