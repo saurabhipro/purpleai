@@ -51,7 +51,8 @@
             'bharat_ddn/static/src/components/dashboard/dashboard.scss',
             'bharat_ddn/static/xml/hide_notification.xml',
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-            'https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C2gCIiCjtgFE&callback=Function.prototype',
+            'bharat_ddn/static/src/js/kml_viewer.js',
+            'bharat_ddn/static/src/xml/kml_viewer.xml',
         ],
 
         'web.assets_frontend': [
