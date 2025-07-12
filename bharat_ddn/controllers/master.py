@@ -33,7 +33,6 @@ class Master(http.Controller):
                     }), status=200, content_type='application/json')
 
                 zones = request.env['ddn.zone'].sudo().search([('company_id', '=', company_id)])
-                print("lfsdkfjskfj")
                 return Response(json.dumps([
                     {
                         'id': zone.id,

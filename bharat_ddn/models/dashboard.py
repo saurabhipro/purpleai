@@ -135,5 +135,4 @@ class Dashboard(models.Model):
             ]
         }]
 
-        print("result - ", final_result)
         return final_result

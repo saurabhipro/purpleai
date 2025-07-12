@@ -187,21 +187,12 @@ export class PropertyMapView extends Component {
             if (this.state.searchCoords) {
                 // Optionally, add logic to filter by coordinates
             }
-            console.log('Filter domain:', domain);
-            console.log('Selected values:', {
-                selectedZone: this.state.selectedZone,
-                selectedWard: this.state.selectedWard,
-                selectedStatus: this.state.selectedStatus,
-                upicNo: this.state.upicNo,
-                dateFrom: this.state.dateFrom,
-                dateTo: this.state.dateTo
-            });
+           
             const properties = await this.orm.call('ddn.property.info', 'search_read', [domain], {
                 fields: [
                     'id', 'upic_no', 'zone_id', 'ward_id', 'property_status', 'latitude', 'longitude'
                 ]
             });
-            console.log('Properties returned:', properties.length, properties);
             const bounds = new google.maps.LatLngBounds();
             for (const prop of properties) {
                 if (prop.latitude && prop.longitude) {
@@ -300,7 +291,7 @@ export class PropertyMapView extends Component {
 
         } catch (error) {
             console.error("Error during filter:", error);
-            this.state.error = "An error occurred while filtering properties.";
+            // this.stprintate.error = "An error occurred while filtering properties.";
         } finally {
             this.state.loading = false;
         }

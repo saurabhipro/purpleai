@@ -75,7 +75,6 @@ class JWTAuthController(http.Controller):
             ('mobile', '=', mobile),
             ('otp', '=', otp_input)
         ], limit=1)
-        print("OTP Record - ", otp_record)
         if not otp_record:
             return Response( json.dumps({'error': 'Invalid OTP'}), status=400, content_type='application/json' )
 
@@ -85,7 +84,6 @@ class JWTAuthController(http.Controller):
             return Response(json.dumps({'error': 'OTP expired'}),status=400, content_type='application/json')
 
         user = otp_record.user_id
-        print("User - ", user)
         otp_record.unlink()
 
         payload = {

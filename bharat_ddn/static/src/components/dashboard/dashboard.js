@@ -4,12 +4,13 @@ import { registry } from "@web/core/registry";
 import { PropertyMapView } from "../google_map/property_map";
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-
+import { _t } from "@web/core/l10n/translation";
 export class OwlCrmDashboard extends Component {
     static components = {PropertyMapView };
 
     setup() {
         this.orm = useService("orm");
+        this.action = useService("action");
         this.state = useState({
             property_info: {
                 ward_data: [], // Initialize ward_data as an empty array
@@ -24,6 +25,47 @@ export class OwlCrmDashboard extends Component {
         });
     }
 
+
+    _openListView(resModel, domain = []) {
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: _t('Properties'),
+            res_model: resModel,
+            view_mode: 'list',
+            views: [[false, 'list']],
+            domain: domain,
+        });
+    }
+
+    _onClickPropertyStatusCard(ev) {
+        const anchor = ev.target.closest('a');
+        if (!anchor) return;
+
+        const status = anchor.getAttribute('status');
+        const domain = status ? [['property_status', '=', status]] : [];
+        this._openListView('ddn.property.info', domain);
+    }
+
+    _onClickZone(ev) {
+        if (!ev.target.closest('a')) return;
+        this._openListView('ddn.zone');
+    }
+
+    _onClickWard(ev) {
+        if (!ev.target.closest('a')) return;
+        this._openListView('ddn.ward');
+    }
+
+    _onClickColony(ev) {
+        if (!ev.target.closest('a')) return;
+        this._openListView('ddn.colony');
+    }
+
+    _onClickSurveyors(ev) {
+        if (!ev.target.closest('a')) return;
+        this._openListView('res.users', [['is_surveyor', '=', true]]);
+    }
+
     async loadDashboardData() {
         try {
             // Property status wise data
@@ -34,7 +76,6 @@ export class OwlCrmDashboard extends Component {
                 {}
             );
             
-            console.log("propertyDetails - ", propertyDetails);
             
             if (propertyDetails && propertyDetails.length > 0) {
                 const data = propertyDetails[0];
@@ -46,8 +87,6 @@ export class OwlCrmDashboard extends Component {
                     total_surveyors: data.total_surveyors || 0
                 };
                 
-                console.log("Processed ward data:", this.state.property_info.ward_data);
-                console.log("Surveyed per day:", this.state.property_info.surveyed_per_day);
 
                 // Render surveyed per day chart if Chart.js is loaded
                 setTimeout(() => {

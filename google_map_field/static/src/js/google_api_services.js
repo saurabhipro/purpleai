@@ -8,7 +8,6 @@ export async function loadGoogleMapLibWithApi(api) {
         if (typeof google !== "undefined" && google.maps) {
             console.warn("Google Maps library is already loaded");
         } else {
-            console.log("Google Maps library is not loaded, loading now...");
             await loadJS(`${GOOGLE_MAP_URL}${api}`);
         }
 

@@ -119,23 +119,22 @@
         <div class="vh-100 overflow-auto bg-muted">
             <div class="row m-3">
                 <div class="col">
-                    <div class="row">
-                        <div class="col m-0 p-0">
-                            
-                        </div>
-                    </div>
-
                     <div class="property-dashboard">
-                        <a t-att-href="'/web/action-325'" class="dashboard-card bg-orange" target="_blank">
-                            <span class="bg-icon"><i class="fa fa-upload"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_count']"/></div>
-                            <div class="label">Total Properties</div>
-                        </a>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22pdf_downloaded%22%5D%5D'" class="dashboard-card bg-green" target="_blank">
-                            <span class="bg-icon"><i class="fa fa-file-pdf-o"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_pdf_downloaded']"/></div>
-                            <div class="label">Pdf Downloaded</div>
-                        </a>
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-orange" target="_blank" >
+                                <span class="bg-icon"><i class="fa fa-upload"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_count']"/></div>
+                                <div class="label">Total Properties</div>
+                            </a>
+                        </div>
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-green" target="_blank" t-att-status="'pdf_downloaded'">
+                                <span class="bg-icon"><i class="fa fa-file-pdf-o"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_pdf_downloaded']"/></div>
+                                <div class="label">Pdf Downloaded</div>
+                            </a>
+                        </div>
+
                         <div class="dashboard-card bg-blue">
                             <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
                             <div class="count">
@@ -150,45 +149,62 @@
                             </div>
                             <div class="label">Total Scans</div>
                         </div>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22surveyed%22%5D%5D'" class="dashboard-card bg-purple" target="_blank">
-                            <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
-                            <div class="label">Surveyed</div>
-                        </a>
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-purple" target="_blank" t-att-status="'surveyed'">
+                                <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
+                                <div class="label">Surveyed</div>
+                            </a>
+                        </div>
                         <div class="dashboard-card bg-yellow">
                             <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
                             <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
                             <div class="label">Surveyed Today</div>
                         </div>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22visit_again%22%5D%5D'" class="dashboard-card bg-orange" target="_blank">
-                            <span class="bg-icon"><i class="fa fa-repeat"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_visit_again']"/></div>
-                            <div class="label">Visit Again</div>
-                        </a>
-                        <a t-att-href="'/web#action=bharat_ddn.action_property_info&amp;model=bharat_ddn.property.info&amp;view_type=list&amp;menu_id=123&amp;domain=%5B%5B%22property_status%22%2C%22%3D%22%2C%22discovered%22%5D%5D'" class="dashboard-card bg-green" target="_blank">
-                            <span class="bg-icon"><i class="fa fa-search"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_discovered']"/></div>
-                            <div class="label">Discovered</div>
-                        </a>
-                        <div class="dashboard-card bg-orange">
-                            <span class="bg-icon"><i class="fa fa-th-large"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_zones']"/></div>
-                            <div class="label">Zones</div>
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-orange" target="_blank" t-att-status="'visit_again'">
+                                <span class="bg-icon"><i class="fa fa-repeat"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_visit_again']"/></div>
+                                <div class="label">Visit Again</div>
+                            </a>
                         </div>
-                        <div class="dashboard-card bg-green">
-                            <span class="bg-icon"><i class="fa fa-th-list"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_wards']"/></div>
-                            <div class="label">Wards</div>
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-green" target="_blank" t-att-status="'discovered'">
+                                <span class="bg-icon"><i class="fa fa-search"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_discovered']"/></div>
+                                <div class="label">Discovered</div>
+                            </a>
                         </div>
-                        <div class="dashboard-card bg-orange">
-                            <span class="bg-icon"><i class="fa fa-building"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_colonies']"/></div>
-                            <div class="label">Colonies</div>
+
+                      
+                        <div t-on-click="_onClickZone">
+                            <a href="#" class="dashboard-card bg-orange" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-th-large"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_zones']"/></div>
+                                <div class="label">Zones</div>
+                            </a>
                         </div>
-                        <div class="dashboard-card bg-green">
-                            <span class="bg-icon"><i class="fa fa-user"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['total_surveyors']"/></div>
-                            <div class="label">Surveyors</div>
+                        <div t-on-click="_onClickWard">
+                            <a href="#" class="dashboard-card bg-green" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-th-list"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_wards']"/></div>
+                                <div class="label">Wards</div>
+                            </a>
+                        </div>
+
+                        <div t-on-click="_onClickColony">
+                            <a href="#" class="dashboard-card bg-orange" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-building"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_colonies']"/></div>
+                                <div class="label">Colonies</div>
+                            </a>
+                        </div>
+                        <div t-on-click="_onClickSurveyors">
+                            <a href="#" class="dashboard-card bg-green" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-user"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_surveyors']"/></div>
+                                <div class="label">Surveyors</div>
+                            </a>
                         </div>
                     </div>
                     <div>
