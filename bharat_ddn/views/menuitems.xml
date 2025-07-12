@@ -26,4 +26,13 @@
             <menuitem id="menu_ddn_services_manage" name="Manage Services" action="action_ddn_services" sequence="13"/>
         </menuitem>
     </menuitem>
+    <record id="action_kml_viewer" model="ir.actions.client">
+        <field name="name">KML Viewer</field>
+        <field name="tag">kml_viewer_component</field>
+    </record>
+    <menuitem id="menu_kml_viewer"
+              name="KML Viewer"
+              parent="ddn_parent_menu_property_info"
+              action="action_kml_viewer"
+              sequence="100"/>
 </odoo>

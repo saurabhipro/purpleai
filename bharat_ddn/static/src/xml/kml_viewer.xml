@@ -1,0 +1,5 @@
+<t t-name="bharat_ddn.KMLViewerComponent" owl="1">
+  <div style="width:100%;height:80vh;">
+    <div t-ref="map" style="width:100%;height:100%;border-radius:12px;box-shadow:0 2px 16px #0001;"></div>
+  </div>
+</t>
