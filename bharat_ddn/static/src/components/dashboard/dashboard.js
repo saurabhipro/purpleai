@@ -66,6 +66,19 @@ export class OwlCrmDashboard extends Component {
         this._openListView('res.users', [['is_surveyor', '=', true]]);
     }
 
+    _onClickTodaySurveyed(ev) {
+        if (!ev.target.closest('a')) return;
+
+        const today = new Date();
+        const todayStart = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+        const todayEnd = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+        this._openListView('ddn.property.survey', [
+            ['create_date', '>=', todayStart],
+            ['create_date', '<=', todayEnd],
+        ]);
+    }
+
     async loadDashboardData() {
         try {
             // Property status wise data

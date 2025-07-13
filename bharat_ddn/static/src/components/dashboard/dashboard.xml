@@ -156,10 +156,12 @@
                                 <div class="label">Surveyed</div>
                             </a>
                         </div>
-                        <div class="dashboard-card bg-yellow">
-                            <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
-                            <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
-                            <div class="label">Surveyed Today</div>
+                        <div t-on-click="_onClickTodaySurveyed">
+                            <a href="#" class="dashboard-card bg-yellow" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
+                                <div class="label">Surveyed Today</div>
+                            </a>
                         </div>
                         <div t-on-click="_onClickPropertyStatusCard">
                             <a href="#" class="dashboard-card bg-orange" target="_blank" t-att-status="'visit_again'">
