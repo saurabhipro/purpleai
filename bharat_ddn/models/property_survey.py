@@ -12,9 +12,9 @@ class SurveyParameters(models.Model):
     _rec_name = 'property_id'
     
     unit = fields.Char('Unit')
-    property_id = fields.Many2one('ddn.property.info', 'Property ID', required=True)
+    property_id = fields.Many2one('ddn.property.info', 'Property ID')
     company_id = fields.Many2one('res.company', string="Company", related='property_id.company_id', store=True, default=lambda self : self.env.company.id, readonly=True)
-    address_line_1 = fields.Char('Address Line 1', required=True)
+    address_line_1 = fields.Char('Address Line 1')
     address_line_2 = fields.Char('Address Line 2')
     total_floors = fields.Char('Total Floors')
     floor_number = fields.Char('Floor Number')
@@ -28,8 +28,8 @@ class SurveyParameters(models.Model):
     installer_id = fields.Many2one('res.users', string='Installer')
     property_image = fields.Binary() 
     property_image1 = fields.Binary() 
-    image1_s3_url = fields.Char(string="URL Image", readonly=True)
-    image2_s3_url = fields.Char(string="Url Image2", readonly=True)
+    image1_s3_url = fields.Char(string="URL Image")
+    image2_s3_url = fields.Char(string="Url Image2")
     mobile_no = fields.Char('Mobile No')
     survey_date = fields.Date('Survey Date', default=fields.Date.context_today)
     is_solar = fields.Boolean(string='Is Solar', default=True)
@@ -79,8 +79,6 @@ class SurveyParameters(models.Model):
             # Clear binary fields to save DB space
             rec.property_image = False
             rec.property_image1 = False
-
-
 
 
     @api.onchange('property_id')
@@ -143,8 +141,3 @@ class SurveyParameters(models.Model):
                 if vals_to_write:
                     record.property_id.write(vals_to_write)
         return res
-
-
-
-
-    

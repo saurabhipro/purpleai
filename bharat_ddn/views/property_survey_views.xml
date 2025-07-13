@@ -22,7 +22,7 @@
             </field>
         </record>
 
-        <record id="view_property_survey_form" model="ir.ui.view">
+        <record id="ddn_property_survey_form" model="ir.ui.view">
             <field name="name">ddn.property.survey.form</field>
             <field name="model">ddn.property.survey</field>
             <field name="arch" type="xml">
@@ -76,12 +76,28 @@
                                 <field name="property_image1" widget="image" class="oe_avatar" string="Property Image1" invisible="image2_s3_url"/>
                             </group>
                         </group>
-                        <group string="Image URLs">
+                        <group string="IMAGE URLS" col="2">
                             <group>
-                                <field name="image1_s3_url" widget="image_url"/>
+                                <div>
+                                    <span style="font-weight:bold;">Image 1</span>
+                                </div>
+                                <field name="image1_s3_url" widget="image_url" readonly="1" nolabel="1"/>
+                                <div>
+                                    <span style="font-size:12px; color:#555;">URL 1:</span>
+                                    <br/>
+                                    <field name="image1_s3_url" widget="url" readonly="1" nolabel="1"/>
+                                </div>
                             </group>
                             <group>
-                                <field name="image2_s3_url" widget="image_url"/>
+                                <div>
+                                    <span style="font-weight:bold;">Image 2</span>
+                                </div>
+                                <field name="image2_s3_url" widget="image_url" readonly="1" nolabel="1"/>
+                                <div>
+                                    <span style="font-size:12px; color:#555;">URL 2:</span>
+                                    <br/>
+                                    <field name="image2_s3_url" widget="url" readonly="1" nolabel="1"/>
+                                </div>
                             </group>
                         </group>
                         <button name="action_upload_all_images" type="object" string="Upload to S3" class="btn-primary" invisible="image2_s3_url and image2_s3_url"/>

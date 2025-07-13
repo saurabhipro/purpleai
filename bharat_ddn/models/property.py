@@ -293,24 +293,23 @@ class Property(models.Model):
     
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to validate coordinates before saving."""
-        for vals in vals_list:
-            try:
-                if vals.get('latitude'):
-                    lat = vals['latitude']
-                    if not re.match(r'^\d{1,2}°\s*\d{1,2}\'\s*\d{1,2}(\.\d+)?"\s*[NS]$', lat):
-                        vals['latitude'] = None
-                if vals.get('longitude'):
-                    lng = vals['longitude']
-                    if not re.match(r'^\d{1,3}°\s*\d{1,2}\'\s*\d{1,2}(\.\d+)?"\s*[EW]$', lng):
-                        vals['longitude'] = None
-            except (ValueError, TypeError):
-                vals['latitude'] = None
-                vals['longitude'] = None
+        # """Override create to validate coordinates before saving."""
+        # for vals in vals_list:
+        #     try:
+        #         if vals.get('latitude'):
+        #             lat = vals['latitude']
+        #             if not re.match(r'^\d{1,2}°\s*\d{1,2}\'\s*\d{1,2}(\.\d+)?"\s*[NS]$', lat):
+        #                 vals['latitude'] = None
+        #         if vals.get('longitude'):
+        #             lng = vals['longitude']
+        #             if not re.match(r'^\d{1,3}°\s*\d{1,2}\'\s*\d{1,2}(\.\d+)?"\s*[EW]$', lng):
+        #                 vals['longitude'] = None
+        #     except (ValueError, TypeError):
+        #         vals['latitude'] = None
+        #         vals['longitude'] = None
         return super().create(vals_list)
     
-    
-    
+        
     
   
     @api.depends('uuid')
