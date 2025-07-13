@@ -14,9 +14,22 @@ class DdnReport(models.TransientModel):
     _name = 'ddn.report'
     _description = 'DDN Report Wizard'
 
-    date_from = fields.Date(string='Start Date', required=True)
-    date_to = fields.Date(string='End Date', required=True)
-    company_id = fields.Many2one('res.company', string='Company', required=True, default=lambda self: self.env.company)
+    date_from = fields.Date(
+        string='Start Date',
+        required=True,
+        default=lambda self: fields.Date.context_today(self)
+    )
+    date_to = fields.Date(
+        string='End Date',
+        required=True,
+        default=lambda self: fields.Date.context_today(self)
+    )
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        required=True,
+        default=lambda self: self.env.company
+    )
     zone_id = fields.Many2many('ddn.zone', string='Zone')
     ward_id = fields.Many2many('ddn.ward', string='Ward')
 

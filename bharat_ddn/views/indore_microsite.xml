@@ -772,10 +772,9 @@
                         <t t-set="valid_coords" t-value="False"/>
                       </t>
                       <a t-att-href="'https://wa.me/?text=' + share_text"
-                         class="btn btn-theme-brown btn-sm d-flex align-items-center"
+                         class="btn btn-theme-red btn-sm d-flex align-items-center"
                          style="font-weight:600; padding:2px 12px; font-size:0.95rem;"
                          target="_blank">
-                        <i class="bi bi-share me-1"></i> Share Now
                       </a>
                     </div>
                     <div class="property-value" style="margin-bottom:0;">
@@ -796,7 +795,7 @@
             <div class="card p-4 position-relative rounded-4 property-card-container"
                  style="max-width: 420px; overflow:visible; border:3px solid #e53935; box-shadow:0 2px 16px 0 rgba(229,57,53,0.10);">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <div style="font-weight:700; color:#7b223c; font-size:1.1rem;">Marked DIGIPIN</div>
+                <div style="font-weight:700; color:#7b223c; font-size:1.1rem;">Your DIGIPIN</div>
                 <button type="button" class="btn-close" aria-label="Close" style="opacity:0.5; pointer-events:none;"></button>
               </div>
               <div style="font-size:2.2rem; font-weight:900; letter-spacing:2px; color:#222;">
@@ -810,15 +809,12 @@
                 </t>
               </div>
               <div class="d-flex align-items-center mt-3" style="gap:1.2rem;">
-                <button class="btn btn-link p-0" title="Favourite" style="color:#e91e63;">
-                  <i class="bi bi-heart" style="font-size:1.5rem;"></i>
-                </button>
-                <button class="btn btn-link p-0" title="Speak" style="color:#e65100;">
-                  <i class="bi bi-volume-up" style="font-size:1.5rem;"></i>
-                </button>
-                <button class="btn btn-link p-0" title="Share" style="color:#e53935;">
-                  <i class="bi bi-share" style="font-size:1.5rem;"></i>
-                </button>
+                 <a t-att-href="'https://wa.me/?text=' + share_text"
+                         class="btn btn-sm d-flex align-items-center"
+                         style="font-weight:600; padding:2px 12px; font-size:0.95rem; background:#e53935; color:#fff;"
+                         target="_blank">
+                         <i class="bi bi-share" style="font-size:1.5rem; color:#fff;"></i>
+                 </a>
               </div>
               <!-- India Post Logo, absolutely positioned at bottom right -->
               <img src="/bharat_ddn/static/images/india_post.svg"
@@ -974,7 +970,7 @@
             <div class="row mt-2">
               <div class="col-12 text-center" style="font-size:1rem; margin-top:1rem;">
                 Designed and Implemented by<br/>
-                <span style="font-weight:600;">Redmelon Buisiness Solutions Pvt Ltd</span>
+                <span style="font-weight:600;">Redmelon Business Solutions Pvt Ltd</span>
               </div>
             </div>
           </div>
