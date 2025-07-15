@@ -609,6 +609,25 @@
           background: #5a182c !important;
           color: #fff !important;
         }
+        .disclaimer-card {
+          background: #fff8e1;
+          border-left: 5px solid #e53935;
+          border-radius: 10px;
+          padding: 1rem 1.2rem;  /* Add this padding */
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 8px 0 rgba(229,57,53,0.07);
+        }
+        .disclaimer-title {
+          color: #b85b2c;
+          font-size: 1.08rem;
+          font-weight: 700;
+          margin-bottom: 0.3rem;
+        }
+        .disclaimer-text {
+          color: #333;
+          font-size: 0.98rem;
+          margin-bottom: 0;
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -944,13 +963,47 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            
-            
+              </div>            
             </section>
-
           </t>
+          
         </section>
+
+        <!-- Professional Disclaimer Section -->
+        <section class="disclaimer-section mt-5">
+          <div class="center-section">
+            <div class="card p-4 position-relative border border-white rounded-4">
+              <div class="section-title-container">
+                <div class="section-title-bg">Legal Disclaimers</div>
+              </div>
+              <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                  <div class="professional-disclaimer-card">
+                    <div class="disclaimer-header">
+                      <i class="bi bi-shield-exclamation disclaimer-icon"></i>
+                      <h4 class="disclaimer-title">DigiPin™ Disclaimer</h4>
+                    </div>
+                    <div class="disclaimer-content">
+                      <p>"DigiPIn"™ is a trademark of the Department of Posts, Government of India. The usage of the DIGIPIN / India Post logo on this portal is solely to identify India Post's open-source DigiPIn functionality. Indore Municipal Corporation has implemented the publicly available logic as provided by the Department of Posts. The Corporation is not responsible for any disconnected data, outdated content, or broken links displayed here.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                  <div class="professional-disclaimer-card">
+                    <div class="disclaimer-header">
+                      <i class="bi bi-info-circle disclaimer-icon"></i>
+                      <h4 class="disclaimer-title">Data Accuracy Disclaimer</h4>
+                    </div>
+                    <div class="disclaimer-content">
+                      <p>Property and other records shown here are updated from the latest available municipal data. For corrections or updates—such as ownership, dimensions, addresses, etc.—please contact the Corporation or the Assistant Revenue Officer (ARO). Any decisions based on this information are at the user's own risk.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- End Professional Disclaimer Section -->
 
         <!-- Custom Microsite Footer -->
         <footer class="footer-gradient mt-5 custom-microsite-footer" style="border-radius: 0; display: block !important;">
@@ -1008,6 +1061,54 @@
           .powered-link:hover {
             color: #fff;
             text-decoration: underline;
+          }
+          .disclaimer-section {
+            background: linear-gradient(135deg, #fffde7 0%, #fff8e1 100%);
+            padding: 2rem 0 2rem 0;
+          }
+          .professional-disclaimer-card {
+            background: #fff8e1;
+            border-left: 6px solid #e53935;
+            border-radius: 12px;
+            padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 2px 12px 0 rgba(229,57,53,0.07);
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+          }
+          .disclaimer-header {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 0.7rem;
+          }
+          .disclaimer-title {
+            color: #b85b2c;
+            font-size: 1.18rem;
+            font-weight: 800;
+            margin: 0;
+          }
+          .disclaimer-icon {
+            color: #e53935;
+            font-size: 1.7rem;
+          }
+          .disclaimer-content p {
+            color: #333;
+            font-size: 1.02rem;
+            margin-bottom: 0;
+            margin-top: 0.2rem;
+            font-weight: 500;
+          }
+          @media (max-width: 991.98px) {
+            .disclaimer-section .row.g-4 {
+              flex-direction: column;
+            }
+            .professional-disclaimer-card {
+              min-height: unset;
+              margin-bottom: 1.2rem;
+            }
           }
         </style>
         <!-- End Custom Microsite Footer -->
