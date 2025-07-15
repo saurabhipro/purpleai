@@ -11,13 +11,10 @@
                     class="oe_img_bg o_bg_img_center o_colored_level" data-name="Banner">
                     <div class="container">
                         <h2 class="aos-init o_default_snippet_text aos-animate" data-aos="fade-up"
-                            data-aos-duration="4000"> Focus on Growing Your Business <br /> Trust
-                            The <span class="o_default_snippet_text"> Accounting </span> To Us </h2>
+                            data-aos-duration="4000"> 
+                            Digital Door Number for Every Citizen</h2>
                         <p class="o_default_snippet_text">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                            veniam,
-                            quis nostrud exercitation ullamco laboris.
+                            DDN is a revolutionary initiative providing Universal Digital Address Numbers for every household. Access all government services with just a QR code scan!
                         </p>
                         <div class="sh_btn_group">
                             <div class="sh_banner_btn">
@@ -244,6 +241,7 @@
                                                         <img class="img_2"
                                                             src="/sh_corpomate_theme/static/src/images/theme_1/images/sh_accounting_image_7.jpg"
                                                             loading="lazy" style="" />
+
                                                     </div>
                                                     <div class="sh_inner_links">
                                                         <div class="sh_links">
