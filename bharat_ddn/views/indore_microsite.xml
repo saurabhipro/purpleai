@@ -55,7 +55,7 @@
           padding: 0 !important;
         }
         .emergency-card {
-          border: 2.5px solid #e0e0e0;   /* Light gray border for all */
+          border: 2.5px solid #e0e0e0;
           border-radius: 18px;
           color: #fff;
           font-weight: 600;
@@ -68,63 +68,85 @@
           transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
           cursor: pointer;
           background-clip: padding-box;
+          position: relative;
+          overflow: hidden;
+        }
+        .emergency-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
         .emergency-card:hover {
           transform: translateY(-4px) scale(1.03);
           box-shadow: 0 6px 24px 0 rgba(0,0,0,0.13);
           opacity: 0.95;
-          border-color: #7b223c; /* Highlight border on hover */
+          border-color: #7b223c;
+        }
+        .emergency-card:hover::before {
+          opacity: 1;
         }
         .emergency-icon {
-          font-size: 2rem;
+          font-size: 2.2rem;
           margin-bottom: 0.3rem;
           display: block;
+          position: relative;
+          z-index: 2;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
         .emergency-bg-red {
-          background: #fdebed;
-          color: #b71c1c; /* deep red for text/icon */
-          border-color: #f8bbbc;
+          background: linear-gradient(135deg, #ff1744 0%, #d50000 100%);
+          color: #ffffff;
+          border-color: #ff1744;
         }
         .emergency-bg-blue {
-          background: #e3f2fd;
-          color: #1565c0; /* deep blue for text/icon */
-          border-color: #b3d6f7;
+          background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+          color: #ffffff;
+          border-color: #2196f3;
         }
         .emergency-bg-yellow {
-          background: #fff7e0;
-          color: #b26a00; /* deep gold for text/icon */
-          border-color: #ffe9b3;
+          background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+          color: #ffffff;
+          border-color: #ff9800;
         }
         .emergency-bg-cyan {
-          background: #e0f7fa;
-          color: #00838f; /* teal for text/icon */
-          border-color: #b3e6ea;
+          background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+          color: #ffffff;
+          border-color: #00bcd4;
         }
         .emergency-bg-purple {
-          background: #f3e5f5;
-          color: #6a1b9a; /* purple for text/icon */
-          border-color: #e1c6f3;
+          background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+          color: #ffffff;
+          border-color: #9c27b0;
         }
         .emergency-bg-green {
-          background: #e8f5e9;
-          color: #2e7d32; /* green for text/icon */
-          border-color: #bfe5c7;
+          background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+          color: #ffffff;
+          border-color: #4caf50;
         }
         .emergency-bg-gold {
-          background: #fffde7;
-          color: #bfa600; /* gold for text/icon */
-          border-color: #fff7b3;
+          background: linear-gradient(135deg, #ffc107 0%, #ffa000 100%);
+          color: #ffffff;
+          border-color: #ffc107;
         }
         .emergency-bg-indigo {
-          background: #e8eaf6;
-          color: #283593; /* indigo for text/icon */
-          border-color: #c6c8f3;
+          background: linear-gradient(135deg, #3f51b5 0%, #303f9f 100%);
+          color: #ffffff;
+          border-color: #3f51b5;
         }
         .emergency-label {
           font-size: 1.08rem;
-          font-weight: 600;
+          font-weight: 700;
           margin-top: 0.2rem;
           letter-spacing: 0.2px;
+          position: relative;
+          z-index: 2;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
         .container { max-width: 100% !important; }
         .main-section-card {
@@ -230,45 +252,88 @@
         }
         /* Officer Card Customization */
         .officer-card {
-          border: 2.5px solid #bdbdbd; /* Subtle gray border */
+          border: 2.5px solid #e0e0e0;
           border-radius: 18px;
-          background: #fff;
-          color: #222 !important;
-          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #ffffff !important;
+          box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
           font-weight: 600;
           font-size: 1.08rem;
           display: flex;
           align-items: center;
           justify-content: center;
           min-height: 120px;
-          transition: transform 0.12s, box-shadow 0.12s;
+          transition: all 0.3s ease;
           cursor: pointer;
+          position: relative;
+          overflow: hidden;
+        }
+        .officer-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
         .officer-card:hover {
           transform: translateY(-4px) scale(1.03);
-          box-shadow: 0 6px 24px 0 rgba(0,0,0,0.13);
-          opacity: 0.97;
-          border-color: #7b223c; /* Highlight border on hover */
+          box-shadow: 0 8px 28px 0 rgba(0,0,0,0.18);
+          opacity: 0.95;
+          border-color: #7b223c;
+        }
+        .officer-card:hover::before {
+          opacity: 1;
         }
         .officer-card .officer-label {
-          color: #222 !important;
-          font-size: 1.08rem;
+          color: #ffffff !important;
+          font-size: 1.1rem;
           font-weight: 700;
           margin-top: 0.2rem;
-          letter-spacing: 0.2px;
+          letter-spacing: 0.3px;
+          position: relative;
+          z-index: 2;
+          text-shadow: 0 1px 3px rgba(0,0,0,0.4);
         }
         .officer-card .officer-name,
         .officer-card .officer-phone {
-          color: #333 !important;
+          color: #ffffff !important;
           font-size: 0.95rem;
           font-weight: 500;
-          opacity: 1;
+          opacity: 0.95;
           margin-top: 0.2rem;
+          position: relative;
+          z-index: 2;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
         .officer-card .officer-phone {
           text-decoration: none;
           display: block;
           margin-top: 0.1rem;
+        }
+        /* Different color themes for each officer type */
+        .officer-card:nth-child(1) {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .officer-card:nth-child(2) {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .officer-card:nth-child(3) {
+          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .officer-card:nth-child(4) {
+          background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .officer-card i {
+          font-size: 2.2rem;
+          margin-bottom: 0.5rem;
+          display: block;
+          position: relative;
+          z-index: 2;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
         .govt-payment-row {
           display: flex;
@@ -628,6 +693,80 @@
           font-size: 0.98rem;
           margin-bottom: 0;
         }
+        .disclaimer-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .disclaimer-list li {
+          margin-bottom: 2rem;
+          padding: 0;
+        }
+        .disclaimer-list li:last-child {
+          margin-bottom: 0;
+        }
+        .disclaimer-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 1.2rem;
+        }
+        .disclaimer-number {
+          background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+          color: white;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 4px 12px rgba(123,34,60,0.3);
+          position: relative;
+        }
+        .disclaimer-number span {
+          font-size: 1.2rem;
+          font-weight: 700;
+          line-height: 1;
+        }
+        .disclaimer-text {
+          color: #495057;
+          font-size: 1.05rem;
+          font-weight: 400;
+          line-height: 1.6;
+          letter-spacing: 0.2px;
+          flex: 1;
+        }
+        .disclaimer-text strong {
+          color: #2c3e50;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+        }
+        @media (max-width: 991.98px) {
+          .disclaimer-section {
+            padding: 2rem 0 2rem 0;
+          }
+          .disclaimer-section .row.g-4 {
+            flex-direction: column;
+          }
+          .professional-disclaimer-card {
+            min-height: unset;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem 1.5rem 1.3rem 1.5rem;
+          }
+          .disclaimer-item {
+            gap: 1rem;
+          }
+          .disclaimer-number {
+            width: 40px;
+            height: 40px;
+          }
+          .disclaimer-number span {
+            font-size: 1rem;
+          }
+          .disclaimer-text {
+            font-size: 1rem;
+          }
+        }
       </style>
       <div class="body-gradient-bg">
         <section class="id_indore_microsite_template">
@@ -846,11 +985,8 @@
           <!-- Captured Images Section -->
           <div class="center-section mt-3">
             <div class="card p-4 position-relative border border-white rounded-4 property-card-container">
-              <div class="col-12">
-                <h3 class="fw-bold mb-2 px-1 d-flex align-items-center" style="font-size:1.1rem; border-bottom: 2.5px solid #7b223c; padding-bottom: 0.2rem;">
-                  <i class="bi bi-images property-icon-theme me-2" style="font-size:1.3rem;"></i>
-                  Property Images
-                </h3>
+              <div class="section-title-container">
+                <div class="section-title-bg">Property Images</div>
               </div>
               <div class="captured-images-row">
                 <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
@@ -974,30 +1110,33 @@
           <div class="center-section">
             <div class="card p-4 position-relative border border-white rounded-4">
               <div class="section-title-container">
-                <div class="section-title-bg">Legal Disclaimers</div>
+                <div class="section-title-bg">Disclaimers</div>
               </div>
-              <div class="row g-4">
-                <div class="col-12 col-lg-6">
-                  <div class="professional-disclaimer-card">
-                    <div class="disclaimer-header">
-                      <i class="bi bi-shield-exclamation disclaimer-icon"></i>
-                      <h4 class="disclaimer-title">DigiPin™ Disclaimer</h4>
-                    </div>
-                    <div class="disclaimer-content">
-                      <p>"DigiPIn"™ is a trademark of the Department of Posts, Government of India. The usage of the DIGIPIN / India Post logo on this portal is solely to identify India Post's open-source DigiPIn functionality. Indore Municipal Corporation has implemented the publicly available logic as provided by the Department of Posts. The Corporation is not responsible for any disconnected data, outdated content, or broken links displayed here.</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-6">
-                  <div class="professional-disclaimer-card">
-                    <div class="disclaimer-header">
-                      <i class="bi bi-info-circle disclaimer-icon"></i>
-                      <h4 class="disclaimer-title">Data Accuracy Disclaimer</h4>
-                    </div>
-                    <div class="disclaimer-content">
-                      <p>Property and other records shown here are updated from the latest available municipal data. For corrections or updates—such as ownership, dimensions, addresses, etc.—please contact the Corporation or the Assistant Revenue Officer (ARO). Any decisions based on this information are at the user's own risk.</p>
-                    </div>
-                  </div>
+              <div class="professional-disclaimer-card">
+                <div class="disclaimer-content">
+                  <ul class="disclaimer-list">
+                    <li>
+                      <div class="disclaimer-item">
+                        <div class="disclaimer-number">
+                          <span>1</span>
+                        </div>
+                        
+                        <div class="disclaimer-text">
+                          "DigiPIn"™ is a trademark of the Department of Posts, Government of India. The usage of the DIGIPIN / India Post logo on this portal is solely to identify India Post's open-source DigiPIn functionality. Indore Municipal Corporation has implemented the publicly available logic as provided by the Department of Posts. The Corporation is not responsible for any disconnected data, outdated content, or broken links displayed here.
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="disclaimer-item">
+                        <div class="disclaimer-number">
+                          <span>2</span>
+                        </div>
+                        <div class="disclaimer-text">
+                          Property and other records shown here are updated from the latest available municipal data. For corrections or updates—such as ownership, dimensions, addresses, etc.—please contact the Corporation or the Assistant Revenue Officer (ARO). Any decisions based on this information are at the user's own risk.
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1067,6 +1206,7 @@
             padding: 3rem 0 3rem 0;
             border-top: 1px solid #dee2e6;
             border-bottom: 1px solid #dee2e6;
+            text-align: center;
           }
           .professional-disclaimer-card {
             background: #ffffff;
@@ -1075,13 +1215,12 @@
             padding: 2rem 2rem 1.8rem 2rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 20px 0 rgba(0,0,0,0.08);
-            min-height: 240px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
           }
           .professional-disclaimer-card::before {
             content: '';
@@ -1132,22 +1271,77 @@
           .disclaimer-content p:first-of-type {
             margin-top: 0.5rem;
           }
+          .disclaimer-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+          }
+          .disclaimer-list li {
+            margin-bottom: 2rem;
+            padding: 0;
+          }
+          .disclaimer-list li:last-child {
+            margin-bottom: 0;
+          }
+          .disclaimer-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            justify-content: flex-start;
+          }
+          .disclaimer-number {
+            background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(123,34,60,0.3);
+            position: relative;
+          }
+          .disclaimer-number span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1;
+          }
+          .disclaimer-text {
+            color: #495057;
+            font-size: 1.05rem;
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.2px;
+            flex: 1;
+            text-align: left;
+          }
+          .disclaimer-text strong {
+            color: #2c3e50;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+          }
           @media (max-width: 991.98px) {
             .disclaimer-section {
               padding: 2rem 0 2rem 0;
             }
-            .disclaimer-section .row.g-4 {
-              flex-direction: column;
-            }
             .professional-disclaimer-card {
-              min-height: unset;
-              margin-bottom: 1.5rem;
               padding: 1.5rem 1.5rem 1.3rem 1.5rem;
+              margin-left: 1rem;
+              margin-right: 1rem;
             }
-            .disclaimer-title {
-              font-size: 1.2rem;
+            .disclaimer-item {
+              gap: 1rem;
             }
-            .disclaimer-content p {
+            .disclaimer-number {
+              width: 40px;
+              height: 40px;
+            }
+            .disclaimer-number span {
+              font-size: 1rem;
+            }
+            .disclaimer-text {
               font-size: 1rem;
             }
           }
