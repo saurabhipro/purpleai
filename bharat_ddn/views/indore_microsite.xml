@@ -6,6 +6,37 @@
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
       <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
       <style>
+        /* Sophisticated Brown Theme Color Palette */
+        :root {
+          /* Primary Browns - Rich and Warm */
+          --primary-brown: #8B4513;          /* Saddle Brown - Main brand color */
+          --secondary-brown: #A0522D;        /* Sienna - Secondary brand */
+          --accent-brown: #D2691E;           /* Chocolate - Accent color */
+          
+          /* Light Browns - Backgrounds and Subtle Elements */
+          --cream-brown: #F5F5DC;            /* Beige - Light background */
+          --warm-cream: #FDF5E6;             /* Old Lace - Very light background */
+          --light-tan: #F4A460;              /* Sandy Brown - Light accent */
+          --pale-brown: #DEB887;             /* Burlywood - Pale accent */
+          
+          /* Dark Browns - Text and Strong Elements */
+          --dark-brown: #654321;             /* Dark Brown - Strong text */
+          --rich-brown: #8B4513;             /* Saddle Brown - Rich text */
+          --deep-brown: #3E2723;             /* Deep Brown - Very dark */
+          
+          /* Complementary Colors for Contrast */
+          --warm-orange: #FF8C42;            /* Dark Orange - Warm accent */
+          --golden-yellow: #FFD700;          /* Gold - Bright accent */
+          --terracotta: #E2725B;             /* Terracotta - Earthy accent */
+          --sage-green: #9CAF88;             /* Sage - Natural complement */
+          --warm-gray: #8B7355;              /* Warm Gray - Neutral */
+          
+          /* Neutral Colors */
+          --off-white: #FAFAFA;              /* Off White - Clean background */
+          --light-gray: #F5F5F5;             /* Light Gray - Subtle background */
+          --medium-gray: #E0E0E0;            /* Medium Gray - Borders */
+        }
+
         .govt-services-section {
           background: none !important;
           padding: 0 !important;
@@ -13,10 +44,9 @@
           border: none !important;
         }
         .govt-services-box {
-          background: #fff;
-          
+          background: var(--off-white);
           border-radius: 22px;
-          box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+          box-shadow: 0 2px 16px 0 rgba(139,69,19,0.08);
           padding: 2rem 1rem 1.5rem 1rem;
           max-width: 700px;
           margin: 0 auto;
@@ -29,19 +59,19 @@
           align-items: center;
           justify-content: center;
           margin: 0 auto 0.5rem auto;
-          background: rgba(255, 255, 255, 0.7);
-          border: 2.5px solid;
-          border-image: linear-gradient(135deg, #ff9800 0%, #e91e63 100%);
-          border-image-slice: 1;
+          background: linear-gradient(135deg, var(--warm-orange) 0%, var(--accent-brown) 100%);
+          border: 2.5px solid var(--accent-brown);
+          box-shadow: 0 4px 12px rgba(210,105,30,0.2);
         }
         .govt-service-icon-box i {
           font-size: 2rem;
-          color: #e65100;
+          color: #ffffff;
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
         }
         .govt-service-label {
           font-size: 1.08rem;
           margin-top: 0.1rem;
-          color: #222;
+          color: var(--rich-brown);
           font-weight: 800;
         }
         .govt-services-row {
@@ -49,18 +79,18 @@
           flex-wrap: nowrap;
         }
         .header-gradient {
-          background: none !important; /* Remove brown gradient */
+          background: none !important;
           border: none !important;
           margin: 0 !important;
           padding: 0 !important;
         }
         .emergency-card {
-          border: 2.5px solid #e0e0e0;
+          border: 2.5px solid var(--medium-gray);
           border-radius: 18px;
           color: #fff;
           font-weight: 600;
           font-size: 1.08rem;
-          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+          box-shadow: 0 2px 12px 0 rgba(139,69,19,0.08);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -78,15 +108,15 @@
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
           opacity: 0;
           transition: opacity 0.3s ease;
         }
         .emergency-card:hover {
           transform: translateY(-4px) scale(1.03);
-          box-shadow: 0 6px 24px 0 rgba(0,0,0,0.13);
+          box-shadow: 0 6px 24px 0 rgba(139,69,19,0.15);
           opacity: 0.95;
-          border-color: #7b223c;
+          border-color: var(--accent-brown);
         }
         .emergency-card:hover::before {
           opacity: 1;
@@ -97,47 +127,48 @@
           display: block;
           position: relative;
           z-index: 2;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
+        /* Enhanced Emergency Cards with Better Contrast */
         .emergency-bg-red {
-          background: linear-gradient(135deg, #ff1744 0%, #d50000 100%);
+          background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
           color: #ffffff;
-          border-color: #ff1744;
+          border-color: #E74C3C;
         }
         .emergency-bg-blue {
-          background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+          background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
           color: #ffffff;
-          border-color: #2196f3;
+          border-color: #3498DB;
         }
         .emergency-bg-yellow {
-          background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+          background: linear-gradient(135deg, var(--warm-orange) 0%, var(--accent-brown) 100%);
           color: #ffffff;
-          border-color: #ff9800;
+          border-color: var(--warm-orange);
         }
         .emergency-bg-cyan {
-          background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+          background: linear-gradient(135deg, #1ABC9C 0%, #16A085 100%);
           color: #ffffff;
-          border-color: #00bcd4;
+          border-color: #1ABC9C;
         }
         .emergency-bg-purple {
-          background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+          background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
           color: #ffffff;
-          border-color: #9c27b0;
+          border-color: #9B59B6;
         }
         .emergency-bg-green {
-          background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+          background: linear-gradient(135deg, var(--sage-green) 0%, #7D9F85 100%);
           color: #ffffff;
-          border-color: #4caf50;
+          border-color: var(--sage-green);
         }
         .emergency-bg-gold {
-          background: linear-gradient(135deg, #ffc107 0%, #ffa000 100%);
-          color: #ffffff;
-          border-color: #ffc107;
+          background: linear-gradient(135deg, var(--golden-yellow) 0%, #F39C12 100%);
+          color: #333333;
+          border-color: var(--golden-yellow);
         }
         .emergency-bg-indigo {
-          background: linear-gradient(135deg, #3f51b5 0%, #303f9f 100%);
+          background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
           color: #ffffff;
-          border-color: #3f51b5;
+          border-color: #34495E;
         }
         .emergency-label {
           font-size: 1.08rem;
@@ -150,13 +181,13 @@
         }
         .container { max-width: 100% !important; }
         .main-section-card {
-          background: #fff;
+          background: var(--off-white);
           border-radius: 24px;
           max-width: 1100px;
           margin-left: 5%;
           margin-right: 5%;
           margin-bottom: 2rem;
-          box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+          box-shadow: 0 2px 16px 0 rgba(139,69,19,0.08);
           padding: 0.7rem 0.5rem;
         }
         @media (max-width: 767.98px) {
@@ -178,22 +209,21 @@
         .govt-services-scroll {
           gap: 1.5rem;
           padding-bottom: 0.5rem;
-          /* Optional: hide scrollbar for webkit browsers */
           scrollbar-width: thin;
-          scrollbar-color: #ccc #fff;
+          scrollbar-color: var(--pale-brown) #fff;
         }
         .govt-services-scroll::-webkit-scrollbar {
           height: 8px;
           background: #fff;
         }
         .govt-services-scroll::-webkit-scrollbar-thumb {
-          background: #eee;
+          background: var(--pale-brown);
           border-radius: 4px;
         }
         .service-box {
-          background: #fff;
+          background: var(--off-white);
           border-radius: 18px;
-          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+          box-shadow: 0 2px 12px 0 rgba(139,69,19,0.08);
           width: 100%;
           padding: 1.5rem 1rem;
           margin-bottom: 0;
@@ -216,8 +246,6 @@
           padding-left: 2rem;
           padding-right: 2rem;
           border-radius: 18px;
-          /* Optional: add a subtle shadow for a card effect */
-          /* box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10); */
         }
         @media (max-width: 767.98px) {
           .header-content-box {
@@ -250,13 +278,13 @@
         .o_footer, footer, .footer {
           display: none !important;
         }
-        /* Officer Card Customization */
+        /* Enhanced Officer Cards with High Contrast Colors */
         .officer-card {
-          border: 2.5px solid #e0e0e0;
+          border: 2.5px solid var(--medium-gray);
           border-radius: 18px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, var(--secondary-brown) 0%, var(--primary-brown) 100%);
           color: #ffffff !important;
-          box-shadow: 0 4px 16px 0 rgba(0,0,0,0.12);
+          box-shadow: 0 4px 16px 0 rgba(139,69,19,0.12);
           font-weight: 600;
           font-size: 1.08rem;
           display: flex;
@@ -275,15 +303,15 @@
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+          background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
           opacity: 0;
           transition: opacity 0.3s ease;
         }
         .officer-card:hover {
           transform: translateY(-4px) scale(1.03);
-          box-shadow: 0 8px 28px 0 rgba(0,0,0,0.18);
+          box-shadow: 0 8px 28px 0 rgba(139,69,19,0.18);
           opacity: 0.95;
-          border-color: #7b223c;
+          border-color: var(--accent-brown);
         }
         .officer-card:hover::before {
           opacity: 1;
@@ -314,18 +342,22 @@
           display: block;
           margin-top: 0.1rem;
         }
-        /* Different color themes for each officer type */
+        /* High Contrast Colors for Officer Cards - Different from Brown Header */
         .officer-card:nth-child(1) {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+          border-color: #3498DB;
         }
         .officer-card:nth-child(2) {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+          border-color: #E74C3C;
         }
         .officer-card:nth-child(3) {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          background: linear-gradient(135deg, #27AE60 0%, #229954 100%);
+          border-color: #27AE60;
         }
         .officer-card:nth-child(4) {
-          background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+          background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+          border-color: #9B59B6;
         }
         .officer-card i {
           font-size: 2.2rem;
@@ -348,9 +380,9 @@
           margin-right: 0;
         }
         .govt-payment-box {
-          background: #fff;
+          background: var(--off-white);
           border-radius: 18px;
-          box-shadow: 0 2px 12px 0 rgba(0,0,0,0.08);
+          box-shadow: 0 2px 12px 0 rgba(139,69,19,0.08);
           border: none;
           min-width: 120px;
           flex: 1 0 120px;
@@ -367,7 +399,7 @@
           background: #fff;
         }
         .govt-payment-scroll::-webkit-scrollbar-thumb {
-          background: #eee;
+          background: var(--pale-brown);
           border-radius: 4px;
         }
         @media (max-width: 767.98px) {
@@ -411,8 +443,8 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #ff9800 0%, #e91e63 100%);
-          box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+          background: linear-gradient(135deg, var(--warm-orange) 0%, var(--accent-brown) 100%);
+          box-shadow: 0 2px 8px 0 rgba(210,105,30,0.15);
           border: 2.5px solid #fff;
         }
         .icon-gradient-box i {
@@ -422,10 +454,10 @@
         .govt-service-label {
           font-size: 1.08rem;
           margin-top: 0.1rem;
-          color: #222;
+          color: var(--rich-brown);
           font-weight: 800;
         }
-        /* New styles for section titles with colored background strips */
+        /* Enhanced Section Titles with Better Contrast */
         .section-title-container {
           position: relative;
           margin-top: 1.5rem;
@@ -435,20 +467,20 @@
           justify-content: center;
         }
         .section-title-bg {
-          background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+          background: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
           color: #fff;
           padding: 0.8rem 2rem;
           border-radius: 25px;
           font-weight: 700;
           font-size: 1.3rem;
           letter-spacing: 1px;
-          box-shadow: 0 4px 12px rgba(123,34,60,0.2);
+          box-shadow: 0 4px 12px rgba(139,69,19,0.2);
           position: relative;
           z-index: 2;
-          width: 350px;         /* Set a fixed width for all headers */
-          max-width: 90vw;      /* Responsive for small screens */
+          width: 350px;
+          max-width: 90vw;
           text-align: center;
-          display: block;       /* Ensures width is respected */
+          display: block;
         }
         .section-title-bg::before {
           content: '';
@@ -458,7 +490,7 @@
           right: -20px;
           height: 12px;
           background: none;
-          box-shadow: 0 0 16px 4px #7b223c33;
+          box-shadow: 0 0 16px 4px rgba(139,69,19,0.3);
           opacity: 0.3;
           transform: translateY(-50%);
           z-index: -1;
@@ -501,7 +533,7 @@
         }
         .welcome-strip {
           width: 100vw;
-          background: linear-gradient(90deg, #7b223c 0%, #b85b2c 100%);
+          background: linear-gradient(90deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
           color: #fff;
           font-weight: 600;
           font-size: 1rem;
@@ -510,7 +542,7 @@
           padding: 0.4rem 0;
           margin: 0;
           border: none;
-          box-shadow: 0 2px 8px rgba(123,34,60,0.08);
+          box-shadow: 0 2px 8px rgba(139,69,19,0.08);
           z-index: 100;
           position: relative;
         }
@@ -526,15 +558,14 @@
           height: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: center;      /* Vertically center */
-          align-items: center;          /* Horizontally center */
-          text-align: center;           /* Center text */
+          justify-content: center;
+          align-items: center;
+          text-align: center;
           padding: 2rem 3vw;
-          background: rgba(0,0,0,0.25); /* Optional: overlay for readability */
+          background: rgba(0,0,0,0.25);
           z-index: 2;
         }
         .carousel-title-hero, .carousel-subtitle-hero {
-          /* Keep or enhance text shadow for readability */
           text-shadow: 0 4px 24px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), 0 1px 0 #000;
         }
         .carousel-title-hero {
@@ -603,9 +634,9 @@
           min-width: 150px;
           flex: 1 1 150px;
           height: 286px;
-          border: 1.5px solid #e0bfc9;
+          border: 1.5px solid var(--pale-brown);
           border-radius: 18px;
-          box-shadow: 0 4px 18px 0 rgba(123,34,60,0.10);
+          box-shadow: 0 4px 18px 0 rgba(139,69,19,0.10);
           background: #fff;
           overflow: hidden;
           padding: 0;
@@ -620,7 +651,7 @@
           margin: 0;
         }
         .property-icon-theme {
-          color: #7b223c !important;
+          color: var(--primary-brown) !important;
         }
         .property-header {
           font-size: 1.45rem;
@@ -630,23 +661,23 @@
           align-items: center;
           gap: 0.7rem;
           margin-bottom: 1.2rem;
-          border-bottom: 3px solid #7b223c;
+          border-bottom: 3px solid var(--primary-brown);
           padding-bottom: 0.3rem;
         }
         .property-label {
           font-weight: 800 !important;
-          border-bottom: 2px solid #e0e0e0;
+          border-bottom: 2px solid var(--medium-gray);
           padding-bottom: 2px;
           margin-bottom: 0.2rem;
           display: inline-block;
           font-size: 1.19rem;
-          color: #7b223c !important;
+          color: var(--primary-brown) !important;
           letter-spacing: 0.5px;
         }
         .property-value {
           font-weight: 600;
           font-size: 1.15rem;
-          color: #222;
+          color: var(--dark-brown);
         }
         .property-card-container {
           margin-left: 1.5rem;
@@ -665,31 +696,30 @@
           margin-bottom: 0.7rem;
         }
         .btn-theme-brown {
-          background: #7b223c !important;
+          background: var(--primary-brown) !important;
           color: #fff !important;
           border: none;
-          
         }
         .btn-theme-brown:hover, .btn-theme-brown:focus {
-          background: #5a182c !important;
+          background: var(--dark-brown) !important;
           color: #fff !important;
         }
         .disclaimer-card {
-          background: #fff8e1;
-          border-left: 5px solid #e53935;
+          background: var(--warm-cream);
+          border-left: 5px solid var(--primary-brown);
           border-radius: 10px;
-          padding: 1rem 1.2rem;  /* Add this padding */
+          padding: 1rem 1.2rem;
           margin-bottom: 1rem;
-          box-shadow: 0 2px 8px 0 rgba(229,57,53,0.07);
+          box-shadow: 0 2px 8px 0 rgba(139,69,19,0.07);
         }
         .disclaimer-title {
-          color: #b85b2c;
+          color: var(--primary-brown);
           font-size: 1.08rem;
           font-weight: 700;
           margin-bottom: 0.3rem;
         }
         .disclaimer-text {
-          color: #333;
+          color: var(--dark-brown);
           font-size: 0.98rem;
           margin-bottom: 0;
         }
@@ -711,7 +741,7 @@
           gap: 1.2rem;
         }
         .disclaimer-number {
-          background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+          background: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
           color: white;
           width: 48px;
           height: 48px;
@@ -720,7 +750,7 @@
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          box-shadow: 0 4px 12px rgba(123,34,60,0.3);
+          box-shadow: 0 4px 12px rgba(139,69,19,0.3);
           position: relative;
         }
         .disclaimer-number span {
@@ -729,7 +759,7 @@
           line-height: 1;
         }
         .disclaimer-text {
-          color: #495057;
+          color: var(--dark-brown);
           font-size: 1.05rem;
           font-weight: 400;
           line-height: 1.6;
@@ -737,7 +767,7 @@
           flex: 1;
         }
         .disclaimer-text strong {
-          color: #2c3e50;
+          color: var(--rich-brown);
           font-weight: 700;
           letter-spacing: 0.3px;
         }
@@ -749,9 +779,9 @@
             flex-direction: column;
           }
           .professional-disclaimer-card {
-            min-height: unset;
-            margin-bottom: 1.5rem;
             padding: 1.5rem 1.5rem 1.3rem 1.5rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
           }
           .disclaimer-item {
             gap: 1rem;
@@ -801,7 +831,7 @@
                   <t t-set="first" t-value="False"/>
                 </t>
                 <t t-if="not banners">
-                  <div class="carousel-item active" style="background-image: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);">
+                  <div class="carousel-item active" style="background-image: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);">
                     <div class="carousel-content-hero">
                       <h1 class="carousel-title-hero">Welcome to DDN Indore</h1>
                       <p class="carousel-subtitle-hero">Digital Pata</p>
@@ -951,15 +981,15 @@
           <!-- DIGIPIN Section -->
           <div class="center-section mt-3">
             <div class="card p-4 position-relative rounded-4 property-card-container"
-                 style="max-width: 420px; overflow:visible; border:3px solid #e53935; box-shadow:0 2px 16px 0 rgba(229,57,53,0.10);">
+                 style="max-width: 420px; overflow:visible; border:3px solid var(--primary-brown); box-shadow:0 2px 16px 0 rgba(139,69,19,0.10);">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <div style="font-weight:700; color:#7b223c; font-size:1.1rem;">Your DIGIPIN</div>
+                <div style="font-weight:700; color:var(--primary-brown); font-size:1.1rem;">Your DIGIPIN</div>
                 <button type="button" class="btn-close" aria-label="Close" style="opacity:0.5; pointer-events:none;"></button>
               </div>
               <div style="font-size:2.2rem; font-weight:900; letter-spacing:2px; color:#222;">
                 <t t-if="property.digipin"><t t-out="property.digipin"/></t>
               </div>
-              <div style="font-size:1.1rem; color:#7b223c; font-weight:600;">
+              <div style="font-size:1.1rem; color:var(--primary-brown); font-weight:600;">
                 <t t-if="property.survey_line_ids and property.survey_line_ids[0]">
                   <t t-if="property.survey_line_ids[0].latitude and property.survey_line_ids[0].longitude">
                     <t t-out="property.survey_line_ids[0].latitude"/>, <t t-out="property.survey_line_ids[0].longitude"/>
@@ -969,7 +999,7 @@
               <div class="d-flex align-items-center mt-3" style="gap:1.2rem;">
                  <a t-att-href="'https://wa.me/?text=' + share_text"
                          class="btn btn-sm d-flex align-items-center"
-                         style="font-weight:600; padding:2px 12px; font-size:0.95rem; background:#e53935; color:#fff;"
+                         style="font-weight:600; padding:2px 12px; font-size:0.95rem; background:var(--primary-brown); color:#fff;"
                          target="_blank">
                          <i class="bi bi-share" style="font-size:1.5rem; color:#fff;"></i>
                  </a>
@@ -1170,19 +1200,19 @@
         <style>
           .custom-microsite-footer {
             display: block !important;
-            background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+            background: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
             color: #fff;
             position: relative;
             z-index: 1000;
           }
           .footer-social .social-link {
-            color: #fffde7;
+            color: var(--warm-cream);
             font-size: 1.3rem;
             margin-right: 0.5rem;
             transition: color 0.2s;
           }
           .footer-social .social-link:hover {
-            color: #ffd54f;
+            color: var(--golden-yellow);
           }
           .footer-bottom {
             font-size: 0.95rem;
@@ -1192,7 +1222,7 @@
             opacity: 0.9;
           }
           .powered-link {
-            color: #ffd54f;
+            color: var(--golden-yellow);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.2s;
@@ -1202,19 +1232,19 @@
             text-decoration: underline;
           }
           .disclaimer-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--warm-cream) 0%, var(--cream-brown) 100%);
             padding: 3rem 0 3rem 0;
-            border-top: 1px solid #dee2e6;
-            border-bottom: 1px solid #dee2e6;
+            border-top: 1px solid var(--pale-brown);
+            border-bottom: 1px solid var(--pale-brown);
             text-align: center;
           }
           .professional-disclaimer-card {
             background: #ffffff;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--pale-brown);
             border-radius: 16px;
             padding: 2rem 2rem 1.8rem 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px 0 rgba(139,69,19,0.08);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -1229,12 +1259,12 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #7b223c 0%, #b85b2c 100%);
+            background: linear-gradient(90deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
           }
           .professional-disclaimer-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px 0 rgba(0,0,0,0.12);
-            border-color: #7b223c;
+            box-shadow: 0 8px 30px 0 rgba(139,69,19,0.12);
+            border-color: var(--primary-brown);
           }
           .disclaimer-header {
             display: flex;
@@ -1242,25 +1272,25 @@
             gap: 1rem;
             margin-bottom: 1.2rem;
             padding-bottom: 0.8rem;
-            border-bottom: 1px solid #f1f3f4;
+            border-bottom: 1px solid var(--pale-brown);
           }
           .disclaimer-title {
-            color: #2c3e50;
+            color: var(--rich-brown);
             font-size: 1.25rem;
             font-weight: 700;
             margin: 0;
             letter-spacing: 0.3px;
           }
           .disclaimer-icon {
-            color: #7b223c;
+            color: var(--primary-brown);
             font-size: 1.8rem;
-            background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+            background: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
           .disclaimer-content p {
-            color: #495057;
+            color: var(--dark-brown);
             font-size: 1.05rem;
             margin-bottom: 0;
             margin-top: 0;
@@ -1291,7 +1321,7 @@
             justify-content: flex-start;
           }
           .disclaimer-number {
-            background: linear-gradient(135deg, #7b223c 0%, #b85b2c 100%);
+            background: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);
             color: white;
             width: 48px;
             height: 48px;
@@ -1300,7 +1330,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(123,34,60,0.3);
+            box-shadow: 0 4px 12px rgba(139,69,19,0.3);
             position: relative;
           }
           .disclaimer-number span {
@@ -1309,16 +1339,15 @@
             line-height: 1;
           }
           .disclaimer-text {
-            color: #495057;
+            color: var(--dark-brown);
             font-size: 1.05rem;
             font-weight: 400;
             line-height: 1.6;
             letter-spacing: 0.2px;
             flex: 1;
-            text-align: left;
           }
           .disclaimer-text strong {
-            color: #2c3e50;
+            color: var(--rich-brown);
             font-weight: 700;
             letter-spacing: 0.3px;
           }
