@@ -1334,7 +1334,7 @@
         <!-- Professional Disclaimer Section -->
         <section class="disclaimer-section mt-5">
           <div class="center-section">
-            <div class="card p-4 position-relative border border-white rounded-4">
+            <div class="card p-4 position-relative rounded-4" style="background: var(--off-white); box-shadow: 0 2px 16px 0 rgba(139,69,19,0.08); border: none !important;">
               <div class="section-title-container">
                 <div class="section-title-bg">Disclaimers</div>
               </div>
@@ -1346,7 +1346,6 @@
                         <div class="disclaimer-number">
                           <span>1</span>
                         </div>
-                        
                         <div class="disclaimer-text">
                           "DigiPIn"™ is a trademark of the Department of Posts, Government of India. The usage of the DIGIPIN / India Post logo on this portal is solely to identify India Post's open-source DigiPIn functionality. Indore Municipal Corporation has implemented the publicly available logic as provided by the Department of Posts. The Corporation is not responsible for any disconnected data, outdated content, or broken links displayed here.
                         </div>
@@ -1436,7 +1435,7 @@
           }
           .professional-disclaimer-card {
             background: #ffffff;
-            border: 1px solid var(--pale-brown);
+            border: none; /* Remove the border */
             border-radius: 16px;
             padding: 2rem 2rem 1.8rem 2rem;
             margin-bottom: 1.5rem;
