@@ -1146,104 +1146,104 @@
               </div>
               <div class="faq-container">
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is DIGIPIN?</div>
-                  <div class="faq-answer">DIGIPIN is a digital address code that uniquely identifies any location in India, making navigation and service delivery easier and more precise.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is Digital Pata?</div>
+                  <div class="faq-answer">Digital Pata is a digital address code that uniquely identifies any location in India, making navigation and service delivery easier and more precise.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is DIGIPIN different from a regular postal address?</div>
-                  <div class="faq-answer">DIGIPIN is based on latitude and longitude, ensuring accuracy even in areas without formal addresses, unlike traditional postal addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is Digital Pata different from a regular postal address?</div>
+                  <div class="faq-answer">Digital Pata is based on latitude and longitude, ensuring accuracy even in areas without formal addresses, unlike traditional postal addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Why do we need DIGIPIN when we already have postal addresses?</div>
-                  <div class="faq-answer">DIGIPIN provides a precise, digital way to locate properties, especially useful in areas with ambiguous or missing addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Why do we need Digital Pata when we already have postal addresses?</div>
+                  <div class="faq-answer">Digital Pata provides a precise, digital way to locate properties, especially useful in areas with ambiguous or missing addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN available offline?</div>
-                  <div class="faq-answer">DIGIPIN can be accessed online, but you can save or print your DIGIPIN for offline use.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata available offline?</div>
+                  <div class="faq-answer">Digital Pata can be accessed online, but you can save or print your Digital Pata for offline use.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be used for navigation?</div>
-                  <div class="faq-answer">Yes, DIGIPIN can be used with navigation apps to find precise locations.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be used for navigation?</div>
+                  <div class="faq-answer">Yes, Digital Pata can be used with navigation apps to find precise locations.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will my postal address change if I use DIGIPIN?</div>
-                  <div class="faq-answer">No, your postal address remains the same. DIGIPIN is an additional digital identifier.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will my postal address change if I use Digital Pata?</div>
+                  <div class="faq-answer">No, your postal address remains the same. Digital Pata is an additional digital identifier.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is a DIGIPIN generated for a specific location?</div>
-                  <div class="faq-answer">DIGIPIN is generated using the latitude and longitude of the location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is a Digital Pata generated for a specific location?</div>
+                  <div class="faq-answer">Digital Pata is generated using the latitude and longitude of the location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is my personal address data stored in DIGIPIN?</div>
-                  <div class="faq-answer">No personal data is stored in the DIGIPIN itself; it is a code representing a location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is my personal address data stored in Digital Pata?</div>
+                  <div class="faq-answer">No personal data is stored in the Digital Pata itself; it is a code representing a location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be used for rural or remote areas?</div>
-                  <div class="faq-answer">Yes, DIGIPIN is especially useful in rural or remote areas where formal address systems may not exist.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be used for rural or remote areas?</div>
+                  <div class="faq-answer">Yes, Digital Pata is especially useful in rural or remote areas where formal address systems may not exist.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How precise is the DIGIPIN system?</div>
-                  <div class="faq-answer">DIGIPIN is highly precise as it is based on GPS coordinates.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How precise is the Digital Pata system?</div>
+                  <div class="faq-answer">Digital Pata is highly precise as it is based on GPS coordinates.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the difference between pincode and DIGIPIN?</div>
-                  <div class="faq-answer">Pincode refers to a postal region, while DIGIPIN is unique to a specific location or property.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the difference between pincode and Digital Pata?</div>
+                  <div class="faq-answer">Pincode refers to a postal region, while Digital Pata is unique to a specific location or property.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN applicable only within India?</div>
-                  <div class="faq-answer">Currently, DIGIPIN is designed for use within India.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata applicable only within India?</div>
+                  <div class="faq-answer">Currently, Digital Pata is designed for use within India.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the benefit of DIGIPIN in emergency situations?</div>
-                  <div class="faq-answer">DIGIPIN helps emergency services reach your exact location quickly and efficiently.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the benefit of Digital Pata in emergency situations?</div>
+                  <div class="faq-answer">Digital Pata helps emergency services reach your exact location quickly and efficiently.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I find my DIGIPIN?</div>
-                  <div class="faq-answer">You can find your DIGIPIN using the official portal or by contacting your local municipal office.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I find my Digital Pata?</div>
+                  <div class="faq-answer">You can find your Digital Pata using the official portal or by contacting your local municipal office.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Do I have to login or signup for finding DIGIPIN?</div>
-                  <div class="faq-answer">No login or signup is required to find your DIGIPIN.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Do I have to login or signup for finding Digital Pata?</div>
+                  <div class="faq-answer">No login or signup is required to find your Digital Pata.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does DIGIPIN help in government services?</div>
-                  <div class="faq-answer">DIGIPIN enables accurate delivery of government services and correspondence to your location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does Digital Pata help in government services?</div>
+                  <div class="faq-answer">Digital Pata enables accurate delivery of government services and correspondence to your location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does DIGIPIN handle changes in infrastructure, such as new buildings or roads?</div>
-                  <div class="faq-answer">DIGIPIN can be updated to reflect changes in infrastructure, ensuring continued accuracy.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does Digital Pata handle changes in infrastructure, such as new buildings or roads?</div>
+                  <div class="faq-answer">Digital Pata can be updated to reflect changes in infrastructure, ensuring continued accuracy.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can a building having multiple residents/homes have different DIGIPIN?</div>
-                  <div class="faq-answer">Yes, each unit or home within a building can have its own unique DIGIPIN.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can a building having multiple residents/homes have different Digital Pata?</div>
+                  <div class="faq-answer">Yes, each unit or home within a building can have its own unique Digital Pata.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will DIGIPIN replace traditional addresses?</div>
-                  <div class="faq-answer">DIGIPIN is meant to supplement, not replace, traditional addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will Digital Pata replace traditional addresses?</div>
+                  <div class="faq-answer">Digital Pata is meant to supplement, not replace, traditional addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be useful for rural villages?</div>
-                  <div class="faq-answer">Yes, DIGIPIN is especially beneficial for rural villages lacking formal address systems.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be useful for rural villages?</div>
+                  <div class="faq-answer">Yes, Digital Pata is especially beneficial for rural villages lacking formal address systems.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I fetch or decode a DIGIPIN?</div>
-                  <div class="faq-answer">You can fetch or decode a DIGIPIN using the official DIGIPIN portal or app.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I fetch or decode a Digital Pata?</div>
+                  <div class="faq-answer">You can fetch or decode a Digital Pata using the official Digital Pata portal or app.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Does DIGIPIN work in areas with no internet access?</div>
-                  <div class="faq-answer">DIGIPIN can be used offline if you have already saved or printed your code, but online access is needed for updates.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Does Digital Pata work in areas with no internet access?</div>
+                  <div class="faq-answer">Digital Pata can be used offline if you have already saved or printed your code, but online access is needed for updates.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN secure?</div>
-                  <div class="faq-answer">Yes, DIGIPIN is secure and does not store personal information.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata secure?</div>
+                  <div class="faq-answer">Yes, Digital Pata is secure and does not store personal information.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will DIGIPIN affect my privacy?</div>
-                  <div class="faq-answer">No, DIGIPIN does not contain or reveal any personal data.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will Digital Pata affect my privacy?</div>
+                  <div class="faq-answer">No, Digital Pata does not contain or reveal any personal data.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How can businesses benefit from DIGIPIN?</div>
-                  <div class="faq-answer">Businesses can use DIGIPIN for accurate deliveries, customer verification, and service reach in both urban and rural areas.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How can businesses benefit from Digital Pata?</div>
+                  <div class="faq-answer">Businesses can use Digital Pata for accurate deliveries, customer verification, and service reach in both urban and rural areas.</div>
                 </div>
               </div>
             </div>
