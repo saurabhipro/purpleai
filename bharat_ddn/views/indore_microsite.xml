@@ -1135,6 +1135,202 @@
           
         </section>
 
+        <!-- FAQ Section -->
+        <section class="faq-section mt-5">
+          <div class="center-section">
+            <div class="card p-4 position-relative border border-white rounded-4" style="background: var(--off-white); box-shadow: 0 2px 16px 0 rgba(139,69,19,0.08);">
+              <div class="section-title-container" style="margin-bottom: 1.5rem;">
+                <div class="section-title-bg" style="background: linear-gradient(90deg, var(--accent-brown) 0%, var(--primary-brown) 100%); font-size: 1.1rem; border-radius: 18px; box-shadow: 0 2px 8px rgba(139,69,19,0.10);">
+                  Frequently Asked Questions
+                </div>
+              </div>
+              <div class="faq-container">
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is DIGIPIN?</div>
+                  <div class="faq-answer">DIGIPIN is a digital address code that uniquely identifies any location in India, making navigation and service delivery easier and more precise.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is DIGIPIN different from a regular postal address?</div>
+                  <div class="faq-answer">DIGIPIN is based on latitude and longitude, ensuring accuracy even in areas without formal addresses, unlike traditional postal addresses.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Why do we need DIGIPIN when we already have postal addresses?</div>
+                  <div class="faq-answer">DIGIPIN provides a precise, digital way to locate properties, especially useful in areas with ambiguous or missing addresses.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN available offline?</div>
+                  <div class="faq-answer">DIGIPIN can be accessed online, but you can save or print your DIGIPIN for offline use.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be used for navigation?</div>
+                  <div class="faq-answer">Yes, DIGIPIN can be used with navigation apps to find precise locations.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will my postal address change if I use DIGIPIN?</div>
+                  <div class="faq-answer">No, your postal address remains the same. DIGIPIN is an additional digital identifier.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is a DIGIPIN generated for a specific location?</div>
+                  <div class="faq-answer">DIGIPIN is generated using the latitude and longitude of the location.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is my personal address data stored in DIGIPIN?</div>
+                  <div class="faq-answer">No personal data is stored in the DIGIPIN itself; it is a code representing a location.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be used for rural or remote areas?</div>
+                  <div class="faq-answer">Yes, DIGIPIN is especially useful in rural or remote areas where formal address systems may not exist.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How precise is the DIGIPIN system?</div>
+                  <div class="faq-answer">DIGIPIN is highly precise as it is based on GPS coordinates.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the difference between pincode and DIGIPIN?</div>
+                  <div class="faq-answer">Pincode refers to a postal region, while DIGIPIN is unique to a specific location or property.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN applicable only within India?</div>
+                  <div class="faq-answer">Currently, DIGIPIN is designed for use within India.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the benefit of DIGIPIN in emergency situations?</div>
+                  <div class="faq-answer">DIGIPIN helps emergency services reach your exact location quickly and efficiently.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I find my DIGIPIN?</div>
+                  <div class="faq-answer">You can find your DIGIPIN using the official portal or by contacting your local municipal office.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Do I have to login or signup for finding DIGIPIN?</div>
+                  <div class="faq-answer">No login or signup is required to find your DIGIPIN.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does DIGIPIN help in government services?</div>
+                  <div class="faq-answer">DIGIPIN enables accurate delivery of government services and correspondence to your location.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does DIGIPIN handle changes in infrastructure, such as new buildings or roads?</div>
+                  <div class="faq-answer">DIGIPIN can be updated to reflect changes in infrastructure, ensuring continued accuracy.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can a building having multiple residents/homes have different DIGIPIN?</div>
+                  <div class="faq-answer">Yes, each unit or home within a building can have its own unique DIGIPIN.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will DIGIPIN replace traditional addresses?</div>
+                  <div class="faq-answer">DIGIPIN is meant to supplement, not replace, traditional addresses.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can DIGIPIN be useful for rural villages?</div>
+                  <div class="faq-answer">Yes, DIGIPIN is especially beneficial for rural villages lacking formal address systems.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I fetch or decode a DIGIPIN?</div>
+                  <div class="faq-answer">You can fetch or decode a DIGIPIN using the official DIGIPIN portal or app.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Does DIGIPIN work in areas with no internet access?</div>
+                  <div class="faq-answer">DIGIPIN can be used offline if you have already saved or printed your code, but online access is needed for updates.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is DIGIPIN secure?</div>
+                  <div class="faq-answer">Yes, DIGIPIN is secure and does not store personal information.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will DIGIPIN affect my privacy?</div>
+                  <div class="faq-answer">No, DIGIPIN does not contain or reveal any personal data.</div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How can businesses benefit from DIGIPIN?</div>
+                  <div class="faq-answer">Businesses can use DIGIPIN for accurate deliveries, customer verification, and service reach in both urban and rural areas.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <script>
+          function toggleFAQ(item) {
+            var answer = item.querySelector('.faq-answer');
+            var icon = item.querySelector('.faq-icon i');
+            if (answer.style.display === 'block') {
+              answer.style.display = 'none';
+              icon.classList.remove('bi-dash');
+              icon.classList.add('bi-plus');
+            } else {
+              // Close all other answers
+              document.querySelectorAll('.faq-answer').forEach(function(ans) {
+                ans.style.display = 'none';
+              });
+              document.querySelectorAll('.faq-icon i').forEach(function(ic) {
+                ic.classList.remove('bi-dash');
+                ic.classList.add('bi-plus');
+              });
+              // Open this one
+              answer.style.display = 'block';
+              icon.classList.remove('bi-plus');
+              icon.classList.add('bi-dash');
+            }
+          }
+          // Hide all answers by default
+          document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.faq-answer').forEach(function(ans) {
+              ans.style.display = 'none';
+            });
+          });
+        </script>
+        <style>
+          .faq-section {
+            background: linear-gradient(135deg, var(--warm-cream) 0%, var(--cream-brown) 100%);
+            padding: 3rem 0 3rem 0;
+            border-top: 1px solid var(--pale-brown);
+            border-bottom: 1px solid var(--pale-brown);
+            text-align: center;
+          }
+          .faq-container {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          .faq-item {
+            border-bottom: 1px solid var(--pale-brown);
+            padding: 1rem 0;
+            cursor: pointer;
+            transition: background 0.2s;
+          }
+          .faq-item:last-child {
+            border-bottom: none;
+          }
+          .faq-question {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            color: var(--primary-brown);
+            font-size: 1.08rem;
+          }
+          .faq-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent-brown);
+          }
+          .faq-answer {
+            margin-top: 0.7rem;
+            color: var(--dark-brown);
+            font-size: 1rem;
+            display: none;
+            transition: all 0.2s;
+          }
+          .faq-item.active .faq-answer {
+            display: block;
+          }
+        </style>
+        <!-- End FAQ Section -->
+
         <!-- Professional Disclaimer Section -->
         <section class="disclaimer-section mt-5">
           <div class="center-section">
