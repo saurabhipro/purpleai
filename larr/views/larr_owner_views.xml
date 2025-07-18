@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Owner List View -->
+    <record id="view_larr_owner_list" model="ir.ui.view">
+        <field name="name">larr.owner.list</field>
+        <field name="model">larr.owner</field>
+        <field name="arch" type="xml">
+            <list string="Owners">
+                <field name="name"/>
+                <field name="name_kannada"/>
+                <field name="father_husband_name"/>
+                <field name="relationship"/>
+                <field name="mobile_number"/>
+                <field name="share_percentage"/>
+                <field name="is_main_owner"/>
+                <field name="survey_name"/>
+                <field name="village_name"/>
+                <field name="district_name"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Owner Form View -->
+    <record id="view_larr_owner_form" model="ir.ui.view">
+        <field name="name">larr.owner.form</field>
+        <field name="model">larr.owner</field>
+        <field name="arch" type="xml">
+            <form string="Owner">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Owner Name"/>
+                        </h1>
+                        <field name="is_main_owner" widget="boolean_toggle"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name_kannada"/>
+                            <field name="father_husband_name"/>
+                            <field name="father_husband_name_kannada"/>
+                            <field name="relationship"/>
+                            <field name="mobile_number"/>
+                        </group>
+                        <group>
+                            <field name="identity_type"/>
+                            <field name="identity_number"/>
+                            <field name="share_percentage"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="survey_id"/>
+                        </group>
+                        <group>
+                            <field name="village_name"/>
+                            <field name="district_name"/>
+                        </group>
+                    </group>
+                    <field name="address"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Owner Search View -->
+    <record id="view_larr_owner_search" model="ir.ui.view">
+        <field name="name">larr.owner.search</field>
+        <field name="model">larr.owner</field>
+        <field name="arch" type="xml">
+            <search string="Search Owners">
+                <field name="name"/>
+                <field name="name_kannada"/>
+                <field name="mobile_number"/>
+                <field name="identity_number"/>
+                <field name="survey_id"/>
+                <field name="village_name"/>
+                <field name="district_name"/>
+                <filter string="Main Owners" name="main_owners" domain="[('is_main_owner', '=', True)]"/>
+                <filter string="Additional Owners" name="additional_owners" domain="[('is_main_owner', '=', False)]"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Owner Type" name="group_by_type" context="{'group_by': 'is_main_owner'}"/>
+                    <filter string="Relationship" name="group_by_relationship" context="{'group_by': 'relationship'}"/>
+                    <filter string="Survey" name="group_by_survey" context="{'group_by': 'survey_id'}"/>
+                    <filter string="Village" name="group_by_village" context="{'group_by': 'village_name'}"/>
+                    <filter string="District" name="group_by_district" context="{'group_by': 'district_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Owner Action -->
+    <record id="action_larr_owner" model="ir.actions.act_window">
+        <field name="name">Owners</field>
+        <field name="res_model">larr.owner</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first owner
+            </p>
+            <p>
+                Manage all owners and co-owners from surveys.
+            </p>
+        </field>
+    </record>
+
+</odoo> 

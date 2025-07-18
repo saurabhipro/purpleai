@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Land Acquisition List View -->
+    <record id="view_larr_land_acquisition_tree" model="ir.ui.view">
+        <field name="name">larr.land.acquisition.tree</field>
+        <field name="model">larr.land.acquisition</field>
+        <field name="arch" type="xml">
+            <list string="Land Acquisitions">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="land_owner_id"/>
+                <field name="land_area"/>
+                <field name="land_type"/>
+                <field name="acquisition_type"/>
+                <field name="compensation_amount"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Land Acquisition Form View -->
+    <record id="view_larr_land_acquisition_form" model="ir.ui.view">
+        <field name="name">larr.land.acquisition.form</field>
+        <field name="model">larr.land.acquisition</field>
+        <field name="arch" type="xml">
+            <form string="Land Acquisition">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,survey,negotiation,agreement,possession,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Acquisition Reference"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="land_owner_id"/>
+                            <field name="land_type"/>
+                            <field name="acquisition_type"/>
+                        </group>
+                        <group>
+                            <field name="land_area"/>
+                            <field name="acquisition_date"/>
+                            <field name="compensation_amount"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="compensation_status"/>
+                        </group>
+                    </group>
+                    <field name="land_address" placeholder="Enter land address..."/>
+                    <notebook>
+                        <page string="Rehabilitations">
+                            <field name="rehabilitation_count"/>
+                            <field name="rehabilitation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="affected_person_id"/>
+                                    <field name="rehabilitation_type"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Compensations">
+                            <field name="compensation_count"/>
+                            <field name="compensation_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="beneficiary_id"/>
+                                    <field name="compensation_type"/>
+                                    <field name="amount"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents">
+                            <field name="document_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Land Acquisition Search View -->
+    <record id="view_larr_land_acquisition_search" model="ir.ui.view">
+        <field name="name">larr.land.acquisition.search</field>
+        <field name="model">larr.land.acquisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Land Acquisitions">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="land_owner_id"/>
+                <field name="land_type"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Survey" name="survey" domain="[('state','=','survey')]"/>
+                <filter string="Negotiation" name="negotiation" domain="[('state','=','negotiation')]"/>
+                <filter string="Completed" name="completed" domain="[('state','=','completed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="project" context="{'group_by':'project_id'}"/>
+                    <filter string="Land Type" name="land_type" context="{'group_by':'land_type'}"/>
+                    <filter string="State" name="state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Land Acquisition Action -->
+    <record id="action_larr_land_acquisition" model="ir.actions.act_window">
+        <field name="name">Land Acquisitions</field>
+        <field name="res_model">larr.land.acquisition</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first land acquisition
+            </p>
+            <p>
+                Manage land acquisition processes and track progress.
+            </p>
+        </field>
+    </record>
+
+</odoo> 

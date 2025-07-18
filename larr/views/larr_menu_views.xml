@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Main Menu -->
+    <menuitem id="menu_larr_root" 
+              name="LARR" 
+              sequence="10"/>
+
+    <!-- Dashboard Menu -->
+    <menuitem id="menu_larr_dashboard" 
+              name="Dashboard" 
+              parent="menu_larr_root" 
+              sequence="1"/>
+
+    <!-- Masters Main Menu -->
+    <menuitem id="menu_larr_masters" 
+              name="Masters" 
+              parent="menu_larr_root" 
+              sequence="2"/>
+
+    <!-- Project Master Menu -->
+    <menuitem id="menu_larr_project" 
+              name="Projects" 
+              parent="menu_larr_masters" 
+              action="action_larr_project" 
+              sequence="1"/>
+
+    <!-- Village Master Menu -->
+    <menuitem id="menu_larr_village" 
+              name="Villages" 
+              parent="menu_larr_masters" 
+              action="action_larr_village" 
+              sequence="2"/>
+
+    <!-- District Master Menu -->
+    <menuitem id="menu_larr_district" 
+              name="Districts" 
+              parent="menu_larr_masters" 
+              action="action_larr_district" 
+              sequence="3"/>
+
+    <!-- Land Acquisition Master Menu -->
+    <menuitem id="menu_larr_land_acquisition" 
+              name="Land Acquisitions" 
+              parent="menu_larr_masters" 
+              action="action_larr_land_acquisition" 
+              sequence="4"/>
+
+    <!-- Rehabilitation Master Menu -->
+    <menuitem id="menu_larr_rehabilitation" 
+              name="Rehabilitations" 
+              parent="menu_larr_masters" 
+              action="action_larr_rehabilitation" 
+              sequence="5"/>
+
+    <!-- Compensation Master Menu -->
+    <menuitem id="menu_larr_compensation" 
+              name="Compensations" 
+              parent="menu_larr_masters" 
+              action="action_larr_compensation" 
+              sequence="6"/>
+
+    <!-- Stakeholder Master Menu -->
+    <menuitem id="menu_larr_stakeholder" 
+              name="Stakeholders" 
+              parent="menu_larr_masters" 
+              action="action_larr_stakeholder" 
+              sequence="7"/>
+
+    <!-- Document Master Menu -->
+    <menuitem id="menu_larr_document" 
+              name="Documents" 
+              parent="menu_larr_masters" 
+              action="action_larr_document" 
+              sequence="7"/>
+
+    <!-- Owner Master Menu -->
+    <menuitem id="menu_larr_owner" 
+              name="Owners" 
+              parent="menu_larr_masters" 
+              action="action_larr_owner" 
+              sequence="8"/>
+
+    <!-- Survey Main Menu -->
+    <menuitem id="menu_larr_survey" 
+              name="Survey" 
+              parent="menu_larr_root" 
+              sequence="3"/>
+
+    <!-- Survey Management Menu -->
+    <menuitem id="menu_larr_survey_management" 
+              name="Surveys" 
+              parent="menu_larr_survey" 
+              action="action_larr_survey" 
+              sequence="1"/>
+
+    <!-- Package Management Menu -->
+    <menuitem id="menu_larr_package_management" 
+              name="Packages" 
+              parent="menu_larr_survey" 
+              action="action_larr_package" 
+              sequence="2"/>
+
+    <!-- Sub Package Management Menu -->
+    <menuitem id="menu_larr_sub_package_management" 
+              name="Sub Packages" 
+              parent="menu_larr_survey" 
+              action="action_larr_sub_package" 
+              sequence="3"/>
+
+    <!-- Reports Menu -->
+    <menuitem id="menu_larr_reports" 
+              name="Reports" 
+              parent="menu_larr_root" 
+              sequence="4"/>
+
+    <!-- SIA Menu -->
+    <menuitem id="menu_larr_sia" 
+              name="SIA" 
+              parent="menu_larr_root" 
+              sequence="5"/>
+
+    <!-- Notifications Menu -->
+    <menuitem id="menu_larr_notifications" 
+              name="Notifications" 
+              parent="menu_larr_root" 
+              sequence="6"/>
+
+    <!-- Compensation Tracking Menu -->
+    <menuitem id="menu_larr_compensation_tracking" 
+              name="Compensation" 
+              parent="menu_larr_root" 
+              sequence="7"/>
+
+    <!-- R&amp;R Tracking Menu -->
+    <menuitem id="menu_larr_rr_tracking" 
+              name="R&amp;R Tracking" 
+              parent="menu_larr_root" 
+              sequence="8"/>
+
+    <!-- Payments Menu -->
+    <menuitem id="menu_larr_payments" 
+              name="Payments" 
+              parent="menu_larr_root" 
+              sequence="9"/>
+
+    <!-- Court Menu -->
+    <menuitem id="menu_larr_court" 
+              name="Court" 
+              parent="menu_larr_root" 
+              sequence="10"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_larr_config" 
+              name="Configuration" 
+              parent="menu_larr_root" 
+              sequence="99"/>
+
+    <!-- Settings Menu -->
+    <menuitem id="menu_larr_settings" 
+              name="Settings" 
+              parent="menu_larr_config" 
+              sequence="1"/>
+
+</odoo> 

@@ -1,0 +1,6522 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* larr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Hindi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: hi_IN\n"
+
+#. module: larr
+#: model:ir.module.category,name:larr.module_category_larr
+msgid "LARR"
+msgstr "भूमि अधिग्रहण और पुनर्वास"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_project
+#: model:ir.ui.menu,name:larr.menu_larr_project
+msgid "Projects"
+msgstr "परियोजनाएं"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_village
+#: model:ir.ui.menu,name:larr.menu_larr_village
+msgid "Villages"
+msgstr "गांव"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_land_acquisition
+#: model:ir.ui.menu,name:larr.menu_larr_land_acquisition
+msgid "Land Acquisitions"
+msgstr "भूमि अधिग्रहण"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_rehabilitation
+#: model:ir.ui.menu,name:larr.menu_larr_rehabilitation
+msgid "Rehabilitations"
+msgstr "पुनर्वास"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_compensation
+#: model:ir.ui.menu,name:larr.menu_larr_compensation
+msgid "Compensations"
+msgstr "मुआवजा"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_stakeholder
+#: model:ir.ui.menu,name:larr.menu_larr_stakeholder
+msgid "Stakeholders"
+msgstr "हितधारक"
+
+#. module: larr
+#: model:ir.actions.act_window,name:larr.action_larr_document
+#: model:ir.ui.menu,name:larr.menu_larr_document
+msgid "Documents"
+msgstr "दस्तावेज"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_masters
+msgid "Masters"
+msgstr "मास्टर"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_dashboard
+msgid "Dashboard"
+msgstr "डैशबोर्ड"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_reports
+msgid "Reports"
+msgstr "रिपोर्ट"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_sia
+msgid "SIA"
+msgstr "सामाजिक प्रभाव आकलन"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_notifications
+msgid "Notifications"
+msgstr "सूचनाएं"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_compensation_tracking
+msgid "Compensation"
+msgstr "मुआवजा"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_rr_tracking
+msgid "R&amp;R Tracking"
+msgstr "पुनर्वास और पुनर्स्थापना ट्रैकिंग"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_payments
+msgid "Payments"
+msgstr "भुगतान"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_court
+msgid "Court"
+msgstr "अदालत"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_config
+msgid "Configuration"
+msgstr "कॉन्फ़िगरेशन"
+
+#. module: larr
+#: model:ir.ui.menu,name:larr.menu_larr_settings
+msgid "Settings"
+msgstr "सेटिंग्स"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__name
+msgid "Project Name"
+msgstr "परियोजना का नाम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__code
+msgid "Project Code"
+msgstr "परियोजना कोड"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__project_type
+msgid "Project Type"
+msgstr "परियोजना का प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__start_date
+msgid "Start Date"
+msgstr "प्रारंभ तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__end_date
+msgid "End Date"
+msgstr "समाप्ति तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__project_manager_id
+msgid "Project Manager"
+msgstr "परियोजना प्रबंधक"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__total_area_required
+msgid "Total Area Required (Acres)"
+msgstr "कुल आवश्यक क्षेत्र (एकड़)"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__estimated_cost
+msgid "Estimated Cost"
+msgstr "अनुमानित लागत"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__state
+msgid "State"
+msgstr "स्थिति"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_project__description
+msgid "Description"
+msgstr "विवरण"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__name
+msgid "Village Name"
+msgstr "गांव का नाम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__tehsil
+msgid "Tehsil"
+msgstr "तहसील"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__district
+msgid "District"
+msgstr "जिला"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__sarpanch_name
+msgid "Sarpanch Name"
+msgstr "सरपंच का नाम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__contact
+msgid "Contact"
+msgstr "संपर्क"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__population
+msgid "Population"
+msgstr "जनसंख्या"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__area_hectares
+msgid "Area (Hectares)"
+msgstr "क्षेत्र (हेक्टेयर)"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__gram_panchayat_code
+msgid "Gram Panchayat Code"
+msgstr "ग्राम पंचायत कोड"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__latitude
+msgid "Latitude"
+msgstr "अक्षांश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_village__longitude
+msgid "Longitude"
+msgstr "देशांतर"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__name
+msgid "Acquisition Reference"
+msgstr "अधिग्रहण संदर्भ"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__land_owner_id
+msgid "Land Owner"
+msgstr "भूमि मालिक"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__land_address
+msgid "Land Address"
+msgstr "भूमि का पता"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__land_area
+msgid "Land Area (Acres)"
+msgstr "भूमि क्षेत्र (एकड़)"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__land_type
+msgid "Land Type"
+msgstr "भूमि का प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__acquisition_date
+msgid "Acquisition Date"
+msgstr "अधिग्रहण तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__acquisition_type
+msgid "Acquisition Type"
+msgstr "अधिग्रहण प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__compensation_amount
+msgid "Compensation Amount"
+msgstr "मुआवजा राशि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_land_acquisition__compensation_status
+msgid "Compensation Status"
+msgstr "मुआवजा स्थिति"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__name
+msgid "Rehabilitation Reference"
+msgstr "पुनर्वास संदर्भ"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__affected_person_id
+msgid "Affected Person"
+msgstr "प्रभावित व्यक्ति"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__family_members
+msgid "Number of Family Members"
+msgstr "परिवार के सदस्यों की संख्या"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__current_address
+msgid "Current Address"
+msgstr "वर्तमान पता"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__current_land_area
+msgid "Current Land Area (Acres)"
+msgstr "वर्तमान भूमि क्षेत्र (एकड़)"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__current_house_type
+msgid "Current House Type"
+msgstr "वर्तमान घर का प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__rehabilitation_type
+msgid "Rehabilitation Type"
+msgstr "पुनर्वास प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__new_address
+msgid "New Address"
+msgstr "नया पता"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__new_land_area
+msgid "New Land Area (Acres)"
+msgstr "नया भूमि क्षेत्र (एकड़)"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_rehabilitation__new_house_type
+msgid "New House Type"
+msgstr "नया घर का प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__name
+msgid "Compensation Reference"
+msgstr "मुआवजा संदर्भ"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__beneficiary_id
+msgid "Beneficiary"
+msgstr "लाभार्थी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__compensation_type
+msgid "Compensation Type"
+msgstr "मुआवजा प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__amount
+msgid "Amount"
+msgstr "राशि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__payment_method
+msgid "Payment Method"
+msgstr "भुगतान विधि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__payment_date
+msgid "Payment Date"
+msgstr "भुगतान तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_compensation__payment_reference
+msgid "Payment Reference"
+msgstr "भुगतान संदर्भ"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__name
+msgid "Stakeholder Name"
+msgstr "हितधारक का नाम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__stakeholder_type
+msgid "Stakeholder Type"
+msgstr "हितधारक प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__contact_person
+msgid "Contact Person"
+msgstr "संपर्क व्यक्ति"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__phone
+msgid "Phone"
+msgstr "फोन"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__email
+msgid "Email"
+msgstr "ईमेल"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__address
+msgid "Address"
+msgstr "पता"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__engagement_level
+msgid "Engagement Level"
+msgstr "सहभागिता स्तर"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__concerns
+msgid "Concerns/Risks"
+msgstr "चिंताएं/जोखिम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_stakeholder__mitigation_plan
+msgid "Mitigation Plan"
+msgstr "शमन योजना"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__name
+msgid "Document Name"
+msgstr "दस्तावेज का नाम"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__document_type
+msgid "Document Type"
+msgstr "दस्तावेज प्रकार"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__document_number
+msgid "Document Number"
+msgstr "दस्तावेज संख्या"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__issue_date
+msgid "Issue Date"
+msgstr "जारी करने की तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__expiry_date
+msgid "Expiry Date"
+msgstr "समाप्ति तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__verified_by
+msgid "Verified By"
+msgstr "द्वारा सत्यापित"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__verified_date
+msgid "Verified Date"
+msgstr "सत्यापित तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__approved_by
+msgid "Approved By"
+msgstr "द्वारा स्वीकृत"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__approved_date
+msgid "Approved Date"
+msgstr "स्वीकृत तिथि"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__verification_notes
+msgid "Verification Notes"
+msgstr "सत्यापन नोट्स"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__approval_notes
+msgid "Approval Notes"
+msgstr "स्वीकृति नोट्स"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__attachment_ids
+msgid "Document Files"
+msgstr "दस्तावेज फाइलें"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__activity_ids
+msgid "Activities"
+msgstr "गतिविधियां"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_ids
+msgid "Messages"
+msgstr "संदेश"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_document__message_follower_ids
+msgid "Followers"
+msgstr "अनुयायी"
+
+#. module: larr
+#: model:ir.model.fields,field_description:larr.field_larr_

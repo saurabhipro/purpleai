@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Stakeholder List View -->
+    <record id="view_larr_stakeholder_tree" model="ir.ui.view">
+        <field name="name">larr.stakeholder.tree</field>
+        <field name="model">larr.stakeholder</field>
+        <field name="arch" type="xml">
+            <list string="Stakeholders">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="stakeholder_type"/>
+                <field name="contact_person"/>
+                <field name="phone"/>
+                <field name="engagement_level"/>
+                <field name="state" decoration-success="state == 'active'" decoration-muted="state == 'inactive'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Stakeholder Form View -->
+    <record id="view_larr_stakeholder_form" model="ir.ui.view">
+        <field name="name">larr.stakeholder.form</field>
+        <field name="model">larr.stakeholder</field>
+        <field name="arch" type="xml">
+            <form string="Stakeholder">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="active,inactive,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Stakeholder Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="partner_id"/>
+                            <field name="stakeholder_type"/>
+                            <field name="engagement_level"/>
+                        </group>
+                        <group>
+                            <field name="contact_person"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                        </group>
+                    </group>
+                    <field name="address" placeholder="Enter address..."/>
+                    <notebook>
+                        <page string="Concerns &amp; Mitigation">
+                            <group>
+                                <field name="concerns" placeholder="Enter concerns or risks..."/>
+                                <field name="mitigation_plan" placeholder="Enter mitigation plan..."/>
+                            </group>
+                        </page>
+                        <page string="Documents">
+                            <field name="document_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Stakeholder Search View -->
+    <record id="view_larr_stakeholder_search" model="ir.ui.view">
+        <field name="name">larr.stakeholder.search</field>
+        <field name="model">larr.stakeholder</field>
+        <field name="arch" type="xml">
+            <search string="Search Stakeholders">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="stakeholder_type"/>
+                <field name="contact_person"/>
+                <filter string="Active" name="active" domain="[('state','=','active')]"/>
+                <filter string="Inactive" name="inactive" domain="[('state','=','inactive')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="project" context="{'group_by':'project_id'}"/>
+                    <filter string="Stakeholder Type" name="stakeholder_type" context="{'group_by':'stakeholder_type'}"/>
+                    <filter string="Engagement Level" name="engagement_level" context="{'group_by':'engagement_level'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Stakeholder Action -->
+    <record id="action_larr_stakeholder" model="ir.actions.act_window">
+        <field name="name">Stakeholders</field>
+        <field name="res_model">larr.stakeholder</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first stakeholder
+            </p>
+            <p>
+                Manage project stakeholders and their engagement.
+            </p>
+        </field>
+    </record>
+
+</odoo>
