@@ -15,7 +15,7 @@ class LARRSurvey(models.Model):
 
     name = fields.Char('Survey ID', copy=False, readonly=True, 
                       default=lambda self: str(uuid.uuid4()))
-    
+        
     # Survey Details
     survey_no = fields.Char('Survey No.', tracking=True)
     survey_date = fields.Date('Survey Date', tracking=True, default=fields.Date.today)
@@ -70,7 +70,7 @@ class LARRSurvey(models.Model):
     
     # Legacy fields for backward compatibility
     owner_name = fields.Char('Owner Name', tracking=True)
-    owner_contact = fields.Char('Owner Contact', tracking=True)
+    owner_contact = fields.Char(    'Owner Contact', tracking=True)
     owner_address = fields.Text('Owner Address', tracking=True)
     owner_status = fields.Selection([
         ('pending', 'Pending'),
@@ -164,15 +164,15 @@ class LARRSurvey(models.Model):
     crop_count = fields.Integer(compute='_compute_asset_counts')
     total_asset_value = fields.Monetary(compute='_compute_asset_counts', string='Total Asset Value')
     
-    @api.depends('asset_ids')
-    def _compute_asset_counts(self):
-        for record in self:
-            record.asset_count = len(record.asset_ids)
-            record.tree_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'tree'))
-            record.well_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'well'))
-            record.structure_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'structure'))
-            record.crop_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'crop'))
-            record.total_asset_value = sum(record.asset_ids.mapped('total_value'))
+    # @api.depends('asset_ids')
+    # def _compute_asset_counts(self):
+    #     for record in self:
+    #         record.asset_count = len(record.asset_ids)
+    #         record.tree_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'tree'))
+    #         record.well_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'well'))
+    #         record.structure_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'structure'))
+    #         record.crop_count = len(record.asset_ids.filtered(lambda x: x.asset_type == 'crop'))
+    #         record.total_asset_value = sum(record.asset_ids.mapped('total_value'))
     
     @api.model_create_multi
     def create(self, vals_list):
