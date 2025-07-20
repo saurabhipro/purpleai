@@ -26,6 +26,7 @@ class PDFConfig:
 
     BASE_EXPORT_DIR = '/home/odoo18/odoo/downloaded_pdfs'  # Base directory for all PDF exports
     FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    # FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf"
     IMAGE_QUALITY = 20 # Increased quality for better clarity
     BATCH_SIZE = 1000  # Process 20 properties at a time
     
