@@ -23,6 +23,7 @@ class KMLController(http.Controller):
 
     @http.route('/ddn/kml/get_properties', type='json', auth='public')
     def get_kml_properties(self, zone_id=None, ward_id=None, status=None):
+        print("function is working file ")
         domain = [
             ('latitude', '!=', False),
             ('longitude', '!=', False),

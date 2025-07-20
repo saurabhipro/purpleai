@@ -16,7 +16,7 @@ from . import dashboard
 from . import property_id_data
 from . import colony
 
-# from . import kml
+from . import kml
 
 from . import services
 from . import qr_scan

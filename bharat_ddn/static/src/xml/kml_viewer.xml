@@ -1,76 +1,77 @@
 <templates xml:space="preserve">
     <t t-name="bharat_ddn.KMLViewerComponent" owl="1">
         <div class="kml-viewer-container" style="width: 100%; height: 100vh; display: flex; flex-direction: column;">
-            <!-- Filters Section -->
-            <div class="filters-section" style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
-                <div class="row" style="margin: 0;">
-                    <div class="col-md-3" style="padding: 0 10px;">
-                        <label for="zone-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Zone:</label>
-                        <select 
-                            id="zone-filter" 
-                            class="form-control" 
-                            t-on-change="onZoneChange"
-                            style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                            <option value="">All Zones</option>
-                            <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
-                                <option t-att-value="zone.id" t-att-selected="String(state.selectedZone) == String(zone.id)">
-                                    <t t-esc="zone.name"/>
-                                </option>
-                            </t>
-                        </select>
+            <div class="row w-100 vh-100 bg-light">
+                <!-- Filters Section -->
+                <div class="col-3 filters-section" style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                    <div class="row" style="margin: 0;">
+                        <div class="" style="padding: 0 10px;">
+                            <label for="zone-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Zone:</label>
+                            <select 
+                                id="zone-filter" 
+                                class="form-control" 
+                                t-on-change="onZoneChange"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <option value="">All Zones</option>
+                                 <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
+                                    <option t-att-value="zone.id" t-att-selected="String(state.selectedZone) == String(zone.id)">
+                                        <t t-esc="zone.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        
+                        <div class="" style="padding: 0 10px;">
+                            <label for="ward-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Ward:</label>
+                            <select 
+                                id="ward-filter" 
+                                class="form-control" 
+                                t-on-change="onWardChange"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <option value="">All Wards</option>
+                                <t t-foreach="state.wards" t-as="ward" t-key="ward.id">
+                                    <option t-att-value="ward.id" t-att-selected="state.selectedWard == ward.id">
+                                        <t t-esc="ward.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        
+                        <div class="" style="padding: 0 10px;">
+                            <label for="status-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Status:</label>
+                            <select 
+                                id="status-filter" 
+                                class="form-control" 
+                                t-on-change="onStatusChange"
+                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <t t-foreach="state.statuses" t-as="status" t-key="status.id">
+                                    <option t-att-value="status.id" t-att-selected="state.selectedStatus == status.id">
+                                        <t t-esc="status.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        
+                        <div class="" style="padding: 0 10px; display: flex; align-items: end;">
+                            <button 
+                                class="btn btn-primary" 
+                                t-on-click="loadProperties"
+                                style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <t t-if="state.loading">Loading...</t>
+                                <t t-else="">Refresh</t>
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="col-md-3" style="padding: 0 10px;">
-                        <label for="ward-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Ward:</label>
-                        <select 
-                            id="ward-filter" 
-                            class="form-control" 
-                            t-on-change="onWardChange"
-                            style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                            <option value="">All Wards</option>
-                            <t t-foreach="state.wards" t-as="ward" t-key="ward.id">
-                                <option t-att-value="ward.id" t-att-selected="state.selectedWard == ward.id">
-                                    <t t-esc="ward.name"/>
-                                </option>
-                            </t>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-3" style="padding: 0 10px;">
-                        <label for="status-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Status:</label>
-                        <select 
-                            id="status-filter" 
-                            class="form-control" 
-                            t-on-change="onStatusChange"
-                            style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                            <t t-foreach="state.statuses" t-as="status" t-key="status.id">
-                                <option t-att-value="status.id" t-att-selected="state.selectedStatus == status.id">
-                                    <t t-esc="status.name"/>
-                                </option>
-                            </t>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-3" style="padding: 0 10px; display: flex; align-items: end;">
-                        <button 
-                            class="btn btn-primary" 
-                            t-on-click="loadProperties"
-                            style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            <t t-if="state.loading">Loading...</t>
-                            <t t-else="">Refresh</t>
-                        </button>
+                    <!-- Property Count -->
+                    <div class="property-count" style="margin-top: 10px; font-weight: 600; color: #495057;">
+                        Properties Found: <span style="color: #007bff;"><t t-esc="state.properties.length"/></span>
                     </div>
                 </div>
-                
-                <!-- Property Count -->
-                <div class="property-count" style="margin-top: 10px; font-weight: 600; color: #495057;">
-                    Properties Found: <span style="color: #007bff;"><t t-esc="state.properties.length"/></span>
+                 <!-- Map Container -->
+                <div class="row map-container" style="flex: 1; position: relative;">
+                    <div t-ref="map" style="width: 100%; height: 100%; border-radius: 0 0 12px 12px;"></div>
                 </div>
-            </div>
-            
-            <!-- Map Container -->
-            <div class="map-container" style="flex: 1; position: relative;">
-                <div t-ref="map" style="width: 100%; height: 100%; border-radius: 0 0 12px 12px;"></div>
             </div>
         </div>
     </t>
