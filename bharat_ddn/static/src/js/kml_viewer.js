@@ -33,14 +33,63 @@ export class KmlMapView extends Component {
         });
     }
 
+    onZoneChange(ev) {
+        this.state.selectedZone = ev.target.value;
+        this.loadProperties();  // if you want to reload markers after changing zone
+    }
+
+    onWardChange(ev) {
+        this.state.selectedWard = ev.target.value;
+        this.loadProperties();
+    }
+
+    onStatusChange(ev) {
+        this.state.selectedStatus = ev.target.value;
+        this.loadProperties();
+    }
+
+    onZoneChange(ev) {
+    this.state.selectedZone = ev.target.value;
+    this.state.selectedWard = ev.target.value;
+    this.state.selectedStatus = ev.target.value;
+}
+
     async loadProperties() {
-        // You can add filters here if you want (zone_id, ward_id, status)
-        const result = await rpc('/ddn/kml/get_properties', {});
-        if (result.success) {
-            this.state.properties = result.properties;
-            this.renderMarkers();
+        console.log("call properties");
+        
+    try {
+        // Fetch both filters and properties in parallel
+        const [propertyResult, filterResult] = await Promise.all([
+            rpc('/ddn/kml/get_properties', {
+                    zone_id: this.state.selectedZone,
+                    ward_id: this.state.selectedWard,
+                    status: this.state.selectedStatus,
+                }),
+            rpc('/ddn/kml/get_filters', {})
+        ]);
+
+        // Set properties
+        if (propertyResult.success) {
+            this.state.properties = propertyResult.properties;
+        }
+
+        // Set filters
+        if (filterResult.success) {
+            this.state.zones = filterResult.zones;
+            console.log("this.state.zones - ", this.state.zones);
+            
+            this.state.wards = filterResult.wards;
+            this.state.statuses = filterResult.statuses;
+        }
+
+        // Only call render once at the end
+        this.renderMarkers();
+
+        } catch (error) {
+            console.error('Error loading properties or filters:', error);
         }
     }
+
 
     renderMarkers() {
         // Remove old markers

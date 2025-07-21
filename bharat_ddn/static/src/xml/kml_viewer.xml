@@ -7,18 +7,15 @@
                     <div class="row" style="margin: 0;">
                         <div class="" style="padding: 0 10px;">
                             <label for="zone-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Zone:</label>
-                            <select 
-                                id="zone-filter" 
-                                class="form-control" 
-                                t-on-change="onZoneChange"
-                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                                <option value="">All Zones</option>
-                                 <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
-                                    <option t-att-value="zone.id" t-att-selected="String(state.selectedZone) == String(zone.id)">
+                           <select t-model="state.selectedZone" t-on-change="onZoneChange">
+                                <option t-att-value="''">Select Zone</option>
+                                <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
+                                    <option t-att-value="zone.id" t-att-selected="'' + state.selectedZone === '' + zone.id">
                                         <t t-esc="zone.name"/>
                                     </option>
                                 </t>
                             </select>
+
                         </div>
                         
                         <div class="" style="padding: 0 10px;">
@@ -30,7 +27,7 @@
                                 style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
                                 <option value="">All Wards</option>
                                 <t t-foreach="state.wards" t-as="ward" t-key="ward.id">
-                                    <option t-att-value="ward.id" t-att-selected="state.selectedWard == ward.id">
+                                    <option t-att-value="ward.id" t-att-selected="state.selectedWard == ward.id" >
                                         <t t-esc="ward.name"/>
                                     </option>
                                 </t>

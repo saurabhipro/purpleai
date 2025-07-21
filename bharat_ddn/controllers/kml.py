@@ -28,12 +28,19 @@ class KMLController(http.Controller):
             ('latitude', '!=', False),
             ('longitude', '!=', False),
             ('latitude', '!=', ''),
-            ('longitude', '!=', '')
+            ('longitude', '!=', ''),
+            ('zone_id','=',zone_id),
+            ('ward_id','=',ward_id),
+            ('property_status','=',status)
+
         ]
+        print("\n domain - ", domain)
         properties = request.env['ddn.property.info'].sudo().search_read(
             domain,
             fields=['id', 'upic_no', 'owner_name', 'latitude', 'longitude']
         )
+
+        print("properties - ", properties)
         return {
             'success': True,
             'properties': properties
@@ -41,12 +48,14 @@ class KMLController(http.Controller):
 
     @http.route('/ddn/kml/get_filters', type='json', auth='user')
     def get_kml_filters(self):
+        print("filter funciton ")
         """Get zones and wards for KML viewer filters."""
         try:
             # Get zones
-            zones = request.env['ddn.zone'].sudo().search_read([], fields=['id', 'zone_name'])
+            zones = request.env['ddn.zone'].sudo().search_read([], fields=['id', 'name'])
+            print("zones - ", zones)
             for z in zones:
-                z['name'] = z.pop('zone_name')
+                z['name'] = z.pop('name')
             
             # Get wards
             wards = request.env['ddn.ward'].sudo().search_read(
@@ -66,7 +75,7 @@ class KMLController(http.Controller):
                 {'id': 'discovered', 'name': 'Discovered'},
                 {'id': 'visit_again', 'name': 'Visit Again'}
             ]
-
+            print("zones - ", zones)
             return {
                 'success': True,
                 'zones': zones,
@@ -75,6 +84,7 @@ class KMLController(http.Controller):
             }
 
         except Exception as e:
+            print("exception in code ", e)
             return {
                 'success': False,
                 'error': str(e),
