@@ -33,11 +33,28 @@
         </field>
     </record>
 
+    <!-- Search View -->
+    <record id="view_property_id_data_search" model="ir.ui.view">
+        <field name="name">property.id.data.search</field>
+        <field name="model">property.id.data</field>
+        <field name="arch" type="xml">
+            <search string="Search Imported Property Data">
+                <field name="property_id"/>
+                <field name="owner_name"/>
+                <field name="address"/>
+                <field name="mobile_no"/>
+                <field name="currnet_tax"/>
+                <field name="total_amount"/>
+            </search>
+        </field>
+    </record>
+
      <record id="action_property_id_data" model="ir.actions.act_window">
         <field name="name">Imported Property Data</field>
         <field name="res_model">property.id.data</field>
         <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_property_id_data_tree"/>
+        <field name="search_view_id" ref="view_property_id_data_search"/>
     </record>
 
 </odoo> 
