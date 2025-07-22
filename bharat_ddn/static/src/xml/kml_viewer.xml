@@ -3,69 +3,109 @@
         <div class="kml-viewer-container" style="width: 100%; height: 100vh; display: flex; flex-direction: column;">
             <div class="row w-100 vh-100 bg-light">
                 <!-- Filters Section -->
-                <div class="col-3 filters-section" style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                <div class="col-3 filters-section" style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #dee2e6; overflow-y: auto;">
                     <div class="row" style="margin: 0;">
-                        <div class="" style="padding: 0 10px;">
-                            <label for="zone-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Zone:</label>
-                           <select t-model="state.selectedZone" t-on-change="onZoneChange">
-                                <option t-att-value="''">Select Zone</option>
+                        
+                        <!-- Zone Checkboxes -->
+                        <div class="" style="padding: 0 10px; margin-bottom: 15px;">
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Zone:</label>
+                            <div class="zone-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
-                                    <option t-att-value="zone.id" t-att-selected="'' + state.selectedZone === '' + zone.id">
-                                        <t t-esc="zone.name"/>
-                                    </option>
+                                    <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 60px;">
+                                        <input type="checkbox" name="zone" 
+                                               t-att-id="'zone-' + zone.id" t-att-value="zone.id" 
+                                               t-att-checked="state.selectedZones.includes(zone.id)" t-on-change="onZoneChange"
+                                               style="margin: 0; margin-right: 4px;"/>
+                                        <label t-att-for="'zone-' + zone.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
+                                            <t t-esc="zone.name"/>
+                                        </label>
+                                    </div>
                                 </t>
-                            </select>
-
+                            </div>
                         </div>
                         
-                        <div class="" style="padding: 0 10px;">
-                            <label for="ward-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Ward:</label>
-                            <select 
-                                id="ward-filter" 
-                                class="form-control" 
-                                t-on-change="onWardChange"
-                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                                <option value="">All Wards</option>
+                        <!-- Ward Checkboxes -->
+                        <div class="" style="padding: 0 10px; margin-bottom: 15px;">
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Ward:</label>
+                            <div class="ward-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.wards" t-as="ward" t-key="ward.id">
-                                    <option t-att-value="ward.id" t-att-selected="state.selectedWard == ward.id" >
-                                        <t t-esc="ward.name"/>
-                                    </option>
+                                    <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 60px;">
+                                        <input type="checkbox" name="ward" 
+                                               t-att-id="'ward-' + ward.id" t-att-value="ward.id" 
+                                               t-att-checked="state.selectedWards.includes(ward.id)" t-on-change="onWardChange"
+                                               style="margin: 0; margin-right: 4px;"/>
+                                        <label t-att-for="'ward-' + ward.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
+                                            <t t-esc="ward.name"/>
+                                        </label>
+                                    </div>
                                 </t>
-                            </select>
+                            </div>
                         </div>
                         
-                        <div class="" style="padding: 0 10px;">
-                            <label for="status-filter" style="font-weight: 600; margin-bottom: 5px; display: block;">Status:</label>
-                            <select 
-                                id="status-filter" 
-                                class="form-control" 
-                                t-on-change="onStatusChange"
-                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                        <!-- Status Checkboxes -->
+                        <div class="" style="padding: 0 10px; margin-bottom: 15px;">
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Status:</label>
+                            <div class="status-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.statuses" t-as="status" t-key="status.id">
-                                    <option t-att-value="status.id" t-att-selected="state.selectedStatus == status.id">
-                                        <t t-esc="status.name"/>
-                                    </option>
+                                    <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 80px;">
+                                        <input type="checkbox" name="status" 
+                                               t-att-id="'status-' + status.id" t-att-value="status.id" 
+                                               t-att-checked="state.selectedStatuses.includes(status.id)" t-on-change="onStatusChange"
+                                               style="margin: 0; margin-right: 4px;"/>
+                                        <label t-att-for="'status-' + status.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
+                                            <t t-esc="status.name"/>
+                                        </label>
+                                    </div>
                                 </t>
-                            </select>
+                            </div>
                         </div>
                         
+                        <!-- Property Type Checkboxes -->
+                        <div class="" style="padding: 0 10px; margin-bottom: 15px;">
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Property Type:</label>
+                            <div class="property-type-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
+                                <t t-if="state.propertyTypes.length > 0">
+                                    <t t-foreach="state.propertyTypes" t-as="propertyType" t-key="propertyType.id">
+                                        <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 80px;">
+                                            <input type="checkbox" name="propertyType" 
+                                                   t-att-id="'propertyType-' + propertyType.id" t-att-value="propertyType.id" 
+                                                   t-att-checked="state.selectedPropertyTypes.includes(propertyType.id)" t-on-change="onPropertyTypeChange"
+                                                   style="margin: 0; margin-right: 4px;"/>
+                                            <label t-att-for="'propertyType-' + propertyType.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
+                                                <t t-esc="propertyType.name"/>
+                                            </label>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div style="color: #6c757d; font-size: 12px; font-style: italic;">No property types available</div>
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Refresh Button -->
                         <div class="" style="padding: 0 10px; display: flex; align-items: end;">
                             <button 
                                 class="btn btn-primary" 
                                 t-on-click="loadProperties"
-                                style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                <t t-if="state.loading">Loading...</t>
-                                <t t-else="">Refresh</t>
+                                style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                <t t-if="state.loading">
+                                    <i class="fa fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading...
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-refresh" style="margin-right: 8px;"></i>Refresh
+                                </t>
                             </button>
                         </div>
                     </div>
                     
                     <!-- Property Count -->
-                    <div class="property-count" style="margin-top: 10px; font-weight: 600; color: #495057;">
-                        Properties Found: <span style="color: #007bff;"><t t-esc="state.properties.length"/></span>
+                    <div class="property-count" style="margin-top: 15px; font-weight: 600; color: #495057; text-align: center; padding: 10px; background: white; border-radius: 4px; border: 1px solid #dee2e6;">
+                        Properties Found: <span style="color: #007bff; font-size: 18px;"><t t-esc="state.properties.length"/></span>
                     </div>
                 </div>
-                 <!-- Map Container -->
+                
+                <!-- Map Container -->
                 <div class="row map-container" style="flex: 1; position: relative;">
                     <div t-ref="map" style="width: 100%; height: 100%; border-radius: 0 0 12px 12px;"></div>
                 </div>

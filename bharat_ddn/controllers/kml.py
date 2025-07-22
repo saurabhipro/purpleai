@@ -69,17 +69,18 @@ class KMLController(http.Controller):
     @http.route('/ddn/kml/get_filters', type='json', auth='user')
     def get_kml_filters(self):
         print("get_kml_filters called")
-        """Get zones and wards for KML viewer filters."""
+        """Get zones, wards, statuses, and property types for KML viewer filters."""
         try:
             # Get current company
             current_company = request.env.company
+            print("Current company:", current_company.name, current_company.id)
             
             # Get zones for current company only
             zones = request.env['ddn.zone'].sudo().search_read(
                 [('company_id', '=', current_company.id)], 
                 fields=['id', 'name']
             )
-            print("Raw zones:", zones)
+            print("Zones found:", len(zones))
             
             # Get wards for current company only
             wards = request.env['ddn.ward'].sudo().search_read(
@@ -87,10 +88,18 @@ class KMLController(http.Controller):
                 fields=['id', 'name'],
                 order='name'
             )
+            print("Wards found:", len(wards))
+
+            # Get property types for current company only
+            property_types = request.env['ddn.property.type'].sudo().search_read(
+                [('company_id', '=', current_company.id)],
+                fields=['id', 'name'],
+                order='name'
+            )
+            print("Property types found:", len(property_types), property_types)
 
             # Get property statuses
             statuses = [
-                {'id': 'all', 'name': 'All Status'},
                 {'id': 'new', 'name': 'New'},
                 {'id': 'uploaded', 'name': 'Uploaded'},
                 {'id': 'pdf_downloaded', 'name': 'PDF Downloaded'},
@@ -103,24 +112,29 @@ class KMLController(http.Controller):
             print("Returning filters:", {
                 'zones': zones,
                 'wards': wards,
-                'statuses': statuses
+                'statuses': statuses,
+                'property_types': property_types
             })
             
             return {
                 'success': True,
                 'zones': zones,
                 'wards': wards,
-                'statuses': statuses
+                'statuses': statuses,
+                'property_types': property_types
             }
 
         except Exception as e:
             print("Exception in get_kml_filters:", e)
+            import traceback
+            traceback.print_exc()
             return {
                 'success': False,
                 'error': str(e),
                 'zones': [],
                 'wards': [],
-                'statuses': []
+                'statuses': [],
+                'property_types': []
             }
 
     @http.route('/ddn/kml/get_wards_by_zone', type='json', auth='user')
