@@ -20,8 +20,13 @@ export class KmlMapView extends Component {
             selectedWards: [],
             selectedStatuses: [],
             selectedPropertyTypes: [],
-            loading: false
+            loading: false,
+            totalCount: 0,
+            currentViewport: null,
+            currentZoom: 12
         });
+        this.currentInfoWindow = null;
+        this.loadTimeout = null;
         onMounted(() => this.initMapAndFilters());
     }
 
@@ -36,8 +41,98 @@ export class KmlMapView extends Component {
         this.state.map = new google.maps.Map(container, {
             center: { lat: 22.7196, lng: 75.8577 },
             zoom: 12,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            maxZoom: 18,
+            minZoom: 8,
+            gestureHandling: 'cooperative'
         });
+
+        // Add map event listeners for zoom-based loading
+        this.state.map.addListener('bounds_changed', () => {
+            this.debouncedLoadPropertiesForViewport();
+        });
+
+        this.state.map.addListener('zoom_changed', () => {
+            this.state.currentZoom = this.state.map.getZoom();
+            this.debouncedLoadPropertiesForViewport();
+        });
+    }
+
+    debouncedLoadPropertiesForViewport() {
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+        }
+        
+        this.loadTimeout = setTimeout(() => {
+            this.loadPropertiesForViewport();
+        }, 500);
+    }
+
+    async loadPropertiesForViewport() {
+        if (!this.state.map) return;
+
+        const bounds = this.state.map.getBounds();
+        if (!bounds) return;
+
+        const ne = bounds.getNorthEast();
+        const sw = bounds.getSouthWest();
+        const viewportBounds = [sw.lat(), sw.lng(), ne.lat(), ne.lng()];
+        const zoomLevel = this.state.map.getZoom();
+
+        if (this.state.currentViewport && 
+            this.arraysEqual(this.state.currentViewport, viewportBounds, 0.01) &&
+            Math.abs(this.state.currentZoom - zoomLevel) < 1) {
+            return;
+        }
+
+        this.state.currentViewport = viewportBounds;
+        this.state.currentZoom = zoomLevel;
+
+        console.log("Loading properties for viewport:", {
+            bounds: viewportBounds,
+            zoom: zoomLevel,
+            filters: {
+                zones: this.state.selectedZones,
+                wards: this.state.selectedWards,
+                statuses: this.state.selectedStatuses,
+                propertyTypes: this.state.selectedPropertyTypes
+            }
+        });
+
+        this.state.loading = true;
+        
+        try {
+            const propertyResult = await rpc('/ddn/kml/get_properties', {
+                zone_ids: this.state.selectedZones.length > 0 ? this.state.selectedZones : null,
+                ward_ids: this.state.selectedWards.length > 0 ? this.state.selectedWards : null,
+                status_ids: this.state.selectedStatuses.length > 0 ? this.state.selectedStatuses : null,
+                property_type_ids: this.state.selectedPropertyTypes.length > 0 ? this.state.selectedPropertyTypes : null,
+                bounds: viewportBounds,
+                zoom_level: zoomLevel
+            });
+
+            if (propertyResult.success) {
+                this.state.properties = propertyResult.properties || [];
+                this.state.totalCount = propertyResult.total_count || 0;
+                
+                console.log(`Loaded ${this.state.properties.length} properties for current viewport (zoom: ${zoomLevel})`);
+                
+                this.renderMarkers();
+            }
+
+        } catch (error) {
+            console.error('Error loading properties for viewport:', error);
+        } finally {
+            this.state.loading = false;
+        }
+    }
+
+    arraysEqual(a, b, tolerance = 0) {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) {
+            if (Math.abs(a[i] - b[i]) > tolerance) return false;
+        }
+        return true;
     }
 
     onZoneChange(ev) {
@@ -75,7 +170,6 @@ export class KmlMapView extends Component {
 
     onPropertyTypeChange(ev) {
         const value = ev.target.value;
-        console.log("Property type changed:", value, ev.target.checked);
         if (ev.target.checked) {
             if (!this.state.selectedPropertyTypes.includes(value)) {
                 this.state.selectedPropertyTypes.push(value);
@@ -83,7 +177,6 @@ export class KmlMapView extends Component {
         } else {
             this.state.selectedPropertyTypes = this.state.selectedPropertyTypes.filter(pt => pt !== value);
         }
-        console.log("Selected property types:", this.state.selectedPropertyTypes);
     }
 
     async loadFilters() {
@@ -91,7 +184,6 @@ export class KmlMapView extends Component {
         
         try {
             const filterResult = await rpc('/ddn/kml/get_filters', {});
-            console.log("Filter result:", filterResult);
             
             if (filterResult.success) {
                 this.state.zones = filterResult.zones || [];
@@ -102,8 +194,7 @@ export class KmlMapView extends Component {
                     zones: this.state.zones.length,
                     wards: this.state.wards.length,
                     statuses: this.state.statuses.length,
-                    propertyTypes: this.state.propertyTypes.length,
-                    propertyTypesData: this.state.propertyTypes
+                    propertyTypes: this.state.propertyTypes.length
                 });
             }
         } catch (error) {
@@ -112,153 +203,130 @@ export class KmlMapView extends Component {
     }
 
     async loadProperties() {
-        console.log("Loading properties with filters:", {
-            zones: this.state.selectedZones,
-            wards: this.state.selectedWards,
-            statuses: this.state.selectedStatuses,
-            propertyTypes: this.state.selectedPropertyTypes
-        });
-        
-        this.state.loading = true;
-        
-        try {
-            const propertyResult = await rpc('/ddn/kml/get_properties', {
-                zone_ids: this.state.selectedZones.length > 0 ? this.state.selectedZones : null,
-                ward_ids: this.state.selectedWards.length > 0 ? this.state.selectedWards : null,
-                status_ids: this.state.selectedStatuses.length > 0 ? this.state.selectedStatuses : null,
-                property_type_ids: this.state.selectedPropertyTypes.length > 0 ? this.state.selectedPropertyTypes : null,
-            });
-
-            console.log("Property result:", propertyResult);
-
-            if (propertyResult.success) {
-                this.state.properties = propertyResult.properties || [];
-                console.log("Properties loaded:", this.state.properties.length);
-            }
-
-            this.renderMarkers();
-
-        } catch (error) {
-            console.error('Error loading properties:', error);
-        } finally {
-            this.state.loading = false;
-        }
+        this.state.currentViewport = null;
+        await this.loadPropertiesForViewport();
     }
 
     renderMarkers() {
         console.log("Rendering markers for", this.state.properties.length, "properties");
         
-        // Remove old markers
-        this.state.markers.forEach(marker => marker.setMap(null));
-        this.state.markers = [];
+        this.clearMarkers();
 
         if (!this.state.map || !this.state.properties.length) {
             console.log("No map or properties to render");
             return;
         }
 
-        let firstInfoWindow = null;
-        let firstMarker = null;
-
-        this.state.properties.forEach((property, index) => {
-            try {
-                const lat = parseFloat(property.latitude);
-                const lng = parseFloat(property.longitude);
-                
-                if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
-                    console.log("Invalid coordinates for property:", property.id);
-                    return;
-                }
-
-                const marker = new google.maps.Marker({
-                    position: { lat: lat, lng: lng },
-                    map: this.state.map,
-                    title: `${property.upic_no || 'No UPIC'} - ${property.owner_name || 'No Owner'}`,
-                    animation: google.maps.Animation.DROP
-                });
-
-                // Create compact info window
-                const infoWindow = new google.maps.InfoWindow({
-                    content: this.createCompactInfoWindowContent(property),
-                    maxWidth: 320,
-                    pixelOffset: new google.maps.Size(0, -10)
-                });
-
-                // Store info window reference on marker
-                marker.infoWindow = infoWindow;
-
-                marker.addListener('click', () => {
-                    // Close all other info windows first
-                    this.state.markers.forEach(m => {
-                        if (m.infoWindow && m.infoWindow !== infoWindow) {
-                            m.infoWindow.close();
-                        }
-                    });
-                    infoWindow.open(this.state.map, marker);
-                    
-                    // Set up the close function for this specific info window
-                    window.closeInfoWindow = () => {
-                        infoWindow.close();
-                    };
-                });
-
-                this.state.markers.push(marker);
-
-                // Store first marker and info window for auto-opening
-                if (index === 0) {
-                    firstMarker = marker;
-                    firstInfoWindow = infoWindow;
-                }
-
-            } catch (error) {
-                console.error("Error creating marker for property:", property.id, error);
-            }
-        });
-
-        // Fit map to markers with padding
-        if (this.state.markers.length > 0) {
-            const bounds = new google.maps.LatLngBounds();
-            this.state.markers.forEach(marker => bounds.extend(marker.getPosition()));
-            
-            this.state.map.fitBounds(bounds);
-            
-            // Add a small delay to ensure bounds are set, then open first property
-            setTimeout(() => {
-                if (firstInfoWindow && firstMarker) {
-                    firstInfoWindow.open(this.state.map, firstMarker);
-                    // Set up close function for first info window
-                    window.closeInfoWindow = () => {
-                        firstInfoWindow.close();
-                    };
-                }
-            }, 500);
-        } else {
-            // If no properties found, center on Indore
-            this.state.map.setCenter({ lat: 22.7196, lng: 75.8577 });
-            this.state.map.setZoom(12);
-        }
+        this.createMarkersInBatches(this.state.properties, 100);
     }
 
-    createCompactInfoWindowContent(property) {
+    clearMarkers() {
+        if (this.currentInfoWindow) {
+            this.currentInfoWindow.close();
+            this.currentInfoWindow = null;
+        }
+        this.state.markers.forEach(marker => marker.setMap(null));
+        this.state.markers = [];
+    }
+
+    createMarkersInBatches(properties, batchSize) {
+        const totalBatches = Math.ceil(properties.length / batchSize);
+        let currentBatch = 0;
+
+        const processBatch = () => {
+            const start = currentBatch * batchSize;
+            const end = Math.min(start + batchSize, properties.length);
+            const batch = properties.slice(start, end);
+
+            batch.forEach((property, index) => {
+                try {
+                    const lat = parseFloat(property.latitude);
+                    const lng = parseFloat(property.longitude);
+                    
+                    if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+                        return;
+                    }
+
+                    // Simple marker with color based on status
+                    const marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: this.state.map,
+                        title: `${property.upic_no || 'No UPIC'} - ${property.owner_name || 'No Owner'}`,
+                        optimized: true,
+                        // Simple color change - green for visit_again, default red for others
+                        icon: property.property_status === 'visit_again' ? 
+                              'http://maps.google.com/mapfiles/ms/icons/green-dot.png' : 
+                              'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    });
+
+                    marker.addListener('click', () => {
+                        this.showInfoWindow(marker, property);
+                    });
+
+                    this.state.markers.push(marker);
+
+                } catch (error) {
+                    console.error("Error creating marker for property:", property.id, error);
+                }
+            });
+
+            currentBatch++;
+
+            if (currentBatch < totalBatches) {
+                setTimeout(processBatch, 10);
+            }
+        };
+
+        processBatch();
+    }
+
+    showInfoWindow(marker, property) {
+        if (this.currentInfoWindow) {
+            this.currentInfoWindow.close();
+        }
+
+        const content = this.createEnhancedInfoWindowContent(property);
+        
+        this.currentInfoWindow = new google.maps.InfoWindow({
+            content: content,
+            maxWidth: 350,
+            pixelOffset: new google.maps.Size(0, -10)
+        });
+
+        this.currentInfoWindow.open(this.state.map, marker);
+        
+        window.closeInfoWindow = () => {
+            if (this.currentInfoWindow) {
+                this.currentInfoWindow.close();
+            }
+        };
+    }
+
+    createEnhancedInfoWindowContent(property) {
         const lat = parseFloat(property.latitude);
         const lng = parseFloat(property.longitude);
         const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
         const whatsappText = encodeURIComponent(
             `Property: ${property.upic_no || 'N/A'}\n` +
-            `ID: ${property.id} | Owner: ${property.owner_name || 'N/A'}\n` +
+            `Property ID: ${property.property_id || 'N/A'}\n` +
+            `Owner: ${property.owner_name || 'N/A'}\n` +
+            `Mobile: ${property.mobile_no || 'N/A'}\n` +
             `Status: ${property.property_status || 'N/A'}\n` +
             `Zone: ${property.zone_name || 'N/A'} | Ward: ${property.ward_name || 'N/A'}\n` +
+            `Address: ${property.address_line_1 || ''} ${property.address_line_2 || ''}\n` +
             `Location: ${lat}, ${lng}\n` +
             `Maps: ${googleMapsUrl}`
         );
         const whatsappUrl = `https://wa.me/?text=${whatsappText}`;
 
-        // Only show address if it exists
         const address = `${property.address_line_1 || ''} ${property.address_line_2 || ''}`.trim();
         const showAddress = address.length > 0;
+        const showMobile = property.mobile_no && property.mobile_no.trim() !== '';
+        const showPropertyId = property.property_id && property.property_id.trim() !== '';
+        const hasSurveyImages = property.survey_image1 || property.survey_image2;
 
         return `
-            <div style="padding: 12px; max-width: 320px; font-family: Arial, sans-serif; font-size: 13px;">
+            <div style="padding: 12px; max-width: 350px; font-family: Arial, sans-serif; font-size: 13px;">
                 <div style="position: relative;">
                     <button onclick="window.closeInfoWindow();" 
                             style="position: absolute; top: 2px; right: 2px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 10px; line-height: 1; z-index: 1000;">×</button>
@@ -272,9 +340,21 @@ export class KmlMapView extends Component {
                         <div><strong style="color: #555;">Status:</strong> <span style="background: #e9ecef; padding: 1px 4px; border-radius: 2px; font-size: 11px;">${property.property_status || 'N/A'}</span></div>
                     </div>
                     
+                    ${showPropertyId ? `
+                        <div style="margin-bottom: 6px;">
+                            <strong style="color: #555;">Property ID:</strong> ${property.property_id}
+                        </div>
+                    ` : ''}
+                    
                     <div style="margin-bottom: 6px;">
                         <strong style="color: #555;">Owner:</strong> ${property.owner_name || 'N/A'}
                     </div>
+                    
+                    ${showMobile ? `
+                        <div style="margin-bottom: 6px;">
+                            <strong style="color: #555;">Mobile:</strong> <a href="tel:${property.mobile_no}" style="color: #007bff; text-decoration: none;">${property.mobile_no}</a>
+                        </div>
+                    ` : ''}
                     
                     ${showAddress ? `
                         <div style="margin-bottom: 6px;">
@@ -291,11 +371,12 @@ export class KmlMapView extends Component {
                         <strong style="color: #555;">📍</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}
                     </div>
                     
-                    ${property.survey_image1 || property.survey_image2 ? `
+                    ${hasSurveyImages ? `
                         <div style="margin-bottom: 8px;">
+                            <strong style="color: #555; display: block; margin-bottom: 4px;">Survey Photos:</strong>
                             <div style="display: flex; gap: 4px;">
-                                ${property.survey_image1 ? `<img src="${property.survey_image1}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 3px; border: 1px solid #ddd;" alt="Photo 1">` : ''}
-                                ${property.survey_image2 ? `<img src="${property.survey_image2}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 3px; border: 1px solid #ddd;" alt="Photo 2">` : ''}
+                                ${property.survey_image1 ? `<img src="${property.survey_image1}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 1px solid #ddd; cursor: pointer;" onclick="window.open('${property.survey_image1}', '_blank')" alt="Survey Photo 1" title="Click to view full size">` : ''}
+                                ${property.survey_image2 ? `<img src="${property.survey_image2}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 1px solid #ddd; cursor: pointer;" onclick="window.open('${property.survey_image2}', '_blank')" alt="Survey Photo 2" title="Click to view full size">` : ''}
                             </div>
                         </div>
                     ` : ''}

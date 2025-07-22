@@ -99,9 +99,28 @@
                         </div>
                     </div>
                     
-                    <!-- Property Count -->
+                    <!-- Property Count and Viewport Info -->
                     <div class="property-count" style="margin-top: 15px; font-weight: 600; color: #495057; text-align: center; padding: 10px; background: white; border-radius: 4px; border: 1px solid #dee2e6;">
-                        Properties Found: <span style="color: #007bff; font-size: 18px;"><t t-esc="state.properties.length"/></span>
+                        <div style="margin-bottom: 5px;">
+                            Properties in View: <span style="color: #007bff; font-size: 18px;"><t t-esc="state.properties.length"/></span>
+                            <t t-if="state.totalCount > 0">
+                                of <span style="color: #28a745; font-size: 16px;"><t t-esc="state.totalCount"/></span> available
+                            </t>
+                        </div>
+                        
+                        <div style="font-size: 11px; color: #6c757d; margin-bottom: 5px;">
+                            Zoom Level: <span style="color: #007bff;"><t t-esc="state.currentZoom"/></span>
+                        </div>
+                        
+                        <t t-if="state.loading">
+                            <div style="font-size: 12px; color: #ffc107; margin-top: 3px;">
+                                <i class="fa fa-spinner fa-spin" style="margin-right: 5px;"></i>Loading properties for current view...
+                            </div>
+                        </t>
+                        
+                        <div style="font-size: 11px; color: #6c757d; margin-top: 5px;">
+                            💡 Move or zoom the map to load more properties
+                        </div>
                     </div>
                 </div>
                 

@@ -22,11 +22,16 @@ class KMLController(http.Controller):
         return decimal
 
     @http.route('/ddn/kml/get_properties', type='json', auth='public')
-    def get_kml_properties(self, zone_id=None, ward_id=None, status=None):
+    def get_kml_properties(self, zone_ids=None, ward_ids=None, status_ids=None, property_type_ids=None, 
+                       bounds=None, zoom_level=None, limit=1000):
         print("get_kml_properties called with:", {
-            'zone_id': zone_id,
-            'ward_id': ward_id, 
-            'status': status
+            'zone_ids': zone_ids,
+            'ward_ids': ward_ids, 
+            'status_ids': status_ids,
+            'property_type_ids': property_type_ids,
+            'bounds': bounds,
+            'zoom_level': zoom_level,
+            'limit': limit
         })
         
         # Get current company
@@ -34,36 +39,126 @@ class KMLController(http.Controller):
         
         # Build domain with company filter and proper handling of None/empty values
         domain = [
-            ('company_id', '=', current_company.id),  # Only current company's properties
+            ('company_id', '=', current_company.id),
             ('latitude', '!=', False),
             ('longitude', '!=', False),
             ('latitude', '!=', ''),
             ('longitude', '!=', '')
         ]
         
-        # Only add zone filter if zone_id is provided and not empty
-        if zone_id and zone_id != '' and zone_id != 'null':
-            domain.append(('zone_id', '=', int(zone_id)))
+        # Add viewport bounds filter if provided
+        if bounds and len(bounds) == 4:
+            sw_lat, sw_lng, ne_lat, ne_lng = bounds
+            domain.extend([
+                ('latitude', '>=', str(sw_lat)),
+                ('latitude', '<=', str(ne_lat)),
+                ('longitude', '>=', str(sw_lng)),
+                ('longitude', '<=', str(ne_lng))
+            ])
         
-        # Only add ward filter if ward_id is provided and not empty
-        if ward_id and ward_id != '' and ward_id != 'null':
-            domain.append(('ward_id', '=', int(ward_id)))
+        # Handle multiple zone selections
+        if zone_ids and zone_ids != [] and zone_ids != ['']:
+            if isinstance(zone_ids, str):
+                zone_ids = [zone_ids]
+            domain.append(('zone_id', 'in', [int(zid) for zid in zone_ids if zid and zid != '']))
         
-        # Only add status filter if status is provided and not 'all'
-        if status and status != '' and status != 'all' and status != 'null':
-            domain.append(('property_status', '=', status))
+        # Handle multiple ward selections
+        if ward_ids and ward_ids != [] and ward_ids != ['']:
+            if isinstance(ward_ids, str):
+                ward_ids = [ward_ids]
+            domain.append(('ward_id', 'in', [int(wid) for wid in ward_ids if wid and wid != '']))
+        
+        # Handle multiple status selections
+        if status_ids and status_ids != [] and status_ids != ['']:
+            if isinstance(status_ids, str):
+                status_ids = [status_ids]
+            domain.append(('property_status', 'in', status_ids))
+        
+        # Handle multiple property type selections
+        if property_type_ids and property_type_ids != [] and property_type_ids != ['']:
+            if isinstance(property_type_ids, str):
+                property_type_ids = [property_type_ids]
+            domain.append(('property_type', 'in', [int(ptid) for ptid in property_type_ids if ptid and ptid != '']))
         
         print("Final domain:", domain)
         
+        # Get total count first
+        total_count = request.env['ddn.property.info'].sudo().search_count(domain)
+        print(f"Properties found in viewport: {total_count}")
+        
+        # Adjust limit based on zoom level
+        if zoom_level:
+            zoom_level = int(zoom_level)
+            if zoom_level <= 10:  # Very zoomed out
+                limit = min(limit, 500)  # Show fewer points
+            elif zoom_level <= 12:  # Medium zoom
+                limit = min(limit, 1000)
+            elif zoom_level <= 14:  # Closer zoom
+                limit = min(limit, 2000)
+            else:  # Very close zoom
+                limit = min(limit, 5000)  # Show more points
+        
+        # Get properties with additional fields
         properties = request.env['ddn.property.info'].sudo().search_read(
             domain,
-            fields=['id', 'upic_no', 'owner_name', 'latitude', 'longitude']
+            fields=[
+                'id', 'upic_no', 'owner_name', 'latitude', 'longitude', 
+                'property_status', 'zone_id', 'ward_id', 'property_type',
+                'address_line_1', 'address_line_2', 'mobile_no', 'property_id'
+            ],
+            limit=limit,
+            order='id'
         )
 
-        print("Found properties:", len(properties))
+        # Get related data efficiently using a single query
+        zone_ids = list(set([p['zone_id'][0] for p in properties if p.get('zone_id')]))
+        ward_ids = list(set([p['ward_id'][0] for p in properties if p.get('ward_id')]))
+        property_type_ids = list(set([p['property_type'][0] for p in properties if p.get('property_type')]))
+        
+        # Batch fetch related data
+        zones = {z.id: z.name for z in request.env['ddn.zone'].sudo().browse(zone_ids)} if zone_ids else {}
+        wards = {w.id: w.name for w in request.env['ddn.ward'].sudo().browse(ward_ids)} if ward_ids else {}
+        property_types = {pt.id: pt.name for pt in request.env['ddn.property.type'].sudo().browse(property_type_ids)} if property_type_ids else {}
+
+        # Get survey images for properties
+        property_ids = [p['id'] for p in properties]
+        surveys = request.env['ddn.property.survey'].sudo().search_read(
+            [('property_id', 'in', property_ids)],
+            fields=['property_id', 'image1_s3_url', 'image2_s3_url', 'property_image', 'property_image1']
+        )
+        
+        # Create survey lookup
+        survey_lookup = {}
+        for survey in surveys:
+            prop_id = survey['property_id'][0]
+            survey_lookup[prop_id] = {
+                'image1': survey.get('image1_s3_url') or survey.get('property_image'),
+                'image2': survey.get('image2_s3_url') or survey.get('property_image1')
+            }
+
+        # Add related data to properties
+        for prop in properties:
+            if prop.get('zone_id'):
+                prop['zone_name'] = zones.get(prop['zone_id'][0], 'N/A')
+            if prop.get('ward_id'):
+                prop['ward_name'] = wards.get(prop['ward_id'][0], 'N/A')
+            if prop.get('property_type'):
+                prop['property_type_name'] = property_types.get(prop['property_type'][0], 'N/A')
+            
+            # Add survey images
+            survey_data = survey_lookup.get(prop['id'], {})
+            prop['survey_image1'] = survey_data.get('image1')
+            prop['survey_image2'] = survey_data.get('image2')
+
+        print(f"Returning {len(properties)} properties (zoom: {zoom_level}, limit: {limit})")
         return {
             'success': True,
-            'properties': properties
+            'properties': properties,
+            'total_count': total_count,
+            'returned_count': len(properties),
+            'viewport_bounds': bounds,
+            'zoom_level': zoom_level,
+            'has_more': len(properties) < total_count
         }
 
     @http.route('/ddn/kml/get_filters', type='json', auth='user')
