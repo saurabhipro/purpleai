@@ -43,6 +43,9 @@ class DdnReport(models.TransientModel):
         # Create dashboard worksheet
         ws_dash = wb.create_sheet(title="Dashboard")
 
+        # Create duplicate property ID worksheet
+        ws_duplicate = wb.create_sheet(title="Duplicate Property ID")
+
         # Styles
         header_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
         green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")  # Light green
@@ -85,7 +88,7 @@ class DdnReport(models.TransientModel):
             "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
             "Latitude", "Longitude", "Total Floors", "Floor Number", 
             "Surveyor", "Surveyor Datetime", "Property Type", "Microsite Url",
-            "Property Status", "Is Solar", "Is Rain Water Harvesting"
+            "Property Status", "Is Solar", "Is Rain Water Harvesting", "Old Mobile", "Old Property ID"
         ]
 
         # Build your domain
@@ -241,7 +244,7 @@ class DdnReport(models.TransientModel):
 
         # Add filter to the header row (only for the data table)
         last_data_row = data_start_row + len(records)
-        ws.auto_filter.ref = f"A{data_start_row}:U{last_data_row}"
+        ws.auto_filter.ref = f"A{data_start_row}:W{last_data_row}"  # Updated to include new columns
 
         # Freeze panes so header is always visible
         ws.freeze_panes = ws[f"A{data_start_row+1}"]
@@ -250,6 +253,25 @@ class DdnReport(models.TransientModel):
         row = data_start_row + 1
         for rec in records:
             prop = rec.property_id
+            
+            # Look up old mobile and property ID from property_id_data model
+            old_mobile = ''
+            old_property_id = ''
+            
+            if rec.owner_name and (rec.address_line_1 or rec.address_line_2):
+                # Create address string for matching
+                address_str = f"{rec.address_line_1 or ''} {rec.address_line_2 or ''}".strip()
+                
+                # Search in property_id_data model based on owner name and address
+                property_data_records = self.env['property.id.data'].search([
+                    ('owner_name', '=', rec.owner_name),
+                    ('address', 'ilike', address_str)
+                ], limit=1)
+                
+                if property_data_records:
+                    old_mobile = property_data_records.mobile_no or ''
+                    old_property_id = property_data_records.property_id or ''
+            
             values = [
                 prop.upic_no or '',
                 prop.property_id or '',
@@ -272,6 +294,8 @@ class DdnReport(models.TransientModel):
                 prop.property_status or '',
                 'Yes' if rec.is_solar else 'No',
                 'Yes' if rec.is_rainwater_harvesting else 'No',
+                old_mobile,
+                old_property_id,
             ]
             for col_num, val in enumerate(values, 1):
                 cell = ws.cell(row=row, column=col_num, value=val)
@@ -300,6 +324,85 @@ class DdnReport(models.TransientModel):
         for col in ws.columns:
             col_letter = col[0].column_letter
             ws.column_dimensions[col_letter].width = upic_width
+
+        # --- Duplicate Property ID Tab ---
+        # Find all duplicate property IDs from property_id_data model
+        duplicate_property_ids = self.env['property.id.data'].search([])
+        
+        # Group by property_id and find duplicates
+        property_id_groups = {}
+        for record in duplicate_property_ids:
+            prop_id = record.property_id
+            if prop_id not in property_id_groups:
+                property_id_groups[prop_id] = []
+            property_id_groups[prop_id].append(record)
+        
+        # Filter only groups with more than one record (duplicates)
+        duplicate_groups = {k: v for k, v in property_id_groups.items() if len(v) > 1}
+        
+        # Prepare duplicate data for the sheet
+        duplicate_data = []
+        for prop_id, records in duplicate_groups.items():
+            for record in records:
+                duplicate_data.append({
+                    'property_id': record.property_id,
+                    'owner_name': record.owner_name,
+                    'address': record.address,
+                    'mobile_no': record.mobile_no,
+                    'currnet_tax': record.currnet_tax,
+                    'total_amount': record.total_amount,
+                    'duplicate_count': len(records)
+                })
+        
+        # Write duplicate property ID headers
+        duplicate_headers = [
+            "Property ID", "Owner Name", "Address", "Mobile No", 
+            "Current Tax", "Total Amount", "Duplicate Count"
+        ]
+        
+        duplicate_start_row = 3
+        for col_num, header in enumerate(duplicate_headers, 1):
+            cell = ws_duplicate.cell(row=duplicate_start_row, column=col_num, value=header)
+            cell.font = white_header_font
+            cell.fill = brown_fill
+            cell.alignment = align_left
+            cell.border = border
+        
+        # Add filter to the duplicate header row
+        last_duplicate_row = duplicate_start_row + len(duplicate_data)
+        ws_duplicate.auto_filter.ref = f"A{duplicate_start_row}:G{last_duplicate_row}"
+        
+        # Freeze panes for duplicate sheet
+        ws_duplicate.freeze_panes = ws_duplicate[f"A{duplicate_start_row+1}"]
+        
+        # Write duplicate data rows
+        duplicate_row = duplicate_start_row + 1
+        for data in duplicate_data:
+            values = [
+                data['property_id'],
+                data['owner_name'],
+                data['address'],
+                data['mobile_no'],
+                data['currnet_tax'],
+                data['total_amount'],
+                data['duplicate_count']
+            ]
+            for col_num, val in enumerate(values, 1):
+                cell = ws_duplicate.cell(row=duplicate_row, column=col_num, value=val)
+                cell.border = border
+                cell.alignment = align_left
+                # Highlight duplicate count column
+                if col_num == 7:  # Duplicate Count column
+                    if data['duplicate_count'] > 2:
+                        cell.fill = red_fill
+                    else:
+                        cell.fill = orange_fill
+            duplicate_row += 1
+        
+        # Set column widths for duplicate sheet
+        for col in ws_duplicate.columns:
+            col_letter = col[0].column_letter
+            ws_duplicate.column_dimensions[col_letter].width = 15
 
         # Prepare output for download
         output = io.BytesIO()
