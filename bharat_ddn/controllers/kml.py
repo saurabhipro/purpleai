@@ -458,3 +458,35 @@ class KMLController(http.Controller):
                 continue
 
         return kml_header + ''.join(placemarks) + kml_footer 
+
+@http.route('/bharat_ddn/static/kml/<path:filename>', type='http', auth='public')
+def serve_kml_file(self, filename, **kwargs):
+    """Serve KML/KMZ files from the static/kml directory."""
+    try:
+        # Get the file path
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'kml', filename)
+        
+        if os.path.exists(file_path):
+            # Determine content type based on file extension
+            if filename.lower().endswith('.kmz'):
+                content_type = 'application/vnd.google-earth.kmz'
+            elif filename.lower().endswith('.kml'):
+                content_type = 'application/vnd.google-earth.kml+xml'
+            else:
+                content_type = 'application/octet-stream'
+            
+            # Read and return the file
+            with open(file_path, 'rb') as f:
+                content = f.read()
+            
+            return http.Response(
+                content,
+                content_type=content_type,
+                headers=[('Access-Control-Allow-Origin', '*')]
+            )
+        else:
+            return http.Response("File not found", status=404)
+            
+    except Exception as e:
+        print(f"Error serving KML file {filename}: {e}")
+        return http.Response("Error serving file", status=500) 

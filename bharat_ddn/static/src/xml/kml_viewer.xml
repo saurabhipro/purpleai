@@ -8,13 +8,17 @@
                         
                         <!-- Zone Checkboxes -->
                         <div class="" style="padding: 0 10px; margin-bottom: 15px;">
-                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Zone:</label>
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">
+                                🗺️ Zone:
+                            </label>
                             <div class="zone-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.zones" t-as="zone" t-key="zone.id">
                                     <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 60px;">
-                                        <input type="checkbox" name="zone" 
-                                               t-att-id="'zone-' + zone.id" t-att-value="zone.id" 
-                                               t-att-checked="state.selectedZones.includes(zone.id)" t-on-change="onZoneChange"
+                                        <input type="checkbox" 
+                                               t-att-id="'zone-' + zone.id" 
+                                               t-att-value="zone.id" 
+                                               t-att-checked="state.selectedZones.includes(zone.id)" 
+                                               t-on-change="onZoneChange"
                                                style="margin: 0; margin-right: 4px;"/>
                                         <label t-att-for="'zone-' + zone.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
                                             <t t-esc="zone.name"/>
@@ -26,13 +30,17 @@
                         
                         <!-- Ward Checkboxes -->
                         <div class="" style="padding: 0 10px; margin-bottom: 15px;">
-                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Ward:</label>
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">
+                                🏘️ Ward:
+                            </label>
                             <div class="ward-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.wards" t-as="ward" t-key="ward.id">
                                     <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 60px;">
-                                        <input type="checkbox" name="ward" 
-                                               t-att-id="'ward-' + ward.id" t-att-value="ward.id" 
-                                               t-att-checked="state.selectedWards.includes(ward.id)" t-on-change="onWardChange"
+                                        <input type="checkbox" 
+                                               t-att-id="'ward-' + ward.id" 
+                                               t-att-value="ward.id" 
+                                               t-att-checked="state.selectedWards.includes(ward.id)" 
+                                               t-on-change="onWardChange"
                                                style="margin: 0; margin-right: 4px;"/>
                                         <label t-att-for="'ward-' + ward.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
                                             <t t-esc="ward.name"/>
@@ -44,13 +52,17 @@
                         
                         <!-- Status Checkboxes -->
                         <div class="" style="padding: 0 10px; margin-bottom: 15px;">
-                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Status:</label>
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">
+                                📊 Status:
+                            </label>
                             <div class="status-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-foreach="state.statuses" t-as="status" t-key="status.id">
                                     <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 80px;">
-                                        <input type="checkbox" name="status" 
-                                               t-att-id="'status-' + status.id" t-att-value="status.id" 
-                                               t-att-checked="state.selectedStatuses.includes(status.id)" t-on-change="onStatusChange"
+                                        <input type="checkbox" 
+                                               t-att-id="'status-' + status.id" 
+                                               t-att-value="status.id" 
+                                               t-att-checked="state.selectedStatuses.includes(status.id)" 
+                                               t-on-change="onStatusChange"
                                                style="margin: 0; margin-right: 4px;"/>
                                         <label t-att-for="'status-' + status.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
                                             <t t-esc="status.name"/>
@@ -62,14 +74,18 @@
                         
                         <!-- Property Type Checkboxes -->
                         <div class="" style="padding: 0 10px; margin-bottom: 15px;">
-                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">Property Type:</label>
+                            <label style="font-weight: 600; margin-bottom: 10px; display: block; color: #495057;">
+                                🏠 Property Type:
+                            </label>
                             <div class="property-type-checkbox-group" style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 4px; padding: 8px; display: flex; flex-wrap: wrap; align-items: flex-start;">
                                 <t t-if="state.propertyTypes.length > 0">
                                     <t t-foreach="state.propertyTypes" t-as="propertyType" t-key="propertyType.id">
                                         <div style="display: flex; align-items: center; margin-right: 12px; margin-bottom: 6px; min-width: 80px;">
-                                            <input type="checkbox" name="propertyType" 
-                                                   t-att-id="'propertyType-' + propertyType.id" t-att-value="propertyType.id" 
-                                                   t-att-checked="state.selectedPropertyTypes.includes(propertyType.id)" t-on-change="onPropertyTypeChange"
+                                            <input type="checkbox" 
+                                                   t-att-id="'propertyType-' + propertyType.id" 
+                                                   t-att-value="propertyType.id" 
+                                                   t-att-checked="state.selectedPropertyTypes.includes(propertyType.id)" 
+                                                   t-on-change="onPropertyTypeChange"
                                                    style="margin: 0; margin-right: 4px;"/>
                                             <label t-att-for="'propertyType-' + propertyType.id" style="font-size: 12px; cursor: pointer; margin: 0; white-space: nowrap;">
                                                 <t t-esc="propertyType.name"/>

@@ -21,10 +21,12 @@ export class KmlMapView extends Component {
             selectedStatuses: [],
             selectedPropertyTypes: [],
             loading: false,
-            totalCount: 0,
             currentViewport: null,
-            currentZoom: 12
+            currentZoom: 12,
+            totalCount: 0
         });
+        
+        this.kmlLayers = []; // Array to store multiple KML layers
         this.currentInfoWindow = null;
         this.loadTimeout = null;
         onMounted(() => this.initMapAndFilters());
@@ -37,23 +39,33 @@ export class KmlMapView extends Component {
     }
 
     initMap() {
-        const container = this.mapRef.el;
-        this.state.map = new google.maps.Map(container, {
-            center: { lat: 22.7196, lng: 75.8577 },
+        // Initialize map centered on Indore
+        this.state.map = new google.maps.Map(this.mapRef.el, {
+            center: { lat: 22.7196, lng: 75.8577 }, // Indore coordinates
             zoom: 12,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            maxZoom: 18,
+            mapTypeId: google.maps.MapTypeId.HYBRID,
+            maxZoom: 22, // Allow deeper zoom
             minZoom: 8,
-            gestureHandling: 'cooperative'
+            styles: [
+                {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }]
+                }
+            ]
         });
 
-        // Add map event listeners for zoom-based loading
+        // Load KML layers automatically when map is ready
+        google.maps.event.addListenerOnce(this.state.map, 'idle', () => {
+            this.loadKmlLayers();
+        });
+
+        // Add map event listeners
         this.state.map.addListener('bounds_changed', () => {
             this.debouncedLoadPropertiesForViewport();
         });
 
         this.state.map.addListener('zoom_changed', () => {
-            this.state.currentZoom = this.state.map.getZoom();
             this.debouncedLoadPropertiesForViewport();
         });
     }
@@ -247,31 +259,30 @@ export class KmlMapView extends Component {
                         return;
                     }
 
-                    // Simple marker with color based on status
+                    // Use default Google Maps marker with only color change for visit again
                     const marker = new google.maps.Marker({
-                        position: { lat: lat, lng: lng },
+                        position: { lat, lng },
                         map: this.state.map,
-                        title: `${property.upic_no || 'No UPIC'} - ${property.owner_name || 'No Owner'}`,
-                        optimized: true,
-                        // Simple color change - green for visit_again, default red for others
-                        icon: property.property_status === 'visit_again' ? 
-                              'http://maps.google.com/mapfiles/ms/icons/green-dot.png' : 
-                              'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                        title: property.upic_no || property.ddn_number || 'Property',
+                        zIndex: 10, // Higher z-index to appear above KML layer
+                        // Use green marker for visit again, default red for others
+                        icon: property.property_status === 'visit again' ? 
+                            'http://maps.google.com/mapfiles/ms/icons/green-dot.png' : 
+                            'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                     });
 
+                    // Add click event
                     marker.addListener('click', () => {
                         this.showInfoWindow(marker, property);
                     });
 
                     this.state.markers.push(marker);
-
                 } catch (error) {
-                    console.error("Error creating marker for property:", property.id, error);
+                    console.error('Error creating marker for property:', property.id, error);
                 }
             });
 
             currentBatch++;
-
             if (currentBatch < totalBatches) {
                 setTimeout(processBatch, 10);
             }
@@ -407,6 +418,109 @@ export class KmlMapView extends Component {
             script.onerror = reject;
             document.head.appendChild(script);
         });
+    }
+
+    loadKmlLayers() {
+        try {
+            console.log("Loading KML layers automatically...");
+            
+            // Load IMC KMZ file
+            const imcKmlUrl = '/bharat_ddn/static/kml/imc.kmz';
+            const imcLayer = new google.maps.KmlLayer({
+                url: imcKmlUrl,
+                map: this.state.map,
+                preserveViewport: false,
+                suppressInfoWindows: false, // Allow KML info windows
+                zIndex: 1
+            });
+            
+            // Load Jangpura Radial Parcels KML file
+            const jangpuraKmlUrl = '/bharat_ddn/static/kml/jangpura_radial_parcels.kml';
+            const jangpuraLayer = new google.maps.KmlLayer({
+                url: jangpuraKmlUrl,
+                map: this.state.map,
+                preserveViewport: false,
+                suppressInfoWindows: false, // Allow KML info windows
+                zIndex: 2
+            });
+            
+            // Store both layers
+            this.kmlLayers = [imcLayer, jangpuraLayer];
+            
+            // Add event listeners for both layers
+            this.kmlLayers.forEach((layer, index) => {
+                const layerName = index === 0 ? 'IMC' : 'Jangpura';
+                
+                google.maps.event.addListener(layer, 'status_changed', () => {
+                    const status = layer.getStatus();
+                    console.log(`${layerName} KML Layer Status:`, status);
+                    
+                    switch(status) {
+                        case google.maps.KmlLayerStatus.OK:
+                            console.log(`✅ ${layerName} KML layer loaded successfully`);
+                            // Fit map to KML bounds when first layer loads
+                            if (index === 0) {
+                                this.fitMapToKmlBounds();
+                            }
+                            break;
+                        case google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT:
+                            console.error(`❌ ${layerName} KML document not found or invalid`);
+                            break;
+                        case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
+                            console.error(`❌ ${layerName} KML document not found`);
+                            break;
+                        case google.maps.KmlLayerStatus.TIMED_OUT:
+                            console.error(`❌ ${layerName} KML document load timed out`);
+                            break;
+                        case google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT:
+                            console.error(`❌ ${layerName} KML document format not supported`);
+                            break;
+                        case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
+                            console.error(`❌ ${layerName} KML document is invalid`);
+                            break;
+                        default:
+                            console.log(`${layerName} KML layer status:`, status);
+                    }
+                });
+
+                google.maps.event.addListener(layer, 'defaultviewport_changed', () => {
+                    console.log(`${layerName} KML default viewport changed`);
+                    this.fitMapToKmlBounds();
+                });
+            });
+
+        } catch (error) {
+            console.error('Error loading KML layers:', error);
+        }
+    }
+
+    clearKmlLayers() {
+        if (this.kmlLayers && this.kmlLayers.length > 0) {
+            this.kmlLayers.forEach(layer => {
+                if (layer) {
+                    layer.setMap(null);
+                }
+            });
+            this.kmlLayers = [];
+        }
+    }
+
+    fitMapToKmlBounds() {
+        try {
+            if (this.kmlLayers && this.kmlLayers.length > 0) {
+                // Try to fit to the first layer's bounds
+                const firstLayer = this.kmlLayers[0];
+                if (firstLayer && firstLayer.getDefaultViewport) {
+                    const bounds = firstLayer.getDefaultViewport();
+                    if (bounds) {
+                        console.log('Fitting map to KML bounds');
+                        this.state.map.fitBounds(bounds);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fitting map to KML bounds:', error);
+        }
     }
 }
 
