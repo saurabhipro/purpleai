@@ -93,9 +93,32 @@ class DdnReport(models.TransientModel):
 
         # Build your domain
         domain = [('company_id', '=', self.company_id.id)]
-        # Add more to domain as needed
+        
+        # Add date filters if provided
+        if self.date_from:
+            domain.append(('create_date', '>=', self.date_from))
+        if self.date_to:
+            domain.append(('create_date', '<=', self.date_to))
+        
+        # Add zone filter if provided
+        if self.zone_id:
+            domain.append(('property_id.zone_id', 'in', self.zone_id.ids))
+        
+        # Add ward filter if provided
+        if self.ward_id:
+            domain.append(('property_id.ward_id', 'in', self.ward_id.ids))
 
-        records = self.env['ddn.property.survey'].search(domain)
+        # Get unique properties that have surveys, not all survey records
+        survey_records = self.env['ddn.property.survey'].search(domain)
+        unique_property_ids = survey_records.mapped('property_id.id')
+        
+        # Get the latest survey for each unique property
+        records = []
+        for property_id in unique_property_ids:
+            property_surveys = survey_records.filtered(lambda r: r.property_id.id == property_id)
+            # Get the most recent survey for this property
+            latest_survey = max(property_surveys, key=lambda r: r.create_date)
+            records.append(latest_survey)
 
         # Now you can use records for summaries, charts, and data table
         # --- Prepare summary data ---
