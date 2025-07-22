@@ -14,15 +14,19 @@ export class KmlMapView extends Component {
             statuses: [],
             properties: [],
             map: null,
-            markers: []
+            markers: [],
+            selectedZone: '',
+            selectedWard: '',
+            selectedStatus: 'surveyed', // Default to surveyed
+            loading: false
         });
-        onMounted(() => this.initMapAndMarkers());
+        onMounted(() => this.initMapAndFilters());
     }
 
-    async initMapAndMarkers() {
+    async initMapAndFilters() {
         await this.loadGoogleMaps();
         this.initMap();
-        await this.loadProperties();
+        await this.loadFilters(); // Only load filters, not properties
     }
 
     initMap() {
@@ -35,82 +39,111 @@ export class KmlMapView extends Component {
 
     onZoneChange(ev) {
         this.state.selectedZone = ev.target.value;
-        this.loadProperties();  // if you want to reload markers after changing zone
+        this.state.selectedWard = ''; // Reset ward when zone changes
+        // Don't auto-load properties - wait for refresh button
     }
 
     onWardChange(ev) {
         this.state.selectedWard = ev.target.value;
-        this.loadProperties();
+        // Don't auto-load properties - wait for refresh button
     }
 
     onStatusChange(ev) {
         this.state.selectedStatus = ev.target.value;
-        this.loadProperties();
+        // Don't auto-load properties - wait for refresh button
     }
 
-    onZoneChange(ev) {
-    this.state.selectedZone = ev.target.value;
-    this.state.selectedWard = ev.target.value;
-    this.state.selectedStatus = ev.target.value;
-}
+    async loadFilters() {
+        console.log("Loading filters only");
+        
+        try {
+            const filterResult = await rpc('/ddn/kml/get_filters', {});
+            
+            if (filterResult.success) {
+                this.state.zones = filterResult.zones || [];
+                this.state.wards = filterResult.wards || [];
+                this.state.statuses = filterResult.statuses || [];
+                console.log("Filters loaded:", {
+                    zones: this.state.zones.length,
+                    wards: this.state.wards.length,
+                    statuses: this.state.statuses.length
+                });
+            }
+        } catch (error) {
+            console.error('Error loading filters:', error);
+        }
+    }
 
     async loadProperties() {
-        console.log("call properties");
+        console.log("Loading properties with filters:", {
+            zone: this.state.selectedZone,
+            ward: this.state.selectedWard,
+            status: this.state.selectedStatus
+        });
         
-    try {
-        // Fetch both filters and properties in parallel
-        const [propertyResult, filterResult] = await Promise.all([
-            rpc('/ddn/kml/get_properties', {
-                    zone_id: this.state.selectedZone,
-                    ward_id: this.state.selectedWard,
-                    status: this.state.selectedStatus,
-                }),
-            rpc('/ddn/kml/get_filters', {})
-        ]);
+        this.state.loading = true;
+        
+        try {
+            const propertyResult = await rpc('/ddn/kml/get_properties', {
+                zone_id: this.state.selectedZone || null,
+                ward_id: this.state.selectedWard || null,
+                status: this.state.selectedStatus || 'surveyed',
+            });
 
-        // Set properties
-        if (propertyResult.success) {
-            this.state.properties = propertyResult.properties;
-        }
+            console.log("Property result:", propertyResult);
 
-        // Set filters
-        if (filterResult.success) {
-            this.state.zones = filterResult.zones;
-            console.log("this.state.zones - ", this.state.zones);
-            
-            this.state.wards = filterResult.wards;
-            this.state.statuses = filterResult.statuses;
-        }
+            if (propertyResult.success) {
+                this.state.properties = propertyResult.properties || [];
+                console.log("Properties loaded:", this.state.properties.length);
+            }
 
-        // Only call render once at the end
-        this.renderMarkers();
+            // Render markers after loading properties
+            this.renderMarkers();
 
         } catch (error) {
-            console.error('Error loading properties or filters:', error);
+            console.error('Error loading properties:', error);
+        } finally {
+            this.state.loading = false;
         }
     }
 
-
     renderMarkers() {
+        console.log("Rendering markers for", this.state.properties.length, "properties");
+        
         // Remove old markers
         this.state.markers.forEach(marker => marker.setMap(null));
         this.state.markers = [];
 
-        if (!this.state.map || !this.state.properties.length) return;
+        if (!this.state.map || !this.state.properties.length) {
+            console.log("No map or properties to render");
+            return;
+        }
 
         this.state.properties.forEach(property => {
-            const marker = new google.maps.Marker({
-                position: { lat: parseFloat(property.latitude), lng: parseFloat(property.longitude) },
-                map: this.state.map,
-                title: `${property.upic_no} - ${property.owner_name}`,
-            });
+            try {
+                const lat = parseFloat(property.latitude);
+                const lng = parseFloat(property.longitude);
+                
+                if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+                    console.log("Invalid coordinates for property:", property.id);
+                    return;
+                }
 
-            const infoWindow = new google.maps.InfoWindow({
-                content: `<b>${property.upic_no}</b><br>${property.owner_name}<br>${property.latitude}, ${property.longitude}`
-            });
-            marker.addListener('click', () => infoWindow.open(this.state.map, marker));
+                const marker = new google.maps.Marker({
+                    position: { lat: lat, lng: lng },
+                    map: this.state.map,
+                    title: `${property.upic_no || 'No UPIC'} - ${property.owner_name || 'No Owner'}`,
+                });
 
-            this.state.markers.push(marker);
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<b>${property.upic_no || 'No UPIC'}</b><br>${property.owner_name || 'No Owner'}<br>${lat}, ${lng}`
+                });
+                marker.addListener('click', () => infoWindow.open(this.state.map, marker));
+
+                this.state.markers.push(marker);
+            } catch (error) {
+                console.error("Error creating marker for property:", property.id, error);
+            }
         });
 
         // Fit map to markers

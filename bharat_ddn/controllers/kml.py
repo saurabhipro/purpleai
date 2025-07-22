@@ -23,24 +23,44 @@ class KMLController(http.Controller):
 
     @http.route('/ddn/kml/get_properties', type='json', auth='public')
     def get_kml_properties(self, zone_id=None, ward_id=None, status=None):
-        print("function is working file ")
+        print("get_kml_properties called with:", {
+            'zone_id': zone_id,
+            'ward_id': ward_id, 
+            'status': status
+        })
+        
+        # Get current company
+        current_company = request.env.company
+        
+        # Build domain with company filter and proper handling of None/empty values
         domain = [
+            ('company_id', '=', current_company.id),  # Only current company's properties
             ('latitude', '!=', False),
             ('longitude', '!=', False),
             ('latitude', '!=', ''),
-            ('longitude', '!=', ''),
-            ('zone_id','=',zone_id),
-            ('ward_id','=',ward_id),
-            ('property_status','=',status)
-
+            ('longitude', '!=', '')
         ]
-        print("\n domain - ", domain)
+        
+        # Only add zone filter if zone_id is provided and not empty
+        if zone_id and zone_id != '' and zone_id != 'null':
+            domain.append(('zone_id', '=', int(zone_id)))
+        
+        # Only add ward filter if ward_id is provided and not empty
+        if ward_id and ward_id != '' and ward_id != 'null':
+            domain.append(('ward_id', '=', int(ward_id)))
+        
+        # Only add status filter if status is provided and not 'all'
+        if status and status != '' and status != 'all' and status != 'null':
+            domain.append(('property_status', '=', status))
+        
+        print("Final domain:", domain)
+        
         properties = request.env['ddn.property.info'].sudo().search_read(
             domain,
             fields=['id', 'upic_no', 'owner_name', 'latitude', 'longitude']
         )
 
-        print("properties - ", properties)
+        print("Found properties:", len(properties))
         return {
             'success': True,
             'properties': properties
@@ -48,18 +68,22 @@ class KMLController(http.Controller):
 
     @http.route('/ddn/kml/get_filters', type='json', auth='user')
     def get_kml_filters(self):
-        print("filter funciton ")
+        print("get_kml_filters called")
         """Get zones and wards for KML viewer filters."""
         try:
-            # Get zones
-            zones = request.env['ddn.zone'].sudo().search_read([], fields=['id', 'name'])
-            print("zones - ", zones)
-            for z in zones:
-                z['name'] = z.pop('name')
+            # Get current company
+            current_company = request.env.company
             
-            # Get wards
+            # Get zones for current company only
+            zones = request.env['ddn.zone'].sudo().search_read(
+                [('company_id', '=', current_company.id)], 
+                fields=['id', 'name']
+            )
+            print("Raw zones:", zones)
+            
+            # Get wards for current company only
             wards = request.env['ddn.ward'].sudo().search_read(
-                [],
+                [('company_id', '=', current_company.id)],
                 fields=['id', 'name'],
                 order='name'
             )
@@ -75,7 +99,13 @@ class KMLController(http.Controller):
                 {'id': 'discovered', 'name': 'Discovered'},
                 {'id': 'visit_again', 'name': 'Visit Again'}
             ]
-            print("zones - ", zones)
+            
+            print("Returning filters:", {
+                'zones': zones,
+                'wards': wards,
+                'statuses': statuses
+            })
+            
             return {
                 'success': True,
                 'zones': zones,
@@ -84,7 +114,7 @@ class KMLController(http.Controller):
             }
 
         except Exception as e:
-            print("exception in code ", e)
+            print("Exception in get_kml_filters:", e)
             return {
                 'success': False,
                 'error': str(e),
