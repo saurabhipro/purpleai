@@ -31,9 +31,11 @@ export class KmlMapView extends Component {
 
     initMap() {
         const container = this.mapRef.el;
+        // Set default center to Indore, India
         this.state.map = new google.maps.Map(container, {
-            center: { lat: 22.688804, lng: 75.833185 },
-            zoom: 14
+            center: { lat: 22.7196, lng: 75.8577 }, // Indore coordinates
+            zoom: 12, // Closer zoom to show Indore city
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         });
     }
 
@@ -119,7 +121,10 @@ export class KmlMapView extends Component {
             return;
         }
 
-        this.state.properties.forEach(property => {
+        let firstInfoWindow = null;
+        let firstMarker = null;
+
+        this.state.properties.forEach((property, index) => {
             try {
                 const lat = parseFloat(property.latitude);
                 const lng = parseFloat(property.longitude);
@@ -136,21 +141,58 @@ export class KmlMapView extends Component {
                 });
 
                 const infoWindow = new google.maps.InfoWindow({
-                    content: `<b>${property.upic_no || 'No UPIC'}</b><br>${property.owner_name || 'No Owner'}<br>${lat}, ${lng}`
+                    content: `<div style="padding: 10px; max-width: 300px;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">${property.upic_no || 'No UPIC'}</h4>
+                        <p style="margin: 5px 0;"><strong>Owner:</strong> ${property.owner_name || 'No Owner'}</p>
+                        <p style="margin: 5px 0;"><strong>Coordinates:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+                        <p style="margin: 5px 0; font-size: 12px; color: #666;">Property ID: ${property.id}</p>
+                    </div>`
                 });
-                marker.addListener('click', () => infoWindow.open(this.state.map, marker));
+
+                marker.addListener('click', () => {
+                    // Close all other info windows first
+                    this.state.markers.forEach(m => {
+                        if (m.infoWindow && m.infoWindow !== infoWindow) {
+                            m.infoWindow.close();
+                        }
+                    });
+                    infoWindow.open(this.state.map, marker);
+                });
+
+                // Store info window reference on marker
+                marker.infoWindow = infoWindow;
 
                 this.state.markers.push(marker);
+
+                // Store first marker and info window for auto-opening
+                if (index === 0) {
+                    firstMarker = marker;
+                    firstInfoWindow = infoWindow;
+                }
+
             } catch (error) {
                 console.error("Error creating marker for property:", property.id, error);
             }
         });
 
-        // Fit map to markers
+        // Fit map to markers with padding
         if (this.state.markers.length > 0) {
             const bounds = new google.maps.LatLngBounds();
             this.state.markers.forEach(marker => bounds.extend(marker.getPosition()));
+            
+            // Add padding to bounds
             this.state.map.fitBounds(bounds);
+            
+            // Add a small delay to ensure bounds are set, then open first property
+            setTimeout(() => {
+                if (firstInfoWindow && firstMarker) {
+                    firstInfoWindow.open(this.state.map, firstMarker);
+                }
+            }, 500);
+        } else {
+            // If no properties found, center on Indore
+            this.state.map.setCenter({ lat: 22.7196, lng: 75.8577 });
+            this.state.map.setZoom(12);
         }
     }
 
