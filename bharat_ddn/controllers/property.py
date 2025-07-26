@@ -137,11 +137,18 @@ class PropertyDetailsAPI(http.Controller):
                 domain = [('uuid', '=', uuid)]
             else:
                 return Response(json.dumps({'error': 'Either upic_no or uuid is required'}), status=400, content_type='application/json')
-            
             property_record = request.env['ddn.property.info'].sudo().search(domain)
 
             if not property_record:
                 return Response(json.dumps({'error': 'Property not found'}), status=404, content_type='application/json')
+
+            proprty_id = data.get("property_id")
+            property_record = request.env['ddn.property.info'].sudo().search([('proprty_id','=',proprty_id)],limit=1)
+            if property_record:
+                return Response(json.dumps({'error': 'property_id is already map to another property.'}), status=400, content_type='application/json')
+
+
+
 
             # # Status validation logic
             # if property_status == 'visit_again':
