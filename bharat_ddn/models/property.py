@@ -28,7 +28,7 @@ class Property(models.Model):
 
     # Owner Information
     company_id = fields.Many2one('res.company', string="Company", default=lambda self : self.env.company.id, readonly=True)
-    property_id = fields.Char('Property Id')
+    property_id = fields.Char('Property Id', index=True)
     unit_no = fields.Char('Unit No.')
     uuid = fields.Char(string='UUID', readonly=True, copy=False, store=True, default=lambda self: str(uuid.uuid4()))
     zone_id = fields.Many2one('ddn.zone', string='Zone')
@@ -186,8 +186,21 @@ class Property(models.Model):
     property_type = fields.Many2one('ddn.property.type', string='Property Type', tracking=True)
     
     _sql_constraints = [
-        ('unique_upic_no', 'UNIQUE(upic_no)', 'The UPICNO must be unique.')
+        ('unique_upic_no', 'UNIQUE(upic_no)', 'The UPICNO must be unique.'),
     ]
+
+    @api.constrains('property_id')
+    def _check_property_id_unique(self):
+        """Custom constraint to handle NULL values properly"""
+        for record in self:
+            if record.property_id and record.property_id.strip():  # Only check if property_id is not empty
+                # Check for duplicates excluding current record
+                duplicate = self.search([
+                    ('property_id', '=', record.property_id),
+                    ('id', '!=', record.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(f'Property ID "{record.property_id}" already exists in record {duplicate.upic_no}')
 
     digipin = fields.Char('Digi Pin', compute='_compute_digipin', store=True)
 
