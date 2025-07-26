@@ -70,7 +70,7 @@ class DdnReport(models.TransientModel):
         white_bold_font = Font(bold=True, color="FFFFFF")
 
         # Title Row
-        ws.merge_cells('A2:T2')  # Updated to accommodate new columns
+        ws.merge_cells('A2:R2')  # Updated to remove 2 columns (was T2)
         title_cell = ws['A2']
         title_cell.value = "Survey Report"
         title_cell.font = title_font
@@ -85,13 +85,13 @@ class DdnReport(models.TransientModel):
         ws.cell(row=5, column=1, value="Date To").border = border
         ws.cell(row=5, column=2, value=self.date_to.strftime('%d-%m-%Y') if self.date_to else "").border = border
 
-        # Headers
+        # Headers - Removed "Old Mobile" and "Old Property ID"
         headers = [
             "UPIC No", "Property Id", "Zone", "Ward", "Colony", "Owner Name", 
             "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
             "Latitude", "Longitude", "Total Floors", "Floor Number", 
             "Surveyor", "Surveyor Datetime", "Property Type", "Microsite Url",
-            "Property Status", "Is Solar", "Is Rain Water Harvesting", "Old Mobile", "Old Property ID"
+            "Property Status", "Is Solar", "Is Rain Water Harvesting"
         ]
 
         # Build your domain
@@ -270,7 +270,7 @@ class DdnReport(models.TransientModel):
 
         # Add filter to the header row (only for the data table)
         last_data_row = data_start_row + len(survey_records)
-        ws.auto_filter.ref = f"A{data_start_row}:W{last_data_row}"  # Updated to include new columns
+        ws.auto_filter.ref = f"A{data_start_row}:U{last_data_row}"  # Updated to remove 2 columns (was W)
 
         # Freeze panes so header is always visible
         ws.freeze_panes = ws[f"A{data_start_row+1}"]
@@ -280,23 +280,7 @@ class DdnReport(models.TransientModel):
         for rec in survey_records:  # Use survey_records directly instead of records
             prop = rec.property_id
             
-            # Look up old mobile and property ID from property_id_data model
-            old_mobile = ''
-            old_property_id = ''
-            
-            if rec.owner_name and (rec.address_line_1 or rec.address_line_2):
-                # Create address string for matching
-                address_str = f"{rec.address_line_1 or ''} {rec.address_line_2 or ''}".strip()
-                
-                # Search in property_id_data model based on owner name and address
-                property_data_records = self.env['property.id.data'].search([
-                    ('owner_name', '=', rec.owner_name),
-                    ('address', 'ilike', address_str)
-                ], limit=1)
-                
-                if property_data_records:
-                    old_mobile = property_data_records.mobile_no or ''
-                    old_property_id = property_data_records.property_id or ''
+            # Removed old mobile and property ID lookup logic
             
             values = [
                 prop.upic_no or '',
@@ -319,9 +303,7 @@ class DdnReport(models.TransientModel):
                 prop.microsite_url or '',
                 prop.property_status or '',
                 'Yes' if rec.is_solar else 'No',
-                'Yes' if rec.is_rainwater_harvesting else 'No',
-                old_mobile,
-                old_property_id,
+                'Yes' if rec.is_rainwater_harvesting else 'No'
             ]
             for col_num, val in enumerate(values, 1):
                 cell = ws.cell(row=row, column=col_num, value=val)
