@@ -522,6 +522,150 @@ export class KmlMapView extends Component {
             console.error('Error fitting map to KML bounds:', error);
         }
     }
+
+    exportToKML() {
+        if (this.state.properties.length === 0) {
+            console.log('No properties to export');
+            return;
+        }
+
+        console.log(`Exporting ${this.state.properties.length} properties to KML`);
+        
+        const kmlContent = this.generateKMLContent(this.state.properties);
+        const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create download link
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `properties_export_${new Date().toISOString().split('T')[0]}.kml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log('KML export completed');
+    }
+
+    generateKMLContent(properties) {
+        const kmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+    <name>DDN Properties Export</name>
+    <description>Properties exported from DDN system on ${new Date().toLocaleString()}</description>
+    <Style id="visitAgainStyle">
+        <IconStyle>
+            <Icon>
+                <href>http://maps.google.com/mapfiles/ms/icons/green-dot.png</href>
+            </Icon>
+        </IconStyle>
+        <LabelStyle>
+            <scale>0</scale>
+        </LabelStyle>
+    </Style>
+    <Style id="defaultStyle">
+        <IconStyle>
+            <Icon>
+                <href>http://maps.google.com/mapfiles/ms/icons/red-dot.png</href>
+            </Icon>
+        </IconStyle>
+        <LabelStyle>
+            <scale>0</scale>
+        </LabelStyle>
+    </Style>`;
+
+        const kmlFooter = `
+</Document>
+</kml>`;
+
+        const placemarks = properties.map(property => {
+            try {
+                const lat = parseFloat(property.latitude);
+                const lng = parseFloat(property.longitude);
+                
+                if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+                    return '';
+                }
+
+                const address = `${property.address_line_1 || ''} ${property.address_line_2 || ''}`.trim();
+                const styleId = property.property_status === 'visit again' ? 'visitAgainStyle' : 'defaultStyle';
+                
+                // Create rich description with HTML - this will only show when clicked
+                const description = `
+                    <![CDATA[
+                    <div style="font-family: Arial, sans-serif; max-width: 300px;">
+                        <h3 style="color: #007bff; margin: 0 0 10px 0; border-bottom: 1px solid #007bff; padding-bottom: 5px;">
+                            ${property.upic_no || 'No UPIC'}
+                        </h3>
+                        <table style="width: 100%; font-size: 12px;">
+                            <tr><td><strong>Property ID:</strong></td><td>${property.property_id || 'N/A'}</td></tr>
+                            <tr><td><strong>Owner:</strong></td><td>${property.owner_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Mobile:</strong></td><td>${property.mobile_no || 'N/A'}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td style="background: #e9ecef; padding: 2px 4px; border-radius: 2px;">${property.property_status || 'N/A'}</td></tr>
+                            <tr><td><strong>Zone:</strong></td><td>${property.zone_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Ward:</strong></td><td>${property.ward_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Address:</strong></td><td>${address || 'N/A'}</td></tr>
+                            <tr><td><strong>Coordinates:</strong></td><td style="font-family: monospace;">${lat.toFixed(6)}, ${lng.toFixed(6)}</td></tr>
+                        </table>
+                        ${property.survey_image1 || property.survey_image2 ? `
+                        <div style="margin-top: 10px;">
+                            <strong>Survey Photos:</strong><br/>
+                            ${property.survey_image1 ? `<a href="${property.survey_image1}" target="_blank">View Photo 1</a>` : ''}
+                            ${property.survey_image1 && property.survey_image2 ? ' | ' : ''}
+                            ${property.survey_image2 ? `<a href="${property.survey_image2}" target="_blank">View Photo 2</a>` : ''}
+                        </div>
+                        ` : ''}
+                        <div style="margin-top: 10px;">
+                            <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color: #007bff;">📍 Open in Google Maps</a>
+                        </div>
+                    </div>
+                    ]]>`;
+
+                return `
+    <Placemark>
+        <name></name>
+        <description>${description}</description>
+        <styleUrl>#${styleId}</styleUrl>
+        <Point>
+            <coordinates>${lng},${lat},0</coordinates>
+        </Point>
+        <ExtendedData>
+            <Data name="upic_no">
+                <value>${property.upic_no || ''}</value>
+            </Data>
+            <Data name="property_id">
+                <value>${property.property_id || ''}</value>
+            </Data>
+            <Data name="owner_name">
+                <value>${property.owner_name || ''}</value>
+            </Data>
+            <Data name="mobile_no">
+                <value>${property.mobile_no || ''}</value>
+            </Data>
+            <Data name="property_status">
+                <value>${property.property_status || ''}</value>
+            </Data>
+            <Data name="zone_name">
+                <value>${property.zone_name || ''}</value>
+            </Data>
+            <Data name="ward_name">
+                <value>${property.ward_name || ''}</value>
+            </Data>
+            <Data name="address">
+                <value>${address}</value>
+            </Data>
+        </ExtendedData>
+    </Placemark>`;
+            } catch (error) {
+                console.error('Error creating placemark for property:', property.id, error);
+                return '';
+            }
+        }).filter(placemark => placemark !== '');
+
+        return kmlHeader + placemarks.join('') + kmlFooter;
+    }
 }
 
 KmlMapView.template = "bharat_ddn.KMLViewerComponent";
