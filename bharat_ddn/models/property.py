@@ -34,7 +34,7 @@ class Property(models.Model):
     zone_id = fields.Many2one('ddn.zone', string='Zone')
     ward_id = fields.Many2one('ddn.ward',string='Ward')
     colony_id = fields.Many2one('ddn.colony', string='Colony')
-    upic_no = fields.Char('UPIC NO')
+    upic_no = fields.Char('UPIC NO', required=True, index=True, unique=True)
     qr_code = fields.Binary("QR Code", compute="_compute_qr_code", store=True)
     mobile_no = fields.Char('Mobile No')
     survey_line_ids = fields.One2many('ddn.property.survey', 'property_id', string="Survey Line", tracking=True)
