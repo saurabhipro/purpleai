@@ -35,6 +35,20 @@ class SurveyParameters(models.Model):
     is_solar = fields.Boolean(string='Is Solar', default=True)
     is_rainwater_harvesting = fields.Boolean(string='Is Rain water harvesting', default=True)
 
+    def unlink(self):
+        for record in self:
+            if record.property_id:
+                record.property_id.property_status = 'pdf_downloaded'
+                record.property_id.latitude = 0.00
+                record.property_id.longitude = 0.00
+                record.property_id.mobile_no = False
+                record.property_id.owner_name = False
+                record.property_id.property_id = False
+                record.property_id.property_type = False
+                record.property_id.address_line_1 = False
+                record.property_id.address_line_2 = False
+                record.property_id.unit_no = False
+        return super(SurveyParameters, self).unlink()
 
     def _upload_image_field_to_s3(self, field_name, s3_filename):
         self.ensure_one()
