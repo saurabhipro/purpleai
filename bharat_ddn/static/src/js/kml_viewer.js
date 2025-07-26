@@ -23,12 +23,14 @@ export class KmlMapView extends Component {
             loading: false,
             currentViewport: null,
             currentZoom: 12,
-            totalCount: 0
+            totalCount: 0,
+            kmlLayersLoaded: false // Add this new state
         });
         
         this.kmlLayers = []; // Array to store multiple KML layers
         this.currentInfoWindow = null;
         this.loadTimeout = null;
+        this.kmlLayersReady = false; // Add this flag
         onMounted(() => this.initMapAndFilters());
     }
 
@@ -39,6 +41,8 @@ export class KmlMapView extends Component {
     }
 
     initMap() {
+        console.log("🔄 Initializing map...");
+        
         // Initialize map centered on Indore
         this.state.map = new google.maps.Map(this.mapRef.el, {
             center: { lat: 22.7196, lng: 75.8577 }, // Indore coordinates
@@ -55,18 +59,25 @@ export class KmlMapView extends Component {
             ]
         });
 
+        console.log("🗺️ Map created, waiting for idle event...");
+
         // Load KML layers automatically when map is ready
         google.maps.event.addListenerOnce(this.state.map, 'idle', () => {
+            console.log("🎯 Map idle event fired - loading KML layers...");
             this.loadKmlLayers();
         });
 
-        // Add map event listeners
+        // Add map event listeners - but only after KML layers are loaded
         this.state.map.addListener('bounds_changed', () => {
-            this.debouncedLoadPropertiesForViewport();
+            if (this.kmlLayersReady) {
+                this.debouncedLoadPropertiesForViewport();
+            }
         });
 
         this.state.map.addListener('zoom_changed', () => {
-            this.debouncedLoadPropertiesForViewport();
+            if (this.kmlLayersReady) {
+                this.debouncedLoadPropertiesForViewport();
+            }
         });
     }
 
@@ -221,6 +232,12 @@ export class KmlMapView extends Component {
 
     renderMarkers() {
         console.log("Rendering markers for", this.state.properties.length, "properties");
+        
+        // Only render markers if KML layers are loaded
+        if (!this.kmlLayersReady) {
+            console.log("Waiting for KML layers to load before rendering markers");
+            return;
+        }
         
         this.clearMarkers();
 
@@ -421,11 +438,32 @@ export class KmlMapView extends Component {
     }
 
     loadKmlLayers() {
+        console.log("🚀 loadKmlLayers method called!");
+        
         try {
-            console.log("Loading KML layers automatically...");
+            console.log("Loading IMC KML layer...");
             
-            // Load IMC KMZ file
-            const imcKmlUrl = '/bharat_ddn/static/kml/imc.kmz';
+            // Try the original static file URL first
+            const imcKmlUrl = '/bharat_ddn/static/kml/imc.kml';
+            console.log("IMC KML URL:", imcKmlUrl);
+            
+            // Test if the KML file is accessible
+            fetch(imcKmlUrl)
+                .then(response => {
+                    console.log("KML file fetch response:", response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(content => {
+                    console.log("KML file content length:", content.length);
+                    console.log("KML file first 500 chars:", content.substring(0, 500));
+                })
+                .catch(error => {
+                    console.error("Error fetching KML file:", error);
+                });
+            
             const imcLayer = new google.maps.KmlLayer({
                 url: imcKmlUrl,
                 map: this.state.map,
@@ -434,64 +472,128 @@ export class KmlMapView extends Component {
                 zIndex: 1
             });
             
-            // Load Jangpura Radial Parcels KML file
-            const jangpuraKmlUrl = '/bharat_ddn/static/kml/jangpura_radial_parcels.kml';
-            const jangpuraLayer = new google.maps.KmlLayer({
-                url: jangpuraKmlUrl,
-                map: this.state.map,
-                preserveViewport: false,
-                suppressInfoWindows: false, // Allow KML info windows
-                zIndex: 2
+            console.log("KML Layer created:", imcLayer);
+            
+            // Store only the IMC layer
+            this.kmlLayers = [imcLayer];
+            
+            let loadedLayers = 0;
+            const totalLayers = this.kmlLayers.length;
+            
+            // Add a timeout fallback in case status events don't fire
+            const timeoutFallback = setTimeout(() => {
+                console.log("⚠️ IMC KML layer status event didn't fire within 10 seconds, proceeding anyway");
+                this.onAllKmlLayersLoaded();
+            }, 10000);
+            
+            // Add event listener for IMC layer
+            const layerName = 'IMC';
+            
+            // Check initial status immediately
+            const initialStatus = imcLayer.getStatus();
+            console.log(`${layerName} KML Layer Initial Status:`, initialStatus);
+            console.log("Available KML status constants:", {
+                OK: google.maps.KmlLayerStatus.OK,
+                UNKNOWN_DOCUMENT: google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT,
+                DOCUMENT_NOT_FOUND: google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND,
+                TIMED_OUT: google.maps.KmlLayerStatus.TIMED_OUT,
+                UNSUPPORTED_DOCUMENT: google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT,
+                INVALID_DOCUMENT: google.maps.KmlLayerStatus.INVALID_DOCUMENT
             });
             
-            // Store both layers
-            this.kmlLayers = [imcLayer, jangpuraLayer];
+            if (initialStatus === google.maps.KmlLayerStatus.OK) {
+                console.log(`✅ ${layerName} KML layer already loaded successfully`);
+                loadedLayers++;
+                if (loadedLayers === totalLayers) {
+                    clearTimeout(timeoutFallback);
+                    this.onAllKmlLayersLoaded();
+                }
+            }
             
-            // Add event listeners for both layers
-            this.kmlLayers.forEach((layer, index) => {
-                const layerName = index === 0 ? 'IMC' : 'Jangpura';
+            google.maps.event.addListener(imcLayer, 'status_changed', () => {
+                const status = imcLayer.getStatus();
+                console.log(`${layerName} KML Layer Status Changed:`, status);
                 
-                google.maps.event.addListener(layer, 'status_changed', () => {
-                    const status = layer.getStatus();
-                    console.log(`${layerName} KML Layer Status:`, status);
-                    
-                    switch(status) {
-                        case google.maps.KmlLayerStatus.OK:
-                            console.log(`✅ ${layerName} KML layer loaded successfully`);
-                            // Fit map to KML bounds when first layer loads
-                            if (index === 0) {
-                                this.fitMapToKmlBounds();
-                            }
-                            break;
-                        case google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document not found or invalid`);
-                            break;
-                        case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
-                            console.error(`❌ ${layerName} KML document not found`);
-                            break;
-                        case google.maps.KmlLayerStatus.TIMED_OUT:
-                            console.error(`❌ ${layerName} KML document load timed out`);
-                            break;
-                        case google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document format not supported`);
-                            break;
-                        case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document is invalid`);
-                            break;
-                        default:
-                            console.log(`${layerName} KML layer status:`, status);
-                    }
-                });
+                switch(status) {
+                    case google.maps.KmlLayerStatus.OK:
+                        console.log(`✅ ${layerName} KML layer loaded successfully`);
+                        loadedLayers++;
+                        
+                        // Check if all layers are loaded
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        
+                        // Fit map to KML bounds when layer loads
+                        this.fitMapToKmlBounds();
+                        break;
+                    case google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document not found or invalid`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
+                        console.error(`❌ ${layerName} KML document not found`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.TIMED_OUT:
+                        console.error(`❌ ${layerName} KML document load timed out`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document format not supported`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document is invalid`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    default:
+                        console.log(`${layerName} KML layer status:`, status);
+                }
+            });
 
-                google.maps.event.addListener(layer, 'defaultviewport_changed', () => {
-                    console.log(`${layerName} KML default viewport changed`);
-                    this.fitMapToKmlBounds();
-                });
+            google.maps.event.addListener(imcLayer, 'defaultviewport_changed', () => {
+                console.log(`${layerName} KML default viewport changed`);
+                this.fitMapToKmlBounds();
             });
 
         } catch (error) {
             console.error('Error loading KML layers:', error);
+            // Even if there's an error, mark as ready so markers can still render
+            this.onAllKmlLayersLoaded();
         }
+    }
+
+    onAllKmlLayersLoaded() {
+        console.log("🎉 All KML layers have been processed - now ready to render property markers");
+        this.kmlLayersReady = true;
+        this.state.kmlLayersLoaded = true;
+        
+        // Force an initial property load after a short delay to ensure map is ready
+        setTimeout(() => {
+            this.debouncedLoadPropertiesForViewport();
+        }, 1000);
     }
 
     clearKmlLayers() {
