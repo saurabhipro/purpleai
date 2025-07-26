@@ -43,8 +43,8 @@ class DdnReport(models.TransientModel):
         # Create dashboard worksheet
         ws_dash = wb.create_sheet(title="Dashboard")
 
-        # Create duplicate property ID worksheet
-        ws_duplicate = wb.create_sheet(title="Duplicate Property ID")
+        # Create duplicate survey property ID worksheet
+        ws_duplicate_survey = wb.create_sheet(title="Duplicate Survey Property ID")
 
         # Styles
         header_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
@@ -266,15 +266,15 @@ class DdnReport(models.TransientModel):
             cell.border = border
 
         # Add filter to the header row (only for the data table)
-        last_data_row = data_start_row + len(records)
+        last_data_row = data_start_row + len(survey_records)
         ws.auto_filter.ref = f"A{data_start_row}:W{last_data_row}"  # Updated to include new columns
 
         # Freeze panes so header is always visible
         ws.freeze_panes = ws[f"A{data_start_row+1}"]
 
-        # Write data rows
+        # Write data rows - Show ALL survey records, not just latest per property
         row = data_start_row + 1
-        for rec in records:
+        for rec in survey_records:  # Use survey_records directly instead of records
             prop = rec.property_id
             
             # Look up old mobile and property ID from property_id_data model
@@ -348,84 +348,127 @@ class DdnReport(models.TransientModel):
             col_letter = col[0].column_letter
             ws.column_dimensions[col_letter].width = upic_width
 
-        # --- Duplicate Property ID Tab ---
-        # Find all duplicate property IDs from property_id_data model
-        duplicate_property_ids = self.env['property.id.data'].search([])
+        # --- Duplicate Survey Property ID Tab ---
+        # Find all survey records with duplicate property IDs
+        all_survey_records = self.env['ddn.property.survey'].search(domain)
         
         # Group by property_id and find duplicates
-        property_id_groups = {}
-        for record in duplicate_property_ids:
-            prop_id = record.property_id
-            if prop_id not in property_id_groups:
-                property_id_groups[prop_id] = []
-            property_id_groups[prop_id].append(record)
+        survey_property_id_groups = {}
+        for record in all_survey_records:
+            prop_id = record.property_id.property_id if record.property_id else ''
+            if prop_id not in survey_property_id_groups:
+                survey_property_id_groups[prop_id] = []
+            survey_property_id_groups[prop_id].append(record)
         
         # Filter only groups with more than one record (duplicates)
-        duplicate_groups = {k: v for k, v in property_id_groups.items() if len(v) > 1}
+        survey_duplicate_groups = {k: v for k, v in survey_property_id_groups.items() if len(v) > 1 and k}
         
-        # Prepare duplicate data for the sheet
-        duplicate_data = []
-        for prop_id, records in duplicate_groups.items():
+        # Prepare duplicate survey data for the sheet
+        duplicate_survey_data = []
+        for prop_id, records in survey_duplicate_groups.items():
             for record in records:
-                duplicate_data.append({
-                    'property_id': record.property_id,
-                    'owner_name': record.owner_name,
-                    'address': record.address,
-                    'mobile_no': record.mobile_no,
-                    'currnet_tax': record.currnet_tax,
-                    'total_amount': record.total_amount,
+                prop = record.property_id
+                duplicate_survey_data.append({
+                    'upic_no': prop.upic_no or '',
+                    'property_id': prop.property_id or '',
+                    'zone': prop.zone_id.name or '',
+                    'ward': prop.ward_id.name or '',
+                    'colony': prop.colony_id.name or '',
+                    'owner_name': record.owner_name or '',
+                    'father_name': record.father_name or '',
+                    'mobile_no': record.mobile_no or '',
+                    'address_line_1': record.address_line_1 or '',
+                    'address_line_2': record.address_line_2 or '',
+                    'latitude': record.latitude or '',
+                    'longitude': record.longitude or '',
+                    'total_floors': record.total_floors or '',
+                    'floor_number': record.floor_number or '',
+                    'surveyor': record.surveyer_id.name or '',
+                    'survey_date': record.create_date.strftime('%d-%m-%Y') if record.create_date else '',
+                    'property_type': prop.property_type.name or '',
+                    'property_status': prop.property_status or '',
+                    'is_solar': 'Yes' if record.is_solar else 'No',
+                    'is_rainwater_harvesting': 'Yes' if record.is_rainwater_harvesting else 'No',
                     'duplicate_count': len(records)
                 })
         
-        # Write duplicate property ID headers
-        duplicate_headers = [
-            "Property ID", "Owner Name", "Address", "Mobile No", 
-            "Current Tax", "Total Amount", "Duplicate Count"
+        # Write duplicate survey property ID headers
+        duplicate_survey_headers = [
+            "UPIC No", "Property ID", "Zone", "Ward", "Colony", "Owner Name", 
+            "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
+            "Latitude", "Longitude", "Total Floors", "Floor Number", 
+            "Surveyor", "Survey Date", "Property Type", "Property Status",
+            "Is Solar", "Is Rain Water Harvesting", "Duplicate Count"
         ]
         
-        duplicate_start_row = 3
-        for col_num, header in enumerate(duplicate_headers, 1):
-            cell = ws_duplicate.cell(row=duplicate_start_row, column=col_num, value=header)
+        duplicate_survey_start_row = 3
+        for col_num, header in enumerate(duplicate_survey_headers, 1):
+            cell = ws_duplicate_survey.cell(row=duplicate_survey_start_row, column=col_num, value=header)
             cell.font = white_header_font
             cell.fill = brown_fill
             cell.alignment = align_left
             cell.border = border
         
-        # Add filter to the duplicate header row
-        last_duplicate_row = duplicate_start_row + len(duplicate_data)
-        ws_duplicate.auto_filter.ref = f"A{duplicate_start_row}:G{last_duplicate_row}"
+        # Add filter to the duplicate survey header row
+        last_duplicate_survey_row = duplicate_survey_start_row + len(duplicate_survey_data)
+        ws_duplicate_survey.auto_filter.ref = f"A{duplicate_survey_start_row}:U{last_duplicate_survey_row}"
         
-        # Freeze panes for duplicate sheet
-        ws_duplicate.freeze_panes = ws_duplicate[f"A{duplicate_start_row+1}"]
+        # Freeze panes for duplicate survey sheet
+        ws_duplicate_survey.freeze_panes = ws_duplicate_survey[f"A{duplicate_survey_start_row+1}"]
         
-        # Write duplicate data rows
-        duplicate_row = duplicate_start_row + 1
-        for data in duplicate_data:
+        # Write duplicate survey data rows
+        duplicate_survey_row = duplicate_survey_start_row + 1
+        for data in duplicate_survey_data:
             values = [
+                data['upic_no'],
                 data['property_id'],
+                data['zone'],
+                data['ward'],
+                data['colony'],
                 data['owner_name'],
-                data['address'],
+                data['father_name'],
                 data['mobile_no'],
-                data['currnet_tax'],
-                data['total_amount'],
+                data['address_line_1'],
+                data['address_line_2'],
+                data['latitude'],
+                data['longitude'],
+                data['total_floors'],
+                data['floor_number'],
+                data['surveyor'],
+                data['survey_date'],
+                data['property_type'],
+                data['property_status'],
+                data['is_solar'],
+                data['is_rainwater_harvesting'],
                 data['duplicate_count']
             ]
             for col_num, val in enumerate(values, 1):
-                cell = ws_duplicate.cell(row=duplicate_row, column=col_num, value=val)
+                cell = ws_duplicate_survey.cell(row=duplicate_survey_row, column=col_num, value=val)
                 cell.border = border
                 cell.alignment = align_left
                 # Highlight duplicate count column
-                if col_num == 7:  # Duplicate Count column
+                if col_num == 21:  # Duplicate Count column
                     if data['duplicate_count'] > 2:
                         cell.fill = red_fill
                     else:
                         cell.fill = orange_fill
-            duplicate_row += 1
+                # Apply color coding for Property Status column
+                elif col_num == 18:  # Property Status column
+                    if data['property_status'] == 'surveyed':
+                        cell.fill = green_fill
+                    elif data['property_status'] == 'visit_again':
+                        cell.fill = orange_fill
+                # Apply color coding for solar and rainwater harvesting columns
+                elif col_num == 19:  # Is Solar column
+                    cell.fill = green_fill if data['is_solar'] == 'Yes' else red_fill
+                elif col_num == 20:  # Is Rain Water Harvesting column
+                    cell.fill = green_fill if data['is_rainwater_harvesting'] == 'Yes' else red_fill
+            duplicate_survey_row += 1
         
-        # Set column widths for duplicate sheet
-        for col in ws_duplicate.columns:
+        # Set column widths for duplicate survey sheet
+        for col in ws_duplicate_survey.columns:
             col_letter = col[0].column_letter
-            ws_duplicate.column_dimensions[col_letter].width = 15
+            ws_duplicate_survey.column_dimensions[col_letter].width = 15
 
         # Prepare output for download
         output = io.BytesIO()

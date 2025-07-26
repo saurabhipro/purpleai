@@ -124,43 +124,14 @@
                             <a href="#" class="dashboard-card bg-orange" target="_blank" >
                                 <span class="bg-icon"><i class="fa fa-upload"></i></span>
                                 <div class="count"><t t-esc="this.state.property_info['total_count']"/></div>
-                                <div class="label">Total Properties</div>
+                                <div class="label">Plates Printed</div>
                             </a>
                         </div>
                         <div t-on-click="_onClickPropertyStatusCard">
                             <a href="#" class="dashboard-card bg-green" target="_blank" t-att-status="'pdf_downloaded'">
                                 <span class="bg-icon"><i class="fa fa-file-pdf-o"></i></span>
                                 <div class="count"><t t-esc="this.state.property_info['total_pdf_downloaded']"/></div>
-                                <div class="label">Pdf Downloaded</div>
-                            </a>
-                        </div>
-
-                        <div class="dashboard-card bg-blue">
-                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
-                            <div class="count">
-                                <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
-                            </div>
-                            <div class="label">Scans Today</div>
-                        </div>
-                        <div class="dashboard-card bg-pink">
-                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
-                            <div class="count">
-                                <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
-                            </div>
-                            <div class="label">Total Scans</div>
-                        </div>
-                        <div t-on-click="_onClickPropertyStatusCard">
-                            <a href="#" class="dashboard-card bg-purple" target="_blank" t-att-status="'surveyed'">
-                                <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
-                                <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
-                                <div class="label">Surveyed</div>
-                            </a>
-                        </div>
-                        <div t-on-click="_onClickTodaySurveyed">
-                            <a href="#" class="dashboard-card bg-yellow" target="_blank">
-                                <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
-                                <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
-                                <div class="label">Surveyed Today</div>
+                                <div class="label">Plates Remaining</div>
                             </a>
                         </div>
                         <div t-on-click="_onClickPropertyStatusCard">
@@ -177,8 +148,20 @@
                                 <div class="label">Discovered</div>
                             </a>
                         </div>
-
-                      
+                        <div t-on-click="_onClickPropertyStatusCard">
+                            <a href="#" class="dashboard-card bg-purple" target="_blank" t-att-status="'surveyed'">
+                                <span class="bg-icon"><i class="fa fa-check-square-o"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['total_surveyed']"/></div>
+                                <div class="label">Plates Activated</div>
+                            </a>
+                        </div>
+                        <div t-on-click="_onClickTodaySurveyed">
+                            <a href="#" class="dashboard-card bg-yellow" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-calendar-check-o"></i></span>
+                                <div class="count"><t t-esc="this.state.property_info['surveys_today'] || 0"/></div>
+                                <div class="label">Surveyed Today</div>
+                            </a>
+                        </div>
                         <div t-on-click="_onClickZone">
                             <a href="#" class="dashboard-card bg-orange" target="_blank">
                                 <span class="bg-icon"><i class="fa fa-th-large"></i></span>
@@ -193,7 +176,6 @@
                                 <div class="label">Wards</div>
                             </a>
                         </div>
-
                         <div t-on-click="_onClickColony">
                             <a href="#" class="dashboard-card bg-orange" target="_blank">
                                 <span class="bg-icon"><i class="fa fa-building"></i></span>
@@ -207,6 +189,20 @@
                                 <div class="count"><t t-esc="this.state.property_info['total_surveyors']"/></div>
                                 <div class="label">Surveyors</div>
                             </a>
+                        </div>
+                        <div class="dashboard-card bg-blue">
+                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
+                            <div class="count">
+                                <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
+                            </div>
+                            <div class="label">Scans Today</div>
+                        </div>
+                        <div class="dashboard-card bg-pink">
+                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
+                            <div class="count">
+                                <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
+                            </div>
+                            <div class="label">Total Scans</div>
                         </div>
                     </div>
                     <div>
@@ -222,9 +218,9 @@
                                     <tr>
                                         <th>Zone</th>
                                         <th>Ward</th>
-                                        <th>Total Count</th>
+                                        <th>Total</th>
                                         <th>Uploaded</th>
-                                        <th>PDF Downloaded</th>
+                                        <th>Plates Remaining</th>
                                         <th>Surveyed</th>
                                         <th>Unlocked</th>
                                         <th>Discovered</th>
