@@ -99,18 +99,27 @@
                             </div>
                         </div>
                         
-                        <!-- Refresh Button -->
-                        <div class="" style="padding: 0 10px; display: flex; align-items: end;">
+                        <!-- Action Buttons -->
+                        <div class="" style="padding: 0 10px; display: flex; gap: 8px; align-items: end;">
                             <button 
                                 class="btn btn-primary" 
                                 t-on-click="loadProperties"
-                                style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                style="flex: 1; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
                                 <t t-if="state.loading">
                                     <i class="fa fa-spinner fa-spin" style="margin-right: 8px;"></i>Loading...
                                 </t>
                                 <t t-else="">
                                     <i class="fa fa-refresh" style="margin-right: 8px;"></i>Refresh
                                 </t>
+                            </button>
+                            
+                            <button 
+                                class="btn btn-success" 
+                                t-on-click="exportToKML"
+                                t-att-disabled="state.properties.length === 0"
+                                style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;"
+                                title="Export current properties to KML file for Google Earth">
+                                <i class="fa fa-download" style="margin-right: 8px;"></i>Export KML
                             </button>
                         </div>
                     </div>

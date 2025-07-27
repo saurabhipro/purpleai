@@ -45,6 +45,9 @@ class DdnReport(models.TransientModel):
 
         # Create duplicate survey property ID worksheet
         ws_duplicate_survey = wb.create_sheet(title="Duplicate Survey Property ID")
+        
+        # Create blank property ID worksheet
+        ws_blank_property = wb.create_sheet(title="Blank Property ID")
 
         # Styles
         header_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
@@ -67,7 +70,7 @@ class DdnReport(models.TransientModel):
         white_bold_font = Font(bold=True, color="FFFFFF")
 
         # Title Row
-        ws.merge_cells('A2:T2')  # Updated to accommodate new columns
+        ws.merge_cells('A2:R2')  # Updated to remove 2 columns (was T2)
         title_cell = ws['A2']
         title_cell.value = "Survey Report"
         title_cell.font = title_font
@@ -82,13 +85,13 @@ class DdnReport(models.TransientModel):
         ws.cell(row=5, column=1, value="Date To").border = border
         ws.cell(row=5, column=2, value=self.date_to.strftime('%d-%m-%Y') if self.date_to else "").border = border
 
-        # Headers
+        # Headers - Removed "Old Mobile" and "Old Property ID"
         headers = [
             "UPIC No", "Property Id", "Zone", "Ward", "Colony", "Owner Name", 
             "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
             "Latitude", "Longitude", "Total Floors", "Floor Number", 
             "Surveyor", "Surveyor Datetime", "Property Type", "Microsite Url",
-            "Property Status", "Is Solar", "Is Rain Water Harvesting", "Old Mobile", "Old Property ID"
+            "Property Status", "Is Solar", "Is Rain Water Harvesting"
         ]
 
         # Build your domain
@@ -267,7 +270,7 @@ class DdnReport(models.TransientModel):
 
         # Add filter to the header row (only for the data table)
         last_data_row = data_start_row + len(survey_records)
-        ws.auto_filter.ref = f"A{data_start_row}:W{last_data_row}"  # Updated to include new columns
+        ws.auto_filter.ref = f"A{data_start_row}:U{last_data_row}"  # Updated to remove 2 columns (was W)
 
         # Freeze panes so header is always visible
         ws.freeze_panes = ws[f"A{data_start_row+1}"]
@@ -277,23 +280,7 @@ class DdnReport(models.TransientModel):
         for rec in survey_records:  # Use survey_records directly instead of records
             prop = rec.property_id
             
-            # Look up old mobile and property ID from property_id_data model
-            old_mobile = ''
-            old_property_id = ''
-            
-            if rec.owner_name and (rec.address_line_1 or rec.address_line_2):
-                # Create address string for matching
-                address_str = f"{rec.address_line_1 or ''} {rec.address_line_2 or ''}".strip()
-                
-                # Search in property_id_data model based on owner name and address
-                property_data_records = self.env['property.id.data'].search([
-                    ('owner_name', '=', rec.owner_name),
-                    ('address', 'ilike', address_str)
-                ], limit=1)
-                
-                if property_data_records:
-                    old_mobile = property_data_records.mobile_no or ''
-                    old_property_id = property_data_records.property_id or ''
+            # Removed old mobile and property ID lookup logic
             
             values = [
                 prop.upic_no or '',
@@ -316,9 +303,7 @@ class DdnReport(models.TransientModel):
                 prop.microsite_url or '',
                 prop.property_status or '',
                 'Yes' if rec.is_solar else 'No',
-                'Yes' if rec.is_rainwater_harvesting else 'No',
-                old_mobile,
-                old_property_id,
+                'Yes' if rec.is_rainwater_harvesting else 'No'
             ]
             for col_num, val in enumerate(values, 1):
                 cell = ws.cell(row=row, column=col_num, value=val)
@@ -354,16 +339,47 @@ class DdnReport(models.TransientModel):
         
         # Group by property_id and find duplicates
         survey_property_id_groups = {}
+        blank_property_data = []  # New list for blank property IDs
+        
         for record in all_survey_records:
             prop_id = record.property_id.property_id if record.property_id else ''
-            if prop_id not in survey_property_id_groups:
-                survey_property_id_groups[prop_id] = []
-            survey_property_id_groups[prop_id].append(record)
+            
+            # Check if property ID is blank or "#N/A"
+            if not prop_id or prop_id.strip() == '' or prop_id.strip().upper() == '#N/A':
+                # Add to blank property data
+                prop = record.property_id
+                blank_property_data.append({
+                    'upic_no': prop.upic_no or '',
+                    'property_id': prop.property_id or '',
+                    'zone': prop.zone_id.name or '',
+                    'ward': prop.ward_id.name or '',
+                    'colony': prop.colony_id.name or '',
+                    'owner_name': record.owner_name or '',
+                    'father_name': record.father_name or '',
+                    'mobile_no': record.mobile_no or '',
+                    'address_line_1': record.address_line_1 or '',
+                    'address_line_2': record.address_line_2 or '',
+                    'latitude': record.latitude or '',
+                    'longitude': record.longitude or '',
+                    'total_floors': record.total_floors or '',
+                    'floor_number': record.floor_number or '',
+                    'surveyor': record.surveyer_id.name or '',
+                    'survey_date': record.create_date.strftime('%d-%m-%Y') if record.create_date else '',
+                    'property_type': prop.property_type.name or '',
+                    'property_status': prop.property_status or '',
+                    'is_solar': 'Yes' if record.is_solar else 'No',
+                    'is_rainwater_harvesting': 'Yes' if record.is_rainwater_harvesting else 'No',
+                })
+            else:
+                # Group by valid property IDs for duplicate detection
+                if prop_id not in survey_property_id_groups:
+                    survey_property_id_groups[prop_id] = []
+                survey_property_id_groups[prop_id].append(record)
         
-        # Filter only groups with more than one record (duplicates)
-        survey_duplicate_groups = {k: v for k, v in survey_property_id_groups.items() if len(v) > 1 and k}
+        # Filter only groups with more than one record (duplicates) - only for valid property IDs
+        survey_duplicate_groups = {k: v for k, v in survey_property_id_groups.items() if len(v) > 1}
         
-        # Prepare duplicate survey data for the sheet
+        # Prepare duplicate survey data for the sheet (only valid property IDs)
         duplicate_survey_data = []
         for prop_id, records in survey_duplicate_groups.items():
             for record in records:
@@ -391,7 +407,80 @@ class DdnReport(models.TransientModel):
                     'is_rainwater_harvesting': 'Yes' if record.is_rainwater_harvesting else 'No',
                     'duplicate_count': len(records)
                 })
+
+        # --- Write Blank Property ID Tab ---
+        blank_property_headers = [
+            "UPIC No", "Property ID", "Zone", "Ward", "Colony", "Owner Name", 
+            "Father Name", "Mobile No", "Address Line 1", "Address Line 2", 
+            "Latitude", "Longitude", "Total Floors", "Floor Number", 
+            "Surveyor", "Survey Date", "Property Type", "Property Status",
+            "Is Solar", "Is Rain Water Harvesting"
+        ]
         
+        blank_property_start_row = 3
+        for col_num, header in enumerate(blank_property_headers, 1):
+            cell = ws_blank_property.cell(row=blank_property_start_row, column=col_num, value=header)
+            cell.font = white_header_font
+            cell.fill = brown_fill
+            cell.alignment = align_left
+            cell.border = border
+        
+        # Add filter to the blank property header row
+        last_blank_property_row = blank_property_start_row + len(blank_property_data)
+        if blank_property_data:  # Only add filter if there's data
+            ws_blank_property.auto_filter.ref = f"A{blank_property_start_row}:T{last_blank_property_row}"
+        
+        # Freeze panes for blank property sheet
+        ws_blank_property.freeze_panes = ws_blank_property[f"A{blank_property_start_row+1}"]
+        
+        # Write blank property data rows
+        blank_property_row = blank_property_start_row + 1
+        for data in blank_property_data:
+            values = [
+                data['upic_no'],
+                data['property_id'],
+                data['zone'],
+                data['ward'],
+                data['colony'],
+                data['owner_name'],
+                data['father_name'],
+                data['mobile_no'],
+                data['address_line_1'],
+                data['address_line_2'],
+                data['latitude'],
+                data['longitude'],
+                data['total_floors'],
+                data['floor_number'],
+                data['surveyor'],
+                data['survey_date'],
+                data['property_type'],
+                data['property_status'],
+                data['is_solar'],
+                data['is_rainwater_harvesting']
+            ]
+            for col_num, val in enumerate(values, 1):
+                cell = ws_blank_property.cell(row=blank_property_row, column=col_num, value=val)
+                cell.border = border
+                cell.alignment = align_left
+                # Apply color coding for Property Status column
+                if col_num == 18:  # Property Status column
+                    if data['property_status'] == 'surveyed':
+                        cell.fill = green_fill
+                    elif data['property_status'] == 'visit_again':
+                        cell.fill = orange_fill
+                # Apply color coding for solar and rainwater harvesting columns
+                elif col_num == 19:  # Is Solar column
+                    cell.fill = green_fill if data['is_solar'] == 'Yes' else red_fill
+                elif col_num == 20:  # Is Rain Water Harvesting column
+                    cell.fill = green_fill if data['is_rainwater_harvesting'] == 'Yes' else red_fill
+            blank_property_row += 1
+        
+        # Set column widths for blank property sheet
+        for col in ws_blank_property.columns:
+            col_letter = col[0].column_letter
+            ws_blank_property.column_dimensions[col_letter].width = 15
+
+        # --- Write Duplicate Survey Property ID Tab (only valid property IDs) ---
         # Write duplicate survey property ID headers
         duplicate_survey_headers = [
             "UPIC No", "Property ID", "Zone", "Ward", "Colony", "Owner Name", 
@@ -411,7 +500,8 @@ class DdnReport(models.TransientModel):
         
         # Add filter to the duplicate survey header row
         last_duplicate_survey_row = duplicate_survey_start_row + len(duplicate_survey_data)
-        ws_duplicate_survey.auto_filter.ref = f"A{duplicate_survey_start_row}:U{last_duplicate_survey_row}"
+        if duplicate_survey_data:  # Only add filter if there's data
+            ws_duplicate_survey.auto_filter.ref = f"A{duplicate_survey_start_row}:U{last_duplicate_survey_row}"
         
         # Freeze panes for duplicate survey sheet
         ws_duplicate_survey.freeze_panes = ws_duplicate_survey[f"A{duplicate_survey_start_row+1}"]

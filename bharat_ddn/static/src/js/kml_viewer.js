@@ -23,12 +23,14 @@ export class KmlMapView extends Component {
             loading: false,
             currentViewport: null,
             currentZoom: 12,
-            totalCount: 0
+            totalCount: 0,
+            kmlLayersLoaded: false // Add this new state
         });
         
         this.kmlLayers = []; // Array to store multiple KML layers
         this.currentInfoWindow = null;
         this.loadTimeout = null;
+        this.kmlLayersReady = false; // Add this flag
         onMounted(() => this.initMapAndFilters());
     }
 
@@ -39,6 +41,8 @@ export class KmlMapView extends Component {
     }
 
     initMap() {
+        console.log("🔄 Initializing map...");
+        
         // Initialize map centered on Indore
         this.state.map = new google.maps.Map(this.mapRef.el, {
             center: { lat: 22.7196, lng: 75.8577 }, // Indore coordinates
@@ -55,18 +59,25 @@ export class KmlMapView extends Component {
             ]
         });
 
+        console.log("🗺️ Map created, waiting for idle event...");
+
         // Load KML layers automatically when map is ready
         google.maps.event.addListenerOnce(this.state.map, 'idle', () => {
+            console.log("🎯 Map idle event fired - loading KML layers...");
             this.loadKmlLayers();
         });
 
-        // Add map event listeners
+        // Add map event listeners - but only after KML layers are loaded
         this.state.map.addListener('bounds_changed', () => {
-            this.debouncedLoadPropertiesForViewport();
+            if (this.kmlLayersReady) {
+                this.debouncedLoadPropertiesForViewport();
+            }
         });
 
         this.state.map.addListener('zoom_changed', () => {
-            this.debouncedLoadPropertiesForViewport();
+            if (this.kmlLayersReady) {
+                this.debouncedLoadPropertiesForViewport();
+            }
         });
     }
 
@@ -221,6 +232,12 @@ export class KmlMapView extends Component {
 
     renderMarkers() {
         console.log("Rendering markers for", this.state.properties.length, "properties");
+        
+        // Only render markers if KML layers are loaded
+        if (!this.kmlLayersReady) {
+            console.log("Waiting for KML layers to load before rendering markers");
+            return;
+        }
         
         this.clearMarkers();
 
@@ -421,11 +438,32 @@ export class KmlMapView extends Component {
     }
 
     loadKmlLayers() {
+        console.log("🚀 loadKmlLayers method called!");
+        
         try {
-            console.log("Loading KML layers automatically...");
+            console.log("Loading IMC KML layer...");
             
-            // Load IMC KMZ file
-            const imcKmlUrl = '/bharat_ddn/static/kml/imc.kmz';
+            // Try the original static file URL first
+            const imcKmlUrl = '/bharat_ddn/static/kml/imc.kml';
+            console.log("IMC KML URL:", imcKmlUrl);
+            
+            // Test if the KML file is accessible
+            fetch(imcKmlUrl)
+                .then(response => {
+                    console.log("KML file fetch response:", response.status, response.statusText);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(content => {
+                    console.log("KML file content length:", content.length);
+                    console.log("KML file first 500 chars:", content.substring(0, 500));
+                })
+                .catch(error => {
+                    console.error("Error fetching KML file:", error);
+                });
+            
             const imcLayer = new google.maps.KmlLayer({
                 url: imcKmlUrl,
                 map: this.state.map,
@@ -434,64 +472,128 @@ export class KmlMapView extends Component {
                 zIndex: 1
             });
             
-            // Load Jangpura Radial Parcels KML file
-            const jangpuraKmlUrl = '/bharat_ddn/static/kml/jangpura_radial_parcels.kml';
-            const jangpuraLayer = new google.maps.KmlLayer({
-                url: jangpuraKmlUrl,
-                map: this.state.map,
-                preserveViewport: false,
-                suppressInfoWindows: false, // Allow KML info windows
-                zIndex: 2
+            console.log("KML Layer created:", imcLayer);
+            
+            // Store only the IMC layer
+            this.kmlLayers = [imcLayer];
+            
+            let loadedLayers = 0;
+            const totalLayers = this.kmlLayers.length;
+            
+            // Add a timeout fallback in case status events don't fire
+            const timeoutFallback = setTimeout(() => {
+                console.log("⚠️ IMC KML layer status event didn't fire within 10 seconds, proceeding anyway");
+                this.onAllKmlLayersLoaded();
+            }, 10000);
+            
+            // Add event listener for IMC layer
+            const layerName = 'IMC';
+            
+            // Check initial status immediately
+            const initialStatus = imcLayer.getStatus();
+            console.log(`${layerName} KML Layer Initial Status:`, initialStatus);
+            console.log("Available KML status constants:", {
+                OK: google.maps.KmlLayerStatus.OK,
+                UNKNOWN_DOCUMENT: google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT,
+                DOCUMENT_NOT_FOUND: google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND,
+                TIMED_OUT: google.maps.KmlLayerStatus.TIMED_OUT,
+                UNSUPPORTED_DOCUMENT: google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT,
+                INVALID_DOCUMENT: google.maps.KmlLayerStatus.INVALID_DOCUMENT
             });
             
-            // Store both layers
-            this.kmlLayers = [imcLayer, jangpuraLayer];
+            if (initialStatus === google.maps.KmlLayerStatus.OK) {
+                console.log(`✅ ${layerName} KML layer already loaded successfully`);
+                loadedLayers++;
+                if (loadedLayers === totalLayers) {
+                    clearTimeout(timeoutFallback);
+                    this.onAllKmlLayersLoaded();
+                }
+            }
             
-            // Add event listeners for both layers
-            this.kmlLayers.forEach((layer, index) => {
-                const layerName = index === 0 ? 'IMC' : 'Jangpura';
+            google.maps.event.addListener(imcLayer, 'status_changed', () => {
+                const status = imcLayer.getStatus();
+                console.log(`${layerName} KML Layer Status Changed:`, status);
                 
-                google.maps.event.addListener(layer, 'status_changed', () => {
-                    const status = layer.getStatus();
-                    console.log(`${layerName} KML Layer Status:`, status);
-                    
-                    switch(status) {
-                        case google.maps.KmlLayerStatus.OK:
-                            console.log(`✅ ${layerName} KML layer loaded successfully`);
-                            // Fit map to KML bounds when first layer loads
-                            if (index === 0) {
-                                this.fitMapToKmlBounds();
-                            }
-                            break;
-                        case google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document not found or invalid`);
-                            break;
-                        case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
-                            console.error(`❌ ${layerName} KML document not found`);
-                            break;
-                        case google.maps.KmlLayerStatus.TIMED_OUT:
-                            console.error(`❌ ${layerName} KML document load timed out`);
-                            break;
-                        case google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document format not supported`);
-                            break;
-                        case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
-                            console.error(`❌ ${layerName} KML document is invalid`);
-                            break;
-                        default:
-                            console.log(`${layerName} KML layer status:`, status);
-                    }
-                });
+                switch(status) {
+                    case google.maps.KmlLayerStatus.OK:
+                        console.log(`✅ ${layerName} KML layer loaded successfully`);
+                        loadedLayers++;
+                        
+                        // Check if all layers are loaded
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        
+                        // Fit map to KML bounds when layer loads
+                        this.fitMapToKmlBounds();
+                        break;
+                    case google.maps.KmlLayerStatus.UNKNOWN_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document not found or invalid`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.DOCUMENT_NOT_FOUND:
+                        console.error(`❌ ${layerName} KML document not found`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.TIMED_OUT:
+                        console.error(`❌ ${layerName} KML document load timed out`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.UNSUPPORTED_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document format not supported`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    case google.maps.KmlLayerStatus.INVALID_DOCUMENT:
+                        console.error(`❌ ${layerName} KML document is invalid`);
+                        loadedLayers++;
+                        if (loadedLayers === totalLayers) {
+                            clearTimeout(timeoutFallback);
+                            this.onAllKmlLayersLoaded();
+                        }
+                        break;
+                    default:
+                        console.log(`${layerName} KML layer status:`, status);
+                }
+            });
 
-                google.maps.event.addListener(layer, 'defaultviewport_changed', () => {
-                    console.log(`${layerName} KML default viewport changed`);
-                    this.fitMapToKmlBounds();
-                });
+            google.maps.event.addListener(imcLayer, 'defaultviewport_changed', () => {
+                console.log(`${layerName} KML default viewport changed`);
+                this.fitMapToKmlBounds();
             });
 
         } catch (error) {
             console.error('Error loading KML layers:', error);
+            // Even if there's an error, mark as ready so markers can still render
+            this.onAllKmlLayersLoaded();
         }
+    }
+
+    onAllKmlLayersLoaded() {
+        console.log("🎉 All KML layers have been processed - now ready to render property markers");
+        this.kmlLayersReady = true;
+        this.state.kmlLayersLoaded = true;
+        
+        // Force an initial property load after a short delay to ensure map is ready
+        setTimeout(() => {
+            this.debouncedLoadPropertiesForViewport();
+        }, 1000);
     }
 
     clearKmlLayers() {
@@ -521,6 +623,150 @@ export class KmlMapView extends Component {
         } catch (error) {
             console.error('Error fitting map to KML bounds:', error);
         }
+    }
+
+    exportToKML() {
+        if (this.state.properties.length === 0) {
+            console.log('No properties to export');
+            return;
+        }
+
+        console.log(`Exporting ${this.state.properties.length} properties to KML`);
+        
+        const kmlContent = this.generateKMLContent(this.state.properties);
+        const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create download link
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `properties_export_${new Date().toISOString().split('T')[0]}.kml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log('KML export completed');
+    }
+
+    generateKMLContent(properties) {
+        const kmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+    <name>DDN Properties Export</name>
+    <description>Properties exported from DDN system on ${new Date().toLocaleString()}</description>
+    <Style id="visitAgainStyle">
+        <IconStyle>
+            <Icon>
+                <href>http://maps.google.com/mapfiles/ms/icons/green-dot.png</href>
+            </Icon>
+        </IconStyle>
+        <LabelStyle>
+            <scale>0</scale>
+        </LabelStyle>
+    </Style>
+    <Style id="defaultStyle">
+        <IconStyle>
+            <Icon>
+                <href>http://maps.google.com/mapfiles/ms/icons/red-dot.png</href>
+            </Icon>
+        </IconStyle>
+        <LabelStyle>
+            <scale>0</scale>
+        </LabelStyle>
+    </Style>`;
+
+        const kmlFooter = `
+</Document>
+</kml>`;
+
+        const placemarks = properties.map(property => {
+            try {
+                const lat = parseFloat(property.latitude);
+                const lng = parseFloat(property.longitude);
+                
+                if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+                    return '';
+                }
+
+                const address = `${property.address_line_1 || ''} ${property.address_line_2 || ''}`.trim();
+                const styleId = property.property_status === 'visit again' ? 'visitAgainStyle' : 'defaultStyle';
+                
+                // Create rich description with HTML - this will only show when clicked
+                const description = `
+                    <![CDATA[
+                    <div style="font-family: Arial, sans-serif; max-width: 300px;">
+                        <h3 style="color: #007bff; margin: 0 0 10px 0; border-bottom: 1px solid #007bff; padding-bottom: 5px;">
+                            ${property.upic_no || 'No UPIC'}
+                        </h3>
+                        <table style="width: 100%; font-size: 12px;">
+                            <tr><td><strong>Property ID:</strong></td><td>${property.property_id || 'N/A'}</td></tr>
+                            <tr><td><strong>Owner:</strong></td><td>${property.owner_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Mobile:</strong></td><td>${property.mobile_no || 'N/A'}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td style="background: #e9ecef; padding: 2px 4px; border-radius: 2px;">${property.property_status || 'N/A'}</td></tr>
+                            <tr><td><strong>Zone:</strong></td><td>${property.zone_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Ward:</strong></td><td>${property.ward_name || 'N/A'}</td></tr>
+                            <tr><td><strong>Address:</strong></td><td>${address || 'N/A'}</td></tr>
+                            <tr><td><strong>Coordinates:</strong></td><td style="font-family: monospace;">${lat.toFixed(6)}, ${lng.toFixed(6)}</td></tr>
+                        </table>
+                        ${property.survey_image1 || property.survey_image2 ? `
+                        <div style="margin-top: 10px;">
+                            <strong>Survey Photos:</strong><br/>
+                            ${property.survey_image1 ? `<a href="${property.survey_image1}" target="_blank">View Photo 1</a>` : ''}
+                            ${property.survey_image1 && property.survey_image2 ? ' | ' : ''}
+                            ${property.survey_image2 ? `<a href="${property.survey_image2}" target="_blank">View Photo 2</a>` : ''}
+                        </div>
+                        ` : ''}
+                        <div style="margin-top: 10px;">
+                            <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color: #007bff;">📍 Open in Google Maps</a>
+                        </div>
+                    </div>
+                    ]]>`;
+
+                return `
+    <Placemark>
+        <name></name>
+        <description>${description}</description>
+        <styleUrl>#${styleId}</styleUrl>
+        <Point>
+            <coordinates>${lng},${lat},0</coordinates>
+        </Point>
+        <ExtendedData>
+            <Data name="upic_no">
+                <value>${property.upic_no || ''}</value>
+            </Data>
+            <Data name="property_id">
+                <value>${property.property_id || ''}</value>
+            </Data>
+            <Data name="owner_name">
+                <value>${property.owner_name || ''}</value>
+            </Data>
+            <Data name="mobile_no">
+                <value>${property.mobile_no || ''}</value>
+            </Data>
+            <Data name="property_status">
+                <value>${property.property_status || ''}</value>
+            </Data>
+            <Data name="zone_name">
+                <value>${property.zone_name || ''}</value>
+            </Data>
+            <Data name="ward_name">
+                <value>${property.ward_name || ''}</value>
+            </Data>
+            <Data name="address">
+                <value>${address}</value>
+            </Data>
+        </ExtendedData>
+    </Placemark>`;
+            } catch (error) {
+                console.error('Error creating placemark for property:', property.id, error);
+                return '';
+            }
+        }).filter(placemark => placemark !== '');
+
+        return kmlHeader + placemarks.join('') + kmlFooter;
     }
 }
 
