@@ -5,8 +5,9 @@ import { PropertyMapView } from "../google_map/property_map";
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { GraphComponent } from "../graph/graph";
 export class OwlCrmDashboard extends Component {
-    static components = {PropertyMapView };
+    // static components = {PropertyMapView, GraphComponent};
 
     setup() {
         this.orm = useService("orm");
@@ -158,8 +159,9 @@ export class OwlCrmDashboard extends Component {
     }
 }
 
-// Define the template for the component
-OwlCrmDashboard.template = 'smkc.OwlCrmTemplate';
 
 // Register the component
 registry.category("actions").add("ddn.crm_dashboard_tag", OwlCrmDashboard);
+// Define the template for the component
+OwlCrmDashboard.components = { PropertyMapView, GraphComponent }
+OwlCrmDashboard.template = 'smkc.OwlCrmTemplate';

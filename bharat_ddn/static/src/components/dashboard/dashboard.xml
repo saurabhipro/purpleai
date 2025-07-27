@@ -245,6 +245,22 @@
             </div>
 
             <div class="row m-3">
+                <div class="col-md-3 d-flex align-items-stretch">
+                    <GraphComponent canvas_id="'pie'" chart_type="'pie'" chart_data="state.property_info.pie_data"/>
+                </div>
+                <div class="col-md-3 d-flex align-items-stretch">
+                    <GraphComponent canvas_id="'bar'" chart_type="'bar'" chart_data="state.property_info.pie_data"/>
+                </div>
+                <div class="col-md-3 d-flex align-items-stretch">
+                    <GraphComponent canvas_id="'line'" chart_type="'line'" chart_data="state.property_info.pie_data"/>
+                </div>
+                <div class="col-md-3 d-flex align-items-stretch">
+                    <GraphComponent canvas_id="'doughnut'" chart_type="'doughnut'" chart_data="state.property_info.pie_data"/>
+                </div>
+            </div>
+
+
+            <!-- <div class="row m-3">
                 <div t-if="state.error" class="alert alert-danger" role="alert">
                     <t t-esc="state.error"/>
                 </div>
@@ -258,7 +274,7 @@
                     </div>
                     <PropertyMapView/>
                 </div>
-            </div>
+            </div> -->
         </div>
     </t>
 </templates>

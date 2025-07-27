@@ -31,10 +31,10 @@
         'views/property_survey_views.xml',
         'views/property_group_views.xml',
         'views/services_views.xml',
-        'views/dashboard.xml',
         'views/res_company_views.xml',
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
+        'views/dashboard.xml',
         'views/indore_microsite.xml',
         'views/property_id_data_views.xml',
         'views/menuitems.xml',  # Load menus last
@@ -44,6 +44,8 @@
     'assets': {
         'web.assets_backend': [
             # Components
+            'bharat_ddn/static/src/components/graph/graph.js',
+            'bharat_ddn/static/src/components/graph/graph.xml',
             'bharat_ddn/static/src/components/google_map/property_map.js',
             'bharat_ddn/static/src/components/google_map/property_map_template.xml',
             'bharat_ddn/static/src/components/dashboard/dashboard.js',
@@ -58,7 +60,8 @@
             'https://unpkg.com/leaflet-omnivore/leaflet-omnivore.min.js',
             'https://unpkg.com/leaflet/dist/leaflet.css',
             'https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C2gCIiCjtgFE',
-            # https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C
+            # https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ1XvoKRmX1qqo2XwlLj2C,
+            'bharat_ddn/static/src/libs/chart.js',
         ],
 
         'web.assets_frontend': [
