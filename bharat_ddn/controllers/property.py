@@ -143,9 +143,9 @@ class PropertyDetailsAPI(http.Controller):
                 return Response(json.dumps({'error': 'Property not found'}), status=404, content_type='application/json')
 
             proprty_id = data.get("property_id")
-            property_record = request.env['ddn.property.info'].sudo().search([('proprty_id','=',proprty_id)],limit=1)
+            property_record = request.env['ddn.property.info'].sudo().search([('property_id','=',proprty_id)],limit=1)
             if property_record:
-                return Response(json.dumps({'error': 'property_id is already map to another property.'}), status=400, content_type='application/json')
+                return Response(json.dumps({'error': 'property_id is already mapped to another property.'}), status=400, content_type='application/json')
 
 
 
