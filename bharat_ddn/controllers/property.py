@@ -117,6 +117,7 @@ class PropertyDetailsAPI(http.Controller):
             property_type_id = data.get('property_type_id')
             mobile_no = data.get('mobile_no', '')
             uuid = data.get('uuid')
+            property_id_from_data = data.get("property_id")  # The property_id from the request
             
             # Accept property_status (or survey_status for backward compatibility)
             property_status = data.get('property_status') or data.get('survey_status', 'surveyed')
@@ -137,34 +138,20 @@ class PropertyDetailsAPI(http.Controller):
                 domain = [('uuid', '=', uuid)]
             else:
                 return Response(json.dumps({'error': 'Either upic_no or uuid is required'}), status=400, content_type='application/json')
-            property_record = request.env['ddn.property.info'].sudo().search(domain)
+            
+            property_record = request.env['ddn.property.info'].sudo().search(domain, limit=1)
 
             if not property_record:
                 return Response(json.dumps({'error': 'Property not found'}), status=404, content_type='application/json')
 
-            proprty_id = data.get("property_id")
-            property_record = request.env['ddn.property.info'].sudo().search([('property_id','=',proprty_id)],limit=1)
-            if property_record:
-                return Response(json.dumps({'error': 'property_id is already mapped to another property.'}), status=400, content_type='application/json')
-
-
-
-
-            # # Status validation logic
-            # if property_status == 'visit_again':
-            #     if property_record.property_status == 'surveyed':
-            #         return Response(
-            #             json.dumps({'error': 'Cannot mark property as visit_again when it is already surveyed'}),
-            #             status=400,
-            #             content_type='application/json'
-            #         )
-            # else:
-            #     if property_record.property_status != 'pdf_downloaded':
-            #         return Response(
-            #             json.dumps({'error': 'Survey can only be created for properties with status "pdf_downloaded"'}),
-            #             status=400,
-            #             content_type='application/json'
-            #         )
+            # Check if the property_id from request is already mapped to another property
+            if property_id_from_data:
+                existing_property = request.env['ddn.property.info'].sudo().search([
+                    ('property_id', '=', property_id_from_data),
+                    ('id', '!=', property_record.id)  # Exclude current property
+                ], limit=1)
+                if existing_property:
+                    return Response(json.dumps({'error': 'property_id is already mapped to another property.'}), status=400, content_type='application/json')
 
             # Use image URLs directly from payload (no S3 upload)
             property_image_url = data.get('property_image_url')
@@ -174,7 +161,7 @@ class PropertyDetailsAPI(http.Controller):
             data['uuid'] = uuid
             
             # Set the property_id to the actual property record's ID from database
-            data['property_id'] = data.get("property_id")
+            data['property_id'] = property_id_from_data
                 
             if mobile_no:
                 data['mobile_no'] = mobile_no
@@ -191,11 +178,16 @@ class PropertyDetailsAPI(http.Controller):
                 'survey_line_ids': [(0, 0, survey_line_vals)],
                 'property_status': property_status,
                 'mobile_no': mobile_no if mobile_no else property_record.mobile_no,
-                'property_id': data.get("property_id")
             }
+            
+            # Only update property_id if it's provided
+            if property_id_from_data:
+                update_vals['property_id'] = property_id_from_data
+                
             if property_status == 'surveyed' and property_type_id:
                 update_vals['property_type'] = property_type_id
             
+            # Write the updates to the property record
             property_record.write(update_vals)
 
             # Always return the same message and the actual uuid from the property record
@@ -217,8 +209,25 @@ class PropertyDetailsAPI(http.Controller):
 
     def _prepare_survey_line_vals(self, data, property_status):
         """Prepare survey line values from data."""
+        # Get the company_id from the property record if not provided
+        company_id = data.get("company_id")
+        if not company_id:
+            # Try to get it from the property record
+            upic_no = data.get('upic_no', '')
+            uuid = data.get('uuid')
+            domain = []
+            if upic_no:
+                domain = [('upic_no', '=', upic_no)]
+            elif uuid:
+                domain = [('uuid', '=', uuid)]
+            
+            if domain:
+                property_record = request.env['ddn.property.info'].sudo().search(domain, limit=1)
+                if property_record:
+                    company_id = property_record.company_id.id
+        
         return {
-            'company_id': data.get("company_id"),
+            'company_id': company_id,
             'property_id': data.get("property_id", False),
             'address_line_1': data.get("address_line_1", ''),
             'address_line_2': data.get("address_line_2", ''),
