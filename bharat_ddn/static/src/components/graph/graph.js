@@ -122,7 +122,24 @@ export class GraphComponent extends Component {
                             return `${label}: ${value}`;
                         }
                     }
+                },
+                scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 500  // Increase/decrease as needed
+                },
+                grid: {
+                    color: '#e3f2fd'
                 }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+                
             },
             ...(chartType !== 'pie' && chartType !== 'doughnut' && chartType !== 'polararea' ? {
                 scales: {

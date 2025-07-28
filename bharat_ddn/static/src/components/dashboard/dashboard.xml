@@ -258,6 +258,27 @@
                     <GraphComponent canvas_id="'doughnut'" chart_type="'doughnut'" chart_data="state.property_info.pie_data"/>
                 </div>
             </div>
+            <div class="row m-3">
+                <div class="col-md-3">
+                    <label>Start Date</label>
+                    <input t-ref="startDate" type="date" class="form-control"/>
+                </div>
+                <div class="col-md-3">
+                    <label>End Date</label>
+                    <input t-ref="endDate" type="date" class="form-control"/>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button t-on-click="loadGraphData" class="btn btn-primary">Load Survey Stats</button>
+                </div>
+            </div>
+            <div class="row m-3">
+                <div class="col d-flex align-items-stretch">
+                    <GraphComponent canvas_id="'surveyedPerDayChart'" chart_type="'line'" chart_data="state.survey_data"/>
+                </div>
+            </div>
+            <br/>
+            <br/>
+            <br/>
 
 
             <!-- <div class="row m-3">

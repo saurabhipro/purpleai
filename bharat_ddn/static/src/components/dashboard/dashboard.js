@@ -23,6 +23,7 @@ export class OwlCrmDashboard extends Component {
 
         onWillStart(async () => {
             await this.loadDashboardData();
+            await this.loadGraphData();
         });
     }
 
@@ -149,6 +150,33 @@ export class OwlCrmDashboard extends Component {
             this.state.isLoading = false;
         }
     }
+
+    async loadGraphData() {
+        try {
+            const startDate = "2024-07-01";
+            const endDate = "2025-07-28";
+            const groupBy = "day";
+
+            const result = await this.orm.call(
+                'ddn.property.info',
+                'get_survey_stats',
+                [startDate, endDate, groupBy],
+                {}
+            );
+            console.log("\n\n result - ", result);
+            
+            // Store result in state
+            this.state.survey_data = result;
+
+        } catch (error) {
+            console.error("Error loading graph data:", error);
+            this.state.error = error.message || "Failed to load survey graph data";
+        } finally {
+            this.state.isLoading = false;
+        }
+    }
+
+
 
     /**
      * Helper method to safely get ward data
