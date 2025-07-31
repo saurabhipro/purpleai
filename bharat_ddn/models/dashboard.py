@@ -182,3 +182,93 @@ class Dashboard(models.Model):
 
         # Return format expected by chart component
         return [{'label': r[0], 'value': r[1]} for r in result]
+    
+from collections import defaultdict
+from datetime import datetime
+from odoo import models, api
+
+
+class PropertySurvey(models.Model):
+    _inherit = 'ddn.property.survey'  # If extending
+
+    @api.model
+    def get_survey_stats(self, start_date=None, end_date=None, group_by='day'):
+        domain = [('company_id', '=', self.env.company.id)]
+
+        if start_date:
+            domain.append(('create_date', '>=', start_date))
+        if end_date:
+            domain.append(('create_date', '<=', end_date))
+
+        # Optional filters from context or additional params
+        zone_id = self.env.context.get('zone_id')
+        ward_id = self.env.context.get('ward_id')
+
+        if zone_id:
+            domain.append(('property_id.zone_id', 'in', zone_id if isinstance(zone_id, list) else [zone_id]))
+        if ward_id:
+            domain.append(('property_id.ward_id', 'in', ward_id if isinstance(ward_id, list) else [ward_id]))
+
+        # Step 1: Search all matching surveys
+        survey_records = self.env['ddn.property.survey'].search(domain)
+        unique_property_ids = survey_records.mapped('property_id.id')
+
+        # Step 2: Get latest survey per property
+        records = []
+        for property_id in unique_property_ids:
+            property_surveys = survey_records.filtered(lambda r: r.property_id.id == property_id)
+            latest_survey = max(property_surveys, key=lambda r: r.create_date)
+            records.append(latest_survey)
+
+        # Step 3: Summaries
+        surveyor_counts = {}
+        status_counts = {}
+        type_counts = {}
+        day_status_counts = defaultdict(lambda: defaultdict(int))
+        all_statuses = set()
+
+        for rec in records:
+            # Surveyor
+            name = rec.surveyer_id.name or 'Unknown'
+            surveyor_counts[name] = surveyor_counts.get(name, 0) + 1
+
+            # Property status
+            status = rec.property_id.property_status or 'Unknown'
+            status_counts[status] = status_counts.get(status, 0) + 1
+
+            # Property type
+            ptype = rec.property_id.property_type.name or 'Unknown'
+            type_counts[ptype] = type_counts.get(ptype, 0) + 1
+
+            # Day-wise data
+            if rec.create_date:
+                if group_by == 'month':
+                    day = rec.create_date.strftime('%Y-%m')
+                elif group_by == 'year':
+                    day = rec.create_date.strftime('%Y')
+                else:
+                    day = rec.create_date.strftime('%d-%m-%Y')
+
+                day_status_counts[day][status] += 1
+                all_statuses.add(status)
+
+        # Step 4: Structure day-wise data
+        days_sorted = sorted(day_status_counts.keys(), key=lambda d: datetime.strptime(d, '%d-%m-%Y') if group_by == 'day' else datetime.strptime(d, '%Y-%m') if group_by == 'month' else datetime.strptime(d, '%Y'))
+        all_statuses = sorted(all_statuses)
+        print("\n \n all_statuses - ", all_statuses)
+
+        daywise_data = []
+        for day in days_sorted:
+            entry = {"date": day}
+            for status in all_statuses:
+                entry[status] = day_status_counts[day].get(status, 0)
+            daywise_data.append(entry)
+
+        # Step 5: Return structured data
+        return {
+            "surveyor_counts": surveyor_counts,
+            "status_counts": status_counts,
+            "type_counts": type_counts,
+            "daywise_data": daywise_data,
+            "statuses": all_statuses,
+        }

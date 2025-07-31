@@ -273,7 +273,7 @@
             </div>
             <div class="row m-3">
                 <div class="col d-flex align-items-stretch">
-                    <GraphComponent canvas_id="'surveyedPerDayChart'" chart_type="'line'" chart_data="state.survey_data"/>
+                    <GraphComponent canvas_id="'surveyedPerDayChart'" chart_type="'bar'" chart_data="state.survey_data"/>
                 </div>
             </div>
             <br/>
