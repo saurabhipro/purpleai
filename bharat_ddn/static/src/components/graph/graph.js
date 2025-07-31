@@ -87,74 +87,55 @@ export class GraphComponent extends Component {
     })();
 
     new Chart(ctx, {
-        type: chartType,
-        data: {
-            labels,
-            datasets: [datasetConfig]
+    type: chartType,
+    data: {
+        labels,
+        datasets: [datasetConfig]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,  // Optional: Helps remove extra bottom space
+        layout: {
+            padding: {
+                top: 10,
+                bottom: 0  // Reduces extra empty space below chart
+            }
         },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: chartType === 'pie' || chartType === 'doughnut' ? 'right' : 'top',
-                    labels: {
-                        color: 'black',
-                        usePointStyle: true,
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const label = context.label || '';
-                            const value = context.raw || 0;
-                            if (chartType === 'pie' || chartType === 'doughnut') {
-                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(2);
-                                return `${label}: ${value} (${percentage}%)`;
-                            } else if (chartType === 'bubble') {
-                                const { x, y, r } = context.raw;
-                                return `x: ${x}, y: ${y}, r: ${r}`;
-                            } else if (chartType === 'scatter') {
-                                const { x, y } = context.raw;
-                                return `x: ${x}, y: ${y}`;
-                            }
-                            return `${label}: ${value}`;
-                        }
-                    }
-                },
-                scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 500  // Increase/decrease as needed
-                },
-                grid: {
-                    color: '#e3f2fd'
+        plugins: {
+            legend: {
+                display: true,
+                position: chartType === 'pie' || chartType === 'doughnut' ? 'right' : 'top',
+                labels: {
+                    color: 'black',
+                    usePointStyle: true,
                 }
             },
-            x: {
-                grid: {
-                    display: false
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+
+                        if (chartType === 'pie' || chartType === 'doughnut') {
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return `${label}: ${value} (${percentage}%)`;
+                        } else if (chartType === 'bubble') {
+                            const { x, y, r } = context.raw;
+                            return `x: ${x}, y: ${y}, r: ${r}`;
+                        } else if (chartType === 'scatter') {
+                            const { x, y } = context.raw;
+                            return `x: ${x}, y: ${y}`;
+                        }
+
+                        return `${label}: ${value}`;
+                    }
                 }
             }
-        }
-                
-            },
-            ...(chartType !== 'pie' && chartType !== 'doughnut' && chartType !== 'polararea' ? {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: 'black' }
-                    },
-                    x: {
-                        ticks: { color: 'black' }
-                    }
-                }
-            } : {})
-        }
-    });
+        },
     }
+    });
+}
 }
 GraphComponent.props = ["canvas_id", "chart_data", "chart_type"];
 GraphComponent.template = "bharat_ddn.GraphComponent";

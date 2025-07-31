@@ -150,68 +150,27 @@ export class OwlCrmDashboard extends Component {
             this.state.isLoading = false;
         }
     }
-
     async loadGraphData() {
-        console.log("------- ", "survey data");
-        
-    try {
-        const startDate = "2025-07-01";
-        const endDate = "2025-08-28";
-        const groupBy = "day";
+        try {
+            const result = await this.orm.call(
+                'ddn.property.info',
+                'get_survey_stats',  // ✅ Correct method
+                [],                    // ✅ No args
+                {}
+            );
+            console.log("\n\n result - ", result);
 
-        const result = await this.orm.call(
-            'ddn.property.survey',
-            'get_survey_stats',
-            [startDate, endDate, groupBy],
-            {}
-        );
-        console.log("\n\n result - ", result);
+            // Set data to state
+            this.state.survey_data = result.chart_data;
 
-        // Extract only day-wise chart data
-        const chartData = result.daywise_data.map(entry => {
-            return {
-                label: entry.date,
-                value: entry.Surveyed || 0  // or sum of all statuses
-            };
-        });
-
-        this.state.survey_data = chartData;
-        console.log("\n chartData - ", this.state.survey_data);
-        
-
-    } catch (error) {
-        console.error("Error loading graph data:", error);
-        this.state.error = error.message || "Failed to load survey graph data";
-    } finally {
-        this.state.isLoading = false;
+        } catch (error) {
+            console.error("Error loading graph data:", error);
+            this.state.error = error.message || "Failed to load survey graph data";
+        } finally {
+            this.state.isLoading = false;
+        }
     }
-}
 
-    // async loadGraphData() {
-
-    //     try {
-    //         const startDate = "2024-07-01";
-    //         const endDate = "2025-07-28";
-    //         const groupBy = "day";
-
-    //         const result = await this.orm.call(
-    //             'ddn.property.survey',
-    //             'get_survey_stats',
-    //             [startDate, endDate, groupBy],
-    //             {}
-    //         );
-    //         console.log("\n\n result - ", result);
-            
-    //         // Store result in state
-    //         this.state.survey_data = result;
-
-    //     } catch (error) {
-    //         console.error("Error loading graph data:", error);
-    //         this.state.error = error.message || "Failed to load survey graph data";
-    //     } finally {
-    //         this.state.isLoading = false;
-    //     }
-    // }
 
 
 
