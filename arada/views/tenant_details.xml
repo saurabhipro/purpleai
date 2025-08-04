@@ -1,0 +1,108 @@
+<odoo>
+    <data>
+        <record id="view_tenant_list" model="ir.ui.view">
+            <field name="name">tenant.details.list</field>
+            <field name="model">tenant.details</field>
+            <field name="arch" type="xml">
+                <list string="Tenant Details">
+                                 <field name="developement"/>
+
+                </list>
+            </field>
+        </record>
+
+
+
+        <record id="view_tenant_form" model="ir.ui.view">
+            <field name="name">tenant.details.form</field>
+            <field name="model">tenant.details</field>
+            <field name="arch" type="xml">
+                <form string="Tenant Details">
+                        <header>
+                            <button type="objcet" name="action_approve_ptl" class="btn-success" string="Approve"/>
+                            <button type="objcet" name="c" class="btn-danger" string="Reject"/>
+                        </header>
+                    <sheet>
+                        <group string="Tenant Details"></group>
+                        <notebook>
+                            <page string="PTL">
+                                <group string="Location and Details">
+                                
+                                    <group>
+                                        <field name="developement"/>
+                                            <field name="outdoor_area_gf"/>
+                                        <field name="ground_floor"/>
+                                    </group>
+                                    <group>
+                                        <field name="unit_no"/>
+                                        <field name="outdoor_area_mezz"/>
+                                        <field name="mez_floor"/>
+                                    
+                                    </group>
+                                </group>
+
+                                <group string="Contact details*">
+                                    <group>
+                                        <field name="tenant_name" string="Tenant Name*"/>
+                                        <field name="shop_name" string="Proposed Shop Name*"/>
+                                        <field name="permitted_use" string="Permitted Use*"/>
+                                        <field name="lease_term" string="Lease term*"/>
+                                        <field name="telephone" string="Telephone*"/>
+                                        <field name="mobile" string="Mobile*"/>
+                                    </group>
+
+                                    <group>
+                                        <field name="contact_person" string="Contact person name*"/>
+                                        <field name="designation" string="Designation*"/>
+                                        <field name="company_name" string="Company name*"/>
+                                        <field name="address" string="Address (Physical address)*"/>
+                                            <field name="fax" string="Fax*"/>
+                                        <field name="email" string="Email address*"/>
+                                    </group>
+                                </group>
+
+                                <group string="Key dates*">
+                                    <group>
+                                        <field name="fit_out_commencement_date" string="Fit out commencement date*"/>
+                                        <field name="concept_drawing_submission_date" string="Concept design drawings submission date*"/>
+                                        <field name="fit_out_period" string="Fit-out period*"/>
+                                        <field name="detail_drawing_submission_date" string="Detail design drawings submission date*"/>                                    
+                                    </group>
+                                    <group>
+
+                                        <field name="opening_date" string="Opening date*"/>
+                                        <field name="notes" string="Notes*" colspan="2" placeholder="Enter your description"/>
+                                        <field name="lop" string="LOP*"/>
+                                    
+                                    </group>
+
+                                </group>
+
+                                <group>
+                                
+                                    <field name="special_requirements"/>
+                                </group>
+                                <group name="Attachment">
+                                    <field name="attachment_ids" widget="many2many_binary" string="Upload Attachments"/>
+                                </group>
+                                <group>
+                                    <field name="is_ptl"/>
+                                </group>
+                            
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_tenant_details" model="ir.actions.act_window">
+            <field name="name">Tenant Details</field>
+            <field name="res_model">tenant.details</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+
+    </data>
+</odoo>
