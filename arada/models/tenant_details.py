@@ -59,6 +59,8 @@ class TenantDetails(models.Model):
         ('pending_rdd', 'Pending RDD'),
         ('pending_tenant_contractor', 'Pending Tenant / Contractor'),
         ('pending_mep', 'Pending MEP'),
+        ('pending_sample_approval', 'Pending Sample Approval'),
+        ('pending_pre_mob', 'Pending Pre-mobilization'),
         ('completed', 'Completed')
     ], string='Workflow Status', default='new', tracking=True)
 
@@ -725,6 +727,165 @@ class TenantDetails(models.Model):
     vendor_list_compliance_filename = fields.Char()
     
     mep_conditions = fields.Text(string='MEP Conditions', readonly=True, default='1. All changes on revised submission to be highlighted.')
+
+    # Sample Approval Fields - RDD
+    rdd_sample_description = fields.Text(string='Sample Description', help='Description for RDD sample approval')
+    rdd_sample_attachment = fields.Binary(string='Attach', filename='rdd_sample_filename')
+    rdd_sample_filename = fields.Char()
+    rdd_sample_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('no_objection_comments', 'No Objection with comments'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit')
+    ], string='Status', default='pending', tracking=True)
+    rdd_sample_comments = fields.Text(string='Comments', help='Comments for RDD sample approval')
+    
+    # Sample Approval Fields - MEP
+    mep_sample_description = fields.Text(string='Sample Description', help='Description for MEP sample approval')
+    mep_sample_attachment = fields.Binary(string='Attach', filename='mep_sample_filename')
+    mep_sample_filename = fields.Char()
+    mep_sample_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('no_objection_comments', 'No Objection with comments'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit')
+    ], string='Status', default='pending', tracking=True)
+    mep_sample_comments = fields.Text(string='Comments', help='Comments for MEP sample approval')
+
+    # Pre-mobilization Requirements Fields
+    design_approval_attachment = fields.Binary(string='Design Approval*', filename='design_approval_filename')
+    design_approval_filename = fields.Char()
+    design_approval_comments = fields.Text(string='Comments')
+    design_approval_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    contractors_insurance_attachment = fields.Binary(string="Contractor's All Risks Insurance with TPL and Workmen's Compensation Certificate Copy*", filename='contractors_insurance_filename')
+    contractors_insurance_filename = fields.Char()
+    contractors_insurance_comments = fields.Text(string='Comments')
+    contractors_insurance_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    fitout_method_statement_attachment = fields.Binary(string="Fit-out Work Method Statement and Risks Assessment - MSRA (full scope)*", filename='fitout_method_statement_filename')
+    fitout_method_statement_filename = fields.Char()
+    fitout_method_statement_comments = fields.Text(string='Comments')
+    fitout_method_statement_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    hse_induction_certificate_attachment = fields.Binary(string='HSE Safety Induction Certificate', filename='hse_induction_certificate_filename')
+    hse_induction_certificate_filename = fields.Char()
+    hse_induction_certificate_comments = fields.Text(string='Comments')
+    hse_induction_certificate_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    contractors_hse_plan_attachment = fields.Binary(string="Contractor's HSE Plan*", filename='contractors_hse_plan_filename')
+    contractors_hse_plan_filename = fields.Char()
+    contractors_hse_plan_comments = fields.Text(string='Comments')
+    contractors_hse_plan_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    hse_certified_personnel_attachment = fields.Binary(string="HSE Certified Personnel's Valid ID or Certificate", filename='hse_certified_personnel_filename')
+    hse_certified_personnel_filename = fields.Char()
+    hse_certified_personnel_comments = fields.Text(string='Comments')
+    hse_certified_personnel_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    program_of_works_attachment = fields.Binary(string='Program of Works*', filename='program_of_works_filename')
+    program_of_works_filename = fields.Char()
+    program_of_works_comments = fields.Text(string='Comments')
+    program_of_works_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    temporary_power_water_attachment = fields.Binary(string="Temporary power and water for fit-out use (to advise applicable fees, if any. Tenant contractor should install sub-meter which will be verified by Arada Care/FM)", filename='temporary_power_water_filename')
+    temporary_power_water_filename = fields.Char()
+    temporary_power_water_comments = fields.Text(string='Comments')
+    temporary_power_water_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    landlords_work_permit_attachment = fields.Binary(string="Landlord's Work Permit Application (Fit-out Work Permit and Hot-work)*", filename='landlords_work_permit_filename')
+    landlords_work_permit_filename = fields.Char()
+    landlords_work_permit_comments = fields.Text(string='Comments')
+    landlords_work_permit_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    municipality_approved_drawings_attachment = fields.Binary(string="Municipality/Civil Defence Approved Drawings (Submission Reference No./ Proof of Application to provide for preliminary works to proceed)", filename='municipality_approved_drawings_filename')
+    municipality_approved_drawings_filename = fields.Char()
+    municipality_approved_drawings_comments = fields.Text(string='Comments')
+    municipality_approved_drawings_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    others_attachment = fields.Binary(string='Others', filename='others_filename')
+    others_filename = fields.Char()
+    others_comments = fields.Text(string='Comments')
+    others_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('objection', 'Objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
 
     @api.depends('kickoff_meeting_days', 'concept_design_days', 'arch_detailed_design_days', 'mep_design_days',
                  'civil_defence_days', 'municipality_fitout_days', 'sewa_approval_days',

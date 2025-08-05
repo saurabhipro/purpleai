@@ -563,6 +563,116 @@
                                     </div>
                                 </group>
                             </page>
+
+                            <!-- Sample Approval Tab -->
+                            <page string="Sample Approval" icon="fa fa-check-circle">
+                                <notebook>
+                                    <page string="RDD">
+                                        <group>
+                                            <group string="Sample Description">
+                                                <field name="rdd_sample_description" nolabel="1" placeholder="Enter sample description here..."/>
+                                            </group>
+                                            
+                                            <group string="Attachment">
+                                                <field name="rdd_sample_attachment" filename="rdd_sample_filename"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <group string="Sample Approval Status">
+                                            <group>
+                                                <field name="rdd_sample_status"/>
+                                            </group>
+                                            
+                                            <group>
+                                                <field name="rdd_sample_comments" placeholder="Enter comments here..."/>
+                                            </group>
+                                        </group>
+                                    </page>
+                                    
+                                    <page string="MEP">
+                                        <group>
+                                            <group string="Sample Description">
+                                                <field name="mep_sample_description" nolabel="1" placeholder="Enter sample description here..."/>
+                                            </group>
+                                            
+                                            <group string="Attachment">
+                                                <field name="mep_sample_attachment" filename="mep_sample_filename"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <group string="Sample Approval Status">
+                                            <group>
+                                                <field name="mep_sample_status"/>
+                                            </group>
+                                            
+                                            <group>
+                                                <field name="mep_sample_comments" placeholder="Enter comments here..."/>
+                                            </group>
+                                        </group>
+                                    </page>
+                                </notebook>
+                            </page>
+
+                            <!-- Pre Mob Tab -->
+                            <page string="Pre Mob" icon="fa fa-clipboard-check">
+                                <group string="Pre-mobilization Requirements List">
+                                    <group string="Design &amp; Insurance">
+                                        <field name="design_approval_attachment" filename="design_approval_filename"/>
+                                        <field name="design_approval_comments" placeholder="Enter comments..."/>
+                                        <field name="design_approval_status"/>
+                                        
+                                        <field name="contractors_insurance_attachment" filename="contractors_insurance_filename"/>
+                                        <field name="contractors_insurance_comments" placeholder="Enter comments..."/>
+                                        <field name="contractors_insurance_status"/>
+                                    </group>
+                                    
+                                    <group string="Method Statement &amp; HSE">
+                                        <field name="fitout_method_statement_attachment" filename="fitout_method_statement_filename"/>
+                                        <field name="fitout_method_statement_comments" placeholder="Enter comments..."/>
+                                        <field name="fitout_method_statement_status"/>
+                                        
+                                        <field name="hse_induction_certificate_attachment" filename="hse_induction_certificate_filename"/>
+                                        <field name="hse_induction_certificate_comments" placeholder="Enter comments..."/>
+                                        <field name="hse_induction_certificate_status"/>
+                                        
+                                        <field name="contractors_hse_plan_attachment" filename="contractors_hse_plan_filename"/>
+                                        <field name="contractors_hse_plan_comments" placeholder="Enter comments..."/>
+                                        <field name="contractors_hse_plan_status"/>
+                                        
+                                        <field name="hse_certified_personnel_attachment" filename="hse_certified_personnel_filename"/>
+                                        <field name="hse_certified_personnel_comments" placeholder="Enter comments..."/>
+                                        <field name="hse_certified_personnel_status"/>
+                                    </group>
+                                    
+                                    <group string="Program &amp; Permits">
+                                        <field name="program_of_works_attachment" filename="program_of_works_filename"/>
+                                        <field name="program_of_works_comments" placeholder="Enter comments..."/>
+                                        <field name="program_of_works_status"/>
+                                        
+                                        <field name="temporary_power_water_attachment" filename="temporary_power_water_filename"/>
+                                        <field name="temporary_power_water_comments" placeholder="Enter comments..."/>
+                                        <field name="temporary_power_water_status"/>
+                                        
+                                        <field name="landlords_work_permit_attachment" filename="landlords_work_permit_filename"/>
+                                        <field name="landlords_work_permit_comments" placeholder="Enter comments..."/>
+                                        <field name="landlords_work_permit_status"/>
+                                    </group>
+                                    
+                                    <group string="Approvals &amp; Others">
+                                        <field name="municipality_approved_drawings_attachment" filename="municipality_approved_drawings_filename"/>
+                                        <field name="municipality_approved_drawings_comments" placeholder="Enter comments..."/>
+                                        <field name="municipality_approved_drawings_status"/>
+                                        
+                                        <field name="others_attachment" filename="others_filename"/>
+                                        <field name="others_comments" placeholder="Enter comments..."/>
+                                        <field name="others_status"/>
+                                    </group>
+                                </group>
+                                
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Note:</strong> All attachments should be in PDF, JPG, or PNG format. Items marked with * are mandatory.
+                                </div>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
