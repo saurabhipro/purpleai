@@ -6,6 +6,16 @@ class TenantDetails(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Tenant Details'
 
+    approval_state = fields.Selection([
+        ('ptl','PTL'),
+        ('cp','Critical Path'),
+        ('ta','Tenant Appointment'),
+        ('cd','Conceptual Design'),
+        ('ad','Arch Design'),
+        ('md','MEP Design'),
+        ('sa','Sample Approval'),
+        ('pm','Pre Mob'),
+    ], string="Approval for", default="ptl")
     developement = fields.Char()
     unit_no = fields.Char()
     ground_floor = fields.Char()

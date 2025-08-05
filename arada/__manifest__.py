@@ -13,6 +13,7 @@
         'security/ir.model.access.csv',
         'views/tenant_details.xml',
         # Remove: 'views/critical_path_views.xml',
+        'views/workflow.xml',
         'views/menuitem.xml',
 
     ],

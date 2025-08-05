@@ -31,6 +31,8 @@
                             <field name="workflow_state" widget="statusbar" 
                                    statusbar_visible="new,pending_rdd,pending_tenant_contractor,pending_mep,completed"/>
                             
+                            <field name="approval_state" widget="statusbar"/>
+                            
                             <!-- Workflow Action Buttons -->
                             <button name="action_move_to_pending_rdd" 
                                     type="object" 
@@ -61,9 +63,12 @@
                             <button type="objcet" name="c" class="btn-danger" string="Reject"/>
                         </header>
                     <sheet>
+                        <header>
+                            <field name="approval_state" widget="statusbar" options="{'clickable': '1'}"/>
+                        </header>
                         <group string="Tenant Details"></group>
                         <notebook>
-                            <page string="PTL" icon="fa fa-building">
+                            <page string="PTL" icon="fa fa-building" invisible="approval_state in ['ptl']">
                                 <group string="Location and Details">
                                 
                                     <group>
@@ -130,7 +135,7 @@
                             </page>
 
                             <!-- Critical Path Tab -->
-                            <page string="Critical Path" icon="fa fa-road">
+                            <page string="Critical Path" icon="fa fa-road" invisible="approval_state not in ['ptl','cp']">
                                 <group>
                                     <group string="Progress Summary">
                                         <field name="total_days"/>
@@ -221,7 +226,7 @@
                             </page>
 
                             <!-- Tenant Appointment Tab -->
-                            <page string="Tenant Appointment" icon="fa fa-calendar-check-o">
+                            <page string="Tenant Appointment" icon="fa fa-calendar-check-o" invisible="approval_state not in ['ptl','cp','ta']">
                                 <div class="alert alert-info" role="alert">
                                     <strong>Appointment Confirmation:</strong> We confirm that we have appointed the above person(s) to represent the tenant within the above discipline, who we confirm to have read and understood the tenant manual, logistic package as well as any information as the lease related to the fit-out. We confirm our responsibility towards the quality of work on site of our appointed project team as well as its agents and subcontractors. We shall ensure that they all comply with the rules and regulations, procedures of Arada and the local authorities- and that they execute work only in accordance with landlord approved drawings. Kindly direct all correspondence related to the fit-out to the defined project representatives and grant them access to the site.
                                 </div>
@@ -316,7 +321,7 @@
                             </page>
 
                             <!-- Conceptual Design Tab -->
-                            <page string="Conceptual Design" icon="fa fa-pencil-square-o">
+                            <page string="Conceptual Design" icon="fa fa-pencil-square-o" invisible="approval_state not in ['ptl','cp', 'ta', 'cd']">
                                 <notebook>
                                     <page string="Standard Format Required" icon="fa fa-file-text-o">
                                         <group>
@@ -388,7 +393,7 @@
                             </page>
 
                             <!-- Arch Design Tab -->
-                            <page string="Arch Design" icon="fa fa-building-o">
+                            <page string="Arch Design" icon="fa fa-building-o" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad']">
                                 <notebook>
                                     <page string="Standard Required" icon="fa fa-file-text-o">
                                         <group>
@@ -492,7 +497,7 @@
                             </page>
 
                             <!-- MEP Design Tab -->
-                            <page string="MEP Design" icon="fa fa-cogs">
+                            <page string="MEP Design" icon="fa fa-cogs" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md']">
                                 <group>
                                     <group string="MEP Design Submission">
                                         <field name="reflected_ceiling_plan_attachment" filename="reflected_ceiling_plan_filename"/>
@@ -565,7 +570,7 @@
                             </page>
 
                             <!-- Sample Approval Tab -->
-                            <page string="Sample Approval" icon="fa fa-check-circle">
+                            <page string="Sample Approval" icon="fa fa-check-circle" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md', 'sa']">
                                 <notebook>
                                     <page string="RDD">
                                         <group>
@@ -614,7 +619,7 @@
                             </page>
 
                             <!-- Pre Mob Tab -->
-                            <page string="Pre Mob" icon="fa fa-clipboard-check">
+                            <page string="Pre Mob" icon="fa fa-clipboard-check" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md', 'sa', 'pm']">
                                 <group string="Pre-mobilization Requirements List">
                                     <group string="Design &amp; Insurance">
                                         <field name="design_approval_attachment" filename="design_approval_filename"/>
