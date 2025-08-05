@@ -5,8 +5,16 @@
             <field name="model">tenant.details</field>
             <field name="arch" type="xml">
                 <list string="Tenant Details">
-                                 <field name="developement"/>
-
+                    <field name="unit_no" string="Unit no."/>
+                    <field name="tenant_name" string="Tenant"/>
+                    <field name="shop_name" string="Form name"/>
+                    <field name="tenant_designer_name" string="Tenant designer"/>
+                    <field name="tenant_contractor_name" string="Tenant contractor"/>
+                    <field name="workflow_state" string="Status" widget="badge" 
+                           decoration-success="workflow_state == 'completed'"
+                           decoration-warning="workflow_state in ['pending_rdd', 'pending_tenant_contractor', 'pending_mep']"
+                           decoration-info="workflow_state == 'new'"/>
+                    <field name="id" string="Action" widget="many2one_button"/>
                 </list>
             </field>
         </record>
@@ -19,13 +27,43 @@
             <field name="arch" type="xml">
                 <form string="Tenant Details">
                         <header>
+                            <!-- Workflow Status Bar -->
+                            <field name="workflow_state" widget="statusbar" 
+                                   statusbar_visible="new,pending_rdd,pending_tenant_contractor,pending_mep,completed"/>
+                            
+                            <!-- Workflow Action Buttons -->
+                            <button name="action_move_to_pending_rdd" 
+                                    type="object" 
+                                    string="Move to Pending RDD" 
+                                    class="btn-secondary"
+                                    invisible="workflow_state != 'new'"/>
+                            
+                            <button name="action_move_to_pending_tenant_contractor" 
+                                    type="object" 
+                                    string="Move to Pending Tenant/Contractor" 
+                                    class="btn-secondary"
+                                    invisible="workflow_state != 'pending_rdd'"/>
+                            
+                            <button name="action_move_to_pending_mep" 
+                                    type="object" 
+                                    string="Move to Pending MEP" 
+                                    class="btn-secondary"
+                                    invisible="workflow_state != 'pending_tenant_contractor'"/>
+                            
+                            <button name="action_complete_workflow" 
+                                    type="object" 
+                                    string="Complete" 
+                                    class="btn-success"
+                                    invisible="workflow_state != 'pending_mep'"/>
+                            
+                            <!-- Original buttons -->
                             <button type="objcet" name="action_approve_ptl" class="btn-success" string="Approve"/>
                             <button type="objcet" name="c" class="btn-danger" string="Reject"/>
                         </header>
                     <sheet>
                         <group string="Tenant Details"></group>
                         <notebook>
-                            <page string="PTL">
+                            <page string="PTL" icon="fa fa-building">
                                 <group string="Location and Details">
                                 
                                     <group>
@@ -90,6 +128,441 @@
                                 </group>
                             
                             </page>
+
+                            <!-- Critical Path Tab -->
+                            <page string="Critical Path" icon="fa fa-road">
+                                <group>
+                                    <group string="Progress Summary">
+                                        <field name="total_days"/>
+                                        <field name="completed_tasks"/>
+                                        <field name="progress_percentage" widget="progressbar"/>
+                                    </group>
+                                </group>
+
+                                <notebook>
+                                    <page string="Design">
+                                        <group>
+                                            <group>
+                                                <field name="kickoff_meeting_days"/>
+                                                <field name="kickoff_meeting_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="concept_design_days"/>
+                                                <field name="concept_design_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="arch_detailed_design_days"/>
+                                                <field name="arch_detailed_design_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="mep_design_days"/>
+                                                <field name="mep_design_date"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Authority">
+                                        <group>
+                                            <group>
+                                                <field name="civil_defence_days"/>
+                                                <field name="civil_defence_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="municipality_fitout_days"/>
+                                                <field name="municipality_fitout_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="sewa_approval_days"/>
+                                                <field name="sewa_approval_date"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Execution">
+                                        <group>
+                                            <group>
+                                                <field name="site_mobilization_days"/>
+                                                <field name="site_mobilization_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="fitout_works_days"/>
+                                                <field name="fitout_works_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="final_inspection_days"/>
+                                                <field name="final_inspection_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="snag_completion_days"/>
+                                                <field name="snag_completion_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="handover_approvals_days"/>
+                                                <field name="handover_approvals_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="merchandising_start_days"/>
+                                                <field name="merchandising_start_date"/>
+                                            </group>
+                                            <group>
+                                                <field name="trade_date_days"/>
+                                                <field name="trade_date_date"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Additional Information">
+                                        <group>
+                                            <field name="lop_penalty"/>
+                                            <field name="critical_path_comments"/>
+                                        </group>
+                                    </page>
+                                </notebook>
+                            </page>
+
+                            <!-- Tenant Appointment Tab -->
+                            <page string="Tenant Appointment" icon="fa fa-calendar-check-o">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Appointment Confirmation:</strong> We confirm that we have appointed the above person(s) to represent the tenant within the above discipline, who we confirm to have read and understood the tenant manual, logistic package as well as any information as the lease related to the fit-out. We confirm our responsibility towards the quality of work on site of our appointed project team as well as its agents and subcontractors. We shall ensure that they all comply with the rules and regulations, procedures of Arada and the local authorities- and that they execute work only in accordance with landlord approved drawings. Kindly direct all correspondence related to the fit-out to the defined project representatives and grant them access to the site.
+                                </div>
+
+                                <notebook>
+                                    <page string="Primary Contact">
+                                        <group>
+                                            <group>
+                                                <field name="primary_contact_name"/>
+                                                <field name="primary_contact_designation"/>
+                                                <field name="primary_contact_company"/>
+                                                <field name="primary_contact_telephone"/>
+                                                <field name="primary_contact_mobile"/>
+                                                <field name="primary_contact_email"/>
+                                            </group>
+                                            <group>
+                                                <field name="primary_contact_experience" colspan="2"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Secondary Contact">
+                                        <group>
+                                            <group>
+                                                <field name="secondary_contact_name"/>
+                                                <field name="secondary_contact_designation"/>
+                                                <field name="secondary_contact_company"/>
+                                                <field name="secondary_contact_telephone"/>
+                                                <field name="secondary_contact_mobile"/>
+                                                <field name="secondary_contact_email"/>
+                                            </group>
+                                            <group>
+                                                <field name="secondary_contact_experience" colspan="2"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Tenant Designer">
+                                        <group>
+                                            <group>
+                                                <field name="tenant_designer_name"/>
+                                                <field name="tenant_designer_company"/>
+                                                <field name="tenant_designer_contact"/>
+                                                <field name="tenant_designer_email"/>
+                                            </group>
+                                            <group>
+                                                <field name="tenant_designer_work_history" colspan="2"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Tenant Contractor">
+                                        <group>
+                                            <group>
+                                                <field name="tenant_contractor_name"/>
+                                                <field name="tenant_contractor_company"/>
+                                                <field name="tenant_contractor_contact"/>
+                                                <field name="tenant_contractor_email"/>
+                                                <field name="tenant_contractor_trade_license"/>
+                                                <field name="tenant_contractor_company_profile"/>
+                                            </group>
+                                            <group>
+                                                <field name="tenant_contractor_work_history" colspan="2"/>
+                                                <field name="tenant_contractor_comments" colspan="2"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Approval &amp; Attachments">
+                                        <group>
+                                            <group>
+                                                <field name="tenant_appointment_status"/>
+                                                <field name="tenant_appointment_attachments" widget="many2many_binary"/>
+                                            </group>
+                                            <group>
+                                                <field name="tenant_appointment_comments" colspan="2"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <div class="alert alert-warning" role="alert">
+                                            <strong>Disclaimer:</strong> Appointed designers or contractors are solely a Tenant nomination, but Arada reserves the right to reject a contractor based on historical performance. The appointment remains the tenant's responsibility with no liabilities to Arada.
+                                        </div>
+                                        
+                                        <div class="text-right">
+                                            <button name="action_send_tenant_appointment" 
+                                                    type="object" 
+                                                    string="Send" 
+                                                    class="btn-primary"/>
+                                        </div>
+                                    </page>
+                                </notebook>
+                            </page>
+
+                            <!-- Conceptual Design Tab -->
+                            <page string="Conceptual Design" icon="fa fa-pencil-square-o">
+                                <notebook>
+                                    <page string="Standard Format Required" icon="fa fa-file-text-o">
+                                        <group>
+                                            <group>
+                                                <field name="concept_drawings_pdf_attachment" widget="binary"/>
+                                                <field name="concept_drawings_pdf_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="tvr_form_attachment" widget="binary"/>
+                                                <field name="tvr_form_status"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Checklist of Documents Required" icon="fa fa-list-check">
+                                        <group>
+                                            <group>
+                                                <field name="furniture_layout_attachment" widget="binary"/>
+                                                <field name="furniture_layout_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="shop_front_3d_attachment" widget="binary"/>
+                                                <field name="shop_front_3d_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="shop_front_elevation_attachment" widget="binary"/>
+                                                <field name="shop_front_elevation_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="interior_3d_attachment" widget="binary"/>
+                                                <field name="interior_3d_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="previous_shops_photos_attachment" widget="binary"/>
+                                                <field name="previous_shops_photos_status"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Conditions" icon="fa fa-exclamation-triangle">
+                                        <div class="alert alert-info" role="alert">
+                                            <strong>Important Conditions:</strong>
+                                            <ul>
+                                                <li>1. Minimum requirements as indicated by an asterisk (*) for a submission to be accepted as per Lease.</li>
+                                                <li>2. All changes on revised submission to be highlighted</li>
+                                            </ul>
+                                        </div>
+                                    </page>
+
+                                    <page string="Overall Status &amp; Comments" icon="fa fa-comments-o">
+                                        <group>
+                                            <group>
+                                                <field name="conceptual_design_status"/>
+                                                <field name="conceptual_design_attachments" widget="many2many_binary"/>
+                                            </group>
+                                            <group>
+                                                <field name="conceptual_design_comments" colspan="2"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <div class="text-right">
+                                            <button name="action_send_conceptual_design" 
+                                                    type="object" 
+                                                    string="Send" 
+                                                    class="btn-primary"/>
+                                        </div>
+                                    </page>
+                                </notebook>
+                            </page>
+
+                            <!-- Arch Design Tab -->
+                            <page string="Arch Design" icon="fa fa-building-o">
+                                <notebook>
+                                    <page string="Standard Required" icon="fa fa-file-text-o">
+                                        <group>
+                                            <group>
+                                                <field name="arch_drawings_pdf_attachment" widget="binary"/>
+                                                <field name="arch_drawings_pdf_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="arch_tvr_form_attachment" widget="binary"/>
+                                                <field name="arch_tvr_form_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="materials_referenced_attachment" widget="binary"/>
+                                                <field name="materials_referenced_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="sample_board_attachment" widget="binary"/>
+                                                <field name="sample_board_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="material_samples_attachment" widget="binary"/>
+                                                <field name="material_samples_status"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Checklist of Documents Required" icon="fa fa-list-check">
+                                        <group>
+                                            <group>
+                                                <field name="arch_furniture_layout_attachment" widget="binary"/>
+                                                <field name="arch_furniture_layout_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="flooring_plan_attachment" widget="binary"/>
+                                                <field name="flooring_plan_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="ceiling_plan_attachment" widget="binary"/>
+                                                <field name="ceiling_plan_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="interior_elevations_attachment" widget="binary"/>
+                                                <field name="interior_elevations_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="shop_front_workshop_attachment" widget="binary"/>
+                                                <field name="shop_front_workshop_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="signage_package_attachment" widget="binary"/>
+                                                <field name="signage_package_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="shop_front_sections_attachment" widget="binary"/>
+                                                <field name="shop_front_sections_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="updated_shopfront_3d_attachment" widget="binary"/>
+                                                <field name="updated_shopfront_3d_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="material_finishes_schedule_attachment" widget="binary"/>
+                                                <field name="material_finishes_schedule_status"/>
+                                            </group>
+                                            <group>
+                                                <field name="updated_interior_3d_attachment" widget="binary"/>
+                                                <field name="updated_interior_3d_status"/>
+                                            </group>
+                                        </group>
+                                    </page>
+
+                                    <page string="Conditions" icon="fa fa-exclamation-triangle">
+                                        <div class="alert alert-info" role="alert">
+                                            <strong>Important Conditions:</strong>
+                                            <ul>
+                                                <li>1. Minimum requirements as indicated by an asterisk (*) for a submission to be accepted as per Lease.</li>
+                                                <li>2. All changes on revised submission to be highlighted</li>
+                                            </ul>
+                                        </div>
+                                    </page>
+
+                                    <page string="Overall Status &amp; Comments" icon="fa fa-comments-o">
+                                        <group>
+                                            <group>
+                                                <field name="arch_design_status"/>
+                                                <field name="arch_design_attachments" widget="many2many_binary"/>
+                                            </group>
+                                            <group>
+                                                <field name="arch_design_comments" colspan="2"/>
+                                            </group>
+                                        </group>
+                                        
+                                        <div class="text-right">
+                                            <button name="action_send_arch_design" 
+                                                    type="object" 
+                                                    string="Send" 
+                                                    class="btn-primary"/>
+                                        </div>
+                                    </page>
+                                </notebook>
+                            </page>
+
+                            <!-- MEP Design Tab -->
+                            <page string="MEP Design" icon="fa fa-cogs">
+                                <group>
+                                    <group string="MEP Design Submission">
+                                        <field name="reflected_ceiling_plan_attachment" filename="reflected_ceiling_plan_filename"/>
+                                        <field name="reflected_ceiling_plan_status"/>
+                                        <field name="lighting_layout_attachment" filename="lighting_layout_filename"/>
+                                        <field name="lighting_layout_status"/>
+                                        <field name="power_layout_attachment" filename="power_layout_filename"/>
+                                        <field name="power_layout_status"/>
+                                        <field name="load_schedule_attachment" filename="load_schedule_filename"/>
+                                        <field name="load_schedule_status"/>
+                                        <field name="telephone_data_layout_attachment" filename="telephone_data_layout_filename"/>
+                                        <field name="telephone_data_layout_status"/>
+                                        <field name="fire_alarm_layout_attachment" filename="fire_alarm_layout_filename"/>
+                                        <field name="fire_alarm_layout_status"/>
+                                        <field name="emergency_light_layout_attachment" filename="emergency_light_layout_filename"/>
+                                        <field name="emergency_light_layout_status"/>
+                                        <field name="hvac_layout_attachment" filename="hvac_layout_filename"/>
+                                        <field name="hvac_layout_status"/>
+                                        <field name="refrigerant_piping_layout_attachment" filename="refrigerant_piping_layout_filename"/>
+                                        <field name="refrigerant_piping_layout_status"/>
+                                        <field name="heat_load_calculation_attachment" filename="heat_load_calculation_filename"/>
+                                        <field name="heat_load_calculation_status"/>
+                                        <field name="ac_equipment_data_sheet_attachment" filename="ac_equipment_data_sheet_filename"/>
+                                        <field name="ac_equipment_data_sheet_status"/>
+                                        <field name="fahu_data_sheet_attachment" filename="fahu_data_sheet_filename"/>
+                                        <field name="fahu_data_sheet_status"/>
+                                        <field name="ecology_unit_data_sheet_attachment" filename="ecology_unit_data_sheet_filename"/>
+                                        <field name="ecology_unit_data_sheet_status"/>
+                                        <field name="kitchen_hood_data_sheet_attachment" filename="kitchen_hood_data_sheet_filename"/>
+                                        <field name="kitchen_hood_data_sheet_status"/>
+                                        <field name="ventilation_calculation_attachment" filename="ventilation_calculation_filename"/>
+                                        <field name="ventilation_calculation_status"/>
+                                    </group>
+                                    
+                                    <group string="Additional MEP Documents">
+                                        <field name="kitchen_extract_layout_attachment" filename="kitchen_extract_layout_filename"/>
+                                        <field name="kitchen_extract_layout_status"/>
+                                        <field name="fresh_air_layout_attachment" filename="fresh_air_layout_filename"/>
+                                        <field name="fresh_air_layout_status"/>
+                                        <field name="general_ventilation_layout_attachment" filename="general_ventilation_layout_filename"/>
+                                        <field name="general_ventilation_layout_status"/>
+                                        <field name="condensate_drain_layout_attachment" filename="condensate_drain_layout_filename"/>
+                                        <field name="condensate_drain_layout_status"/>
+                                        <field name="firefighting_layout_attachment" filename="firefighting_layout_filename"/>
+                                        <field name="firefighting_layout_status"/>
+                                        <field name="water_supply_layout_attachment" filename="water_supply_layout_filename"/>
+                                        <field name="water_supply_layout_status"/>
+                                        <field name="drainage_layout_attachment" filename="drainage_layout_filename"/>
+                                        <field name="drainage_layout_status"/>
+                                        <field name="grease_trap_data_sheet_attachment" filename="grease_trap_data_sheet_filename"/>
+                                        <field name="grease_trap_data_sheet_status"/>
+                                        <field name="natural_gas_layout_attachment" filename="natural_gas_layout_filename"/>
+                                        <field name="natural_gas_layout_status"/>
+                                        <field name="fire_suppression_layout_attachment" filename="fire_suppression_layout_filename"/>
+                                        <field name="fire_suppression_layout_status"/>
+                                        <field name="kitchen_equipment_layout_attachment" filename="kitchen_equipment_layout_filename"/>
+                                        <field name="kitchen_equipment_layout_status"/>
+                                        <field name="smoke_extract_system_attachment" filename="smoke_extract_system_filename"/>
+                                        <field name="smoke_extract_system_status"/>
+                                        <field name="vendor_list_compliance_attachment" filename="vendor_list_compliance_filename"/>
+                                        <field name="vendor_list_compliance_status"/>
+                                    </group>
+                                </group>
+                                
+                                <group string="Conditions">
+                                    <div class="alert alert-info" role="alert">
+                                        <strong>Note:</strong> All changes on revised submission to be highlighted.
+                                    </div>
+                                </group>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
@@ -102,7 +575,5 @@
             <field name="res_model">tenant.details</field>
             <field name="view_mode">list,form</field>
         </record>
-
-
     </data>
 </odoo>

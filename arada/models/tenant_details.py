@@ -13,7 +13,6 @@ class TenantDetails(models.Model):
     outdoor_area_gf = fields.Char()
     outdoor_area_mezz = fields.Char()
 
-
     # location
     tenant_name = fields.Char(string="Tenant Name")
     shop_name = fields.Char(string="Proposed Shop Name")
@@ -29,7 +28,6 @@ class TenantDetails(models.Model):
     mobile = fields.Char(string="Mobile")
     fax = fields.Char(string="Fax")
     email = fields.Char(string="Email")
-
 
     # ---
     fit_out_commencement_date = fields.Date(string="Fit out commencement date")
@@ -55,9 +53,757 @@ class TenantDetails(models.Model):
 
     is_ptl = fields.Boolean()
 
+    # Workflow Status
+    workflow_state = fields.Selection([
+        ('new', 'New'),
+        ('pending_rdd', 'Pending RDD'),
+        ('pending_tenant_contractor', 'Pending Tenant / Contractor'),
+        ('pending_mep', 'Pending MEP'),
+        ('completed', 'Completed')
+    ], string='Workflow Status', default='new', tracking=True)
+
+    # Critical Path Fields - Design Phase
+    kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days', default=0)
+    kickoff_meeting_date = fields.Date(string='Kick-Off meeting / Project handover Date')
+    
+    concept_design_days = fields.Integer(string='Concept design submission Days', default=0)
+    concept_design_date = fields.Date(string='Concept design submission Date')
+    
+    arch_detailed_design_days = fields.Integer(string='Arch detailed design submission Days', default=0)
+    arch_detailed_design_date = fields.Date(string='Arch detailed design submission Date')
+    
+    mep_design_days = fields.Integer(string='MEP design submission Days', default=0)
+    mep_design_date = fields.Date(string='MEP design submission Date')
+    
+    # Critical Path Fields - Authority Phase
+    civil_defence_days = fields.Integer(string='Civil defence approval Days', default=0)
+    civil_defence_date = fields.Date(string='Civil defence approval Date')
+    
+    municipality_fitout_days = fields.Integer(string='Municipality fit-out permit/Authority submissions Days', default=0)
+    municipality_fitout_date = fields.Date(string='Municipality fit-out permit/Authority submissions Date')
+    
+    sewa_approval_days = fields.Integer(string='SEWA / Water & power approval Days', default=0)
+    sewa_approval_date = fields.Date(string='SEWA / Water & power approval Date')
+    
+    # Critical Path Fields - Execution Phase
+    site_mobilization_days = fields.Integer(string='Site mobilization Days', default=0)
+    site_mobilization_date = fields.Date(string='Site mobilization Date')
+    
+    fitout_works_days = fields.Integer(string='Fitout works Days', default=0)
+    fitout_works_date = fields.Date(string='Fitout works Date')
+    
+    final_inspection_days = fields.Integer(string='Final inspection Days', default=0)
+    final_inspection_date = fields.Date(string='Final inspection Date')
+    
+    snag_completion_days = fields.Integer(string='Snag completion Days', default=0)
+    snag_completion_date = fields.Date(string='Snag completion Date')
+    
+    handover_approvals_days = fields.Integer(string='Handover of all approvals Days', default=0)
+    handover_approvals_date = fields.Date(string='Handover of all approvals Date')
+    
+    merchandising_start_days = fields.Integer(string='Merchandising start Days', default=0)
+    merchandising_start_date = fields.Date(string='Merchandising start Date')
+    
+    trade_date_days = fields.Integer(string='Trade date Days', default=0)
+    trade_date_date = fields.Date(string='Trade date Date')
+    
+    # Critical Path Additional Fields
+    lop_penalty = fields.Float(string='Late opening penalty (LOP) AED per calendar day', default=0.0)
+    critical_path_comments = fields.Text(string='Critical Path Comments')
+    
+    # Computed fields for progress tracking
+    total_days = fields.Integer(string='Total Days', compute='_compute_total_days', store=True)
+    completed_tasks = fields.Integer(string='Completed Tasks', compute='_compute_completed_tasks', store=True)
+    progress_percentage = fields.Float(string='Progress Percentage', compute='_compute_progress_percentage', store=True)
+    
+    # Tenant Appointment Fields - Primary Contact
+    primary_contact_name = fields.Char(string='Primary Contact Name')
+    primary_contact_designation = fields.Char(string='Primary Contact Designation')
+    primary_contact_company = fields.Char(string='Primary Contact Company')
+    primary_contact_telephone = fields.Char(string='Primary Contact Telephone', default='+971 55 223 3444')
+    primary_contact_mobile = fields.Char(string='Primary Contact Mobile', default='+971 55 223 3444')
+    primary_contact_email = fields.Char(string='Primary Contact Email')
+    primary_contact_experience = fields.Text(string='Primary Contact Experience', default='Experience goes here...')
+    
+    # Tenant Appointment Fields - Secondary Contact
+    secondary_contact_name = fields.Char(string='Secondary Contact Name')
+    secondary_contact_designation = fields.Char(string='Secondary Contact Designation')
+    secondary_contact_company = fields.Char(string='Secondary Contact Company')
+    secondary_contact_telephone = fields.Char(string='Secondary Contact Telephone', default='+971 55 223 3444')
+    secondary_contact_mobile = fields.Char(string='Secondary Contact Mobile', default='+971 55 223 3444')
+    secondary_contact_email = fields.Char(string='Secondary Contact Email')
+    secondary_contact_experience = fields.Text(string='Secondary Contact Experience', default='Experience goes here...')
+    
+    # Tenant Appointment Fields - Tenant Designer
+    tenant_designer_name = fields.Char(string='Tenant Designer Name')
+    tenant_designer_company = fields.Char(string='Tenant Designer Company')
+    tenant_designer_contact = fields.Char(string='Tenant Designer Contact Number', default='+971 55 223 3444')
+    tenant_designer_email = fields.Char(string='Tenant Designer Email')
+    tenant_designer_work_history = fields.Text(string='Tenant Designer Work History', default='Work history goes here...')
+    
+    # Tenant Appointment Fields - Tenant Contractor
+    tenant_contractor_name = fields.Char(string='Tenant Contractor Name')
+    tenant_contractor_company = fields.Char(string='Tenant Contractor Company Name')
+    tenant_contractor_contact = fields.Char(string='Tenant Contractor Contact Number', default='+971 55 223 3444')
+    tenant_contractor_email = fields.Char(string='Tenant Contractor Email')
+    tenant_contractor_work_history = fields.Text(string='Tenant Contractor Work History', default='Work history goes here...')
+    tenant_contractor_trade_license = fields.Binary(string='Tenant Contractor Trade License')
+    tenant_contractor_company_profile = fields.Binary(string='Tenant Contractor Company Profile')
+    tenant_contractor_comments = fields.Text(string='Tenant Contractor Comments', default='Comments received')
+    
+    # Tenant Appointment Status and Attachments
+    tenant_appointment_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Overall Status', default='no_objection', tracking=True)
+    
+    tenant_appointment_attachments = fields.Many2many(
+        'ir.attachment',
+        'tenant_appointment_ir_attachments_rel',
+        'tenant_appointment_id',
+        'attachment_id',
+        string="Tenant Appointment Attachments",
+        domain=[('type', '=', 'binary')],
+    )
+    
+    tenant_appointment_comments = fields.Text(string='Tenant Appointment Comments')
+    
+    # Conceptual Design Fields - Standard Format Required
+    concept_drawings_pdf_attachment = fields.Binary(string='1 set of all drawings - softcopy in PDF format')
+    concept_drawings_pdf_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Drawings PDF Status', default='no_objection')
+    
+    tvr_form_attachment = fields.Binary(string='Tenant Variation Request (TVR - Form 09)')
+    tvr_form_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='TVR Form Status', default='no_objection')
+    
+    # Conceptual Design Fields - Documents Required
+    furniture_layout_attachment = fields.Binary(string='Furniture layout plan - with merchandising and services')
+    furniture_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Furniture Layout Status', default='no_objection')
+    
+    shop_front_3d_attachment = fields.Binary(string='Shop front - with signage - 3D Image - in colour')
+    shop_front_3d_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Shop Front 3D Status', default='no_objection')
+    
+    shop_front_elevation_attachment = fields.Binary(string='Shop front Elevation - with SIGNAGE')
+    shop_front_elevation_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Shop Front Elevation Status', default='no_objection')
+    
+    interior_3d_attachment = fields.Binary(string='3D image in colored - interior*')
+    interior_3d_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Interior 3D Status', default='no_objection')
+    
+    previous_shops_photos_attachment = fields.Binary(string='Photos of previous shops or anything that helps explain the concept')
+    previous_shops_photos_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Previous Shops Photos Status', default='no_objection')
+    
+    # Conceptual Design Overall Status and Attachments
+    conceptual_design_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Conceptual Design Overall Status', default='no_objection', tracking=True)
+    
+    conceptual_design_attachments = fields.Many2many(
+        'ir.attachment',
+        'conceptual_design_ir_attachments_rel',
+        'conceptual_design_id',
+        'attachment_id',
+        string="Conceptual Design Attachments",
+        domain=[('type', '=', 'binary')],
+    )
+    
+    conceptual_design_comments = fields.Text(string='Conceptual Design Comments')
+    
+    # Arch Design Fields - Standard Required
+    arch_drawings_pdf_attachment = fields.Binary(string='1 set of all drawings - softcopy in PDF format*')
+    arch_drawings_pdf_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Arch Drawings PDF Status', default='no_objection')
+    
+    arch_tvr_form_attachment = fields.Binary(string='Tenant variation request (TVR - Form 09)')
+    arch_tvr_form_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Arch TVR Form Status', default='no_objection')
+    
+    materials_referenced_attachment = fields.Binary(string='Materials are clearly referenced on drawings')
+    materials_referenced_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Materials Referenced Status', default='no_objection')
+    
+    sample_board_attachment = fields.Binary(string='Sample board doesn\'t exceed 50cm X 35cm (use more than 1 if required)')
+    sample_board_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Sample Board Status', default='no_objection')
+    
+    material_samples_attachment = fields.Binary(string='Actual material samples to be included - submit 1 set (to keep 1 sample at site)')
+    material_samples_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Material Samples Status', default='no_objection')
+    
+    # Arch Design Fields - Checklist of Documents Required
+    arch_furniture_layout_attachment = fields.Binary(string='Furniture layout plan-with merchandising and services (DB&FAP)*')
+    arch_furniture_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Arch Furniture Layout Status', default='no_objection')
+    
+    flooring_plan_attachment = fields.Binary(string='Flooring plan*')
+    flooring_plan_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Flooring Plan Status', default='no_objection')
+    
+    ceiling_plan_attachment = fields.Binary(string='Reflected ceiling plan with lighting, AC diffusers, smoke detectors, sprinklers, speakers*')
+    ceiling_plan_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Ceiling Plan Status', default='no_objection')
+    
+    interior_elevations_attachment = fields.Binary(string='Interior section elevations (all)')
+    interior_elevations_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Interior Elevations Status', default='no_objection')
+    
+    shop_front_workshop_attachment = fields.Binary(string='Shop front workshop drawings - Including SIGNAGE installation details & interface details with landlord finishes*')
+    shop_front_workshop_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Shop Front Workshop Status', default='no_objection')
+    
+    signage_package_attachment = fields.Binary(string='Signage package (interior, shop front & exterior) - including package for submittal to statutory Authorities for approval')
+    signage_package_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Signage Package Status', default='no_objection')
+    
+    shop_front_sections_attachment = fields.Binary(string='Shop front sections (at least 1 through entrance and 1 through window display)*')
+    shop_front_sections_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Shop Front Sections Status', default='no_objection')
+    
+    updated_shopfront_3d_attachment = fields.Binary(string='Updated shopfront - 3D images in color')
+    updated_shopfront_3d_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Updated Shopfront 3D Status', default='no_objection')
+    
+    material_finishes_schedule_attachment = fields.Binary(string='Schedule of material finishes as referenced on the drawings*, Structural calculation for special requirements, Glazing, Heavy equipment, Safe, etc.*')
+    material_finishes_schedule_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Material Finishes Schedule Status', default='no_objection')
+    
+    updated_interior_3d_attachment = fields.Binary(string='Updated interior 3D images')
+    updated_interior_3d_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Updated Interior 3D Status', default='no_objection')
+    
+    # Arch Design Overall Status and Attachments
+    arch_design_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('pending', 'Pending'),
+        ('no_objection', 'No Objection'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Arch Design Overall Status', default='no_objection', tracking=True)
+    
+    arch_design_attachments = fields.Many2many(
+        'ir.attachment',
+        'arch_design_ir_attachments_rel',
+        'arch_design_id',
+        'attachment_id',
+        string="Arch Design Attachments",
+        domain=[('type', '=', 'binary')],
+    )
+    
+    arch_design_comments = fields.Text(string='Arch Design Comments')
+    
+    # MEP Design Fields - Common drawings required for all units
+    reflected_ceiling_plan_attachment = fields.Binary(string='Reflected Ceiling Plan')
+    reflected_ceiling_plan_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    lighting_layout_attachment = fields.Binary(string='Lighting Layout')
+    lighting_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    power_layout_attachment = fields.Binary(string='Power Layout')
+    power_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    load_schedule_attachment = fields.Binary(string='Load Schedule/ Single Line Drawings')
+    load_schedule_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    telephone_data_layout_attachment = fields.Binary(string='Telephone/ Data Layout')
+    telephone_data_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    fire_alarm_layout_attachment = fields.Binary(string='Fire Alarm Layout (Above and Below ceiling) and Schematic')
+    fire_alarm_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    emergency_light_layout_attachment = fields.Binary(string='Emergency Light Layout')
+    emergency_light_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    hvac_layout_attachment = fields.Binary(string='HVAC Layout')
+    hvac_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    refrigerant_piping_layout_attachment = fields.Binary(string='Refrigerant Piping Layout')
+    refrigerant_piping_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    heat_load_calculation_attachment = fields.Binary(string='Heat Load Calculation')
+    heat_load_calculation_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    ac_equipment_data_sheet_attachment = fields.Binary(string='AC Equipment Data Sheet')
+    ac_equipment_data_sheet_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    fahu_data_sheet_attachment = fields.Binary(string='FAHU Data Sheet')
+    fahu_data_sheet_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    ecology_unit_data_sheet_attachment = fields.Binary(string='Ecology Unit Data Sheet')
+    ecology_unit_data_sheet_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    kitchen_hood_data_sheet_attachment = fields.Binary(string='Kitchen Hood Data Sheet and Layout')
+    kitchen_hood_data_sheet_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    ventilation_calculation_attachment = fields.Binary(string='Ventilation calculation/ Schematic')
+    ventilation_calculation_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    kitchen_extract_layout_attachment = fields.Binary(string='Kitchen Extract Layout')
+    kitchen_extract_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    fresh_air_layout_attachment = fields.Binary(string='Fresh Air Layout')
+    fresh_air_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    general_ventilation_layout_attachment = fields.Binary(string='General Ventilation Layout')
+    general_ventilation_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    condensate_drain_layout_attachment = fields.Binary(string='Condensate Drain Layout')
+    condensate_drain_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    firefighting_layout_attachment = fields.Binary(string='Firefighting Layout')
+    firefighting_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    water_supply_layout_attachment = fields.Binary(string='Water Supply Layout')
+    water_supply_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    drainage_layout_attachment = fields.Binary(string='Drainage Layout')
+    drainage_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    grease_trap_data_sheet_attachment = fields.Binary(string='Grease Trap Data Sheet')
+    grease_trap_data_sheet_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    natural_gas_layout_attachment = fields.Binary(string='Natural Gas Layout')
+    natural_gas_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    fire_suppression_layout_attachment = fields.Binary(string='Fire Suppression Layout')
+    fire_suppression_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    kitchen_equipment_layout_attachment = fields.Binary(string='Kitchen Equipment Layout')
+    kitchen_equipment_layout_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    smoke_extract_system_attachment = fields.Binary(string='Smoke Extract System')
+    smoke_extract_system_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    vendor_list_compliance_attachment = fields.Binary(string='Vendor List Compliance')
+    vendor_list_compliance_status = fields.Selection([
+        ('pending', 'Pending'),
+        ('awaiting', 'Awaiting'),
+        ('no_objection', 'No objection'),
+        ('revise_resubmit', 'Revise & Resubmit'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ], string='Status', default='pending', tracking=True)
+    
+    # Filename fields for MEP attachments
+    reflected_ceiling_plan_filename = fields.Char()
+    lighting_layout_filename = fields.Char()
+    power_layout_filename = fields.Char()
+    load_schedule_filename = fields.Char()
+    telephone_data_layout_filename = fields.Char()
+    fire_alarm_layout_filename = fields.Char()
+    emergency_light_layout_filename = fields.Char()
+    hvac_layout_filename = fields.Char()
+    refrigerant_piping_layout_filename = fields.Char()
+    heat_load_calculation_filename = fields.Char()
+    ac_equipment_data_sheet_filename = fields.Char()
+    fahu_data_sheet_filename = fields.Char()
+    ecology_unit_data_sheet_filename = fields.Char()
+    kitchen_hood_data_sheet_filename = fields.Char()
+    ventilation_calculation_filename = fields.Char()
+    kitchen_extract_layout_filename = fields.Char()
+    fresh_air_layout_filename = fields.Char()
+    general_ventilation_layout_filename = fields.Char()
+    condensate_drain_layout_filename = fields.Char()
+    firefighting_layout_filename = fields.Char()
+    water_supply_layout_filename = fields.Char()
+    drainage_layout_filename = fields.Char()
+    grease_trap_data_sheet_filename = fields.Char()
+    natural_gas_layout_filename = fields.Char()
+    fire_suppression_layout_filename = fields.Char()
+    kitchen_equipment_layout_filename = fields.Char()
+    smoke_extract_system_filename = fields.Char()
+    vendor_list_compliance_filename = fields.Char()
+    
+    mep_conditions = fields.Text(string='MEP Conditions', readonly=True, default='1. All changes on revised submission to be highlighted.')
+
+    @api.depends('kickoff_meeting_days', 'concept_design_days', 'arch_detailed_design_days', 'mep_design_days',
+                 'civil_defence_days', 'municipality_fitout_days', 'sewa_approval_days',
+                 'site_mobilization_days', 'fitout_works_days', 'final_inspection_days',
+                 'snag_completion_days', 'handover_approvals_days', 'merchandising_start_days', 'trade_date_days')
+    def _compute_total_days(self):
+        for record in self:
+            record.total_days = (record.kickoff_meeting_days + record.concept_design_days + 
+                               record.arch_detailed_design_days + record.mep_design_days +
+                               record.civil_defence_days + record.municipality_fitout_days + 
+                               record.sewa_approval_days + record.site_mobilization_days +
+                               record.fitout_works_days + record.final_inspection_days +
+                               record.snag_completion_days + record.handover_approvals_days +
+                               record.merchandising_start_days + record.trade_date_days)
+    
+    @api.depends('kickoff_meeting_date', 'concept_design_date', 'arch_detailed_design_date', 'mep_design_date',
+                 'civil_defence_date', 'municipality_fitout_date', 'sewa_approval_date',
+                 'site_mobilization_date', 'fitout_works_date', 'final_inspection_date',
+                 'snag_completion_date', 'handover_approvals_date', 'merchandising_start_date', 'trade_date_date')
+    def _compute_completed_tasks(self):
+        for record in self:
+            completed = 0
+            date_fields = ['kickoff_meeting_date', 'concept_design_date', 'arch_detailed_design_date', 
+                          'mep_design_date', 'civil_defence_date', 'municipality_fitout_date', 
+                          'sewa_approval_date', 'site_mobilization_date', 'fitout_works_date', 
+                          'final_inspection_date', 'snag_completion_date', 'handover_approvals_date', 
+                          'merchandising_start_date', 'trade_date_date']
+            
+            for field in date_fields:
+                if getattr(record, field):
+                    completed += 1
+            record.completed_tasks = completed
+    
+    @api.depends('completed_tasks', 'total_days')
+    def _compute_progress_percentage(self):
+        for record in self:
+            if record.total_days > 0:
+                record.progress_percentage = (record.completed_tasks / 14) * 100  # 14 total tasks
+            else:
+                record.progress_percentage = 0.0
+
     def action_approve_ptl(self):
         pass
 
     def action_reject_ptl(self):
         pass
     
+    def action_send_tenant_appointment(self):
+        """Send tenant appointment for approval"""
+        self.tenant_appointment_status = 'pending'
+        return True
+    
+    def action_send_conceptual_design(self):
+        """Send conceptual design for approval"""
+        self.conceptual_design_status = 'pending'
+        return True
+    
+    def action_send_arch_design(self):
+        """Send arch design for approval"""
+        self.arch_design_status = 'pending'
+        return True
+    
+    # Workflow Actions
+    def action_move_to_pending_rdd(self):
+        """Move to Pending RDD"""
+        self.workflow_state = 'pending_rdd'
+        return True
+    
+    def action_move_to_pending_tenant_contractor(self):
+        """Move to Pending Tenant / Contractor"""
+        self.workflow_state = 'pending_tenant_contractor'
+        return True
+    
+    def action_move_to_pending_mep(self):
+        """Move to Pending MEP"""
+        self.workflow_state = 'pending_mep'
+        return True
+    
+    def action_complete_workflow(self):
+        """Complete workflow"""
+        self.workflow_state = 'completed'
+        return True 

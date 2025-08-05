@@ -12,6 +12,7 @@
         # 'views/larr_menu_views.xml',
         'security/ir.model.access.csv',
         'views/tenant_details.xml',
+        # Remove: 'views/critical_path_views.xml',
         'views/menuitem.xml',
 
     ],

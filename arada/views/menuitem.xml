@@ -2,7 +2,6 @@
     <data>
             <menuitem id="ddn_parent_menu_arada_info" name="ARADA" sequence="1">
                     <menuitem id="ddn_menu_tenant_detail" name="Tenent Detail" action="action_tenant_details" sequence="1"/>
-
             </menuitem>
     </data>
 </odoo>
