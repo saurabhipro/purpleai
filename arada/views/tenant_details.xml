@@ -678,6 +678,111 @@
                                     <strong>Note:</strong> All attachments should be in PDF, JPG, or PNG format. Items marked with * are mandatory.
                                 </div>
                             </page>
+
+                            <!-- NOC Tab -->
+                            <page string="NOC" icon="fa fa-file-text-o">
+                                <group>
+                                    <group string="Header Information">
+                                        <field name="noc_attention_person" placeholder="e.g., Aljada Mall Project Manager"/>
+                                        <field name="noc_tenant_main_contractor" placeholder="e.g., Tenant Main contractor name"/>
+                                        <field name="noc_arada_main_contractor" placeholder="e.g., Arada Main contractor name"/>
+                                        <field name="noc_development" placeholder="e.g., Development name"/>
+                                    </group>
+                                </group>
+
+                                <group string="No objection for site mobilization">
+                                    <group>
+                                        <field name="noc_unit_number_display" readonly="1"/>
+                                        <field name="noc_tenant_name_display" readonly="1"/>
+                                        <field name="noc_unit_name_display" readonly="1"/>
+                                        <field name="noc_designation_display" readonly="1"/>
+                                        <field name="noc_company_name_display" readonly="1"/>
+                                        <field name="noc_mobile_number_display" readonly="1"/>
+                                        <field name="noc_telephone_display" readonly="1"/>
+                                        <field name="noc_email_address_display" readonly="1"/>
+                                        <field name="noc_attention_display" readonly="1"/>
+                                        <field name="noc_subject_display" readonly="1"/>
+                                    </group>
+                                </group>
+
+                                <group string="Letter Content">
+                                    <div class="oe_form_box_info bg-info">
+                                        <p><strong>Dear Sir,</strong></p>
+                                        <p>The respective Tenant has appointed <field name="noc_tenant_main_contractor" class="oe_inline" readonly="1"/> as their main contractor to undertake the fit-out decoration within the above-mentioned unit.</p>
+                                        <p>Retail Design and Delivery has completed their due diligence, and has no objection permitting same. Prior to mobilization, the Tenant's main contractor and their sub-contractor(s) must complete a compulsory Health &amp; Safety Site Induction undertaken by <field name="noc_arada_main_contractor" class="oe_inline" readonly="1"/>, and must comply with <field name="noc_development" class="oe_inline" readonly="1"/> Mall Health and Safety Policies and Procedures.</p>
+                                        <p><strong>Yours sincerely,</strong></p>
+                                        <p><strong>Arada RDD</strong></p>
+                                    </div>
+                                </group>
+
+                                <group string="Disclaimer">
+                                    <div class="alert alert-warning" role="alert">
+                                        <strong>Disclaimer:</strong> This document was issued without any commitment by Lessor. Tenant of the unit is subject to execution and compliance with the lease agreement signed by both parties.
+                                    </div>
+                                </group>
+                            </page>
+
+                            <!-- Inspection Tab -->
+                            <page string="Inspection" icon="fa fa-search">
+                                <group string="Create Inspection request">
+                                    <group string="Inspection Items" col="6">
+                                        <!-- Each inspection item gets 4 columns for label, 2 for date -->
+                                        <field name="inspection_water_proofing" colspan="4"/>
+                                        <field name="inspection_water_proofing_date" colspan="2"/>
+                                        
+                                        <field name="inspection_gravity_test" colspan="4"/>
+                                        <field name="inspection_gravity_test_date" colspan="2"/>
+                                        
+                                        <field name="inspection_kitchen_tiles" colspan="4"/>
+                                        <field name="inspection_kitchen_tiles_date" colspan="2"/>
+                                        
+                                        <field name="inspection_pre_ceiling" colspan="4"/>
+                                        <field name="inspection_pre_ceiling_date" colspan="2"/>
+                                        
+                                        <field name="inspection_sprinkler_pipe" colspan="4"/>
+                                        <field name="inspection_sprinkler_pipe_date" colspan="2"/>
+                                        
+                                        <field name="inspection_fire_alarm" colspan="4"/>
+                                        <field name="inspection_fire_alarm_date" colspan="2"/>
+                                        
+                                        <field name="inspection_chilled_water" colspan="4"/>
+                                        <field name="inspection_chilled_water_date" colspan="2"/>
+                                        
+                                        <field name="inspection_water_pipe" colspan="4"/>
+                                        <field name="inspection_water_pipe_date" colspan="2"/>
+                                        
+                                        <field name="inspection_db_megger" colspan="4"/>
+                                        <field name="inspection_db_megger_date" colspan="2"/>
+                                        
+                                        <field name="inspection_general_flooring" colspan="4"/>
+                                        <field name="inspection_general_flooring_date" colspan="2"/>
+                                        
+                                        <field name="inspection_grease_trap" colspan="4"/>
+                                        <field name="inspection_grease_trap_date" colspan="2"/>
+                                        
+                                        <field name="inspection_fcu_ahu" colspan="4"/>
+                                        <field name="inspection_fcu_ahu_date" colspan="2"/>
+                                        
+                                        <field name="inspection_roof" colspan="4"/>
+                                        <field name="inspection_roof_date" colspan="2"/>
+                                        
+                                        <field name="inspection_final_pre_opening" colspan="4"/>
+                                        <field name="inspection_final_pre_opening_date" colspan="2"/>
+                                        
+                                        <field name="inspection_others" colspan="4"/>
+                                        <field name="inspection_others_date" colspan="2"/>
+                                    </group>
+                                    
+                                    <group string="Additional Information" col="2">
+                                        <field name="inspection_attachment" filename="inspection_attachment_filename" colspan="2"/>
+                                        <field name="inspection_comments" placeholder="Enter comments here..." colspan="2"/>
+                                    </group>
+                                </group>
+                                
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Note:</strong> Please note that three (3) working days' notice is to be given for any inspection request.
+                                </div>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
