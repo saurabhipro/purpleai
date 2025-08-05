@@ -61,6 +61,8 @@ class TenantDetails(models.Model):
         ('pending_mep', 'Pending MEP'),
         ('pending_sample_approval', 'Pending Sample Approval'),
         ('pending_pre_mob', 'Pending Pre-mobilization'),
+        ('pending_noc', 'Pending NOC'),
+        ('pending_inspection', 'Pending Inspection'),
         ('completed', 'Completed')
     ], string='Workflow Status', default='new', tracking=True)
 
@@ -886,6 +888,83 @@ class TenantDetails(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     ], string='Status', default='pending', tracking=True)
+
+    # NOC Tab Fields
+    noc_attention_person = fields.Char(string="Attention", default="Aljada Mall Project Manager")
+    noc_tenant_main_contractor = fields.Char(string="Tenant Main contractor")
+    noc_arada_main_contractor = fields.Char(string="Arada Main contractor")
+    noc_development = fields.Char(string="Development", default="Aljada")
+
+    # Computed fields for NOC display section
+    noc_unit_number_display = fields.Char(string="Unit Number", compute='_compute_noc_details', store=True)
+    noc_tenant_name_display = fields.Char(string="Tenant Name", compute='_compute_noc_details', store=True)
+    noc_unit_name_display = fields.Char(string="Unit name", compute='_compute_noc_details', store=True)
+    noc_designation_display = fields.Char(string="Designation", default="Design")
+    noc_company_name_display = fields.Char(string="Company", default="Company name")
+    noc_mobile_number_display = fields.Char(string="Mobile Number", default="+971 50 222 3333")
+    noc_telephone_display = fields.Char(string="Telephone", default="+971 60 000 000")
+    noc_email_address_display = fields.Char(string="Email Address", default="company@gmail.com")
+    noc_attention_display = fields.Char(string="Attention", compute='_compute_noc_details', store=True)
+    noc_subject_display = fields.Char(string="Subject", default="No Objection for Site Mobilization")
+
+    # Inspection Tab Fields
+    inspection_water_proofing = fields.Boolean(string='Water proofing of witnessing')
+    inspection_water_proofing_date = fields.Date(string='Water Proofing Date')
+    
+    inspection_gravity_test = fields.Boolean(string='Gravity test inspection for drainage piping installation')
+    inspection_gravity_test_date = fields.Date(string='Gravity Test Date')
+    
+    inspection_kitchen_tiles = fields.Boolean(string='Kitchen tiles & grout installation inspection')
+    inspection_kitchen_tiles_date = fields.Date(string='Kitchen Tiles Date')
+    
+    inspection_pre_ceiling = fields.Boolean(string='Pre-Ceiling closure inspection')
+    inspection_pre_ceiling_date = fields.Date(string='Pre-Ceiling Date')
+    
+    inspection_sprinkler_pipe = fields.Boolean(string='Sprinkler pipe pressure test inspection')
+    inspection_sprinkler_pipe_date = fields.Date(string='Sprinkler Pipe Date')
+    
+    inspection_fire_alarm = fields.Boolean(string='Fire alarm continuity test')
+    inspection_fire_alarm_date = fields.Date(string='Fire Alarm Date')
+    
+    inspection_chilled_water = fields.Boolean(string='Chilled water/ Refrigerant pipe pressure test inspection')
+    inspection_chilled_water_date = fields.Date(string='Chilled Water Date')
+    
+    inspection_water_pipe = fields.Boolean(string='Water pipe pressure test inspection')
+    inspection_water_pipe_date = fields.Date(string='Water Pipe Date')
+    
+    inspection_db_megger = fields.Boolean(string='DB / Megger test inspection')
+    inspection_db_megger_date = fields.Date(string='DB/Megger Test Date')
+    
+    inspection_general_flooring = fields.Boolean(string='General flooring inspection (Landlord FCO/Manhole)')
+    inspection_general_flooring_date = fields.Date(string='General Flooring Date')
+    
+    inspection_grease_trap = fields.Boolean(string='Grease Trap installation')
+    inspection_grease_trap_date = fields.Date(string='Grease Trap Date')
+    
+    inspection_fcu_ahu = fields.Boolean(string='FCU / AHU / Extract fan installation')
+    inspection_fcu_ahu_date = fields.Date(string='FCU/AHU Date')
+    
+    inspection_roof = fields.Boolean(string='Roof inspection')
+    inspection_roof_date = fields.Date(string='Roof Inspection Date')
+    
+    inspection_final_pre_opening = fields.Boolean(string='Final Pre-Opening Inspection')
+    inspection_final_pre_opening_date = fields.Date(string='Final Pre-Opening Date')
+    
+    inspection_others = fields.Boolean(string='Others')
+    inspection_others_date = fields.Date(string='Others Date')
+    
+    # Attachment and Comments
+    inspection_attachment = fields.Binary(string='Attachment')
+    inspection_attachment_filename = fields.Char()
+    inspection_comments = fields.Text(string='Inspection Comments')
+
+    @api.depends('unit_no', 'tenant_name', 'shop_name', 'noc_attention_person')
+    def _compute_noc_details(self):
+        for record in self:
+            record.noc_unit_number_display = record.unit_no or "[Unit number]"
+            record.noc_tenant_name_display = record.tenant_name or "[Al Bahar Al Mutawasit Rest LLC]"
+            record.noc_unit_name_display = record.shop_name or "[Aljada]"
+            record.noc_attention_display = record.noc_attention_person or "[Aljada Mall Project Manager]"
 
     @api.depends('kickoff_meeting_days', 'concept_design_days', 'arch_detailed_design_days', 'mep_design_days',
                  'civil_defence_days', 'municipality_fitout_days', 'sewa_approval_days',
