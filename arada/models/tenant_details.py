@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from datetime import datetime
 
 class TenantDetails(models.Model):
     _name = 'tenant.details'
@@ -967,6 +968,51 @@ class TenantDetails(models.Model):
     inspection_attachment = fields.Binary(string='Attachment')
     inspection_attachment_filename = fields.Char()
     inspection_comments = fields.Text(string='Inspection Comments')
+
+    # Workflow related fields
+    workflow_instance_id = fields.Many2one('arada.workflow.instance', string='Workflow Instance', tracking=True)
+    current_workflow_state = fields.Many2one('arada.workflow.state', string='Current Workflow State', tracking=True)
+    available_workflow_actions = fields.Many2many('arada.workflow.action', compute='_compute_available_workflow_actions', string='Available Actions')
+
+    @api.depends('workflow_instance_id', 'current_workflow_state')
+    def _compute_available_workflow_actions(self):
+        for record in self:
+            if record.workflow_instance_id:
+                record.available_workflow_actions = record.workflow_instance_id.available_action_ids
+            else:
+                record.available_workflow_actions = False
+
+    def action_start_workflow(self):
+        """Start a workflow for this tenant"""
+        self.ensure_one()
+        
+        # Create workflow instance
+        workflow = self.env['arada.workflow'].search([('workflow_type', '=', 'tenant_approval')], limit=1)
+        if not workflow:
+            raise UserError(_('No tenant approval workflow found.'))
+        
+        instance = self.env['arada.workflow.instance'].create({
+            'name': f'Workflow for {self.tenant_name}',
+            'workflow_id': workflow.id,
+            'tenant_details_id': self.id
+        })
+        
+        self.workflow_instance_id = instance.id
+        self.current_workflow_state = instance.current_state_id
+        
+        return True
+
+    def action_execute_workflow_action(self, action_id):
+        """Execute a workflow action"""
+        self.ensure_one()
+        
+        if not self.workflow_instance_id:
+            raise UserError(_('No workflow instance found.'))
+        
+        self.workflow_instance_id.action_execute_transition(action_id)
+        self.current_workflow_state = self.workflow_instance_id.current_state_id
+        
+        return True
 
     @api.depends('unit_no', 'tenant_name', 'shop_name', 'noc_attention_person')
     def _compute_noc_details(self):

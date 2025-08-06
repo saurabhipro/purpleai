@@ -68,23 +68,17 @@
                         </header>
                         <group string="Tenant Details"></group>
                         <notebook>
-<<<<<<< HEAD
-                            <page string="PTL" icon="fa fa-building" invisible="approval_state in ['ptl']">
-=======
                             <page string="PTL" icon="fa fa-home">
->>>>>>> 61135ae (AARADA LEASE)
                                 <group string="Location and Details">
-                                
                                     <group>
                                         <field name="developement"/>
-                                            <field name="outdoor_area_gf"/>
+                                        <field name="outdoor_area_gf"/>
                                         <field name="ground_floor"/>
                                     </group>
                                     <group>
                                         <field name="unit_no"/>
                                         <field name="outdoor_area_mezz"/>
                                         <field name="mez_floor"/>
-                                    
                                     </group>
                                 </group>
 
@@ -103,7 +97,7 @@
                                         <field name="designation" string="Designation*"/>
                                         <field name="company_name" string="Company name*"/>
                                         <field name="address" string="Address (Physical address)*"/>
-                                            <field name="fax" string="Fax*"/>
+                                        <field name="fax" string="Fax*"/>
                                         <field name="email" string="Email address*"/>
                                     </group>
                                 </group>
@@ -116,17 +110,13 @@
                                         <field name="detail_drawing_submission_date" string="Detail design drawings submission date*"/>                                    
                                     </group>
                                     <group>
-
                                         <field name="opening_date" string="Opening date*"/>
                                         <field name="notes" string="Notes*" colspan="2" placeholder="Enter your description"/>
                                         <field name="lop" string="LOP*"/>
-                                    
                                     </group>
-
                                 </group>
 
                                 <group>
-                                
                                     <field name="special_requirements"/>
                                 </group>
                                 <group name="Attachment">
@@ -135,15 +125,10 @@
                                 <group>
                                     <field name="is_ptl"/>
                                 </group>
-                            
                             </page>
 
                             <!-- Critical Path Tab -->
-<<<<<<< HEAD
-                            <page string="Critical Path" icon="fa fa-road" invisible="approval_state not in ['ptl','cp']">
-=======
-                            <page string="Critical Path" icon="fa fa-list">
->>>>>>> 61135ae (AARADA LEASE)
+                            <page string="Critical Path" icon="fa fa-road">
                                 <group>
                                     <group string="Progress Summary">
                                         <field name="total_days"/>
@@ -163,82 +148,13 @@
                                                 <field name="concept_design_days"/>
                                                 <field name="concept_design_date"/>
                                             </group>
-                                            <group>
-                                                <field name="arch_detailed_design_days"/>
-                                                <field name="arch_detailed_design_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="mep_design_days"/>
-                                                <field name="mep_design_date"/>
-                                            </group>
-                                        </group>
-                                    </page>
-
-                                    <page string="Authority">
-                                        <group>
-                                            <group>
-                                                <field name="civil_defence_days"/>
-                                                <field name="civil_defence_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="municipality_fitout_days"/>
-                                                <field name="municipality_fitout_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="sewa_approval_days"/>
-                                                <field name="sewa_approval_date"/>
-                                            </group>
-                                        </group>
-                                    </page>
-
-                                    <page string="Execution">
-                                        <group>
-                                            <group>
-                                                <field name="site_mobilization_days"/>
-                                                <field name="site_mobilization_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="fitout_works_days"/>
-                                                <field name="fitout_works_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="final_inspection_days"/>
-                                                <field name="final_inspection_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="snag_completion_days"/>
-                                                <field name="snag_completion_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="handover_approvals_days"/>
-                                                <field name="handover_approvals_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="merchandising_start_days"/>
-                                                <field name="merchandising_start_date"/>
-                                            </group>
-                                            <group>
-                                                <field name="trade_date_days"/>
-                                                <field name="trade_date_date"/>
-                                            </group>
-                                        </group>
-                                    </page>
-
-                                    <page string="Additional Information">
-                                        <group>
-                                            <field name="lop_penalty"/>
-                                            <field name="critical_path_comments"/>
                                         </group>
                                     </page>
                                 </notebook>
                             </page>
 
                             <!-- Tenant Appointment Tab -->
-<<<<<<< HEAD
-                            <page string="Tenant Appointment" icon="fa fa-calendar-check-o" invisible="approval_state not in ['ptl','cp','ta']">
-=======
                             <page string="Tenant Appointment" icon="fa fa-user">
->>>>>>> 61135ae (AARADA LEASE)
                                 <div class="alert alert-info" role="alert">
                                     <strong>Appointment Confirmation:</strong> We confirm that we have appointed the above person(s) to represent the tenant within the above discipline, who we confirm to have read and understood the tenant manual, logistic package as well as any information as the lease related to the fit-out. We confirm our responsibility towards the quality of work on site of our appointed project team as well as its agents and subcontractors. We shall ensure that they all comply with the rules and regulations, procedures of Arada and the local authorities- and that they execute work only in accordance with landlord approved drawings. Kindly direct all correspondence related to the fit-out to the defined project representatives and grant them access to the site.
                                 </div>
@@ -333,11 +249,7 @@
                             </page>
 
                             <!-- Conceptual Design Tab -->
-<<<<<<< HEAD
-                            <page string="Conceptual Design" icon="fa fa-pencil-square-o" invisible="approval_state not in ['ptl','cp', 'ta', 'cd']">
-=======
                             <page string="Conceptual Design" icon="fa fa-pencil">
->>>>>>> 61135ae (AARADA LEASE)
                                 <notebook>
                                     <page string="Standard Format Required" icon="fa fa-file-text-o">
                                         <group>
@@ -409,11 +321,7 @@
                             </page>
 
                             <!-- Arch Design Tab -->
-<<<<<<< HEAD
-                            <page string="Arch Design" icon="fa fa-building-o" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad']">
-=======
                             <page string="Arch Design" icon="fa fa-building">
->>>>>>> 61135ae (AARADA LEASE)
                                 <notebook>
                                     <page string="Standard Required" icon="fa fa-file-text-o">
                                         <group>
@@ -517,11 +425,7 @@
                             </page>
 
                             <!-- MEP Design Tab -->
-<<<<<<< HEAD
-                            <page string="MEP Design" icon="fa fa-cogs" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md']">
-=======
                             <page string="MEP Design" icon="fa fa-cog">
->>>>>>> 61135ae (AARADA LEASE)
                                 <group>
                                     <group string="MEP Design Submission">
                                         <field name="reflected_ceiling_plan_attachment" filename="reflected_ceiling_plan_filename"/>
@@ -594,11 +498,7 @@
                             </page>
 
                             <!-- Sample Approval Tab -->
-<<<<<<< HEAD
-                            <page string="Sample Approval" icon="fa fa-check-circle" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md', 'sa']">
-=======
                             <page string="Sample Approval" icon="fa fa-check">
->>>>>>> 61135ae (AARADA LEASE)
                                 <notebook>
                                     <page string="RDD">
                                         <group>
@@ -647,11 +547,7 @@
                             </page>
 
                             <!-- Pre Mob Tab -->
-<<<<<<< HEAD
-                            <page string="Pre Mob" icon="fa fa-clipboard-check" invisible="approval_state not in ['ptl','cp', 'ta', 'cd', 'ad', 'md', 'sa', 'pm']">
-=======
                             <page string="Pre Mob" icon="fa fa-clipboard">
->>>>>>> 61135ae (AARADA LEASE)
                                 <group string="Pre-mobilization Requirements List">
                                     <group string="Design &amp; Insurance">
                                         <field name="design_approval_attachment" filename="design_approval_filename"/>

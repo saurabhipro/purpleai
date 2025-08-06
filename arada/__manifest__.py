@@ -6,16 +6,15 @@
     'author': 'Anjli',
     'website': 'https://www.bharatddn.com',
     'depends': [
-        'mail'
+        'base',
+        'mail',
+        'web',
     ],
     'data': [
-        # 'views/larr_menu_views.xml',
+        'security/security.xml',
         'security/ir.model.access.csv',
+        'views/workflow_views.xml',
         'views/tenant_details.xml',
-        # Remove: 'views/critical_path_views.xml',
-        'views/workflow.xml',
-        'views/menuitem.xml',
-
     ],
    
     'installable': True,

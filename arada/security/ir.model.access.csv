@@ -1,6 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-
-access_tenant_details,tenant.details,model_tenant_details,base.group_user,1,1,1,1
 access_arada_workflow,arada.workflow,model_arada_workflow,base.group_user,1,1,1,1
+access_arada_workflow_state,arada.workflow.state,model_arada_workflow_state,base.group_user,1,1,1,1
+access_arada_workflow_action,arada.workflow.action,model_arada_workflow_action,base.group_user,1,1,1,1
+access_arada_workflow_state_transition,arada.workflow.state.transition,model_arada_workflow_state_transition,base.group_user,1,1,1,1
+access_arada_workflow_instance,arada.workflow.instance,model_arada_workflow_instance,base.group_user,1,1,1,1
+access_arada_workflow_instance_history,arada.workflow.instance.history,model_arada_workflow_instance_history,base.group_user,1,1,1,1
 
 
