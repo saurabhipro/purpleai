@@ -5,5 +5,7 @@ access_arada_workflow_action,arada.workflow.action,model_arada_workflow_action,b
 access_arada_workflow_state_transition,arada.workflow.state.transition,model_arada_workflow_state_transition,base.group_user,1,1,1,1
 access_arada_workflow_instance,arada.workflow.instance,model_arada_workflow_instance,base.group_user,1,1,1,1
 access_arada_workflow_instance_history,arada.workflow.instance.history,model_arada_workflow_instance_history,base.group_user,1,1,1,1
+access_tenant_details,tenant.details,model_tenant_details,base.group_user,1,1,1,1
+
 
 

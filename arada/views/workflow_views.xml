@@ -107,12 +107,5 @@
         </record>
 
         <!-- Menu Items -->
-        <menuitem id="menu_arada_workflow_root" name="Workflows" sequence="50"/>
-        
-        <menuitem id="menu_arada_workflow" name="Workflow Management" parent="menu_arada_workflow_root" sequence="10"/>
-        <menuitem id="menu_arada_workflow_definition" name="Workflow Definitions" parent="menu_arada_workflow" action="action_arada_workflow" sequence="10"/>
-        <menuitem id="menu_arada_workflow_states" name="Workflow States" parent="menu_arada_workflow" action="action_arada_workflow_state" sequence="20"/>
-        <menuitem id="menu_arada_workflow_actions" name="Workflow Actions" parent="menu_arada_workflow" action="action_arada_workflow_action" sequence="30"/>
-        <menuitem id="menu_arada_workflow_transitions" name="Workflow Transitions" parent="menu_arada_workflow" action="action_arada_workflow_state_transition" sequence="40"/>
-    </data>
+        </data>
 </odoo> 
