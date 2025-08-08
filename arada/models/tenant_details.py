@@ -1063,10 +1063,38 @@ class TenantDetails(models.Model):
                 record.progress_percentage = 0.0
 
     def action_approve_ptl(self):
-        pass
+        """Approve current state and move to next state"""
+        self.ensure_one()
+        
+        # Define the workflow progression
+        workflow_states = ['ptl', 'cp', 'ta', 'cd', 'ad', 'md', 'sa', 'pm']
+        
+        try:
+            current_index = workflow_states.index(self.approval_state)
+            if current_index < len(workflow_states) - 1:
+                # Move to next state
+                self.approval_state = workflow_states[current_index + 1]
+        except ValueError:
+            pass
+        
+        return True
 
     def action_reject_ptl(self):
-        pass
+        """Reject current state and move to previous state"""
+        self.ensure_one()
+        
+        # Define the workflow progression
+        workflow_states = ['ptl', 'cp', 'ta', 'cd', 'ad', 'md', 'sa', 'pm']
+        
+        try:
+            current_index = workflow_states.index(self.approval_state)
+            if current_index > 0:
+                # Move to previous state
+                self.approval_state = workflow_states[current_index - 1]
+        except ValueError:
+            pass
+        
+        return True
     
     def action_send_tenant_appointment(self):
         """Send tenant appointment for approval"""
@@ -1103,3 +1131,45 @@ class TenantDetails(models.Model):
         """Complete workflow"""
         self.workflow_state = 'completed'
         return True 
+
+    # Add these computed fields after the existing fields
+    
+    # Tab visibility computed fields
+    is_ptl_tab_active = fields.Boolean(string='PTL Tab Active', compute='_compute_tab_visibility', store=True)
+    is_critical_path_tab_active = fields.Boolean(string='Critical Path Tab Active', compute='_compute_tab_visibility', store=True)
+    is_tenant_appointment_tab_active = fields.Boolean(string='Tenant Appointment Tab Active', compute='_compute_tab_visibility', store=True)
+    is_conceptual_design_tab_active = fields.Boolean(string='Conceptual Design Tab Active', compute='_compute_tab_visibility', store=True)
+    is_arch_design_tab_active = fields.Boolean(string='Arch Design Tab Active', compute='_compute_tab_visibility', store=True)
+    is_mep_design_tab_active = fields.Boolean(string='MEP Design Tab Active', compute='_compute_tab_visibility', store=True)
+    is_sample_approval_tab_active = fields.Boolean(string='Sample Approval Tab Active', compute='_compute_tab_visibility', store=True)
+    is_pre_mob_tab_active = fields.Boolean(string='Pre Mob Tab Active', compute='_compute_tab_visibility', store=True)
+
+    @api.depends('approval_state')
+    def _compute_tab_visibility(self):
+        """Compute which tabs should be active based on current approval state"""
+        workflow_states = ['ptl', 'cp', 'ta', 'cd', 'ad', 'md', 'sa', 'pm']
+        
+        for record in self:
+            try:
+                current_index = workflow_states.index(record.approval_state)
+                
+                # All tabs up to and including current state are active
+                record.is_ptl_tab_active = current_index >= 0  # Always active
+                record.is_critical_path_tab_active = current_index >= 1
+                record.is_tenant_appointment_tab_active = current_index >= 2
+                record.is_conceptual_design_tab_active = current_index >= 3
+                record.is_arch_design_tab_active = current_index >= 4
+                record.is_mep_design_tab_active = current_index >= 5
+                record.is_sample_approval_tab_active = current_index >= 6
+                record.is_pre_mob_tab_active = current_index >= 7
+                
+            except ValueError:
+                # If invalid state, only PTL is active
+                record.is_ptl_tab_active = True
+                record.is_critical_path_tab_active = False
+                record.is_tenant_appointment_tab_active = False
+                record.is_conceptual_design_tab_active = False
+                record.is_arch_design_tab_active = False
+                record.is_mep_design_tab_active = False
+                record.is_sample_approval_tab_active = False
+                record.is_pre_mob_tab_active = False 

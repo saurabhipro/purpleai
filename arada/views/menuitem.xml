@@ -1,14 +1,9 @@
 <odoo>
     <data>
             <menuitem id="ddn_parent_menu_arada_info" name="ARADA" sequence="1">
-                <menuitem id="ddn_menu_tenant_detail" name="Tenent Detail" action="action_tenant_details"/>
-                <menuitem id="ddn_menu_configuration" name="Configuration">
-                        <menuitem id="ddn_menu_arada_workflow" name="Workflow" action="action_arada_workflow"/>
-                        <menuitem id="menu_arada_workflow_root" name="Workflows"/>
-                        <menuitem id="menu_arada_workflow_definition" name="Workflow Definitions" action="action_arada_workflow"/>
-                        <menuitem id="menu_arada_workflow_states" name="Workflow States" action="action_arada_workflow_state"/>
-                        <menuitem id="menu_arada_workflow_actions" name="Workflow Actions" action="action_arada_workflow_action"/>
-                        <menuitem id="menu_arada_workflow_transitions" name="Workflow Transitions" action="action_arada_workflow_state_transition"/>
+                <menuitem id="ddn_menu_tenant_detail" name="Tenent Detail" action="action_tenant_details" sequence="1"/>
+                <menuitem id="ddn_menu_configuration" name="Configuration" sequence="2">
+                        <menuitem id="ddn_menu_arada_workflow" name="Workflow" action="action_arada_workflow" sequence="1"/>
                 </menuitem>
             </menuitem>
     </data>

@@ -27,11 +27,8 @@
             <field name="arch" type="xml">
                 <form string="Tenant Details">
                         <header>
-                            <!-- Workflow Status Bar -->
-                            <field name="workflow_state" widget="statusbar" 
-                                   statusbar_visible="new,pending_rdd,pending_tenant_contractor,pending_mep,completed"/>
-                            
-                            <field name="approval_state" widget="statusbar"/>
+                            <!-- Single Workflow Status Bar - keeping only approval_state -->
+                            <field name="approval_state" widget="statusbar" options="{'clickable': '1'}"/>
                             
                             <!-- Workflow Action Buttons -->
                             <button name="action_move_to_pending_rdd" 
@@ -45,7 +42,7 @@
                                     string="Move to Pending Tenant/Contractor" 
                                     class="btn-secondary"
                                     invisible="workflow_state != 'pending_rdd'"/>
-                            
+    
                             <button name="action_move_to_pending_mep" 
                                     type="object" 
                                     string="Move to Pending MEP" 
@@ -58,17 +55,16 @@
                                     class="btn-success"
                                     invisible="workflow_state != 'pending_mep'"/>
                             
-                            <!-- Original buttons -->
-                            <button type="objcet" name="action_approve_ptl" class="btn-success" string="Approve"/>
-                            <button type="objcet" name="c" class="btn-danger" string="Reject"/>
+                            <!-- Fixed Approve/Reject buttons -->
+                            <button type="object" name="action_approve_ptl" class="btn-success" string="Approve"/>
+                            <button type="object" name="action_reject_ptl" class="btn-danger" string="Reject"/>
                         </header>
                     <sheet>
-                        <header>
-                            <field name="approval_state" widget="statusbar" options="{'clickable': '1'}"/>
-                        </header>
+                        <!-- Removed duplicate statusbar from sheet header -->
                         <group string="Tenant Details"></group>
                         <notebook>
-                            <page string="PTL" icon="fa fa-home">
+                            <!-- PTL Tab - Always Active -->
+                            <page string="PTL" icon="fa fa-home" name="ptl_tab">
                                 <group string="Location and Details">
                                     <group>
                                         <field name="developement"/>
@@ -127,8 +123,9 @@
                                 </group>
                             </page>
 
-                            <!-- Critical Path Tab -->
-                            <page string="Critical Path" icon="fa fa-road">
+                            <!-- Critical Path Tab - Active when cp or later -->
+                            <page string="Critical Path" icon="fa fa-road" name="critical_path_tab" 
+                                  invisible="not is_critical_path_tab_active">
                                 <group>
                                     <group string="Progress Summary">
                                         <field name="total_days"/>
@@ -153,8 +150,9 @@
                                 </notebook>
                             </page>
 
-                            <!-- Tenant Appointment Tab -->
-                            <page string="Tenant Appointment" icon="fa fa-user">
+                            <!-- Tenant Appointment Tab - Active when ta or later -->
+                            <page string="Tenant Appointment" icon="fa fa-users" name="tenant_appointment_tab"
+                                  invisible="not is_tenant_appointment_tab_active">
                                 <div class="alert alert-info" role="alert">
                                     <strong>Appointment Confirmation:</strong> We confirm that we have appointed the above person(s) to represent the tenant within the above discipline, who we confirm to have read and understood the tenant manual, logistic package as well as any information as the lease related to the fit-out. We confirm our responsibility towards the quality of work on site of our appointed project team as well as its agents and subcontractors. We shall ensure that they all comply with the rules and regulations, procedures of Arada and the local authorities- and that they execute work only in accordance with landlord approved drawings. Kindly direct all correspondence related to the fit-out to the defined project representatives and grant them access to the site.
                                 </div>
@@ -248,8 +246,9 @@
                                 </notebook>
                             </page>
 
-                            <!-- Conceptual Design Tab -->
-                            <page string="Conceptual Design" icon="fa fa-pencil">
+                            <!-- Conceptual Design Tab - Active when cd or later -->
+                            <page string="Conceptual Design" icon="fa fa-pencil" name="conceptual_design_tab"
+                                  invisible="not is_conceptual_design_tab_active">
                                 <notebook>
                                     <page string="Standard Format Required" icon="fa fa-file-text-o">
                                         <group>
@@ -320,8 +319,9 @@
                                 </notebook>
                             </page>
 
-                            <!-- Arch Design Tab -->
-                            <page string="Arch Design" icon="fa fa-building">
+                            <!-- Arch Design Tab - Active when ad or later -->
+                            <page string="Arch Design" icon="fa fa-building" name="arch_design_tab"
+                                  invisible="not is_arch_design_tab_active">
                                 <notebook>
                                     <page string="Standard Required" icon="fa fa-file-text-o">
                                         <group>
@@ -424,8 +424,9 @@
                                 </notebook>
                             </page>
 
-                            <!-- MEP Design Tab -->
-                            <page string="MEP Design" icon="fa fa-cog">
+                            <!-- MEP Design Tab - Active when md or later -->
+                            <page string="MEP Design" icon="fa fa-cogs" name="mep_design_tab"
+                                  invisible="not is_mep_design_tab_active">
                                 <group>
                                     <group string="MEP Design Submission">
                                         <field name="reflected_ceiling_plan_attachment" filename="reflected_ceiling_plan_filename"/>
@@ -497,8 +498,9 @@
                                 </group>
                             </page>
 
-                            <!-- Sample Approval Tab -->
-                            <page string="Sample Approval" icon="fa fa-check">
+                            <!-- Sample Approval Tab - Active when sa or later -->
+                            <page string="Sample Approval" icon="fa fa-check-square" name="sample_approval_tab"
+                                  invisible="not is_sample_approval_tab_active">
                                 <notebook>
                                     <page string="RDD">
                                         <group>
@@ -546,8 +548,9 @@
                                 </notebook>
                             </page>
 
-                            <!-- Pre Mob Tab -->
-                            <page string="Pre Mob" icon="fa fa-clipboard">
+                            <!-- Pre Mob Tab - Active when pm or later -->
+                            <page string="Pre Mob" icon="fa fa-truck" name="pre_mob_tab"
+                                  invisible="not is_pre_mob_tab_active">
                                 <group string="Pre-mobilization Requirements List">
                                     <group string="Design &amp; Insurance">
                                         <field name="design_approval_attachment" filename="design_approval_filename"/>
