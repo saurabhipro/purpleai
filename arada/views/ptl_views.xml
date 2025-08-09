@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- PTL Approval Wizard Form -->
+        <record id="view_ptl_approval_wizard_form" model="ir.ui.view">
+            <field name="name">ptl.approval.wizard.form</field>
+            <field name="model">ptl.approval.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Approval/Rejection">
+                    <div class="alert alert-info" role="alert">
+                        <strong>Action Required:</strong> Please provide your comments for this <field name="section_name" readonly="1"/> action.
+                    </div>
+                    <group>
+                        <field name="ptl_form_id" invisible="1"/>
+                        <field name="action_type" invisible="1"/>
+                        <field name="section_name" invisible="1"/>
+                        <field name="comments" placeholder="Enter your detailed comments here..." style="min-height: 100px;"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" string="Confirm" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
         <!-- PTL Form List View -->
         <record id="view_ptl_form_list" model="ir.ui.view">
             <field name="name">ptl.form.list</field>
@@ -66,34 +89,16 @@
             </field>
         </record>
 
-        <!-- PTL Form Form View with 2-Column Layout -->
+        <!-- PTL Form Form View - Complete with All Sections -->
         <record id="view_ptl_form_form" model="ir.ui.view">
             <field name="name">ptl.form.form</field>
             <field name="model">ptl.form</field>
             <field name="arch" type="xml">
                 <form string="PTL Form">
                     <header>
-                        <!-- Detailed Global Workflow Status Breadcrumbs -->
+                        <!-- Auto-updating Global Workflow Status (No Buttons) -->
                         <field name="global_status" widget="statusbar" 
-                               statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover"/>
-                        
-                        <!-- Stage Navigation Buttons -->
-                        <button name="action_move_to_form_verification" type="object" string="Move to Form Verification" 
-                                class="btn-primary" invisible="global_status != 'ptl'"/>
-                        <button name="action_move_to_kick_off_meeting" type="object" string="Move to Kick Off Meeting" 
-                                class="btn-primary" invisible="global_status != 'form_verification'"/>
-                        <button name="action_move_to_pending_with_rdd" type="object" string="Move to Pending With RDD" 
-                                class="btn-primary" invisible="global_status != 'kick_off_meeting'"/>
-                        <button name="action_move_to_pending_with_tenant" type="object" string="Move to Pending With Tenant" 
-                                class="btn-primary" invisible="global_status != 'pending_with_rdd'"/>
-                        <button name="action_move_to_rdd_review" type="object" string="Move to RDD Review" 
-                                class="btn-primary" invisible="global_status != 'pending_with_tenant'"/>
-                        <button name="action_move_to_noc" type="object" string="Move to NOC" 
-                                class="btn-primary" invisible="global_status != 'rdd_review'"/>
-                        <button name="action_move_to_site_inspection" type="object" string="Move to Site Inspection" 
-                                class="btn-primary" invisible="global_status != 'noc'"/>
-                        <button name="action_move_to_handover" type="object" string="Move to Handover" 
-                                class="btn-success" invisible="global_status != 'site_inspection_submission'"/>
+                               statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover" readonly="1"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -116,20 +121,22 @@
                         </group>
 
                         <notebook>
-                            <!-- PTL Section Tab with New Fields -->
+                            <!-- PTL Section Tab with Approve/Reject Buttons -->
                             <page string="📄 PTL Section" name="ptl_section_tab">
-                                <!-- Compact PTL Section Status Row -->
+                             image.png   <!-- PTL Section Status with Approve/Reject Actions -->
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
                                     <span class="font-weight-bold text-muted" style="font-size: 14px;">PTL Section Status</span>
                                     <div class="d-flex align-items-center">
                                         <div class="mr-3" style="min-width: 200px;">
-                                            <field name="ptl_section_status" widget="statusbar" statusbar_visible="new,pending,approved" nolabel="1"/>
+                                            <field name="ptl_section_status" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
                                         </div>
                                         <div>
                                             <button name="action_set_ptl_pending" type="object" string="Set Pending" 
                                                     class="btn btn-warning btn-sm" invisible="ptl_section_status != 'new'"/>
-                                            <button name="action_approve_ptl_section" type="object" string="Approve PTL" 
-                                                    class="btn btn-success btn-sm" invisible="ptl_section_status != 'pending'"/>
+                                            <button name="action_approve_ptl_section" type="object" string="✅ Approve" 
+                                                    class="btn btn-success btn-sm" invisible="ptl_section_status not in ['pending', 'rejected']"/>
+                                            <button name="action_reject_ptl_section" type="object" string="❌ Reject" 
+                                                    class="btn btn-danger btn-sm" invisible="ptl_section_status not in ['pending', 'approved']"/>
                                         </div>
                                     </div>
                                 </div>
@@ -215,20 +222,22 @@
                                 </div>
                             </page>
 
-                            <!-- Critical Path Section Tab - 2-Column Layout -->
+                            <!-- Critical Path Section Tab - Complete 2-Column Layout -->
                             <page string="🗺️ Critical Path Section" name="critical_path_section_tab" 
                                   invisible="global_status in ['ptl', 'form_verification']">
-                                <!-- Status Row with Breadcrumb Only -->
+                                <!-- Critical Path Section Status with Approve/Reject Actions -->
                                 <div class="d-flex justify-content-end align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
                                     <div class="d-flex align-items-center">
                                         <div class="mr-3" style="min-width: 200px;">
-                                            <field name="critical_path_section_status" widget="statusbar" statusbar_visible="new,pending,approved" nolabel="1"/>
+                                            <field name="critical_path_section_status" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
                                         </div>
                                         <div>
                                             <button name="action_set_critical_path_pending" type="object" string="Set Pending" 
                                                     class="btn btn-warning btn-sm" invisible="critical_path_section_status != 'new'"/>
-                                            <button name="action_approve_critical_path_section" type="object" string="Approve Critical Path" 
-                                                    class="btn btn-success btn-sm" invisible="critical_path_section_status != 'pending'"/>
+                                            <button name="action_approve_critical_path_section" type="object" string="✅ Approve" 
+                                                    class="btn btn-success btn-sm" invisible="critical_path_section_status not in ['pending', 'rejected']"/>
+                                            <button name="action_reject_critical_path_section" type="object" string="❌ Reject" 
+                                                    class="btn btn-danger btn-sm" invisible="critical_path_section_status not in ['pending', 'approved']"/>
                                         </div>
                                     </div>
                                 </div>
@@ -474,6 +483,11 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -517,6 +531,7 @@
                     <filter string="🆕 NEW" name="filter_new" domain="[('ptl_section_status', '=', 'new')]"/>
                     <filter string="⏳ PENDING" name="filter_pending" domain="[('ptl_section_status', '=', 'pending')]"/>
                     <filter string="✅ APPROVED" name="filter_approved" domain="[('ptl_section_status', '=', 'approved')]"/>
+                    <filter string="❌ REJECTED" name="filter_rejected" domain="[('ptl_section_status', '=', 'rejected')]"/>
                     <separator/>
                     <group expand="1" string="Group By">
                         <filter string="Global Status" name="group_global_status" context="{'group_by': 'global_status'}"/>
@@ -528,4 +543,4 @@
             </field>
         </record>
     </data>
-</odoo> 
+</odoo>

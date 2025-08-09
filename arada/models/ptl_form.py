@@ -26,7 +26,7 @@ class PTLForm(models.Model):
         ('3', 'High')
     ], string='Priority', default='2', tracking=True)
     
-    # Detailed Global Workflow Status
+    # Detailed Global Workflow Status (auto-computed)
     global_status = fields.Selection([
         ('ptl', 'PTL'),
         ('form_verification', 'Form Verification'),
@@ -37,19 +37,21 @@ class PTLForm(models.Model):
         ('noc', 'NOC'),
         ('site_inspection_submission', 'Site Inspection Submission'),
         ('handover', 'Handover')
-    ], string='Global Status', default='ptl', tracking=True)
+    ], string='Global Status', default='ptl', tracking=True, compute='_compute_global_status', store=True)
 
-    # Section-specific statuses (NEW, PENDING, APPROVED)
+    # Section-specific statuses (NEW, PENDING, APPROVED, REJECTED)
     ptl_section_status = fields.Selection([
         ('new', 'NEW'),
         ('pending', 'PENDING'), 
-        ('approved', 'APPROVED')
+        ('approved', 'APPROVED'),
+        ('rejected', 'REJECTED')
     ], string='PTL Section Status', default='new', tracking=True)
     
     critical_path_section_status = fields.Selection([
         ('new', 'NEW'),
         ('pending', 'PENDING'),
-        ('approved', 'APPROVED')
+        ('approved', 'APPROVED'),
+        ('rejected', 'REJECTED')
     ], string='Critical Path Section Status', default='new', tracking=True)
 
     # PTL Section Fields (from your image)
@@ -140,91 +142,141 @@ class PTLForm(models.Model):
             else:
                 record.form_name = "New PTL Form"
 
-    # Global workflow navigation methods
-    def action_move_to_form_verification(self):
-        """Move to Form Verification stage"""
-        self.ensure_one()
-        self.global_status = 'form_verification'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+    @api.depends('ptl_section_status', 'critical_path_section_status')
+    def _compute_global_status(self):
+        """Auto-update global status based on section statuses"""
+        for record in self:
+            if record.ptl_section_status == 'approved' and record.critical_path_section_status == 'approved':
+                record.global_status = 'handover'
+            elif record.ptl_section_status == 'approved' and record.critical_path_section_status in ['pending', 'approved']:
+                record.global_status = 'site_inspection_submission'
+            elif record.ptl_section_status == 'approved':
+                record.global_status = 'kick_off_meeting'
+            elif record.ptl_section_status == 'pending':
+                record.global_status = 'form_verification'
+            else:
+                record.global_status = 'ptl'
 
-    def action_move_to_kick_off_meeting(self):
-        """Move to Kick Off Meeting stage"""
-        self.ensure_one()
-        self.global_status = 'kick_off_meeting'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_pending_with_rdd(self):
-        """Move to Pending With RDD stage"""
-        self.ensure_one()
-        self.global_status = 'pending_with_rdd'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_pending_with_tenant(self):
-        """Move to Pending With Tenant stage"""
-        self.ensure_one()
-        self.global_status = 'pending_with_tenant'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_rdd_review(self):
-        """Move to RDD Review stage"""
-        self.ensure_one()
-        self.global_status = 'rdd_review'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_noc(self):
-        """Move to NOC stage"""
-        self.ensure_one()
-        self.global_status = 'noc'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_site_inspection(self):
-        """Move to Site Inspection Submission stage"""
-        self.ensure_one()
-        self.global_status = 'site_inspection_submission'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_handover(self):
-        """Move to Handover stage"""
-        self.ensure_one()
-        self.global_status = 'handover'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    def action_move_to_next_stage(self):
-        """Move to next global stage"""
-        self.ensure_one()
-        stages = ['ptl', 'form_verification', 'kick_off_meeting', 'pending_with_rdd', 
-                 'pending_with_tenant', 'rdd_review', 'noc', 'site_inspection_submission', 'handover']
-        
-        current_index = stages.index(self.global_status)
-        if current_index < len(stages) - 1:
-            self.global_status = stages[current_index + 1]
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    # Section-specific actions
+    # PTL Section Actions with Comments
     def action_approve_ptl_section(self):
-        """Approve PTL Section"""
+        """Approve PTL Section with comment popup"""
         self.ensure_one()
-        self.ptl_section_status = 'approved'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approve PTL Section',
+            'res_model': 'ptl.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_ptl_form_id': self.id,
+                'default_action_type': 'approve_ptl',
+                'default_section_name': 'PTL Section'
+            }
+        }
 
-    def action_approve_critical_path_section(self):
-        """Approve Critical Path Section"""
+    def action_reject_ptl_section(self):
+        """Reject PTL Section with comment popup"""
         self.ensure_one()
-        self.critical_path_section_status = 'approved'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject PTL Section',
+            'res_model': 'ptl.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_ptl_form_id': self.id,
+                'default_action_type': 'reject_ptl',
+                'default_section_name': 'PTL Section'
+            }
+        }
 
     def action_set_ptl_pending(self):
         """Set PTL Section to Pending"""
         self.ensure_one()
         self.ptl_section_status = 'pending'
+        self.message_post(body=f"PTL Section status changed to Pending by {self.env.user.name}")
         return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    # Critical Path Section Actions with Comments
+    def action_approve_critical_path_section(self):
+        """Approve Critical Path Section with comment popup"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Approve Critical Path Section',
+            'res_model': 'ptl.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_ptl_form_id': self.id,
+                'default_action_type': 'approve_critical_path',
+                'default_section_name': 'Critical Path Section'
+            }
+        }
+
+    def action_reject_critical_path_section(self):
+        """Reject Critical Path Section with comment popup"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Reject Critical Path Section',
+            'res_model': 'ptl.approval.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_ptl_form_id': self.id,
+                'default_action_type': 'reject_critical_path',
+                'default_section_name': 'Critical Path Section'
+            }
+        }
 
     def action_set_critical_path_pending(self):
         """Set Critical Path Section to Pending"""
         self.ensure_one()
         self.critical_path_section_status = 'pending'
+        self.message_post(body=f"Critical Path Section status changed to Pending by {self.env.user.name}")
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     @api.model_create_multi
     def create(self, vals_list):
-        return super().create(vals_list) 
+        return super().create(vals_list)
+
+
+class PTLApprovalWizard(models.TransientModel):
+    _name = 'ptl.approval.wizard'
+    _description = 'PTL Approval/Rejection Wizard'
+
+    ptl_form_id = fields.Many2one('ptl.form', string='PTL Form', required=True)
+    action_type = fields.Char(string='Action Type', required=True)
+    section_name = fields.Char(string='Section Name', required=True)
+    comments = fields.Text(string='Comments', required=True, placeholder='Please provide your comments for this approval/rejection...')
+
+    def action_confirm(self):
+        """Process the approval/rejection with comments"""
+        self.ensure_one()
+        ptl_form = self.ptl_form_id
+        
+        if self.action_type == 'approve_ptl':
+            ptl_form.ptl_section_status = 'approved'
+            message = f"✅ PTL Section APPROVED by {self.env.user.name}\n\nComments: {self.comments}"
+            
+        elif self.action_type == 'reject_ptl':
+            ptl_form.ptl_section_status = 'rejected'
+            message = f"❌ PTL Section REJECTED by {self.env.user.name}\n\nComments: {self.comments}"
+            
+        elif self.action_type == 'approve_critical_path':
+            ptl_form.critical_path_section_status = 'approved'
+            message = f"✅ Critical Path Section APPROVED by {self.env.user.name}\n\nComments: {self.comments}"
+            
+        elif self.action_type == 'reject_critical_path':
+            ptl_form.critical_path_section_status = 'rejected'
+            message = f"❌ Critical Path Section REJECTED by {self.env.user.name}\n\nComments: {self.comments}"
+        
+        # Post message to chatter
+        ptl_form.message_post(
+            body=message,
+            message_type='comment',
+            subtype_xmlid='mail.mt_comment'
+        )
+        
+        return {'type': 'ir.actions.act_window_close'} 
