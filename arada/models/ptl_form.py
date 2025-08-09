@@ -156,9 +156,65 @@ class PTLForm(models.Model):
         ('returned', 'Returned')
     ], string='Status', default='new', tracking=True)
 
-    # Critical Path Relationship
-    critical_path_id = fields.Many2one('critical.path', string='Critical Path', readonly=True)
-    has_critical_path = fields.Boolean(string='Has Critical Path', compute='_compute_has_critical_path')
+    # Critical Path Fields (embedded in PTL form)
+    critical_path_created = fields.Boolean(string='Critical Path Created', default=False)
+    
+    # Design Section
+    design_section = fields.Text(string='Design Section Description', default='Design')
+    
+    # Design Activities with Days and Dates
+    kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days', default=0)
+    kickoff_meeting_date = fields.Date(string='Kick-Off meeting / Project handover Date')
+    
+    concept_design_days = fields.Integer(string='Concept design submissions Days', default=0)
+    concept_design_date = fields.Date(string='Concept design submissions Date')
+    
+    arch_detailed_design_days = fields.Integer(string='Arch detailed design submission Days', default=0)
+    arch_detailed_design_date = fields.Date(string='Arch detailed design submission Date')
+    
+    mep_design_days = fields.Integer(string='MEP design submission Days', default=0)
+    mep_design_date = fields.Date(string='MEP design submission Date')
+
+    # Authority Section
+    authority_section = fields.Text(string='Authority Section Description', default='Authority')
+    
+    # Authority Activities
+    civil_defence_days = fields.Integer(string='Civil defence approval Days', default=0)
+    civil_defence_date = fields.Date(string='Civil defence approval Date')
+    
+    municipality_days = fields.Integer(string='Municipality fit-out permit/Authority submissions Days', default=0)
+    municipality_date = fields.Date(string='Municipality fit-out permit/Authority submissions Date')
+    
+    sewa_approval_days = fields.Integer(string='SEWA / Water & power approval Days', default=0)
+    sewa_approval_date = fields.Date(string='SEWA / Water & power approval Date')
+
+    # Execution Section
+    execution_section = fields.Text(string='Execution Section Description', default='Execution')
+    
+    # Execution Activities
+    site_mobilization_days = fields.Integer(string='Site mobilization Days', default=0)
+    site_mobilization_date = fields.Date(string='Site mobilization Date')
+    
+    fitout_works_days = fields.Integer(string='Fitout works Days', default=0)
+    fitout_works_date = fields.Date(string='Fitout works Date')
+    
+    final_inspection_days = fields.Integer(string='Final inspection Days', default=0)
+    final_inspection_date = fields.Date(string='Final inspection Date')
+    
+    snag_completion_days = fields.Integer(string='Snag completion Days', default=0)
+    snag_completion_date = fields.Date(string='Snag completion Date')
+    
+    handover_approvals_days = fields.Integer(string='Handover of all approvals Days', default=0)
+    handover_approvals_date = fields.Date(string='Handover of all approvals Date')
+    
+    merchandising_start_days = fields.Integer(string='Merchandising start Days', default=0)
+    merchandising_start_date = fields.Date(string='Merchandising start Date')
+    
+    trade_date_days = fields.Integer(string='Trade date Days', default=0)
+    trade_date_date = fields.Date(string='Trade date Date')
+
+    # Critical Path Comments
+    critical_path_comments = fields.Text(string='Critical Path Comments', placeholder='Comments...')
 
     # Tenancy location and details
     ground_floor = fields.Char(string='Ground floor*', required=True, tracking=True)
@@ -189,6 +245,7 @@ class PTLForm(models.Model):
     
     # Financial details
     late_opening_penalty = fields.Float(string='Late opening penalty (LOP)*', default=0.0, tracking=True)
+    critical_path_late_penalty = fields.Float(string='Critical Path Late opening penalty (LOP) AED per calendar day', default=0.0)
     notes = fields.Text(string='Note*', tracking=True)
     
     # Special requirements
@@ -206,61 +263,33 @@ class PTLForm(models.Model):
             else:
                 record.form_name = "New PTL Form"
 
-    @api.depends('critical_path_id')
-    def _compute_has_critical_path(self):
-        for record in self:
-            record.has_critical_path = bool(record.critical_path_id)
-
     def action_start_progress(self):
         """Move to In Progress"""
         self.ensure_one()
         self.status = 'in_progress'
+        # Return action to refresh the view
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('PTL Form moved to In Progress.'),
-                'type': 'info',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'ptl.form',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
         }
 
     def action_approve(self):
-        """Approve the PTL form and create Critical Path"""
+        """Approve the PTL form and activate Critical Path tab"""
         self.ensure_one()
         self.status = 'approved'
         
-        # Create Critical Path automatically when PTL is approved
-        if not self.critical_path_id:
-            critical_path = self.env['critical.path'].create({
-                'ptl_form_id': self.id,
-                'status': 'draft'
-            })
-            self.critical_path_id = critical_path.id
+        # Activate Critical Path
+        if not self.critical_path_created:
+            self.critical_path_created = True
         
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('PTL Form approved and Critical Path created.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
-
-    def action_open_critical_path(self):
-        """Open Critical Path form"""
-        self.ensure_one()
-        if not self.critical_path_id:
-            raise UserError(_('No Critical Path found for this PTL form.'))
-        
+        # Return action to refresh the view and show Critical Path tab
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Critical Path',
-            'res_model': 'critical.path',
-            'res_id': self.critical_path_id.id,
+            'res_model': 'ptl.form',
+            'res_id': self.id,
             'view_mode': 'form',
             'target': 'current',
         }
@@ -270,14 +299,11 @@ class PTLForm(models.Model):
         self.ensure_one()
         self.status = 'completed'
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('PTL Form completed successfully.'),
-                'type': 'success',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'ptl.form',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
         }
     
     def action_return(self):
@@ -285,14 +311,11 @@ class PTLForm(models.Model):
         self.ensure_one()
         self.status = 'returned'
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('PTL Form returned for revision.'),
-                'type': 'warning',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'ptl.form',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
         }
 
     def action_reset_to_new(self):
@@ -300,12 +323,9 @@ class PTLForm(models.Model):
         self.ensure_one()
         self.status = 'new'
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('PTL Form reset to New.'),
-                'type': 'info',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'ptl.form',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'current',
         } 
