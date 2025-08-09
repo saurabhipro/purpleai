@@ -52,6 +52,41 @@ class PTLForm(models.Model):
         ('approved', 'APPROVED')
     ], string='Critical Path Section Status', default='new', tracking=True)
 
+    # PTL Section Fields (from your image)
+    # Tenancy location and details
+    ground_floor = fields.Char(string='Ground Floor')
+    outdoor_area_gf = fields.Char(string='Outdoor area - GF')
+    outdoor_area_mezz = fields.Char(string='Outdoor area - Mezz')
+    
+    # Tenant contact details
+    tenant = fields.Char(string='Tenant')
+    proposed_shop = fields.Char(string='Proposed shop')
+    permitted_use = fields.Char(string='Permitted use')
+    lease_term = fields.Char(string='Lease term')
+    contact_person = fields.Char(string='Contact person')
+    designation = fields.Char(string='Designation')
+    address = fields.Text(string='Address (Physical address)')
+    telephone = fields.Char(string='Telephone')
+    mobile = fields.Char(string='Mobile')
+    email = fields.Char(string='Email')
+    
+    # Key dates as per offer letter
+    pit_out_commencement_date = fields.Date(string='Pit out commencement date')
+    fit_out_period = fields.Date(string='Fit-out period')
+    concept_design_submission_date = fields.Date(string='Concept design submission date')
+    detail_design_submission_date = fields.Date(string='Detail design submission date')
+    trade_start_date = fields.Date(string='Trade start date')
+    late_opening_penalty = fields.Float(string='Late opening penalty (LOP)')
+    note = fields.Text(string='Note')
+    
+    # Special requirements
+    special_requirements = fields.Text(string='Special requirements')
+    
+    # Attach
+    attachment = fields.Binary(string='Attach')
+    attachment_name = fields.Char(string='Attachment Name')
+
+    # Critical Path Section Fields (moved from PTL)
     # Design Activities with Days and Dates
     kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days', default=0)
     kickoff_meeting_date = fields.Date(string='Kick-Off meeting / Project handover Date')
@@ -94,9 +129,6 @@ class PTLForm(models.Model):
     trading_days = fields.Integer(string='Trading Days', default=0)
     trade_date_date = fields.Date(string='Trade date Date')
 
-    # Financial Information
-    late_opening_penalty = fields.Float(string='Late opening penalty (LOP) AED per calendar day', default=0.0)
-    
     # Comments
     comments = fields.Text(string='Comments', placeholder='Comments...')
 

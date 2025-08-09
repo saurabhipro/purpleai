@@ -66,7 +66,7 @@
             </field>
         </record>
 
-        <!-- PTL Form Form View with Detailed Global Breadcrumbs -->
+        <!-- PTL Form Form View with Professional Critical Path Layout -->
         <record id="view_ptl_form_form" model="ir.ui.view">
             <field name="name">ptl.form.form</field>
             <field name="model">ptl.form</field>
@@ -116,7 +116,7 @@
                         </group>
 
                         <notebook>
-                            <!-- PTL Section Tab -->
+                            <!-- PTL Section Tab with New Fields -->
                             <page string="📄 PTL Section" name="ptl_section_tab">
                                 <!-- Compact PTL Section Status Row -->
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
@@ -134,29 +134,88 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Tenancy location and details -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">Tenancy location and details</h5>
+                                        <hr/>
+                                    </div>
+                                </div>
                                 <group>
-                                    <group string="Design Activities">
-                                        <field name="kickoff_meeting_days" style="max-width: 100px;"/>
-                                        <field name="kickoff_meeting_date"/>
-                                        <field name="concept_design_days" style="max-width: 100px;"/>
-                                        <field name="concept_design_date"/>
-                                        <field name="arch_detailed_design_days" style="max-width: 100px;"/>
-                                        <field name="arch_detailed_design_date"/>
-                                        <field name="mep_design_days" style="max-width: 100px;"/>
-                                        <field name="mep_design_date"/>
-                                    </group>
-                                    <group string="Authority Activities">
-                                        <field name="civil_defence_days" style="max-width: 100px;"/>
-                                        <field name="civil_defence_date"/>
-                                        <field name="municipality_days" style="max-width: 100px;"/>
-                                        <field name="municipality_date"/>
-                                        <field name="sewa_approval_days" style="max-width: 100px;"/>
-                                        <field name="sewa_approval_date"/>
+                                    <group>
+                                        <field name="development" string="Development" placeholder="Placeholder"/>
+                                        <field name="unit_no" string="Unit no." placeholder="Placeholder"/>
+                                        <field name="ground_floor" string="Ground floor" placeholder="Placeholder"/>
+                                        <field name="outdoor_area_gf" string="Outdoor area - GF" placeholder="Placeholder"/>
+                                        <field name="outdoor_area_mezz" string="Outdoor area - Mezz" placeholder="Placeholder"/>
                                     </group>
                                 </group>
+
+                                <!-- Tenant contact details -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">Tenant contact details</h5>
+                                        <hr/>
+                                    </div>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="tenant" string="Tenant" placeholder="Placeholder"/>
+                                        <field name="proposed_shop" string="Proposed shop" placeholder="Placeholder"/>
+                                        <field name="permitted_use" string="Permitted use" placeholder="Placeholder"/>
+                                        <field name="lease_term" string="Lease term"/>
+                                        <field name="contact_person" string="Contact person" placeholder="Placeholder"/>
+                                        <field name="designation" string="Designation" placeholder="Placeholder"/>
+                                    </group>
+                                    <group>
+                                        <field name="address" string="Address (Physical address)" placeholder="Placeholder"/>
+                                        <field name="telephone" string="Telephone"/>
+                                        <field name="mobile" string="Mobile"/>
+                                        <field name="email" string="Email" placeholder="Placeholder"/>
+                                    </group>
+                                </group>
+
+                                <!-- Key dates as per offer letter -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">Key dates as per offer letter</h5>
+                                        <hr/>
+                                    </div>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="pit_out_commencement_date" string="Pit out commencement date"/>
+                                        <field name="fit_out_period" string="Fit-out period"/>
+                                        <field name="concept_design_submission_date" string="Concept design submission date"/>
+                                        <field name="detail_design_submission_date" string="Detail design submission date"/>
+                                        <field name="trade_start_date" string="Trade start date"/>
+                                    </group>
+                                    <group>
+                                        <field name="late_opening_penalty" string="Late opening penalty (LOP)" placeholder="Placeholder"/>
+                                        <field name="note" string="Note" placeholder="Note..."/>
+                                    </group>
+                                </group>
+
+                                <!-- Special requirements -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">Special requirements</h5>
+                                        <hr/>
+                                        <field name="special_requirements" placeholder="Description..." nolabel="1"/>
+                                    </div>
+                                </div>
+
+                                <!-- Attach -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">Attach</h5>
+                                        <hr/>
+                                        <field name="attachment" filename="attachment_name" nolabel="1"/>
+                                    </div>
+                                </div>
                             </page>
 
-                            <!-- Critical Path Section Tab -->
+                            <!-- Critical Path Section Tab - Professional Figma Style -->
                             <page string="🗺️ Critical Path Section" name="critical_path_section_tab" 
                                   invisible="global_status in ['ptl', 'form_verification']">
                                 <!-- Compact Critical Path Section Status Row -->
@@ -174,30 +233,230 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <group>
-                                    <group string="Execution Activities">
-                                        <field name="site_mobilization_days" style="max-width: 100px;"/>
-                                        <field name="site_mobilization_date"/>
-                                        <field name="fitout_works_days" style="max-width: 100px;"/>
-                                        <field name="fitout_works_date"/>
-                                        <field name="final_inspection_days" style="max-width: 100px;"/>
-                                        <field name="final_inspection_date"/>
-                                        <field name="snag_completion_days" style="max-width: 100px;"/>
-                                        <field name="snag_completion_date"/>
-                                        <field name="handover_approvals_days" style="max-width: 100px;"/>
-                                        <field name="handover_approvals_date"/>
-                                        <field name="trading_days" style="max-width: 100px;"/>
-                                        <field name="trade_date_date"/>
-                                    </group>
-                                    <group string="Financial">
-                                        <field name="late_opening_penalty"/>
-                                    </group>
-                                </group>
-                                
-                                <group string="Comments">
-                                    <field name="comments" nolabel="1"/>
-                                </group>
+
+                                <!-- Professional Table Layout -->
+                                <div class="container-fluid">
+                                    <!-- Table Header -->
+                                    <div class="row border-bottom bg-light py-2 font-weight-bold" style="background-color: #f8f9fa;">
+                                        <div class="col-md-6">
+                                            <span style="color: #495057; font-size: 13px;">Description</span>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <span style="color: #495057; font-size: 13px;">Days</span>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <span style="color: #495057; font-size: 13px;">Date</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- DESIGN Section -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Design</h6>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Design Activities Rows -->
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Kick-Off meeting / Project handover</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="kickoff_meeting_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="kickoff_meeting_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Concept design submissions</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="concept_design_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="concept_design_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Arch detailed design submission</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="arch_detailed_design_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="arch_detailed_design_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">MEP design submission</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="mep_design_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="mep_design_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- AUTHORITY Section -->
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Authority</h6>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Civil defence approval</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="civil_defence_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="civil_defence_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Municipality fit-out permit/Authority submissions</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="municipality_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="municipality_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">SEWA / Water &amp; power approval</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="sewa_approval_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="sewa_approval_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- EXECUTION Section -->
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Execution</h6>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Site mobilization</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="site_mobilization_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="site_mobilization_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Fitout works</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="fitout_works_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="fitout_works_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Final inspection</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="final_inspection_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="final_inspection_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Snag completion</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="snag_completion_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="snag_completion_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Handover of all approvals</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="handover_approvals_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="handover_approvals_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Merchandising start</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="trading_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="trade_date_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row border-bottom py-2" style="min-height: 45px;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057;">Trade date</span>
+                                        </div>
+                                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                            <field name="trading_days" nolabel="1" style="max-width: 60px; text-align: center;"/>
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                            <field name="trade_date_date" nolabel="1" style="max-width: 150px;"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Late Opening Penalty Row -->
+                                    <div class="row py-3 mt-3" style="background-color: #f8f9fa;">
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <span style="font-size: 13px; color: #495057; font-weight: 500;">Late opening penalty (LOP) AED per calendar day</span>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-center">
+                                            <field name="late_opening_penalty" nolabel="1" style="max-width: 150px;" placeholder="0.00 AED"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comments Section -->
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Comments</h6>
+                                            <field name="comments" nolabel="1" placeholder="Comments..." style="min-height: 80px;"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </page>
                         </notebook>
                     </sheet>
