@@ -19,14 +19,13 @@ class PTLForm(models.Model):
     approve_form_name = fields.Char(string='Approve form name', tracking=True)
     submitted_date = fields.Date(string='Submitted date', default=fields.Date.today, tracking=True)
     
-    # Priority field
     priority = fields.Selection([
         ('1', 'Low'),
         ('2', 'Medium'),
         ('3', 'High')
     ], string='Priority', default='2', tracking=True)
-    
-    # Detailed Global Workflow Status (auto-computed)
+
+    # Global workflow status (auto-computed from section statuses)
     global_status = fields.Selection([
         ('ptl', 'PTL'),
         ('form_verification', 'Form Verification'),
@@ -61,6 +60,13 @@ class PTLForm(models.Model):
         ('rejected', 'REJECTED')
     ], string='Tenant Appointment Section Status', default='new', tracking=True)
 
+    conceptual_design_section_status = fields.Selection([
+        ('new', 'NEW'),
+        ('pending', 'PENDING'),
+        ('approved', 'APPROVED'),
+        ('rejected', 'REJECTED')
+    ], string='Conceptual Design Section Status', default='new', tracking=True)
+
     # PTL Section Fields (from your image)
     # Tenancy location and details
     ground_floor = fields.Char(string='Ground Floor')
@@ -78,108 +84,71 @@ class PTLForm(models.Model):
     telephone = fields.Char(string='Telephone')
     mobile = fields.Char(string='Mobile')
     email = fields.Char(string='Email')
-    
-    # Key dates as per offer letter
-    pit_out_commencement_date = fields.Date(string='Pit out commencement date')
-    fit_out_period = fields.Date(string='Fit-out period')
-    concept_design_submission_date = fields.Date(string='Concept design submission date')
-    detail_design_submission_date = fields.Date(string='Detail design submission date')
-    trade_start_date = fields.Date(string='Trade start date')
-    late_opening_penalty = fields.Float(string='Late opening penalty (LOP)')
-    note = fields.Text(string='Note')
-    
-    # Special requirements
-    special_requirements = fields.Text(string='Special requirements')
-    
-    # Attach
-    attachment = fields.Binary(string='Attach')
-    attachment_name = fields.Char(string='Attachment Name')
 
-    # Critical Path Fields
-    # Design Activities
-    kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days')
-    kickoff_meeting_date = fields.Date(string='Kick-Off meeting / Project handover Date')
-    concept_design_days = fields.Integer(string='Concept design submissions Days')
-    concept_design_date = fields.Date(string='Concept design submissions Date')
-    arch_detailed_design_days = fields.Integer(string='Arch detailed design submission Days')
-    arch_detailed_design_date = fields.Date(string='Arch detailed design submission Date')
-    mep_design_days = fields.Integer(string='MEP design submission Days')
-    mep_design_date = fields.Date(string='MEP design submission Date')
+    # Key dates
+    lease_commencement = fields.Date(string='Lease commencement')
+    lease_expiry = fields.Date(string='Lease expiry')
+    fitout_commencement = fields.Date(string='Fitout commencement')
+    trading_commencement = fields.Date(string='Trading commencement')
+
+    # Critical Path Section Fields (Design Activities)
+    kickoff_meeting_days = fields.Integer(string='Kickoff Meeting (Days)')
+    kickoff_meeting_date = fields.Date(string='Kickoff Meeting Date')
+    concept_design_days = fields.Integer(string='Concept Design (Days)')
+    concept_design_date = fields.Date(string='Concept Design Date')
+    arch_detailed_design_days = fields.Integer(string='Arch Detailed Design (Days)')
+    arch_detailed_design_date = fields.Date(string='Arch Detailed Design Date')
+    mep_design_days = fields.Integer(string='MEP Design (Days)')
+    mep_design_date = fields.Date(string='MEP Design Date')
 
     # Authority Activities
-    civil_defence_days = fields.Integer(string='Civil defence approval submission Days')
-    civil_defence_date = fields.Date(string='Civil defence approval submission Date')
-    municipality_days = fields.Integer(string='Municipality approval submission Days')
-    municipality_date = fields.Date(string='Municipality approval submission Date')
-    sewa_approval_days = fields.Integer(string='SEWA approval submission Days')
-    sewa_approval_date = fields.Date(string='SEWA approval submission Date')
+    civil_defence_days = fields.Integer(string='Civil Defence (Days)')
+    civil_defence_date = fields.Date(string='Civil Defence Date')
+    municipality_days = fields.Integer(string='Municipality (Days)')
+    municipality_date = fields.Date(string='Municipality Date')
+    sewa_approval_days = fields.Integer(string='SEWA Approval (Days)')
+    sewa_approval_date = fields.Date(string='SEWA Approval Date')
 
     # Execution Activities
-    site_mobilization_days = fields.Integer(string='Site mobilization Days')
-    site_mobilization_date = fields.Date(string='Site mobilization Date')
-    fitout_works_days = fields.Integer(string='Fit-out works completion Days')
-    fitout_works_date = fields.Date(string='Fit-out works completion Date')
-    final_inspection_days = fields.Integer(string='Final inspection Days')
-    final_inspection_date = fields.Date(string='Final inspection Date')
-    snag_completion_days = fields.Integer(string='Snag completion Days')
-    snag_completion_date = fields.Date(string='Snag completion Date')
-    handover_approvals_days = fields.Integer(string='Handover & approvals Days')
-    handover_approvals_date = fields.Date(string='Handover & approvals Date')
-    trading_days = fields.Integer(string='Trading commencement Days')
-    trade_date_date = fields.Date(string='Trade date Date')
+    site_mobilization_days = fields.Integer(string='Site Mobilization (Days)')
+    site_mobilization_date = fields.Date(string='Site Mobilization Date')
+    fitout_works_days = fields.Integer(string='Fitout Works (Days)')
+    fitout_works_date = fields.Date(string='Fitout Works Date')
+    final_inspection_days = fields.Integer(string='Final Inspection (Days)')
+    final_inspection_date = fields.Date(string='Final Inspection Date')
+    snag_completion_days = fields.Integer(string='Snag Completion (Days)')
+    snag_completion_date = fields.Date(string='Snag Completion Date')
+    handover_approvals_days = fields.Integer(string='Handover Approvals (Days)')
+    handover_approvals_date = fields.Date(string='Handover Approvals Date')
+    trading_days = fields.Integer(string='Trading (Days)')
+    trade_date_date = fields.Date(string='Trade Date')
+
+    # Financial
+    late_opening_penalty = fields.Monetary(string='Late Opening Penalty', currency_field='currency_id')
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
 
     # Comments
-    comments = fields.Text(string='Comments', placeholder='Comments...')
+    comments = fields.Text(string='Comments')
 
     # Tenant Appointment Fields
-    # TAR Details
-    tar_approval_required = fields.Boolean(string='TAR Approval Required', default=True)
-    
-    # Primary Contact
-    primary_contact_name = fields.Char(string='Primary Contact Name')
-    primary_contact_designation = fields.Char(string='Primary Contact Designation')
-    primary_contact_company = fields.Char(string='Primary Contact Company')
-    primary_contact_telephone = fields.Char(string='Primary Contact Telephone')
-    primary_contact_mobile = fields.Char(string='Primary Contact Mobile')
-    primary_contact_email = fields.Char(string='Primary Contact Email')
-    primary_contact_experience = fields.Text(string='Primary Contact Experience')
-    
-    # Secondary Contact
-    secondary_contact_name = fields.Char(string='Secondary Contact Name')
-    secondary_contact_designation = fields.Char(string='Secondary Contact Designation') 
-    secondary_contact_company = fields.Char(string='Secondary Contact Company')
-    secondary_contact_telephone = fields.Char(string='Secondary Contact Telephone')
-    secondary_contact_mobile = fields.Char(string='Secondary Contact Mobile')
-    secondary_contact_email = fields.Char(string='Secondary Contact Email')
-    secondary_contact_experience = fields.Text(string='Secondary Contact Experience')
-    
-    # Tenant Designer
-    tenant_designer_name = fields.Char(string='Tenant Designer Name')
-    tenant_designer_company = fields.Char(string='Tenant Designer Company')
-    tenant_designer_contact = fields.Char(string='Tenant Designer Contact Number')
-    tenant_designer_email = fields.Char(string='Tenant Designer Email')
-    tenant_designer_work_history = fields.Text(string='Tenant Designer Work History')
-    
-    # Tenant Contractor
-    tenant_contractor_name = fields.Char(string='Tenant Contractor Name')
-    tenant_contractor_company = fields.Char(string='Tenant Contractor Company Name')
-    tenant_contractor_contact = fields.Char(string='Tenant Contractor Contact Number')
-    tenant_contractor_email = fields.Char(string='Tenant Contractor Email')
-    tenant_contractor_work_history = fields.Text(string='Tenant Contractor Work History')
-    tenant_contractor_trade_license = fields.Char(string='Tenant Contractor Trade License')
-    tenant_contractor_company_profile = fields.Text(string='Tenant Contractor Company Profile')
-    tenant_contractor_comments = fields.Text(string='Tenant Contractor Comments')
-    
-    # Overall Status & Attachment
-    tenant_appointment_overall_status = fields.Selection([
-        ('no_objection', 'No Objection'),
-        ('pending_review', 'Pending Review'),
-        ('rejected', 'Rejected')
-    ], string='Overall Status', default='pending_review')
-    
-    tenant_appointment_attachment = fields.Binary(string='Tenant Appointment Attachment')
-    tenant_appointment_attachment_name = fields.Char(string='Tenant Appointment Attachment Name')
-    tenant_appointment_comments = fields.Text(string='Tenant Appointment Comments')
+    tenant_permit_submission_days = fields.Integer(string='Tenant Permit Submission (Days)')
+    tenant_permit_submission_date = fields.Date(string='Tenant Permit Submission Date')
+    tenant_approval_days = fields.Integer(string='Tenant Approval (Days)')
+    tenant_approval_date = fields.Date(string='Tenant Approval Date')
+    tenant_noc_days = fields.Integer(string='Tenant NOC (Days)')
+    tenant_noc_date = fields.Date(string='Tenant NOC Date')
+    tenant_final_inspection_days = fields.Integer(string='Tenant Final Inspection (Days)')
+    tenant_final_inspection_date = fields.Date(string='Tenant Final Inspection Date')
+
+    # Conceptual Design Fields
+    concept_briefing_days = fields.Integer(string='Concept Briefing (Days)')
+    concept_briefing_date = fields.Date(string='Concept Briefing Date')
+    concept_presentation_days = fields.Integer(string='Concept Presentation (Days)')
+    concept_presentation_date = fields.Date(string='Concept Presentation Date')
+    concept_approval_days = fields.Integer(string='Concept Approval (Days)')
+    concept_approval_date = fields.Date(string='Concept Approval Date')
+    concept_revision_days = fields.Integer(string='Concept Revision (Days)')
+    concept_revision_date = fields.Date(string='Concept Revision Date')
 
     @api.depends('unit_no', 'development')
     def _compute_form_name(self):
@@ -189,144 +158,150 @@ class PTLForm(models.Model):
             else:
                 record.form_name = "New PTL Form"
 
-    @api.depends('ptl_section_status', 'critical_path_section_status', 'tenant_appointment_section_status')
+    @api.depends('ptl_section_status', 'critical_path_section_status', 'tenant_appointment_section_status', 'conceptual_design_section_status')
     def _compute_global_status(self):
-        """Auto-update global status based on section statuses"""
         for record in self:
-            if (record.ptl_section_status == 'approved' and 
-                record.critical_path_section_status == 'approved' and 
-                record.tenant_appointment_section_status == 'approved'):
+            # Auto-compute global status based on section approvals
+            if record.conceptual_design_section_status == 'approved':
                 record.global_status = 'handover'
             elif record.tenant_appointment_section_status == 'approved':
                 record.global_status = 'site_inspection_submission'
             elif record.critical_path_section_status == 'approved':
-                record.global_status = 'rdd_review'
+                record.global_status = 'noc'
             elif record.ptl_section_status == 'approved':
-                record.global_status = 'kick_off_meeting'
-            elif record.ptl_section_status == 'pending':
                 record.global_status = 'form_verification'
             else:
                 record.global_status = 'ptl'
 
-    # PTL Section Actions with Comments
     def action_approve_ptl_section(self):
-        """Approve PTL Section with comment popup"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Approve PTL Section',
-            'res_model': 'ptl.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_ptl_form_id': self.id,
-                'default_action_type': 'approve_ptl',
-                'default_section_name': 'PTL Section'
-            }
-        }
+        return self._show_approval_wizard('PTL Section', 'approve')
 
     def action_reject_ptl_section(self):
-        """Reject PTL Section with comment popup"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Reject PTL Section',
-            'res_model': 'ptl.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_ptl_form_id': self.id,
-                'default_action_type': 'reject_ptl',
-                'default_section_name': 'PTL Section'
-            }
-        }
+        return self._show_approval_wizard('PTL Section', 'reject')
 
-    def action_set_ptl_pending(self):
-        """Set PTL Section to Pending"""
-        self.ensure_one()
-        self.ptl_section_status = 'pending'
-        self.message_post(body=f"PTL Section status changed to Pending by {self.env.user.name}")
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    # Critical Path Section Actions with Comments
     def action_approve_critical_path_section(self):
-        """Approve Critical Path Section with comment popup"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Approve Critical Path Section',
-            'res_model': 'ptl.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_ptl_form_id': self.id,
-                'default_action_type': 'approve_critical_path',
-                'default_section_name': 'Critical Path Section'
-            }
-        }
+        return self._show_approval_wizard('Critical Path Section', 'approve')
 
     def action_reject_critical_path_section(self):
-        """Reject Critical Path Section with comment popup"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Reject Critical Path Section',
-            'res_model': 'ptl.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_ptl_form_id': self.id,
-                'default_action_type': 'reject_critical_path',
-                'default_section_name': 'Critical Path Section'
-            }
-        }
+        return self._show_approval_wizard('Critical Path Section', 'reject')
 
-    def action_set_critical_path_pending(self):
-        """Set Critical Path Section to Pending"""
-        self.ensure_one()
-        self.critical_path_section_status = 'pending'
-        self.message_post(body=f"Critical Path Section status changed to Pending by {self.env.user.name}")
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
-
-    # Tenant Appointment Section Actions with Comments
     def action_approve_tenant_appointment_section(self):
-        """Approve Tenant Appointment Section with comment popup"""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Approve Tenant Appointment Section',
-            'res_model': 'ptl.approval.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_ptl_form_id': self.id,
-                'default_action_type': 'approve_tenant_appointment',
-                'default_section_name': 'Tenant Appointment Section'
-            }
-        }
+        return self._show_approval_wizard('Tenant Appointment Section', 'approve')
 
     def action_reject_tenant_appointment_section(self):
-        """Reject Tenant Appointment Section with comment popup"""
+        return self._show_approval_wizard('Tenant Appointment Section', 'reject')
+
+    def action_approve_conceptual_design_section(self):
+        return self._show_approval_wizard('Conceptual Design Section', 'approve')
+
+    def action_reject_conceptual_design_section(self):
+        return self._show_approval_wizard('Conceptual Design Section', 'reject')
+
+    # Document View Actions for Conceptual Design Tab
+    def action_view_drawing_pdf(self):
+        """View 1 set of all drawings - softcopy in PDF format"""
         self.ensure_one()
         return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening drawings PDF document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_tvr_form(self):
+        """View Tenant Variation Request (TVR – Form 09)"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening TVR Form 09 document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_furniture_layout(self):
+        """View Furniture layout plan-with merchandising and services"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening furniture layout plan document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_shopfront_3d(self):
+        """View Shop front -with signage-3D Image-in colour"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening shop front 3D image document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_shopfront_elevation(self):
+        """View Shop front Elevation- with SIGNAGE"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening shop front elevation document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_3d_interior(self):
+        """View 3D Image in colored - interior*"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening 3D interior image document...'),
+                'type': 'info',
+            }
+        }
+
+    def action_view_concept_photos(self):
+        """View Photos of previous shops or anything that helps explain the concept"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Document Viewer'),
+                'message': _('Opening concept photos document...'),
+                'type': 'info',
+            }
+        }
+
+    def _show_approval_wizard(self, section_name, action_type):
+        return {
             'type': 'ir.actions.act_window',
-            'name': 'Reject Tenant Appointment Section',
+            'name': f'{action_type.title()} {section_name}',
             'res_model': 'ptl.approval.wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {
                 'default_ptl_form_id': self.id,
-                'default_action_type': 'reject_tenant_appointment',
-                'default_section_name': 'Tenant Appointment Section'
+                'default_section_name': section_name,
+                'default_action_type': action_type,
             }
         }
-
-    def action_set_tenant_appointment_pending(self):
-        """Set Tenant Appointment Section to Pending"""
-        self.ensure_one()
-        self.tenant_appointment_section_status = 'pending'
-        self.message_post(body=f"Tenant Appointment Section status changed to Pending by {self.env.user.name}")
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -338,44 +313,31 @@ class PTLApprovalWizard(models.TransientModel):
     _description = 'PTL Approval/Rejection Wizard'
 
     ptl_form_id = fields.Many2one('ptl.form', string='PTL Form', required=True)
-    action_type = fields.Char(string='Action Type', required=True)
     section_name = fields.Char(string='Section Name', required=True)
-    comments = fields.Text(string='Comments', required=True, placeholder='Please provide your comments for this approval/rejection...')
+    action_type = fields.Selection([
+        ('approve', 'Approve'),
+        ('reject', 'Reject')
+    ], string='Action Type', required=True)
+    comments = fields.Text(string='Comments', required=True)
 
     def action_confirm(self):
-        """Process the approval/rejection with comments"""
         self.ensure_one()
-        ptl_form = self.ptl_form_id
         
-        if self.action_type == 'approve_ptl':
-            ptl_form.ptl_section_status = 'approved'
-            message = f"✅ PTL Section APPROVED by {self.env.user.name}\n\nComments: {self.comments}"
-            
-        elif self.action_type == 'reject_ptl':
-            ptl_form.ptl_section_status = 'rejected'
-            message = f"❌ PTL Section REJECTED by {self.env.user.name}\n\nComments: {self.comments}"
-            
-        elif self.action_type == 'approve_critical_path':
-            ptl_form.critical_path_section_status = 'approved'
-            message = f"✅ Critical Path Section APPROVED by {self.env.user.name}\n\nComments: {self.comments}"
-            
-        elif self.action_type == 'reject_critical_path':
-            ptl_form.critical_path_section_status = 'rejected'
-            message = f"❌ Critical Path Section REJECTED by {self.env.user.name}\n\nComments: {self.comments}"
-
-        elif self.action_type == 'approve_tenant_appointment':
-            ptl_form.tenant_appointment_section_status = 'approved'
-            message = f"✅ Tenant Appointment Section APPROVED by {self.env.user.name}\n\nComments: {self.comments}"
-            
-        elif self.action_type == 'reject_tenant_appointment':
-            ptl_form.tenant_appointment_section_status = 'rejected'
-            message = f"❌ Tenant Appointment Section REJECTED by {self.env.user.name}\n\nComments: {self.comments}"
+        # Map section names to field names
+        section_field_map = {
+            'PTL Section': 'ptl_section_status',
+            'Critical Path Section': 'critical_path_section_status',
+            'Tenant Appointment Section': 'tenant_appointment_section_status',
+            'Conceptual Design Section': 'conceptual_design_section_status',
+        }
         
-        # Post message to chatter
-        ptl_form.message_post(
-            body=message,
-            message_type='comment',
-            subtype_xmlid='mail.mt_comment'
-        )
+        field_name = section_field_map.get(self.section_name)
+        if field_name:
+            new_status = 'approved' if self.action_type == 'approve' else 'rejected'
+            self.ptl_form_id.write({field_name: new_status})
+            
+            # Log the action in chatter
+            message = f"{self.section_name} {self.action_type}d with comments: {self.comments}"
+            self.ptl_form_id.message_post(body=message, message_type='comment')
         
         return {'type': 'ir.actions.act_window_close'} 
