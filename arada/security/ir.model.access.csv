@@ -4,3 +4,6 @@ access_ptl_form_user,ptl.form.user,model_ptl_form,base.group_user,1,1,1,1
 access_ptl_form_manager,ptl.form.manager,model_ptl_form,base.group_system,1,1,1,1
 access_ptl_approval_wizard_user,ptl.approval.wizard.user,model_ptl_approval_wizard,base.group_user,1,1,1,1
 access_ptl_approval_wizard_manager,ptl.approval.wizard.manager,model_ptl_approval_wizard,base.group_system,1,1,1,1
+access_arada_workflow,arada.workflow,model_arada_workflow,base.group_system,1,1,1,1
+
+

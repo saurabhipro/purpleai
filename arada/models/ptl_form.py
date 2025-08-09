@@ -36,7 +36,7 @@ class PTLForm(models.Model):
         ('noc', 'NOC'),
         ('site_inspection_submission', 'Site Inspection Submission'),
         ('handover', 'Handover')
-    ], string='Global Status', default='ptl', tracking=True, compute='_compute_global_status', store=True)
+    ], string='Global Status', default='ptl', tracking=True, compute='_compute_global_status', store=True, readonly=False)
 
     # Section-specific statuses (NEW, PENDING, APPROVED, REJECTED)
     ptl_section_status = fields.Selection([

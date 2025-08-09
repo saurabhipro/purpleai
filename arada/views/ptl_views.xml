@@ -98,9 +98,11 @@
                         <!-- Global Workflow Status Breadcrumb - Right Aligned -->
                         <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: 10px;">
                             <div class="border rounded p-2" style="background-color: #f8f9fa; border: 2px solid #dee2e6;">
-                                <field name="global_status" widget="statusbar" 
-                                       statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover" 
-                                       nolabel="1"/>
+                                <field name="global_status" 
+                                    options="{'clickable': '1'}"
+                                    widget="statusbar" 
+                                    statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover" 
+                                    nolabel="1"/>
                             </div>
                         </div>
                     </header>
@@ -134,7 +136,11 @@
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 15px;">
                                         <div class="border rounded p-1" style="background-color: #ffffff;">
-                                            <field name="ptl_section_status" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
+                                            <field name="ptl_section_status" 
+                                                options="{'clickable': '1'}"
+                                                widget="statusbar" 
+                                                statusbar_visible="new,pending,approved,rejected" 
+                                                nolabel="1"/>
                                         </div>
                                         <div>
                                             <button name="action_approve_ptl_section" type="object" string="✅ Approve" 
@@ -432,13 +438,13 @@
                                         <h4 style="color: #9b59b6; margin-bottom: 15px;">🎨 Tenant designer</h4>
                                         <group>
                                             <group>
-                                                <field name="tenant_designer_name" placeholder="Name" required="1"/>
-                                                <field name="tenant_designer_company" placeholder="Company" required="1"/>
-                                                <field name="tenant_designer_contact" placeholder="000000000" required="1"/>
+                                                <field name="tenant_designer_name" placeholder="Name"/>
+                                                <field name="tenant_designer_company" placeholder="Company"/>
+                                                <field name="tenant_designer_contact" placeholder="000000000"/>
                                             </group>
                                             <group>
-                                                <field name="tenant_designer_email" placeholder="Email" required="1"/>
-                                                <field name="tenant_designer_work_history" placeholder="Work history" required="1"/>
+                                                <field name="tenant_designer_email" placeholder="Email"/>
+                                                <field name="tenant_designer_work_history" placeholder="Work history"/>
                                             </group>
                                         </group>
                                     </div>
