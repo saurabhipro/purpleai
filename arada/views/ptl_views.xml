@@ -12,7 +12,8 @@
                     <field name="tenant_name"/>
                     <field name="approve_form_name"/>
                     <field name="submitted_date"/>
-                    <field name="status"/>
+                    <field name="priority"/>
+                    <field name="global_status"/>
                 </list>
             </field>
         </record>
@@ -22,28 +23,39 @@
             <field name="name">ptl.form.kanban</field>
             <field name="model">ptl.form</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="status" class="o_kanban_small_column">
-                    <field name="status"/>
+                <kanban default_group_by="global_status" class="o_kanban_small_column">
+                    <field name="global_status"/>
                     <field name="tenant_name"/>
                     <field name="unit_no"/>
                     <field name="development"/>
                     <field name="submitted_date"/>
+                    <field name="priority"/>
                     <templates>
-                        <t t-name="kanban-box">
+                        <t t-name="card">
                             <div class="oe_kanban_card oe_kanban_global_click">
-                                <div class="oe_kanban_content">
-                                    <div class="o_kanban_record_title">
-                                        <strong><field name="tenant_name"/></strong>
-                                    </div>
-                                    <div class="o_kanban_record_subtitle">
-                                        Unit: <field name="unit_no"/> - <field name="development"/>
+                                <div class="o_kanban_image">
+                                    <i class="fa fa-building fa-2x text-primary" title="PTL Form"/>
+                                </div>
+                                <div class="oe_kanban_details">
+                                    <div class="o_kanban_record_top mb-2">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title">
+                                                <field name="tenant_name"/>
+                                            </strong>
+                                            <small class="o_kanban_record_subtitle text-muted">
+                                                <i class="fa fa-map-marker text-warning"/> <field name="unit_no"/> - <field name="development"/>
+                                            </small>
+                                        </div>
+                                        <div class="o_kanban_manage_button_section">
+                                            <field name="priority" widget="priority"/>
+                                        </div>
                                     </div>
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
-                                            <field name="submitted_date"/>
+                                            <i class="fa fa-calendar text-info"/> <field name="submitted_date"/>
                                         </div>
                                         <div class="oe_kanban_bottom_right">
-                                            <field name="status" widget="label_selection"/>
+                                            <field name="global_status" widget="label_selection"/>
                                         </div>
                                     </div>
                                 </div>
@@ -54,29 +66,15 @@
             </field>
         </record>
 
-        <!-- PTL Form Form View - WITH CRITICAL PATH TAB -->
+        <!-- PTL Form Form View with Compact Breadcrumbs -->
         <record id="view_ptl_form_form" model="ir.ui.view">
             <field name="name">ptl.form.form</field>
             <field name="model">ptl.form</field>
             <field name="arch" type="xml">
-                <form string="Initial Notification - Confirmed offer (Form - PTL)">
+                <form string="PTL Form">
                     <header>
-                        <field name="status" widget="statusbar" statusbar_visible="new,in_progress,approved,completed"/>
-                        <button name="action_start_progress" string="Start Progress" type="object" 
-                                class="oe_highlight" 
-                                invisible="status != 'new'"/>
-                        <button name="action_approve" string="Approve" type="object" 
-                                class="btn-primary" 
-                                invisible="status != 'in_progress'"/>
-                        <button name="action_complete" string="Complete" type="object" 
-                                class="btn-success" 
-                                invisible="status != 'approved'"/>
-                        <button name="action_return" string="Return" type="object" 
-                                class="btn-warning" 
-                                invisible="status in ['new', 'completed']"/>
-                        <button name="action_reset_to_new" string="Reset to New" type="object" 
-                                class="btn-secondary" 
-                                invisible="status == 'new'"/>
+                        <!-- Simplified Global Workflow Status (Auto-computed) -->
+                        <field name="global_status" widget="statusbar" statusbar_visible="ptl,in_progress,completed" readonly="1"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -84,284 +82,108 @@
                                 <field name="form_name" readonly="1"/>
                             </h1>
                         </div>
-                        
-                        <!-- Critical Path Information -->
-                        <div class="alert alert-info" role="alert" invisible="status != 'approved' or not critical_path_created">
-                            <strong>Critical Path Activated!</strong> You can now access the Critical Path tab for detailed planning.
-                        </div>
-                        
+
+                        <group>
+                            <group string="📋 Basic Information">
+                                <field name="unit_no"/>
+                                <field name="development"/>
+                                <field name="tenant_name"/>
+                                <field name="approve_form_name"/>
+                            </group>
+                            <group string="📊 Status &amp; Priority">
+                                <field name="priority" widget="priority"/>
+                                <field name="submitted_date"/>
+                                <field name="critical_path_created" readonly="1"/>
+                            </group>
+                        </group>
+
                         <notebook>
-                            <!-- PTL Tab -->
-                            <page string="PTL" name="ptl_main">
-                                <!-- Tenancy location and details -->
-                                <group string="TENANCY LOCATION AND DETAILS" name="tenancy_location">
-                                    <group>
-                                        <field name="development" placeholder="Development"/>
-                                        <field name="unit_no" placeholder="Unit Number"/>
-                                        <field name="ground_floor" placeholder="Ground Floor"/>
+                            <!-- PTL Section Tab -->
+                            <page string="📄 PTL Section" name="ptl_section_tab">
+                                <!-- Compact PTL Section Status Row -->
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
+                                    <span class="font-weight-bold text-muted" style="font-size: 14px;">PTL Section Status</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3" style="min-width: 200px;">
+                                            <field name="ptl_section_status" widget="statusbar" statusbar_visible="new,pending,approved" nolabel="1"/>
+                                        </div>
+                                        <div>
+                                            <button name="action_set_ptl_pending" type="object" string="Set Pending" 
+                                                    class="btn btn-warning btn-sm" invisible="ptl_section_status != 'new'"/>
+                                            <button name="action_approve_ptl_section" type="object" string="Approve PTL" 
+                                                    class="btn btn-success btn-sm" invisible="ptl_section_status != 'pending'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <group>
+                                    <group string="Design Activities">
+                                        <field name="kickoff_meeting_days" style="max-width: 100px;"/>
+                                        <field name="kickoff_meeting_date"/>
+                                        <field name="concept_design_days" style="max-width: 100px;"/>
+                                        <field name="concept_design_date"/>
+                                        <field name="arch_detailed_design_days" style="max-width: 100px;"/>
+                                        <field name="arch_detailed_design_date"/>
+                                        <field name="mep_design_days" style="max-width: 100px;"/>
+                                        <field name="mep_design_date"/>
                                     </group>
-                                    <group>
-                                        <field name="mezzanine_floor" placeholder="Mezzanine Floor"/>
-                                        <field name="outdoor_area_gf" placeholder="Outdoor Area - GF"/>
-                                        <field name="outdoor_area_mezz" placeholder="Outdoor Area - Mezz"/>
-                                    </group>
-                                </group>
-
-                                <!-- Tenant contact details -->
-                                <group string="TENANT CONTACT DETAILS" name="tenant_contact">
-                                    <group>
-                                        <field name="tenant_name" placeholder="Tenant Name"/>
-                                        <field name="proposed_shop_name" placeholder="Proposed Shop Name"/>
-                                        <field name="permitted_use" placeholder="Permitted Use"/>
-                                        <field name="lease_term" placeholder="0"/>
-                                    </group>
-                                    <group>
-                                        <field name="contact_person_name" placeholder="Contact Person Name"/>
-                                        <field name="designation" placeholder="Designation"/>
-                                        <field name="company_name" placeholder="Company Name"/>
-                                    </group>
-                                </group>
-
-                                <!-- Contact Information -->
-                                <group string="Contact Information" name="contact_info">
-                                    <field name="address" placeholder="Physical Address" colspan="2"/>
-                                    <group>
-                                        <field name="telephone" placeholder="+971 55 223 3444"/>
-                                        <field name="mobile" placeholder="+971 55 223 3444"/>
-                                    </group>
-                                    <group>
-                                        <field name="email" placeholder="Email Address"/>
+                                    <group string="Authority Activities">
+                                        <field name="civil_defence_days" style="max-width: 100px;"/>
+                                        <field name="civil_defence_date"/>
+                                        <field name="municipality_days" style="max-width: 100px;"/>
+                                        <field name="municipality_date"/>
+                                        <field name="sewa_approval_days" style="max-width: 100px;"/>
+                                        <field name="sewa_approval_date"/>
                                     </group>
                                 </group>
+                            </page>
 
-                                <!-- Key dates as per offer letter -->
-                                <group string="Key dates as per offer letter" name="key_dates_group">
-                                    <group>
-                                        <field name="fit_out_commencement_date"/>
-                                        <field name="fit_out_period"/>
-                                        <field name="concept_design_submission_date"/>
+                            <!-- Critical Path Section Tab -->
+                            <page string="🗺️ Critical Path Section" name="critical_path_section_tab" 
+                                  invisible="global_status == 'ptl'">
+                                <!-- Compact Critical Path Section Status Row -->
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
+                                    <span class="font-weight-bold text-muted" style="font-size: 14px;">Critical Path Section Status</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3" style="min-width: 200px;">
+                                            <field name="critical_path_section_status" widget="statusbar" statusbar_visible="new,pending,approved" nolabel="1"/>
+                                        </div>
+                                        <div>
+                                            <button name="action_set_critical_path_pending" type="object" string="Set Pending" 
+                                                    class="btn btn-warning btn-sm" invisible="critical_path_section_status != 'new'"/>
+                                            <button name="action_approve_critical_path_section" type="object" string="Approve Critical Path" 
+                                                    class="btn btn-success btn-sm" invisible="critical_path_section_status != 'pending'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <group>
+                                    <group string="Execution Activities">
+                                        <field name="site_mobilization_days" style="max-width: 100px;"/>
+                                        <field name="site_mobilization_date"/>
+                                        <field name="fitout_works_days" style="max-width: 100px;"/>
+                                        <field name="fitout_works_date"/>
+                                        <field name="final_inspection_days" style="max-width: 100px;"/>
+                                        <field name="final_inspection_date"/>
+                                        <field name="snag_completion_days" style="max-width: 100px;"/>
+                                        <field name="snag_completion_date"/>
+                                        <field name="handover_approvals_days" style="max-width: 100px;"/>
+                                        <field name="handover_approvals_date"/>
+                                        <field name="trading_days" style="max-width: 100px;"/>
+                                        <field name="trade_date_date"/>
                                     </group>
-                                    <group>
-                                        <field name="detail_design_submission_date"/>
-                                        <field name="trade_start_date"/>
+                                    <group string="Financial">
                                         <field name="late_opening_penalty"/>
                                     </group>
                                 </group>
-
-                                <!-- Notes -->
-                                <group string="Notes" name="notes_group">
-                                    <field name="notes" placeholder="Note..." nolabel="1" colspan="2"/>
-                                </group>
-
-                                <!-- Special requirements -->
-                                <group string="Special requirements" name="special_requirements_group">
-                                    <field name="special_requirements" placeholder="Description..." nolabel="1" colspan="2"/>
-                                </group>
-
-                                <!-- Simple Attachment Upload -->
-                                <group string="Attachment" name="attachment_group">
-                                    <field name="ptl_attachment" filename="ptl_attachment_filename" colspan="2"/>
-                                    <field name="ptl_attachment_filename" invisible="1"/>
-                                </group>
-
-                                <!-- Status & Tracking -->
-                                <group string="Status &amp; Tracking" name="form_status">
-                                    <group>
-                                        <field name="status"/>
-                                        <field name="submitted_date"/>
-                                    </group>
-                                    <group>
-                                        <field name="approve_form_name" placeholder="Approve Form Name"/>
-                                    </group>
-                                </group>
                                 
-                                <!-- Hidden fields for computation -->
-                                <field name="critical_path_created" invisible="1"/>
-                            </page>
-
-                            <!-- Critical Path Tab - Only visible when PTL is approved -->
-                            <page string="Critical Path" name="critical_path_tab" invisible="not critical_path_created">
-                                <!-- Design Section -->
-                                <group string="Design" name="design_section">
-                                    <group string="Description" colspan="2">
-                                        <field name="design_section" nolabel="1" colspan="2"/>
-                                    </group>
-                                    
-                                    <div colspan="2">
-                                        <table class="table table-sm o_table_nowrap">
-                                            <thead>
-                                                <tr style="background-color: #f8f9fa;">
-                                                    <th style="width: 60%;">Description</th>
-                                                    <th style="width: 20%;">Days</th>
-                                                    <th style="width: 20%;">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Kick-Off meeting / Project handover*</td>
-                                                    <td><field name="kickoff_meeting_days" nolabel="1"/></td>
-                                                    <td><field name="kickoff_meeting_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Concept design submissions*</td>
-                                                    <td><field name="concept_design_days" nolabel="1"/></td>
-                                                    <td><field name="concept_design_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Arch detailed design submission*</td>
-                                                    <td><field name="arch_detailed_design_days" nolabel="1"/></td>
-                                                    <td><field name="arch_detailed_design_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>MEP design submission*</td>
-                                                    <td><field name="mep_design_days" nolabel="1"/></td>
-                                                    <td><field name="mep_design_date" nolabel="1"/></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </group>
-
-                                <!-- Authority Section -->
-                                <group string="Authority" name="authority_section">
-                                    <group string="Description" colspan="2">
-                                        <field name="authority_section" nolabel="1" colspan="2"/>
-                                    </group>
-                                    
-                                    <div colspan="2">
-                                        <table class="table table-sm o_table_nowrap">
-                                            <thead>
-                                                <tr style="background-color: #f8f9fa;">
-                                                    <th style="width: 60%;">Description</th>
-                                                    <th style="width: 20%;">Days</th>
-                                                    <th style="width: 20%;">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Civil defence approval</td>
-                                                    <td><field name="civil_defence_days" nolabel="1"/></td>
-                                                    <td><field name="civil_defence_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Municipality fit-out permit/Authority submissions</td>
-                                                    <td><field name="municipality_days" nolabel="1"/></td>
-                                                    <td><field name="municipality_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>SEWA / Water &amp; power approval</td>
-                                                    <td><field name="sewa_approval_days" nolabel="1"/></td>
-                                                    <td><field name="sewa_approval_date" nolabel="1"/></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </group>
-
-                                <!-- Execution Section -->
-                                <group string="Execution" name="execution_section">
-                                    <group string="Description" colspan="2">
-                                        <field name="execution_section" nolabel="1" colspan="2"/>
-                                    </group>
-                                    
-                                    <div colspan="2">
-                                        <table class="table table-sm o_table_nowrap">
-                                            <thead>
-                                                <tr style="background-color: #f8f9fa;">
-                                                    <th style="width: 60%;">Description</th>
-                                                    <th style="width: 20%;">Days</th>
-                                                    <th style="width: 20%;">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Site mobilization*</td>
-                                                    <td><field name="site_mobilization_days" nolabel="1"/></td>
-                                                    <td><field name="site_mobilization_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Fitout works</td>
-                                                    <td><field name="fitout_works_days" nolabel="1"/></td>
-                                                    <td><field name="fitout_works_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Final inspection</td>
-                                                    <td><field name="final_inspection_days" nolabel="1"/></td>
-                                                    <td><field name="final_inspection_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Snag completion</td>
-                                                    <td><field name="snag_completion_days" nolabel="1"/></td>
-                                                    <td><field name="snag_completion_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Handover of all approvals</td>
-                                                    <td><field name="handover_approvals_days" nolabel="1"/></td>
-                                                    <td><field name="handover_approvals_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Merchandising start</td>
-                                                    <td><field name="merchandising_start_days" nolabel="1"/></td>
-                                                    <td><field name="merchandising_start_date" nolabel="1"/></td>
-                                                </tr>
-                                                <tr style="background-color: #d4edda;">
-                                                    <td><strong>Trade date*</strong></td>
-                                                    <td><field name="trade_date_days" nolabel="1"/></td>
-                                                    <td><field name="trade_date_date" nolabel="1"/></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </group>
-
-                                <!-- Financial and Comments -->
-                                <group string="Additional Information">
-                                    <group>
-                                        <field name="critical_path_late_penalty" string="Late opening penalty (LOP) AED per calendar day*"/>
-                                    </group>
-                                    <group>
-                                        <field name="critical_path_comments" placeholder="Comments..." nolabel="1"/>
-                                    </group>
+                                <group string="Comments">
+                                    <field name="comments" nolabel="1"/>
                                 </group>
                             </page>
                         </notebook>
                     </sheet>
-                    <chatter/>
                 </form>
-            </field>
-        </record>
-
-        <!-- PTL Form Search View with Status Filters -->
-        <record id="view_ptl_form_search" model="ir.ui.view">
-            <field name="name">ptl.form.search</field>
-            <field name="model">ptl.form</field>
-            <field name="arch" type="xml">
-                <search string="Search PTL Forms">
-                    <field name="tenant_name"/>
-                    <field name="unit_no"/>
-                    <field name="development"/>
-                    <field name="approve_form_name"/>
-                    
-                    <!-- Status Filters -->
-                    <filter string="New" name="filter_new" domain="[('status', '=', 'new')]"/>
-                    <filter string="In Progress" name="filter_in_progress" domain="[('status', '=', 'in_progress')]"/>
-                    <filter string="Approved" name="filter_approved" domain="[('status', '=', 'approved')]"/>
-                    <filter string="Completed" name="filter_completed" domain="[('status', '=', 'completed')]"/>
-                    <filter string="Returned" name="filter_returned" domain="[('status', '=', 'returned')]"/>
-                    
-                    <separator/>
-                    
-                    <!-- Date Filters -->
-                    <filter string="Today" name="filter_today" domain="[('submitted_date', '=', context_today().strftime('%Y-%m-%d'))]"/>
-                    <filter string="This Week" name="filter_week" domain="[('submitted_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                    <filter string="This Month" name="filter_month" domain="[('submitted_date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
-                    
-                    <group expand="0" string="Group By">
-                        <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
-                        <filter string="Development" name="group_by_development" context="{'group_by': 'development'}"/>
-                        <filter string="Submitted Date" name="group_by_date" context="{'group_by': 'submitted_date'}"/>
-                    </group>
-                </search>
             </field>
         </record>
 
@@ -370,56 +192,43 @@
             <field name="name">PTL Forms</field>
             <field name="res_model">ptl.form</field>
             <field name="view_mode">kanban,list,form</field>
-            <field name="context">{'search_default_filter_new': 1}</field>
+            <field name="context">{}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
-                    Create your first PTL form!
+                    Create your first PTL Form
                 </p>
                 <p>
-                    PTL (Permission to Lease) forms are used for initial notifications of confirmed offers.
+                    Get started by creating a new PTL (Permission to Lease) form for tenant management.
                 </p>
             </field>
         </record>
 
-        <!-- Individual Status Actions -->
-        <record id="action_ptl_form_new" model="ir.actions.act_window">
-            <field name="name">New PTL Forms</field>
-            <field name="res_model">ptl.form</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('status', '=', 'new')]</field>
-            <field name="context">{'default_status': 'new'}</field>
-        </record>
-
-        <record id="action_ptl_form_in_progress" model="ir.actions.act_window">
-            <field name="name">In Progress PTL Forms</field>
-            <field name="res_model">ptl.form</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('status', '=', 'in_progress')]</field>
-            <field name="context">{'default_status': 'in_progress'}</field>
-        </record>
-
-        <record id="action_ptl_form_approved" model="ir.actions.act_window">
-            <field name="name">Approved PTL Forms</field>
-            <field name="res_model">ptl.form</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('status', '=', 'approved')]</field>
-            <field name="context">{'default_status': 'approved'}</field>
-        </record>
-
-        <record id="action_ptl_form_completed" model="ir.actions.act_window">
-            <field name="name">Completed PTL Forms</field>
-            <field name="res_model">ptl.form</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('status', '=', 'completed')]</field>
-            <field name="context">{'default_status': 'completed'}</field>
-        </record>
-
-        <record id="action_ptl_form_returned" model="ir.actions.act_window">
-            <field name="name">Returned PTL Forms</field>
-            <field name="res_model">ptl.form</field>
-            <field name="view_mode">kanban,list,form</field>
-            <field name="domain">[('status', '=', 'returned')]</field>
-            <field name="context">{'default_status': 'returned'}</field>
+        <!-- PTL Form Search View -->
+        <record id="view_ptl_form_search" model="ir.ui.view">
+            <field name="name">ptl.form.search</field>
+            <field name="model">ptl.form</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="tenant_name"/>
+                    <field name="unit_no"/>
+                    <field name="development"/>
+                    <field name="approve_form_name"/>
+                    <filter string="🆕 PTL" name="filter_ptl" domain="[('global_status', '=', 'ptl')]"/>
+                    <filter string="🔄 In Progress" name="filter_in_progress" domain="[('global_status', '=', 'in_progress')]"/>
+                    <filter string="✅ Completed" name="filter_completed" domain="[('global_status', '=', 'completed')]"/>
+                    <separator/>
+                    <filter string="🆕 NEW" name="filter_new" domain="[('ptl_section_status', '=', 'new')]"/>
+                    <filter string="⏳ PENDING" name="filter_pending" domain="[('ptl_section_status', '=', 'pending')]"/>
+                    <filter string="✅ APPROVED" name="filter_approved" domain="[('ptl_section_status', '=', 'approved')]"/>
+                    <separator/>
+                    <group expand="1" string="Group By">
+                        <filter string="Global Status" name="group_global_status" context="{'group_by': 'global_status'}"/>
+                        <filter string="PTL Section Status" name="group_ptl_status" context="{'group_by': 'ptl_section_status'}"/>
+                        <filter string="Development" name="group_development" context="{'group_by': 'development'}"/>
+                        <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                    </group>
+                </search>
+            </field>
         </record>
     </data>
 </odoo> 

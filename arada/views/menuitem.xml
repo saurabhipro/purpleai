@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Main ARADA Menu -->
         <menuitem id="ddn_parent_menu_arada_info" name="ARADA" sequence="1">
-            <!-- Main PTL Forms Menu -->
-            <menuitem id="ddn_menu_ptl_forms" name="PTL Forms" sequence="1">
-                <menuitem id="ddn_menu_ptl_all" name="All PTL Forms" action="action_ptl_form" sequence="1"/>
-                <menuitem id="ddn_menu_ptl_new" name="New" action="action_ptl_form_new" sequence="2"/>
-                <menuitem id="ddn_menu_ptl_in_progress" name="In Progress" action="action_ptl_form_in_progress" sequence="3"/>
-                <menuitem id="ddn_menu_ptl_approved" name="Approved" action="action_ptl_form_approved" sequence="4"/>
-                <menuitem id="ddn_menu_ptl_completed" name="Completed" action="action_ptl_form_completed" sequence="5"/>
-                <menuitem id="ddn_menu_ptl_returned" name="Returned" action="action_ptl_form_returned" sequence="6"/>
-            </menuitem>
-            
-            <!-- Critical Path Menu -->
-            <menuitem id="ddn_menu_critical_path" name="Critical Path" action="action_critical_path" sequence="2"/>
-            
-            <menuitem id="ddn_menu_configuration" name="Configuration" action="action_arada_config" sequence="3"/>
+            <!-- PTL Forms Menu -->
+            <menuitem id="ddn_menu_ptl_forms" name="PTL Forms" action="action_ptl_form" sequence="1"/>
         </menuitem>
     </data>
 </odoo>

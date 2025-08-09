@@ -12,17 +12,26 @@ class CriticalPath(models.Model):
     name = fields.Char(string='Name', compute='_compute_name', store=True)
     ptl_form_id = fields.Many2one('ptl.form', string='Related PTL Form', required=True, ondelete='cascade')
     
-    # Status
-    status = fields.Selection([
-        ('draft', 'Draft'),
-        ('in_progress', 'In Progress'),
-        ('approved', 'Approved'),
+    # Simplified Global Workflow Status
+    global_status = fields.Selection([
+        ('ptl', 'PTL'),
+        ('in_progress', 'In Progress'), 
         ('completed', 'Completed')
-    ], string='Status', default='draft', tracking=True)
-
-    # Design Section
-    design_section = fields.Text(string='Design Section Description', default='Design')
+    ], string='Global Status', default='ptl', tracking=True, compute='_compute_global_status', store=True)
     
+    # Section-specific statuses (NEW, PENDING, APPROVED)
+    ptl_section_status = fields.Selection([
+        ('new', 'NEW'),
+        ('pending', 'PENDING'), 
+        ('approved', 'APPROVED')
+    ], string='PTL Section Status', default='new')
+    
+    critical_path_section_status = fields.Selection([
+        ('new', 'NEW'),
+        ('pending', 'PENDING'),
+        ('approved', 'APPROVED')
+    ], string='Critical Path Section Status', default='new')
+
     # Design Activities with Days and Dates
     kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days', default=0)
     kickoff_meeting_date = fields.Date(string='Kick-Off meeting / Project handover Date')
@@ -36,9 +45,6 @@ class CriticalPath(models.Model):
     mep_design_days = fields.Integer(string='MEP design submission Days', default=0)
     mep_design_date = fields.Date(string='MEP design submission Date')
 
-    # Authority Section
-    authority_section = fields.Text(string='Authority Section Description', default='Authority')
-    
     # Authority Activities
     civil_defence_days = fields.Integer(string='Civil defence approval Days', default=0)
     civil_defence_date = fields.Date(string='Civil defence approval Date')
@@ -49,9 +55,6 @@ class CriticalPath(models.Model):
     sewa_approval_days = fields.Integer(string='SEWA / Water & power approval Days', default=0)
     sewa_approval_date = fields.Date(string='SEWA / Water & power approval Date')
 
-    # Execution Section
-    execution_section = fields.Text(string='Execution Section Description', default='Execution')
-    
     # Execution Activities
     site_mobilization_days = fields.Integer(string='Site mobilization Days', default=0)
     site_mobilization_date = fields.Date(string='Site mobilization Date')
@@ -68,10 +71,7 @@ class CriticalPath(models.Model):
     handover_approvals_days = fields.Integer(string='Handover of all approvals Days', default=0)
     handover_approvals_date = fields.Date(string='Handover of all approvals Date')
     
-    merchandising_start_days = fields.Integer(string='Merchandising start Days', default=0)
-    merchandising_start_date = fields.Date(string='Merchandising start Date')
-    
-    trade_date_days = fields.Integer(string='Trade date Days', default=0)
+    trading_days = fields.Integer(string='Trading Days', default=0)
     trade_date_date = fields.Date(string='Trade date Date')
 
     # Financial Information
@@ -88,56 +88,58 @@ class CriticalPath(models.Model):
             else:
                 record.name = "New Critical Path"
 
+    @api.depends('ptl_section_status', 'critical_path_section_status')
+    def _compute_global_status(self):
+        """Auto-update global status based on section statuses"""
+        for record in self:
+            if record.ptl_section_status == 'approved' and record.critical_path_section_status == 'approved':
+                record.global_status = 'completed'
+            elif record.ptl_section_status == 'approved' or record.critical_path_section_status in ['pending', 'approved']:
+                record.global_status = 'in_progress'
+            else:
+                record.global_status = 'ptl'
+
     def action_start_progress(self):
-        """Start Progress"""
         self.ensure_one()
-        self.status = 'in_progress'
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('Critical Path moved to In Progress.'),
-                'type': 'info',
-                'sticky': False,
-            }
-        }
+        self.ptl_section_status = 'pending'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_approve(self):
-        """Approve Critical Path"""
         self.ensure_one()
-        self.status = 'approved'
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('Critical Path approved successfully.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        self.ptl_section_status = 'approved'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_complete(self):
-        """Complete Critical Path"""
         self.ensure_one()
-        self.status = 'completed'
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('Critical Path completed successfully.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
+        self.critical_path_section_status = 'approved'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_reset_to_draft(self):
+        self.ensure_one()
+        self.ptl_section_status = 'new'
+        self.critical_path_section_status = 'new'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def _valid_field_parameter(self, field, name):
+        return name == 'placeholder' or super()._valid_field_parameter(field, name)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'ptl_form_id' in vals:
+                ptl_form = self.env['ptl.form'].browse(vals['ptl_form_id'])
+                ptl_form.critical_path_created = True
+        return super().create(vals_list)
+
 
 class PTLForm(models.Model):
     _name = 'ptl.form'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'PTL Form - Initial Notification Confirmed Offer'
     _rec_name = 'form_name'
+
+    def _valid_field_parameter(self, field, name):
+        return name == 'placeholder' or super()._valid_field_parameter(field, name)
 
     # Basic Information
     form_name = fields.Char(string='Form Name', compute='_compute_form_name', store=True)
@@ -147,20 +149,35 @@ class PTLForm(models.Model):
     approve_form_name = fields.Char(string='Approve form name', tracking=True)
     submitted_date = fields.Date(string='Submitted date', default=fields.Date.today, tracking=True)
     
-    # Updated Status with new workflow states
-    status = fields.Selection([
-        ('new', 'New'),
-        ('in_progress', 'In progress'),
-        ('approved', 'Approved'),
-        ('completed', 'Completed'),
-        ('returned', 'Returned')
-    ], string='Status', default='new', tracking=True)
-
-    # Critical Path Fields (embedded in PTL form)
-    critical_path_created = fields.Boolean(string='Critical Path Created', default=False)
+    # Priority field
+    priority = fields.Selection([
+        ('1', 'Low'),
+        ('2', 'Medium'),
+        ('3', 'High')
+    ], string='Priority', default='2', tracking=True)
     
-    # Design Section
-    design_section = fields.Text(string='Design Section Description', default='Design')
+    # Simplified Global Workflow Status (auto-computed)
+    global_status = fields.Selection([
+        ('ptl', 'PTL'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed')
+    ], string='Global Status', default='ptl', tracking=True, compute='_compute_global_status', store=True)
+
+    # Section-specific statuses (NEW, PENDING, APPROVED)
+    ptl_section_status = fields.Selection([
+        ('new', 'NEW'),
+        ('pending', 'PENDING'), 
+        ('approved', 'APPROVED')
+    ], string='PTL Section Status', default='new', tracking=True)
+    
+    critical_path_section_status = fields.Selection([
+        ('new', 'NEW'),
+        ('pending', 'PENDING'),
+        ('approved', 'APPROVED')
+    ], string='Critical Path Section Status', default='new', tracking=True)
+
+    # Critical Path Fields
+    critical_path_created = fields.Boolean(string='Critical Path Created', default=False)
     
     # Design Activities with Days and Dates
     kickoff_meeting_days = fields.Integer(string='Kick-Off meeting / Project handover Days', default=0)
@@ -175,9 +192,6 @@ class PTLForm(models.Model):
     mep_design_days = fields.Integer(string='MEP design submission Days', default=0)
     mep_design_date = fields.Date(string='MEP design submission Date')
 
-    # Authority Section
-    authority_section = fields.Text(string='Authority Section Description', default='Authority')
-    
     # Authority Activities
     civil_defence_days = fields.Integer(string='Civil defence approval Days', default=0)
     civil_defence_date = fields.Date(string='Civil defence approval Date')
@@ -188,9 +202,6 @@ class PTLForm(models.Model):
     sewa_approval_days = fields.Integer(string='SEWA / Water & power approval Days', default=0)
     sewa_approval_date = fields.Date(string='SEWA / Water & power approval Date')
 
-    # Execution Section
-    execution_section = fields.Text(string='Execution Section Description', default='Execution')
-    
     # Execution Activities
     site_mobilization_days = fields.Integer(string='Site mobilization Days', default=0)
     site_mobilization_date = fields.Date(string='Site mobilization Date')
@@ -207,125 +218,88 @@ class PTLForm(models.Model):
     handover_approvals_days = fields.Integer(string='Handover of all approvals Days', default=0)
     handover_approvals_date = fields.Date(string='Handover of all approvals Date')
     
-    merchandising_start_days = fields.Integer(string='Merchandising start Days', default=0)
-    merchandising_start_date = fields.Date(string='Merchandising start Date')
-    
-    trade_date_days = fields.Integer(string='Trade date Days', default=0)
+    trading_days = fields.Integer(string='Trading Days', default=0)
     trade_date_date = fields.Date(string='Trade date Date')
 
-    # Critical Path Comments
-    critical_path_comments = fields.Text(string='Critical Path Comments', placeholder='Comments...')
+    # Financial Information
+    late_opening_penalty = fields.Float(string='Late opening penalty (LOP) AED per calendar day', default=0.0)
+    
+    # Comments
+    comments = fields.Text(string='Comments', placeholder='Comments...')
 
-    # Tenancy location and details
-    ground_floor = fields.Char(string='Ground floor*', required=True, tracking=True)
-    mezzanine_floor = fields.Char(string='Mezzanine floor*', required=True, tracking=True)
-    outdoor_area_gf = fields.Char(string='Outdoor area - GF*', required=True, tracking=True)
-    outdoor_area_mezz = fields.Char(string='Outdoor area - Mezz*', required=True, tracking=True)
-
-    # Tenant contact details
-    proposed_shop_name = fields.Char(string='Proposed shop name*', required=True, tracking=True)
-    permitted_use = fields.Char(string='Permitted use*', required=True, tracking=True)
-    lease_term = fields.Integer(string='Lease term*', required=True, default=0, tracking=True)
-    contact_person_name = fields.Char(string='Contact person name*', required=True, tracking=True)
-    designation = fields.Char(string='Designation*', required=True, tracking=True)
-    company_name = fields.Char(string='Company name*', required=True, tracking=True)
-    address = fields.Text(string='Address (Physical address)*', required=True, tracking=True)
-    
-    # Contact information
-    telephone = fields.Char(string='Telephone*', required=True, default="+971 55 223 3444", tracking=True)
-    mobile = fields.Char(string='Mobile*', required=True, default="+971 55 223 3444", tracking=True)
-    email = fields.Char(string='Email*', required=True, tracking=True)
-    
-    # Key dates as per offer letter
-    fit_out_commencement_date = fields.Date(string='Fit out commencement date*', required=True, tracking=True)
-    fit_out_period = fields.Date(string='Fit-out period*', required=True, tracking=True)
-    concept_design_submission_date = fields.Date(string='Concept design submission date*', required=True, tracking=True)
-    detail_design_submission_date = fields.Date(string='Detail design submission date*', required=True, tracking=True)
-    trade_start_date = fields.Date(string='Trade start date*', required=True, tracking=True)
-    
-    # Financial details
-    late_opening_penalty = fields.Float(string='Late opening penalty (LOP)*', default=0.0, tracking=True)
-    critical_path_late_penalty = fields.Float(string='Critical Path Late opening penalty (LOP) AED per calendar day', default=0.0)
-    notes = fields.Text(string='Note*', tracking=True)
-    
-    # Special requirements
-    special_requirements = fields.Text(string='Special requirements', tracking=True)
-    
-    # Simple Attachment - Single file upload
-    ptl_attachment = fields.Binary(string='Attachment', tracking=True)
-    ptl_attachment_filename = fields.Char(string='Attachment Filename')
-
-    @api.depends('tenant_name', 'unit_no')
+    @api.depends('unit_no', 'development')
     def _compute_form_name(self):
         for record in self:
-            if record.tenant_name and record.unit_no:
-                record.form_name = f"PTL - {record.tenant_name} - Unit {record.unit_no}"
+            if record.unit_no and record.development:
+                record.form_name = f"PTL - {record.development} - {record.unit_no}"
             else:
                 record.form_name = "New PTL Form"
 
-    def action_start_progress(self):
-        """Move to In Progress"""
-        self.ensure_one()
-        self.status = 'in_progress'
-        # Return action to refresh the view
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ptl.form',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+    @api.depends('ptl_section_status', 'critical_path_section_status')
+    def _compute_global_status(self):
+        """Auto-update global status based on section statuses"""
+        for record in self:
+            if record.ptl_section_status == 'approved' and record.critical_path_section_status == 'approved':
+                record.global_status = 'completed'
+            elif record.ptl_section_status == 'approved' or record.critical_path_section_status in ['pending', 'approved']:
+                record.global_status = 'in_progress'
+            else:
+                record.global_status = 'ptl'
 
-    def action_approve(self):
-        """Approve the PTL form and activate Critical Path tab"""
+    # Section-specific actions (keep these for tab-level status changes)
+    def action_approve_ptl_section(self):
+        """Approve PTL Section"""
         self.ensure_one()
-        self.status = 'approved'
-        
-        # Activate Critical Path
+        self.ptl_section_status = 'approved'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_approve_critical_path_section(self):
+        """Approve Critical Path Section"""
+        self.ensure_one()
+        self.critical_path_section_status = 'approved'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_set_ptl_pending(self):
+        """Set PTL Section to Pending"""
+        self.ensure_one()
+        self.ptl_section_status = 'pending'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_set_critical_path_pending(self):
+        """Set Critical Path Section to Pending"""
+        self.ensure_one()
+        self.critical_path_section_status = 'pending'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        return super().create(vals_list)
+
+    def create_critical_path(self):
+        """Create Critical Path for this PTL"""
+        self.ensure_one()
         if not self.critical_path_created:
+            critical_path = self.env['critical.path'].create({
+                'ptl_form_id': self.id,
+            })
             self.critical_path_created = True
-        
-        # Return action to refresh the view and show Critical Path tab
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ptl.form',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_complete(self):
-        """Complete the PTL form"""
-        self.ensure_one()
-        self.status = 'completed'
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ptl.form',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-    
-    def action_return(self):
-        """Return the PTL form"""
-        self.ensure_one()
-        self.status = 'returned'
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ptl.form',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_reset_to_new(self):
-        """Reset to New status"""
-        self.ensure_one()
-        self.status = 'new'
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'ptl.form',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'current',
-        } 
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Critical Path',
+                'res_model': 'critical.path',
+                'res_id': critical_path.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        else:
+            # Open existing critical path
+            critical_path = self.env['critical.path'].search([('ptl_form_id', '=', self.id)], limit=1)
+            if critical_path:
+                return {
+                    'type': 'ir.actions.act_window',
+                    'name': 'Critical Path',
+                    'res_model': 'critical.path',
+                    'res_id': critical_path.id,
+                    'view_mode': 'form',
+                    'target': 'current',
+                } 
