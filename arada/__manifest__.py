@@ -13,7 +13,6 @@
         'security/ir.model.access.csv',
         'views/config_views.xml',
         'views/ptl_views.xml',
-        'views/critical_path_views.xml',
         'views/menuitem.xml',
     ],
     'demo': [],

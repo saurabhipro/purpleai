@@ -66,15 +66,34 @@
             </field>
         </record>
 
-        <!-- PTL Form Form View with Compact Breadcrumbs -->
+        <!-- PTL Form Form View with Detailed Global Breadcrumbs -->
         <record id="view_ptl_form_form" model="ir.ui.view">
             <field name="name">ptl.form.form</field>
             <field name="model">ptl.form</field>
             <field name="arch" type="xml">
                 <form string="PTL Form">
                     <header>
-                        <!-- Simplified Global Workflow Status (Auto-computed) -->
-                        <field name="global_status" widget="statusbar" statusbar_visible="ptl,in_progress,completed" readonly="1"/>
+                        <!-- Detailed Global Workflow Status Breadcrumbs -->
+                        <field name="global_status" widget="statusbar" 
+                               statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover"/>
+                        
+                        <!-- Stage Navigation Buttons -->
+                        <button name="action_move_to_form_verification" type="object" string="Move to Form Verification" 
+                                class="btn-primary" invisible="global_status != 'ptl'"/>
+                        <button name="action_move_to_kick_off_meeting" type="object" string="Move to Kick Off Meeting" 
+                                class="btn-primary" invisible="global_status != 'form_verification'"/>
+                        <button name="action_move_to_pending_with_rdd" type="object" string="Move to Pending With RDD" 
+                                class="btn-primary" invisible="global_status != 'kick_off_meeting'"/>
+                        <button name="action_move_to_pending_with_tenant" type="object" string="Move to Pending With Tenant" 
+                                class="btn-primary" invisible="global_status != 'pending_with_rdd'"/>
+                        <button name="action_move_to_rdd_review" type="object" string="Move to RDD Review" 
+                                class="btn-primary" invisible="global_status != 'pending_with_tenant'"/>
+                        <button name="action_move_to_noc" type="object" string="Move to NOC" 
+                                class="btn-primary" invisible="global_status != 'rdd_review'"/>
+                        <button name="action_move_to_site_inspection" type="object" string="Move to Site Inspection" 
+                                class="btn-primary" invisible="global_status != 'noc'"/>
+                        <button name="action_move_to_handover" type="object" string="Move to Handover" 
+                                class="btn-success" invisible="global_status != 'site_inspection_submission'"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -93,7 +112,6 @@
                             <group string="📊 Status &amp; Priority">
                                 <field name="priority" widget="priority"/>
                                 <field name="submitted_date"/>
-                                <field name="critical_path_created" readonly="1"/>
                             </group>
                         </group>
 
@@ -140,7 +158,7 @@
 
                             <!-- Critical Path Section Tab -->
                             <page string="🗺️ Critical Path Section" name="critical_path_section_tab" 
-                                  invisible="global_status == 'ptl'">
+                                  invisible="global_status in ['ptl', 'form_verification']">
                                 <!-- Compact Critical Path Section Status Row -->
                                 <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
                                     <span class="font-weight-bold text-muted" style="font-size: 14px;">Critical Path Section Status</span>
@@ -214,8 +232,14 @@
                     <field name="development"/>
                     <field name="approve_form_name"/>
                     <filter string="🆕 PTL" name="filter_ptl" domain="[('global_status', '=', 'ptl')]"/>
-                    <filter string="🔄 In Progress" name="filter_in_progress" domain="[('global_status', '=', 'in_progress')]"/>
-                    <filter string="✅ Completed" name="filter_completed" domain="[('global_status', '=', 'completed')]"/>
+                    <filter string="📋 Form Verification" name="filter_form_verification" domain="[('global_status', '=', 'form_verification')]"/>
+                    <filter string="🤝 Kick Off Meeting" name="filter_kick_off" domain="[('global_status', '=', 'kick_off_meeting')]"/>
+                    <filter string="⏳ Pending With RDD" name="filter_pending_rdd" domain="[('global_status', '=', 'pending_with_rdd')]"/>
+                    <filter string="👥 Pending With Tenant" name="filter_pending_tenant" domain="[('global_status', '=', 'pending_with_tenant')]"/>
+                    <filter string="📝 RDD Review" name="filter_rdd_review" domain="[('global_status', '=', 'rdd_review')]"/>
+                    <filter string="📜 NOC" name="filter_noc" domain="[('global_status', '=', 'noc')]"/>
+                    <filter string="🔍 Site Inspection" name="filter_site_inspection" domain="[('global_status', '=', 'site_inspection_submission')]"/>
+                    <filter string="🤝 Handover" name="filter_handover" domain="[('global_status', '=', 'handover')]"/>
                     <separator/>
                     <filter string="🆕 NEW" name="filter_new" domain="[('ptl_section_status', '=', 'new')]"/>
                     <filter string="⏳ PENDING" name="filter_pending" domain="[('ptl_section_status', '=', 'pending')]"/>
