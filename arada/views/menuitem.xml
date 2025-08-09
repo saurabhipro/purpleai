@@ -5,6 +5,8 @@
         <menuitem id="ddn_parent_menu_arada_info" name="ARADA" sequence="1">
             <!-- PTL Forms Menu -->
             <menuitem id="ddn_menu_ptl_forms" name="PTL Forms" action="action_ptl_form" sequence="1"/>
+            <menuitem id="menu_arada_workflow" name="Workflows" action="action_arada_workflow" sequence="2"/>
         </menuitem>
+
     </data>
 </odoo>

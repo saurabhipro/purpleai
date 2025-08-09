@@ -95,6 +95,7 @@
             <field name="arch" type="xml">
                 <form string="PTL Form">
                     <header>
+<<<<<<< HEAD
                         <!-- Global Workflow Status Breadcrumb - Right Aligned -->
                         <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: 10px;">
                             <div class="border rounded p-2" style="background-color: #f8f9fa; border: 2px solid #dee2e6;">
@@ -103,6 +104,29 @@
                                        nolabel="1"/>
                             </div>
                         </div>
+=======
+                        <!-- Detailed Global Workflow Status Breadcrumbs -->
+                        <field name="global_status" widget="statusbar" options="{'clickable': '1'}"
+                               statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover"/>
+                        
+                        <!-- Stage Navigation Buttons -->
+                        <button name="action_move_to_form_verification" type="object" string="Move to Form Verification" 
+                                class="btn-primary" invisible="global_status != 'ptl'"/>
+                        <button name="action_move_to_kick_off_meeting" type="object" string="Move to Kick Off Meeting" 
+                                class="btn-primary" invisible="global_status != 'form_verification'"/>
+                        <button name="action_move_to_pending_with_rdd" type="object" string="Move to Pending With RDD" 
+                                class="btn-primary" invisible="global_status != 'kick_off_meeting'"/>
+                        <button name="action_move_to_pending_with_tenant" type="object" string="Move to Pending With Tenant" 
+                                class="btn-primary" invisible="global_status != 'pending_with_rdd'"/>
+                        <button name="action_move_to_rdd_review" type="object" string="Move to RDD Review" 
+                                class="btn-primary" invisible="global_status != 'pending_with_tenant'"/>
+                        <button name="action_move_to_noc" type="object" string="Move to NOC" 
+                                class="btn-primary" invisible="global_status != 'rdd_review'"/>
+                        <button name="action_move_to_site_inspection" type="object" string="Move to Site Inspection" 
+                                class="btn-primary" invisible="global_status != 'noc'"/>
+                        <button name="action_move_to_handover" type="object" string="Move to Handover" 
+                                class="btn-success" invisible="global_status != 'site_inspection_submission'"/>
+>>>>>>> 5f72812 ([workflow])
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -146,8 +170,8 @@
                                                     invisible="ptl_section_status not in ['new', 'pending']"
                                                     context="{'section_name': 'PTL Section', 'action_type': 'reject'}"/>
                                         </div>
-                                    </div>
-                                </div>
+                                    </group>
+                                </group>
                                 
                                 <group>
                                     <group string="🏢 Tenancy Location Details">
@@ -184,6 +208,10 @@
                                         <field name="address" nolabel="1"/>
                                     </group>
                                 </group>
+                                <footer>
+                                    <!-- <button name="action_ptl_approve" string="Approve" type="object" class="btn-success"/>
+                                    <button name="action_ptl_reject" string="Reject" type="object" class="btn-danger"/> -->
+                                </footer>
                             </page>
 
                             <!-- Critical Path Section Tab -->

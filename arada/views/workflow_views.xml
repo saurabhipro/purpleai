@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- list View -->
+    <record id="view_arada_workflow_list" model="ir.ui.view">
+        <field name="name">arada.workflow.list</field>
+        <field name="model">arada.workflow</field>
+        <field name="arch" type="xml">
+            <list string="Arada Workflows">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="global_status"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_arada_workflow_form" model="ir.ui.view">
+        <field name="name">arada.workflow.form</field>
+        <field name="model">arada.workflow</field>
+        <field name="arch" type="xml">
+            <form string="Arada Workflow">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="user_id"/>
+                        <field name="global_status" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_arada_workflow" model="ir.actions.act_window">
+        <field name="name">Arada Workflow</field>
+        <field name="res_model">arada.workflow</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Items -->
+</odoo>

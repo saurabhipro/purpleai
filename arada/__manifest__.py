@@ -13,6 +13,7 @@
         'security/ir.model.access.csv',
         'views/config_views.xml',
         'views/ptl_views.xml',
+        'views/workflow_views.xml',
         'views/menuitem.xml',
     ],
     'demo': [],
