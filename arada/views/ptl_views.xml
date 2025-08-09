@@ -439,7 +439,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Document Submission Layout like your screenshot -->
+                                <!-- Document Submission Layout with Real Attachment Fields -->
                                 <div class="container-fluid">
                                     <!-- Conceptual design submission -->
                                     <div style="margin-bottom: 30px;">
@@ -462,9 +462,11 @@
                                                 <tbody>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">1 set of all drawings - softcopy in PDF format</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="drawing_pdf_attachment" filename="drawing_pdf_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="drawing_pdf_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_drawing_pdf" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -472,9 +474,11 @@
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">Tenant Variation Request (TVR – Form 09)</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="tvr_form_attachment" filename="tvr_form_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="tvr_form_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_tvr_form" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -502,9 +506,11 @@
                                                 <tbody>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">Furniture layout plan-with merchandising and services</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="furniture_layout_attachment" filename="furniture_layout_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="furniture_layout_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_furniture_layout" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -512,9 +518,11 @@
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">Shop front -with signage-3D Image-in colour</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="shopfront_3d_attachment" filename="shopfront_3d_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="shopfront_3d_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_shopfront_3d" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -522,9 +530,11 @@
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">Shop front Elevation- with SIGNAGE</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="shopfront_elevation_attachment" filename="shopfront_elevation_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="shopfront_elevation_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_shopfront_elevation" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -532,9 +542,11 @@
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">3D Image in colored - interior*</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="interior_3d_attachment" filename="interior_3d_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="interior_3d_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_3d_interior" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>
@@ -542,9 +554,11 @@
                                                     </tr>
                                                     <tr>
                                                         <td style="padding: 12px; font-size: 14px;">Photos of previous shops or anything that helps explain the concept</td>
-                                                        <td style="padding: 12px; font-size: 14px; color: #6c757d;">attachment.pdf</td>
                                                         <td style="padding: 12px;">
-                                                            <span style="color: #17a2b8; font-size: 14px;">No objection</span>
+                                                            <field name="concept_photos_attachment" filename="concept_photos_filename" style="width: 100%;"/>
+                                                        </td>
+                                                        <td style="padding: 12px;">
+                                                            <field name="concept_photos_status" style="font-size: 14px; width: 100%;"/>
                                                         </td>
                                                         <td style="padding: 12px;">
                                                             <button name="action_view_concept_photos" type="object" class="btn btn-dark btn-sm" style="font-size: 12px;">View</button>

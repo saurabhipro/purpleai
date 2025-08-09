@@ -150,6 +150,70 @@ class PTLForm(models.Model):
     concept_revision_days = fields.Integer(string='Concept Revision (Days)')
     concept_revision_date = fields.Date(string='Concept Revision Date')
 
+    # Conceptual Design Attachment Fields
+    drawing_pdf_attachment = fields.Binary(string='Drawings PDF Attachment')
+    drawing_pdf_filename = fields.Char(string='Drawings PDF Filename')
+    drawing_pdf_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='Drawings PDF Status', default='no_objection')
+
+    tvr_form_attachment = fields.Binary(string='TVR Form Attachment')
+    tvr_form_filename = fields.Char(string='TVR Form Filename')
+    tvr_form_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='TVR Form Status', default='no_objection')
+
+    furniture_layout_attachment = fields.Binary(string='Furniture Layout Attachment')
+    furniture_layout_filename = fields.Char(string='Furniture Layout Filename')
+    furniture_layout_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='Furniture Layout Status', default='no_objection')
+
+    shopfront_3d_attachment = fields.Binary(string='Shop Front 3D Attachment')
+    shopfront_3d_filename = fields.Char(string='Shop Front 3D Filename')
+    shopfront_3d_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='Shop Front 3D Status', default='no_objection')
+
+    shopfront_elevation_attachment = fields.Binary(string='Shop Front Elevation Attachment')
+    shopfront_elevation_filename = fields.Char(string='Shop Front Elevation Filename')
+    shopfront_elevation_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='Shop Front Elevation Status', default='no_objection')
+
+    interior_3d_attachment = fields.Binary(string='3D Interior Attachment')
+    interior_3d_filename = fields.Char(string='3D Interior Filename')
+    interior_3d_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='3D Interior Status', default='no_objection')
+
+    concept_photos_attachment = fields.Binary(string='Concept Photos Attachment')
+    concept_photos_filename = fields.Char(string='Concept Photos Filename')
+    concept_photos_status = fields.Selection([
+        ('no_objection', 'No objection'),
+        ('pending_review', 'Pending Review'),
+        ('rejected', 'Rejected'),
+        ('approved', 'Approved')
+    ], string='Concept Photos Status', default='no_objection')
+
     @api.depends('unit_no', 'development')
     def _compute_form_name(self):
         for record in self:
@@ -201,93 +265,142 @@ class PTLForm(models.Model):
     def action_view_drawing_pdf(self):
         """View 1 set of all drawings - softcopy in PDF format"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening drawings PDF document...'),
-                'type': 'info',
+        if self.drawing_pdf_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/drawing_pdf_attachment/{self.drawing_pdf_filename or "drawing.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No drawing PDF document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_tvr_form(self):
         """View Tenant Variation Request (TVR – Form 09)"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening TVR Form 09 document...'),
-                'type': 'info',
+        if self.tvr_form_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/tvr_form_attachment/{self.tvr_form_filename or "tvr_form.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No TVR form document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_furniture_layout(self):
         """View Furniture layout plan-with merchandising and services"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening furniture layout plan document...'),
-                'type': 'info',
+        if self.furniture_layout_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/furniture_layout_attachment/{self.furniture_layout_filename or "furniture_layout.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No furniture layout document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_shopfront_3d(self):
         """View Shop front -with signage-3D Image-in colour"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening shop front 3D image document...'),
-                'type': 'info',
+        if self.shopfront_3d_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/shopfront_3d_attachment/{self.shopfront_3d_filename or "shopfront_3d.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No shop front 3D document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_shopfront_elevation(self):
         """View Shop front Elevation- with SIGNAGE"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening shop front elevation document...'),
-                'type': 'info',
+        if self.shopfront_elevation_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/shopfront_elevation_attachment/{self.shopfront_elevation_filename or "shopfront_elevation.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No shop front elevation document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_3d_interior(self):
         """View 3D Image in colored - interior*"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening 3D interior image document...'),
-                'type': 'info',
+        if self.interior_3d_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/interior_3d_attachment/{self.interior_3d_filename or "interior_3d.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No 3D interior document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def action_view_concept_photos(self):
         """View Photos of previous shops or anything that helps explain the concept"""
         self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Document Viewer'),
-                'message': _('Opening concept photos document...'),
-                'type': 'info',
+        if self.concept_photos_attachment:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/concept_photos_attachment/{self.concept_photos_filename or "concept_photos.pdf"}',
+                'target': 'new',
             }
-        }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No concept photos document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
 
     def _show_approval_wizard(self, section_name, action_type):
         return {
