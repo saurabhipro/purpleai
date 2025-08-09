@@ -1,26 +1,23 @@
 {
-    'name': 'ARADA',
-    'version': '1.0.0',
-    'category': 'Real Estate',
-   
-    'author': 'Anjli',
-    'website': 'https://www.bharatddn.com',
-    'depends': [
-        'base',
-        'mail',
-        'web',
-    ],
+    'name': 'Arada',
+    'version': '1.0',
+    'category': 'Sales',
+    'summary': 'Arada Management System',
+    'description': """
+        Arada Management System for tenant management and workflow processes.
+    """,
+    'author': 'Your Company',
+    'website': 'https://www.yourcompany.com',
+    'depends': ['base', 'mail', 'web'],
     'data': [
-        'security/security.xml',
         'security/ir.model.access.csv',
-        'views/workflow_views.xml',
-        'views/tenant_details.xml',
+        'views/config_views.xml',
+        'views/ptl_views.xml',
         'views/menuitem.xml',
     ],
-   
+    'demo': [],
     'installable': True,
     'application': True,
     'auto_install': False,
     'license': 'LGPL-3',
-   
 } 
