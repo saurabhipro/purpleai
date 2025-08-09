@@ -16,13 +16,14 @@ class PTLForm(models.Model):
     approve_form_name = fields.Char(string='Approve form name', tracking=True)
     submitted_date = fields.Date(string='Submitted date', default=fields.Date.today, tracking=True)
     
-    # Status
+    # Updated Status with new workflow states
     status = fields.Selection([
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
+        ('new', 'New'),
+        ('in_progress', 'In progress'),
         ('approved', 'Approved'),
-        ('rejected', 'Rejected')
-    ], string='Status', default='draft', tracking=True)
+        ('completed', 'Completed'),
+        ('returned', 'Returned')
+    ], string='Status', default='new', tracking=True)
 
     # Tenancy location and details
     ground_floor = fields.Char(string='Ground floor*', required=True, tracking=True)
@@ -70,22 +71,21 @@ class PTLForm(models.Model):
             else:
                 record.form_name = "New PTL Form"
 
-    def action_submit(self):
-        """Submit the PTL form"""
+    def action_start_progress(self):
+        """Move to In Progress"""
         self.ensure_one()
-        self.status = 'submitted'
-        self.submitted_date = fields.Date.today()
+        self.status = 'in_progress'
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Success'),
-                'message': _('PTL Form submitted successfully.'),
-                'type': 'success',
+                'message': _('PTL Form moved to In Progress.'),
+                'type': 'info',
                 'sticky': False,
             }
         }
-    
+
     def action_approve(self):
         """Approve the PTL form"""
         self.ensure_one()
@@ -100,18 +100,48 @@ class PTLForm(models.Model):
                 'sticky': False,
             }
         }
-    
-    def action_reject(self):
-        """Reject the PTL form"""
+
+    def action_complete(self):
+        """Complete the PTL form"""
         self.ensure_one()
-        self.status = 'rejected'
+        self.status = 'completed'
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Success'),
-                'message': _('PTL Form rejected.'),
+                'message': _('PTL Form completed successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def action_return(self):
+        """Return the PTL form"""
+        self.ensure_one()
+        self.status = 'returned'
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('PTL Form returned for revision.'),
                 'type': 'warning',
+                'sticky': False,
+            }
+        }
+
+    def action_reset_to_new(self):
+        """Reset to New status"""
+        self.ensure_one()
+        self.status = 'new'
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('PTL Form reset to New.'),
+                'type': 'info',
                 'sticky': False,
             }
         } 
