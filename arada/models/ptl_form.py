@@ -274,11 +274,12 @@ class PTLForm(models.Model):
             else:
                 record.global_status = 'ptl'
 
-    def action_approve_ptl_section(self):
-        return self._show_approval_wizard('PTL Section', 'approve')
+    def action_submit_ptl_section(self):
+        for rec in self:
+            rec.ptl_section_status = 'pending'
 
-    def action_reject_ptl_section(self):
-        return self._show_approval_wizard('PTL Section', 'reject')
+    # def action_reject_ptl_section(self):
+    #     return self._show_approval_wizard('PTL Section', 'reject')
 
     def action_approve_critical_path_section(self):
         return self._show_approval_wizard('Critical Path Section', 'approve')

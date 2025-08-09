@@ -10,6 +10,7 @@
     'website': 'https://www.yourcompany.com',
     'depends': ['base', 'mail', 'web'],
     'data': [
+        'security/arada_security.xml',
         'security/ir.model.access.csv',
         'views/config_views.xml',
         'views/ptl_views.xml',

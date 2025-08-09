@@ -143,21 +143,21 @@
                                                 nolabel="1"/>
                                         </div>
                                         <div>
-                                            <button name="action_approve_ptl_section" type="object" string="✅ Approve" 
+                                            <button name="action_submit_ptl_section" type="object" string="✅ Submit" 
                                                     class="btn btn-success btn-sm mr-2" 
-                                                    invisible="ptl_section_status not in ['new', 'pending']" 
+                                                    invisible="ptl_section_status not in ['new']" 
                                                     context="{'section_name': 'PTL Section', 'action_type': 'approve'}"/>
-                                            <button name="action_reject_ptl_section" type="object" string="❌ Reject" 
+                                            <!-- <button name="action_reject_ptl_section" type="object" string="❌ Reject" 
                                                     class="btn btn-danger btn-sm" 
                                                     invisible="ptl_section_status not in ['new', 'pending']"
-                                                    context="{'section_name': 'PTL Section', 'action_type': 'reject'}"/>
+                                                    context="{'section_name': 'PTL Section', 'action_type': 'reject'}"/> -->
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <group>
                                     <group string="🏢 Tenancy Location Details">
-                                        <field name="ground_floor"/>
+                                        <field name="ground_floor" readonly="ptl_section_status != 'new'"/>
                                         <field name="outdoor_area_gf"/>
                                         <field name="outdoor_area_mezz"/>
                                     </group>
