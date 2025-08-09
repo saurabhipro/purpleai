@@ -66,7 +66,7 @@
             </field>
         </record>
 
-        <!-- PTL Form Form View with Professional Critical Path Layout -->
+        <!-- PTL Form Form View with Colorful Critical Path Sections -->
         <record id="view_ptl_form_form" model="ir.ui.view">
             <field name="name">ptl.form.form</field>
             <field name="model">ptl.form</field>
@@ -215,12 +215,11 @@
                                 </div>
                             </page>
 
-                            <!-- Critical Path Section Tab - Professional Figma Style -->
+                            <!-- Critical Path Section Tab - Colorful Design -->
                             <page string="🗺️ Critical Path Section" name="critical_path_section_tab" 
                                   invisible="global_status in ['ptl', 'form_verification']">
-                                <!-- Compact Critical Path Section Status Row -->
-                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
-                                    <span class="font-weight-bold text-muted" style="font-size: 14px;">Critical Path Section Status</span>
+                                <!-- Status Row with Breadcrumb Only -->
+                                <div class="d-flex justify-content-end align-items-center py-2 border-bottom mb-3" style="min-height: 40px;">
                                     <div class="d-flex align-items-center">
                                         <div class="mr-3" style="min-width: 200px;">
                                             <field name="critical_path_section_status" widget="statusbar" statusbar_visible="new,pending,approved" nolabel="1"/>
@@ -234,7 +233,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Professional Table Layout -->
+                                <!-- Professional Table Layout with Colors -->
                                 <div class="container-fluid">
                                     <!-- Table Header -->
                                     <div class="row border-bottom bg-light py-2 font-weight-bold" style="background-color: #f8f9fa;">
@@ -249,10 +248,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- DESIGN Section -->
-                                    <div class="row mt-3">
+                                    <!-- DESIGN Section - Blue Theme -->
+                                    <div class="row mt-3" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); padding: 8px 15px; border-radius: 5px; margin: 15px 0;">
                                         <div class="col-12">
-                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Design</h6>
+                                            <h6 class="font-weight-bold text-uppercase mb-0" style="color: white; font-size: 12px; letter-spacing: 1px;">
+                                                🎨 DESIGN ACTIVITIES
+                                            </h6>
                                         </div>
                                     </div>
                                     
@@ -305,10 +306,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- AUTHORITY Section -->
-                                    <div class="row mt-4">
+                                    <!-- AUTHORITY Section - Orange Theme -->
+                                    <div class="row mt-4" style="background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); padding: 8px 15px; border-radius: 5px; margin: 15px 0;">
                                         <div class="col-12">
-                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Authority</h6>
+                                            <h6 class="font-weight-bold text-uppercase mb-0" style="color: white; font-size: 12px; letter-spacing: 1px;">
+                                                🏛️ AUTHORITY ACTIVITIES
+                                            </h6>
                                         </div>
                                     </div>
 
@@ -348,10 +351,12 @@
                                         </div>
                                     </div>
 
-                                    <!-- EXECUTION Section -->
-                                    <div class="row mt-4">
+                                    <!-- EXECUTION Section - Green Theme -->
+                                    <div class="row mt-4" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); padding: 8px 15px; border-radius: 5px; margin: 15px 0;">
                                         <div class="col-12">
-                                            <h6 class="font-weight-bold text-uppercase" style="color: #6c757d; font-size: 12px; letter-spacing: 1px;">Execution</h6>
+                                            <h6 class="font-weight-bold text-uppercase mb-0" style="color: white; font-size: 12px; letter-spacing: 1px;">
+                                                🚧 EXECUTION ACTIVITIES
+                                            </h6>
                                         </div>
                                     </div>
 
