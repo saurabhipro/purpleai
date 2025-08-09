@@ -2,3 +2,5 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_arada_config_user,arada.config.user,model_arada_config,base.group_user,1,1,1,0
 access_ptl_form_user,ptl.form.user,model_ptl_form,base.group_user,1,1,1,1
 access_ptl_form_manager,ptl.form.manager,model_ptl_form,base.group_system,1,1,1,1
+access_critical_path_user,critical.path.user,model_critical_path,base.group_user,1,1,1,1
+access_critical_path_manager,critical.path.manager,model_critical_path,base.group_system,1,1,1,1

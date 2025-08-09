@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Critical Path List View -->
+        <record id="view_critical_path_list" model="ir.ui.view">
+            <field name="name">critical.path.list</field>
+            <field name="model">critical.path</field>
+            <field name="arch" type="xml">
+                <list string="Critical Path Forms">
+                    <field name="name"/>
+                    <field name="ptl_form_id"/>
+                    <field name="status"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Critical Path Form View -->
+        <record id="view_critical_path_form" model="ir.ui.view">
+            <field name="name">critical.path.form</field>
+            <field name="model">critical.path</field>
+            <field name="arch" type="xml">
+                <form string="Critical Path">
+                    <header>
+                        <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,approved,completed"/>
+                        <button name="action_start_progress" string="Start Progress" type="object" 
+                                class="oe_highlight" 
+                                invisible="status != 'draft'"/>
+                        <button name="action_approve" string="Approve" type="object" 
+                                class="btn-primary" 
+                                invisible="status != 'in_progress'"/>
+                        <button name="action_complete" string="Complete" type="object" 
+                                class="btn-success" 
+                                invisible="status != 'approved'"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <field name="ptl_form_id" readonly="1"/>
+                            <field name="status"/>
+                        </group>
+
+                        <!-- Design Section -->
+                        <group string="Design" name="design_section">
+                            <group string="Description">
+                                <field name="design_section" nolabel="1" colspan="2"/>
+                            </group>
+                            
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Days</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Kick-Off meeting / Project handover*</td>
+                                        <td><field name="kickoff_meeting_days" nolabel="1"/></td>
+                                        <td><field name="kickoff_meeting_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Concept design submissions*</td>
+                                        <td><field name="concept_design_days" nolabel="1"/></td>
+                                        <td><field name="concept_design_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Arch detailed design submission*</td>
+                                        <td><field name="arch_detailed_design_days" nolabel="1"/></td>
+                                        <td><field name="arch_detailed_design_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>MEP design submission*</td>
+                                        <td><field name="mep_design_days" nolabel="1"/></td>
+                                        <td><field name="mep_design_date" nolabel="1"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </group>
+
+                        <!-- Authority Section -->
+                        <group string="Authority" name="authority_section">
+                            <group string="Description">
+                                <field name="authority_section" nolabel="1" colspan="2"/>
+                            </group>
+                            
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Days</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Civil defence approval</td>
+                                        <td><field name="civil_defence_days" nolabel="1"/></td>
+                                        <td><field name="civil_defence_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Municipality fit-out permit/Authority submissions</td>
+                                        <td><field name="municipality_days" nolabel="1"/></td>
+                                        <td><field name="municipality_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>SEWA / Water &amp; power approval</td>
+                                        <td><field name="sewa_approval_days" nolabel="1"/></td>
+                                        <td><field name="sewa_approval_date" nolabel="1"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </group>
+
+                        <!-- Execution Section -->
+                        <group string="Execution" name="execution_section">
+                            <group string="Description">
+                                <field name="execution_section" nolabel="1" colspan="2"/>
+                            </group>
+                            
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Days</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Site mobilization*</td>
+                                        <td><field name="site_mobilization_days" nolabel="1"/></td>
+                                        <td><field name="site_mobilization_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fitout works</td>
+                                        <td><field name="fitout_works_days" nolabel="1"/></td>
+                                        <td><field name="fitout_works_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Final inspection</td>
+                                        <td><field name="final_inspection_days" nolabel="1"/></td>
+                                        <td><field name="final_inspection_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Snag completion</td>
+                                        <td><field name="snag_completion_days" nolabel="1"/></td>
+                                        <td><field name="snag_completion_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Handover of all approvals</td>
+                                        <td><field name="handover_approvals_days" nolabel="1"/></td>
+                                        <td><field name="handover_approvals_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Merchandising start</td>
+                                        <td><field name="merchandising_start_days" nolabel="1"/></td>
+                                        <td><field name="merchandising_start_date" nolabel="1"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Trade date*</td>
+                                        <td><field name="trade_date_days" nolabel="1"/></td>
+                                        <td><field name="trade_date_date" nolabel="1"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </group>
+
+                        <!-- Financial and Comments -->
+                        <group string="Additional Information">
+                            <group>
+                                <field name="late_opening_penalty" string="Late opening penalty (LOP) AED per calendar day*"/>
+                            </group>
+                            <group>
+                                <field name="comments" placeholder="Comments..." nolabel="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Critical Path Action -->
+        <record id="action_critical_path" model="ir.actions.act_window">
+            <field name="name">Critical Path</field>
+            <field name="res_model">critical.path</field>
+            <field name="view_mode">list,form</field>
+        </record>
+    </data>
+</odoo> 

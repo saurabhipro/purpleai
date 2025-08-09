@@ -11,7 +11,11 @@
                 <menuitem id="ddn_menu_ptl_completed" name="Completed" action="action_ptl_form_completed" sequence="5"/>
                 <menuitem id="ddn_menu_ptl_returned" name="Returned" action="action_ptl_form_returned" sequence="6"/>
             </menuitem>
-            <menuitem id="ddn_menu_configuration" name="Configuration" action="action_arada_config" sequence="2"/>
+            
+            <!-- Critical Path Menu -->
+            <menuitem id="ddn_menu_critical_path" name="Critical Path" action="action_critical_path" sequence="2"/>
+            
+            <menuitem id="ddn_menu_configuration" name="Configuration" action="action_arada_config" sequence="3"/>
         </menuitem>
     </data>
 </odoo>
