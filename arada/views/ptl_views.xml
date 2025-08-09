@@ -102,9 +102,9 @@
             <field name="arch" type="xml">
                 <form string="PTL Form">
                     <header>
-                        <!-- Global Workflow Status Breadcrumb - Force Right Aligned -->
-                        <div style="display: flex; justify-content: flex-end; margin-bottom: 10px; width: 100%;">
-                            <div class="border rounded p-2" style="background-color: #f8f9fa; margin-left: auto;">
+                        <!-- Global Workflow Status Breadcrumb - Force Right Aligned with Full Width -->
+                        <div style="width: 100%; text-align: right; margin-bottom: 10px;">
+                            <div style="display: inline-block; border: 1px solid #dee2e6; border-radius: 5px; padding: 8px; background-color: #f8f9fa;">
                                 <field name="global_status" widget="statusbar" 
                                        statusbar_visible="ptl,form_verification,kick_off_meeting,pending_with_rdd,pending_with_tenant,rdd_review,noc,site_inspection_submission,handover"
                                        nolabel="1"/>
@@ -426,6 +426,382 @@
                                                 </div>
                                                 <div class="col-md-2 d-flex align-items-center justify-content-center">
                                                     <field name="trade_date_date" nolabel="1" style="max-width: 130px; font-size: 14px;"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </page>
+
+                            <!-- Tenant Appointment Section Tab -->
+                            <page string="👥 Tenant Appointment" name="tenant_appointment_section_tab" 
+                                  invisible="critical_path_section_status != 'approved'">
+                                <!-- Tenant Appointment Section Status with Approve/Reject Buttons - Right Aligned -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background-color: #fff3e0; border-radius: 5px;">
+                                    <div style="display: flex; align-items: center;">
+                                        <strong>Tenant Appointment Status: </strong>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div class="border rounded p-1" style="background-color: #ffffff;">
+                                            <field name="tenant_appointment_section_status" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
+                                        </div>
+                                        <div>
+                                            <button name="action_approve_tenant_appointment_section" type="object" string="✅ Approve" 
+                                                    class="btn btn-success btn-sm mr-2" 
+                                                    invisible="tenant_appointment_section_status not in ['new', 'pending']"
+                                                    context="{'section_name': 'Tenant Appointment Section', 'action_type': 'approve'}"/>
+                                            <button name="action_reject_tenant_appointment_section" type="object" string="❌ Reject" 
+                                                    class="btn btn-danger btn-sm" 
+                                                    invisible="tenant_appointment_section_status not in ['new', 'pending']"
+                                                    context="{'section_name': 'Tenant Appointment Section', 'action_type': 'reject'}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="container-fluid">
+                                    <!-- TAR Details Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #FF5722;">
+                                        <div class="card-header" style="background-color: #ffebee; font-weight: bold; font-size: 16px;">
+                                            📋 TAR Details (To be approved by lease signatory)
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="alert alert-info">
+                                                <field name="tar_approval_required" widget="boolean_toggle"/>
+                                                <span class="ml-2">TAR Approval Required</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Primary Contact Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #3F51B5;">
+                                        <div class="card-header" style="background-color: #e8eaf6; font-weight: bold; font-size: 16px;">
+                                            👤 Primary Contact
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="row font-weight-bold border-bottom pb-2 mb-2" style="background-color: #f5f5f5; font-size: 14px;">
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                            </div>
+                                            
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Name</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_name" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Designation</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_designation" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Company</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_company" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Telephone</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_telephone" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Mobile</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_mobile" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Email</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="primary_contact_email" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width experience field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Experience</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="primary_contact_experience" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Experience goes here..."/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Secondary Contact Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #607D8B;">
+                                        <div class="card-header" style="background-color: #eceff1; font-weight: bold; font-size: 16px;">
+                                            👥 Secondary Contact
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="row font-weight-bold border-bottom pb-2 mb-2" style="background-color: #f5f5f5; font-size: 14px;">
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                            </div>
+                                            
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Name</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_name" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Designation</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_designation" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Company</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_company" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Telephone</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_telephone" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Mobile</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_mobile" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Email</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="secondary_contact_email" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width experience field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Experience</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="secondary_contact_experience" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Experience goes here..."/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tenant Designer Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #9C27B0;">
+                                        <div class="card-header" style="background-color: #f3e5f5; font-weight: bold; font-size: 16px;">
+                                            🎨 Tenant Designer
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="row font-weight-bold border-bottom pb-2 mb-2" style="background-color: #f5f5f5; font-size: 14px;">
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                            </div>
+                                            
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Name</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_designer_name" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Company</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_designer_company" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Contact Number</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_designer_contact" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Email</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_designer_email" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width work history field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Work History</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_designer_work_history" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Work history goes here..."/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tenant Contractor Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #795548;">
+                                        <div class="card-header" style="background-color: #efebe9; font-weight: bold; font-size: 16px;">
+                                            🔨 Tenant Contractor
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="row font-weight-bold border-bottom pb-2 mb-2" style="background-color: #f5f5f5; font-size: 14px;">
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Field</strong></div>
+                                                <div class="col-md-3 text-center"><strong>Value</strong></div>
+                                            </div>
+                                            
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Name</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_contractor_name" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Company Name</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_contractor_company" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Contact Number</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_contractor_contact" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Email</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_contractor_email" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Column 1 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Trade License</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_contractor_trade_license" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                                <!-- Column 2 -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Overall Status</span>
+                                                </div>
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <field name="tenant_appointment_overall_status" nolabel="1" style="font-size: 14px; width: 100%;"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width work history field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Work History</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_contractor_work_history" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Work history goes here..."/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row border-bottom py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width company profile field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Company Profile</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_contractor_company_profile" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Company profile information..."/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Full width comments field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Comments</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_contractor_comments" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Comments received..."/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Attachment & Comments Section -->
+                                    <div class="card mb-4" style="border-left: 4px solid #607D8B;">
+                                        <div class="card-header" style="background-color: #eceff1; font-weight: bold; font-size: 16px;">
+                                            📎 Attachment &amp; Comments
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="row py-2" style="min-height: 45px; font-size: 14px;">
+                                                <!-- Attachment field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Attachment</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_appointment_attachment" nolabel="1" style="font-size: 14px; width: 100%;" filename="tenant_appointment_attachment_name"/>
+                                                </div>
+                                            </div>
+
+                                            <div class="row py-2" style="min-height: 60px; font-size: 14px;">
+                                                <!-- Comments field -->
+                                                <div class="col-md-3 d-flex align-items-center">
+                                                    <span style="font-size: 14px; color: #495057; font-weight: 500;">Comments</span>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-center">
+                                                    <field name="tenant_appointment_comments" nolabel="1" style="font-size: 14px; width: 100%;" placeholder="Additional comments and notes..."/>
                                                 </div>
                                             </div>
                                         </div>
