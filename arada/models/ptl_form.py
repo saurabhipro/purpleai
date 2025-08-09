@@ -130,16 +130,6 @@ class PTLForm(models.Model):
     # Comments
     comments = fields.Text(string='Comments')
 
-    # Tenant Appointment Fields
-    tenant_permit_submission_days = fields.Integer(string='Tenant Permit Submission (Days)')
-    tenant_permit_submission_date = fields.Date(string='Tenant Permit Submission Date')
-    tenant_approval_days = fields.Integer(string='Tenant Approval (Days)')
-    tenant_approval_date = fields.Date(string='Tenant Approval Date')
-    tenant_noc_days = fields.Integer(string='Tenant NOC (Days)')
-    tenant_noc_date = fields.Date(string='Tenant NOC Date')
-    tenant_final_inspection_days = fields.Integer(string='Tenant Final Inspection (Days)')
-    tenant_final_inspection_date = fields.Date(string='Tenant Final Inspection Date')
-
     # Conceptual Design Fields
     concept_briefing_days = fields.Integer(string='Concept Briefing (Days)')
     concept_briefing_date = fields.Date(string='Concept Briefing Date')
@@ -149,6 +139,53 @@ class PTLForm(models.Model):
     concept_approval_date = fields.Date(string='Concept Approval Date')
     concept_revision_days = fields.Integer(string='Concept Revision (Days)')
     concept_revision_date = fields.Date(string='Concept Revision Date')
+
+    # TAR Details Fields (To be approved by lease signatory)
+    # TAR Approval Required
+    tar_approval_required = fields.Boolean(string='TAR Approval Required', default=False)
+
+    # Primary Contact
+    tar_primary_name = fields.Char(string='Primary Contact Name')
+    tar_primary_designation = fields.Char(string='Primary Contact Designation')
+    tar_primary_company = fields.Char(string='Primary Contact Company')
+    tar_primary_telephone = fields.Char(string='Primary Contact Telephone')
+    tar_primary_mobile = fields.Char(string='Primary Contact Mobile')
+    tar_primary_email = fields.Char(string='Primary Contact Email')
+    tar_primary_experience = fields.Text(string='Primary Contact Experience')
+
+    # Secondary Contact
+    tar_secondary_name = fields.Char(string='Secondary Contact Name')
+    tar_secondary_designation = fields.Char(string='Secondary Contact Designation')
+    tar_secondary_company = fields.Char(string='Secondary Contact Company')
+    tar_secondary_telephone = fields.Char(string='Secondary Contact Telephone')
+    tar_secondary_mobile = fields.Char(string='Secondary Contact Mobile')
+    tar_secondary_email = fields.Char(string='Secondary Contact Email')
+    tar_secondary_experience = fields.Text(string='Secondary Contact Experience')
+
+    # TAR Confirmation Text
+    tar_confirmation_text = fields.Text(string='TAR Confirmation', default="""We confirm that we have appointed the above person(s) to represent the tenant within the above discipline, who we confirm to have read and understood the tenant manual, logistic positions as well as any information as the lease related to the fit-out. We confirm our responsibility towards the quality of work on site of our appointed project teams as well as all agents and subcontractors. We shall ensure that they all comply with the rules and regulations, procedures of Arada and the local authorities - and that they execute work only in accordance with landlord approved drawings. Kindly direct all correspondence related to the fit out to the defined project representatives and grant them access to the site.""")
+
+    # Tenant Designer
+    tenant_designer_name = fields.Char(string='Tenant Designer Name')
+    tenant_designer_company = fields.Char(string='Tenant Designer Company')
+    tenant_designer_contact = fields.Char(string='Tenant Designer Contact Number')
+    tenant_designer_email = fields.Char(string='Tenant Designer Email')
+    tenant_designer_work_history = fields.Text(string='Tenant Designer Work History')
+
+    # Tenant Contractor
+    tenant_contractor_name = fields.Char(string='Tenant Contractor Name')
+    tenant_contractor_company = fields.Char(string='Tenant Contractor Company')
+    tenant_contractor_contact = fields.Char(string='Tenant Contractor Contact Number')
+    tenant_contractor_email = fields.Char(string='Tenant Contractor Email')
+    tenant_contractor_work_history = fields.Text(string='Tenant Contractor Work History')
+    tenant_contractor_trade_license = fields.Binary(string='Trade License')
+    tenant_contractor_trade_license_filename = fields.Char(string='Trade License Filename')
+    tenant_contractor_company_profile = fields.Binary(string='Company Profile')
+    tenant_contractor_company_profile_filename = fields.Char(string='Company Profile Filename')
+    tenant_contractor_comments = fields.Text(string='Contractor Comments')
+
+    # Contractor Disclaimer
+    contractor_disclaimer_text = fields.Text(string='Contractor Disclaimer', default="""Appointed designers or contractors is solely a Tenant nomination. However, Arada reserves the right to reject a contractor on the bad historical performance. The appointment of any Tenant consultant and contractor remains tenants' responsibility at all times with no liability to Arada.""")
 
     # Conceptual Design Attachment Fields
     drawing_pdf_attachment = fields.Binary(string='Drawings PDF Attachment')
@@ -398,6 +435,46 @@ class PTLForm(models.Model):
                 'params': {
                     'title': _('No Document'),
                     'message': _('No concept photos document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
+
+    def action_view_trade_license(self):
+        """View Trade License Document"""
+        self.ensure_one()
+        if self.tenant_contractor_trade_license:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/tenant_contractor_trade_license/{self.tenant_contractor_trade_license_filename or "trade_license.pdf"}',
+                'target': 'new',
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No trade license document has been uploaded yet.'),
+                    'type': 'warning',
+                }
+            }
+
+    def action_view_company_profile(self):
+        """View Company Profile Document"""
+        self.ensure_one()
+        if self.tenant_contractor_company_profile:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/ptl.form/{self.id}/tenant_contractor_company_profile/{self.tenant_contractor_company_profile_filename or "company_profile.pdf"}',
+                'target': 'new',
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Document'),
+                    'message': _('No company profile document has been uploaded yet.'),
                     'type': 'warning',
                 }
             }

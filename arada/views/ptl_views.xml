@@ -373,42 +373,108 @@
                                     </div>
                                 </div>
 
-                                <!-- Professional Table Layout for Tenant Appointment -->
+                                <!-- TAR Details and Tenant Appointment Form -->
                                 <div class="container-fluid">
+                                    <!-- TAR Details Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-handshake-o" title="Tenant Appointment"/> 🤝 Tenant Appointment Activities</h4>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered" style="font-size: 14px;">
-                                                <thead style="background-color: #f8f9fa;">
-                                                    <tr>
-                                                        <th style="width: 40%; font-size: 16px;">Activity</th>
-                                                        <th style="width: 20%; font-size: 16px;">Duration (Days)</th>
-                                                        <th style="width: 40%; font-size: 16px;">Target Date</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td style="font-size: 16px; font-weight: 500;">Tenant Permit Submission</td>
-                                                        <td><field name="tenant_permit_submission_days" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                        <td><field name="tenant_permit_submission_date" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="font-size: 16px; font-weight: 500;">Tenant Approval</td>
-                                                        <td><field name="tenant_approval_days" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                        <td><field name="tenant_approval_date" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="font-size: 16px; font-weight: 500;">Tenant NOC</td>
-                                                        <td><field name="tenant_noc_days" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                        <td><field name="tenant_noc_date" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td style="font-size: 16px; font-weight: 500;">Tenant Final Inspection</td>
-                                                        <td><field name="tenant_final_inspection_days" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                        <td><field name="tenant_final_inspection_date" style="font-size: 16px; border: none; background: transparent;" nolabel="1"/></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                        <h4 style="color: #e67e22; margin-bottom: 15px;">📋 TAR Details (To be approved by lease signatory)</h4>
+                                        
+                                        <!-- TAR Approval Required -->
+                                        <div style="margin-bottom: 20px; padding: 10px; background-color: #e8f4fd; border-radius: 5px;">
+                                            <field name="tar_approval_required" string="TAR Approval Required" widget="boolean_toggle"/>
+                                        </div>
+
+                                        <!-- Primary Contact -->
+                                        <div style="margin-bottom: 25px;">
+                                            <h5 style="color: #3498db; margin-bottom: 15px;">Primary contact</h5>
+                                            <group>
+                                                <group>
+                                                    <field name="tar_primary_name" placeholder="Name"/>
+                                                    <field name="tar_primary_designation" placeholder="Designation"/>
+                                                    <field name="tar_primary_company" placeholder="Company"/>
+                                                    <field name="tar_primary_telephone" placeholder="000000000"/>
+                                                </group>
+                                                <group>
+                                                    <field name="tar_primary_mobile" placeholder="000000000"/>
+                                                    <field name="tar_primary_email" placeholder="Email"/>
+                                                    <field name="tar_primary_experience" placeholder="Experience"/>
+                                                </group>
+                                            </group>
+                                        </div>
+
+                                        <!-- Secondary Contact -->
+                                        <div style="margin-bottom: 25px;">
+                                            <h5 style="color: #3498db; margin-bottom: 15px;">Secondary contact</h5>
+                                            <group>
+                                                <group>
+                                                    <field name="tar_secondary_name" placeholder="Name"/>
+                                                    <field name="tar_secondary_designation" placeholder="Designation"/>
+                                                    <field name="tar_secondary_company" placeholder="Company"/>
+                                                    <field name="tar_secondary_telephone" placeholder="000000000"/>
+                                                </group>
+                                                <group>
+                                                    <field name="tar_secondary_mobile" placeholder="000000000"/>
+                                                    <field name="tar_secondary_email" placeholder="Email"/>
+                                                    <field name="tar_secondary_experience" placeholder="Experience"/>
+                                                </group>
+                                            </group>
+                                        </div>
+
+                                        <!-- TAR Confirmation Text -->
+                                        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                                            <field name="tar_confirmation_text" readonly="1" style="border: none; background: transparent; font-size: 14px;"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tenant Designer Section -->
+                                    <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
+                                        <h4 style="color: #9b59b6; margin-bottom: 15px;">🎨 Tenant designer</h4>
+                                        <group>
+                                            <group>
+                                                <field name="tenant_designer_name" placeholder="Name" required="1"/>
+                                                <field name="tenant_designer_company" placeholder="Company" required="1"/>
+                                                <field name="tenant_designer_contact" placeholder="000000000" required="1"/>
+                                            </group>
+                                            <group>
+                                                <field name="tenant_designer_email" placeholder="Email" required="1"/>
+                                                <field name="tenant_designer_work_history" placeholder="Work history" required="1"/>
+                                            </group>
+                                        </group>
+                                    </div>
+
+                                    <!-- Tenant Contractor Section -->
+                                    <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
+                                        <h4 style="color: #27ae60; margin-bottom: 15px;">🔨 Tenant contractor</h4>
+                                        <group>
+                                            <group string="Basic Information">
+                                                <field name="tenant_contractor_name" placeholder="Name"/>
+                                                <field name="tenant_contractor_company" placeholder="Company"/>
+                                                <field name="tenant_contractor_contact" placeholder="000000000"/>
+                                                <field name="tenant_contractor_email" placeholder="Email"/>
+                                            </group>
+                                            <group string="Work History &amp; Documents">
+                                                <field name="tenant_contractor_work_history" placeholder="Work history"/>
+                                                <field name="tenant_contractor_trade_license" filename="tenant_contractor_trade_license_filename"/>
+                                                <field name="tenant_contractor_company_profile" filename="tenant_contractor_company_profile_filename"/>
+                                                <div>
+                                                    <button name="action_view_trade_license" type="object" class="btn btn-sm btn-outline-secondary mr-2">
+                                                        <i class="fa fa-eye" title="View"/> View Trade License
+                                                    </button>
+                                                    <button name="action_view_company_profile" type="object" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-eye" title="View"/> View Company Profile
+                                                    </button>
+                                                </div>
+                                            </group>
+                                        </group>
+
+                                        <!-- Comments -->
+                                        <group string="Comments">
+                                            <field name="tenant_contractor_comments" placeholder="Comments" nolabel="1"/>
+                                        </group>
+
+                                        <!-- Contractor Disclaimer -->
+                                        <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #27ae60;">
+                                            <field name="contractor_disclaimer_text" readonly="1" style="border: none; background: transparent; font-size: 14px;" nolabel="1"/>
                                         </div>
                                     </div>
                                 </div>
