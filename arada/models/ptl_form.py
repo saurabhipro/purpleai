@@ -12,6 +12,8 @@ class PTLForm(models.Model):
         return name == 'placeholder' or super()._valid_field_parameter(field, name)
 
     # Basic Information
+    attachment_ids = fields.Many2many('tenant.attachment', string="Attachments")
+
     form_name = fields.Char(string='Form Name', compute='_compute_form_name', store=True)
     unit_no = fields.Char(string='Unit no.*', required=True, tracking=True)
     development = fields.Char(string='Development*', required=True, tracking=True)
@@ -516,3 +518,5 @@ class PTLForm(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         return super().create(vals_list)
+
+

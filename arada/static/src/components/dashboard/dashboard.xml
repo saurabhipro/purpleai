@@ -1,0 +1,131 @@
+<templates xml:space="preserve">
+    <t t-name="arada.OwlTemplate" owl="1">
+        <div id="arada_template">
+            <div class="p-4" style="background-color: #f8fbff;">
+                <!-- Top Stats Section -->
+                <div class="row g-4 align-items-center">
+                    <!-- Left Chart -->
+                    <div class="col-lg-6 d-flex flex-column align-items-center">
+                        <div style="width:220px; height:220px; border-radius:50%; background: linear-gradient(145deg, #e0e0e0, #f5f5f5); display:flex; align-items:center; justify-content:center; font-size:14px; color:#999;">
+                            Chart Placeholder
+                        </div>
+                        <h6 class="mt-3 text-secondary">TOTAL LEASE</h6>
+                        <h2 class="fw-bold">15,685</h2>
+                        <div class="mt-3 d-flex flex-wrap justify-content-center gap-3">
+                            <span><span class="badge" style="background:#2ecc71;">&#160;&#160;</span> Completed</span>
+                            <span><span class="badge" style="background:#34495e;">&#160;&#160;</span> New</span>
+                            <span><span class="badge" style="background:#9b59b6;">&#160;&#160;</span> Inprogress</span>
+                            <span><span class="badge" style="background:#e74c3c;">&#160;&#160;</span> Returned</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Stats Cards -->
+                    <div class="col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="p-4 rounded shadow-sm bg-white text-center h-100">
+                                    <h3 class="text-success fw-bold mb-1">99</h3>
+                                    <p class="mb-0 text-muted">Completed</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-4 rounded shadow-sm bg-white text-center h-100">
+                                    <h3 class="text-primary fw-bold mb-1">8</h3>
+                                    <p class="mb-0 text-muted">New</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-4 rounded shadow-sm bg-white text-center h-100">
+                                    <h3 class="fw-bold mb-1" style="color:#9b59b6;">3</h3>
+                                    <p class="mb-0 text-muted">Inprogress</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-4 rounded shadow-sm bg-white text-center h-100">
+                                    <h3 class="text-danger fw-bold mb-1">02</h3>
+                                    <p class="mb-0 text-muted">Returned</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Table -->
+                <div class="bg-white rounded shadow-sm p-4 mt-5">
+                    <h5 class="mb-4 fw-bold">Recent</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Unit no.</th>
+                                    <th>Development</th>
+                                    <th>Tenant</th>
+                                    <th>Form</th>
+                                    <th>Submitted date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>RIFF06-001</td>
+                                    <td>Phase III Block J, Aljada</td>
+                                    <td>Al Bahar Al Mutawasit Rest LLC</td>
+                                    <td>Permit to lease (PTL)</td>
+                                    <td>27 Mar 2025</td>
+                                    <td><span class="badge bg-primary">New</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>RIFF07-014</td>
+                                    <td>Phase II Block C, Aljada</td>
+                                    <td>Blue Horizon Trading</td>
+                                    <td>Renewal of lease</td>
+                                    <td>15 Feb 2025</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>RIFF08-022</td>
+                                    <td>Phase I Block A, Aljada</td>
+                                    <td>Sunrise Cafe LLC</td>
+                                    <td>Permit to lease (PTL)</td>
+                                    <td>09 Jan 2025</td>
+                                    <td><span class="badge" style="background:#9b59b6;">Inprogress</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>RIFF09-018</td>
+                                    <td>Phase IV Block M, Aljada</td>
+                                    <td>Red Apple Groceries</td>
+                                    <td>Permit to lease (PTL)</td>
+                                    <td>22 Dec 2024</td>
+                                    <td><span class="badge bg-danger">Returned</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>RIFF10-033</td>
+                                    <td>Phase V Block Z, Aljada</td>
+                                    <td>Golden Spoon Catering</td>
+                                    <td>Renewal of lease</td>
+                                    <td>05 Nov 2024</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>RIFF11-044</td>
+                                    <td>Phase VI Block T, Aljada</td>
+                                    <td>Urban Eats LLC</td>
+                                    <td>Permit to lease (PTL)</td>
+                                    <td>21 Oct 2024</td>
+                                    <td><span class="badge bg-primary">New</span></td>
+                                    <td><button class="btn btn-dark btn-sm">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

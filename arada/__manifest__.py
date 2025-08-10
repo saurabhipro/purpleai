@@ -18,7 +18,19 @@
         'wizard/approval_wizard.xml',
         'views/menuitem.xml',
     ],
-    'images': ['https://upload.wikimedia.org/wikipedia/en/d/d7/ARADA_Company_Logo.jpg'],
+
+    'assets': {
+        'web.assets_backend': [
+            # Components
+            'arada/static/src/components/dashboard/dashboard.js',
+            'arada/static/src/components/dashboard/dashboard.xml',
+        ],
+
+        
+
+    },
+
+
     'demo': [],
     'installable': True,
     'application': True,

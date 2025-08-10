@@ -5,5 +5,5 @@ class TenantAttachment(models.Model):
     _description = 'Tenant Attachments'
 
     name = fields.Char(string="File Name", required=True)
-    file = fields.Binary(string="File", required=True)
-    tenant_ids = fields.Many2many('tenant.details', string="Tenants")
+    datas = fields.Binary(string="File", required=True)
+    mimetype = fields.Char(string="Mime Type")  # <- Needed for many2many_binary
