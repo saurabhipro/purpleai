@@ -1,0 +1,127 @@
+<odoo>
+    <template id="bpmn_viewer" name="BPMN Viewer">
+        <html>
+            <head>
+                <title>BPMN Viewer</title>
+                <!-- required viewer styles -->
+                <link rel="stylesheet" href="https://unpkg.com/bpmn-js@17.8.1/dist/assets/bpmn-js.css" />
+                <link rel="stylesheet" href="https://unpkg.com/bootstrap@4.1.1/dist/css/bootstrap.min.css" />
+                <link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css" />
+                <style>
+                    body {
+                        font-family: 'Arial', sans-serif;
+                    }
+                    .bjs-powered-by {
+                        display: none;
+                    }
+                    .control_panel {
+                        list-style: none;
+                    }
+
+                    .control_panel > li {
+                        display: inline-block;
+                        margin-right: 10px;
+                        vertical-align: middle;
+                    }
+                    .buttons {
+                        position: fixed;
+                        bottom: 20px;
+                        left: 20px;
+
+                        padding: 0;
+                        margin: 0;
+                        list-style: none;
+                        z-index: 2;
+                    }
+
+                    .buttons > li {
+                        display: inline-block;
+                        margin-right: 10px;
+                    }
+
+                </style>
+            </head>
+            <body>
+                <ul class="control_panel p-4 bg-white">
+                    <li class="mr-4">
+                        <h2 style="line-height: 0.5;" ><t t-out="title" /></h2>
+                        <span><t t-out="desc" /></span>
+                    </li>
+                </ul>
+                <div class="canvas p-4">
+                    <div id="js-canvas"></div>
+                </div>
+                <ul class="buttons">
+                    <li>
+                        <a id="js-download-diagram" class="btn btn-primary p-2" title="download BPMN diagram">
+                            <i class="fa fa-reguler fa-save mr-2" /> Export
+                        </a>
+                    </li>
+                    <li>
+                        <a id="js-download-svg" class="btn btn-secondary p-2" title="download as SVG image">
+                            <i class="fa fa-reguler fa-image mr-2" /> Image
+                        </a>
+                    </li>
+                </ul>
+                <!-- viewer -->
+                <script src="https://unpkg.com/bpmn-js@17.8.1/dist/bpmn-viewer.development.js"></script>
+                <!-- jquery (required for example only) -->
+                <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+                <script src="https://unpkg.com/bootstrap@4.1.1/dist/js/bootstrap.min.js"></script>
+                <script>
+                    var viewer;
+
+                    async function load() {
+                        viewer = new BpmnJS({
+                            container: $('#js-canvas')
+                        });
+
+                        let xml = decodeURIComponent("<t t-out="bpmn_data" />");
+                        try {
+                            await viewer.importXML(xml);
+                            viewer.get('canvas').zoom('fit-viewport');
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+
+                    function setEncoded(link, name, data) {
+                        var encodedData = encodeURIComponent(data);
+
+                        if (data) {
+                            link.attr({
+                                'href': 'data:application/bpmn20-xml;charset=UTF-8,' + encodedData,
+                                'download': name
+                            });
+                        }
+                    }
+
+                    var downloadLink = $('#js-download-diagram');
+                    var downloadSvgLink = $('#js-download-svg');
+
+                    async function encoded() {
+                        try {
+                            const { svg } = await viewer.saveSVG();
+                            setEncoded(downloadSvgLink, 'diagram.svg', svg);
+                        } catch (err) {
+                            console.error('Error happened saving svg: ', err);
+                            setEncoded(downloadSvgLink, 'diagram.svg', null);
+                        }
+
+                        try {
+                            const { xml } = await viewer.saveXML({ format: true });
+                            setEncoded(downloadLink, 'diagram.bpmn', xml);
+                        } catch (err) {
+                            console.error('Error happened saving XML: ', err);
+                            setEncoded(downloadLink, 'diagram.bpmn', null);
+                        }
+                    }
+                    $(document).ready(async function() {
+                        await load();
+                        await encoded();
+                    });
+                </script>
+            </body>
+        </html>
+    </template>
+</odoo>
