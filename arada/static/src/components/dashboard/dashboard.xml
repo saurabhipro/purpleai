@@ -150,62 +150,66 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card" style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; border: none;">
-                                <!-- Table Header -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                    <h4 style="color: #2c3e50; margin: 0; font-weight: 600;">Recent</h4>
-                                    <div style="display: flex; gap: 10px;">
-                                        <button class="btn btn-outline-primary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
-                                            <i class="fa fa-filter"></i> Filter
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
-                                            <i class="fa fa-download"></i> Export
-                                        </button>
-                                        <button class="btn btn-primary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
-                                            <i class="fa fa-plus"></i> New PTL
-                                        </button>
+                                <!-- Table Header with Color -->
+                                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h4 style="color: white; margin: 0; font-weight: 600; font-size: 1.5rem;">
+                                            <i class="fa fa-list-alt" style="margin-right: 10px;"></i>Recent PTL Forms
+                                        </h4>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button class="btn btn-light btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500; border: none;">
+                                                <i class="fa fa-filter" style="margin-right: 5px;"></i> Filter
+                                            </button>
+                                            <button class="btn btn-light btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500; border: none;">
+                                                <i class="fa fa-download" style="margin-right: 5px;"></i> Export
+                                            </button>
+                                            <button class="btn btn-warning btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500; border: none;">
+                                                <i class="fa fa-plus" style="margin-right: 5px;"></i> New PTL
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 
                                 <div class="table-responsive">
                                     <table class="table" style="margin-bottom: 0;">
                                         <thead>
-                                            <tr style="border-bottom: 2px solid #e9ecef;">
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Unit no.</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Development</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Tenant</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Form</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Submitted date</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Status</th>
-                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Action</th>
+                                            <tr style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px;">
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Unit no.</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Development</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Tenant</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Form</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Submitted date</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Status</th>
+                                                <th style="color: #2c3e50; font-weight: 700; padding: 15px 10px; border: none; font-size: 14px;">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-if="this.state.ptlData.recent_leases and this.state.ptlData.recent_leases.length > 0">
                                                 <t t-foreach="this.state.ptlData.recent_leases" t-as="lease" t-key="lease.id">
-                                                    <tr style="border-bottom: 1px solid #f8f9fa;">
-                                                        <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">
+                                                    <tr style="border-bottom: 1px solid #f8f9fa; transition: background-color 0.2s;" t-attf-class="lease_index % 2 == 0 ? 'table-row-light' : 'table-row-dark'">
+                                                        <td style="padding: 15px 10px; color: #1e3a8a; font-weight: 600; font-size: 13px;">
                                                             <t t-esc="lease.unit_no or ''"/>
                                                         </td>
-                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                        <td style="padding: 15px 10px; color: #1e3a8a; font-weight: 500; font-size: 13px;">
                                                             <t t-esc="lease.development or ''"/>
                                                         </td>
-                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                        <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500; font-size: 13px;">
                                                             <t t-esc="lease.tenant_name or ''"/>
                                                         </td>
-                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                        <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500; font-size: 13px;">
                                                             <t t-esc="lease.approve_form_name or 'Permit to lease (PTL)'"/>
                                                         </td>
-                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                        <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500; font-size: 13px;">
                                                             <t t-esc="this.formatDate(lease.submitted_date)"/>
                                                         </td>
                                                         <td style="padding: 15px 10px;">
-                                                            <span t-attf-style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; #{this.getStatusBadgeStyle(lease.global_status)}">
+                                                            <span t-attf-style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; #{this.getStatusBadgeStyle(lease.global_status)}">
                                                                 <t t-esc="lease.global_status or 'New'"/>
                                                             </span>
                                                         </td>
                                                         <td style="padding: 15px 10px;">
-                                                            <button t-on-click="() => this.openPTLForm(lease.id)" class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">
-                                                                <i class="fa fa-eye"></i> View
+                                                            <button t-on-click="() => this.openPTLForm(lease.id)" class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 11px; font-weight: 500; border: none; transition: all 0.2s;">
+                                                                <i class="fa fa-eye" style="margin-right: 3px;"></i> View
                                                             </button>
                                                         </td>
                                                     </tr>
