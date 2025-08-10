@@ -10,216 +10,217 @@
                     </div>
                 </div>
 
-                <!-- Main Dashboard Content -->
-                <div class="row">
-                    <!-- Left Side - Chart and Metrics -->
-                    <div class="col-lg-8">
-                        <div class="card" style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; border: none; height: 400px;">
-                            <div class="row h-100">
-                                <!-- Chart Section -->
-                                <div class="col-lg-6 d-flex flex-column justify-content-center">
-                                    <div style="text-align: center;">
-                                        <!-- Donut Chart -->
-                                        <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
-                                            <svg width="200" height="200" viewBox="0 0 200 200">
-                                                <!-- Background circle -->
-                                                <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="20"/>
-                                                <!-- Completed segment (green) -->
-                                                <circle cx="100" cy="100" r="80" fill="none" stroke="#28a745" stroke-width="20" 
-                                                        stroke-dasharray="251.2" stroke-dashoffset="50.24" transform="rotate(-90 100 100)"/>
-                                                <!-- Inprogress segment (purple) -->
-                                                <circle cx="100" cy="100" r="80" fill="none" stroke="#6f42c1" stroke-width="20" 
-                                                        stroke-dasharray="251.2" stroke-dashoffset="125.6" transform="rotate(-90 100 100)"/>
-                                                <!-- Returned segment (coral) -->
-                                                <circle cx="100" cy="100" r="80" fill="none" stroke="#fd7e14" stroke-width="20" 
-                                                        stroke-dasharray="251.2" stroke-dashoffset="175.84" transform="rotate(-90 100 100)"/>
-                                                <!-- New segment (dark blue) -->
-                                                <circle cx="100" cy="100" r="80" fill="none" stroke="#1e3a8a" stroke-width="20" 
-                                                        stroke-dasharray="251.2" stroke-dashoffset="226.08" transform="rotate(-90 100 100)"/>
-                                            </svg>
-                                        </div>
-                                        <div style="margin-top: 15px;">
-                                            <div style="color: #6c757d; font-size: 14px; font-weight: 500;">TOTAL LEASE</div>
-                                            <div style="color: #2c3e50; font-size: 2.5rem; font-weight: 700; margin-top: 5px;">15,685</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Legend Section -->
-                                <div class="col-lg-6 d-flex flex-column justify-content-center">
-                                    <div style="padding: 20px 0;">
-                                        <h5 style="color: #2c3e50; margin-bottom: 20px; font-weight: 600;">Status Breakdown</h5>
-                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                                            <div style="width: 20px; height: 20px; background-color: #28a745; border-radius: 3px; margin-right: 12px;"></div>
-                                            <span style="color: #2c3e50; font-weight: 500;">Completed</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                                            <div style="width: 20px; height: 20px; background-color: #1e3a8a; border-radius: 3px; margin-right: 12px;"></div>
-                                            <span style="color: #2c3e50; font-weight: 500;">New</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                                            <div style="width: 20px; height: 20px; background-color: #6f42c1; border-radius: 3px; margin-right: 12px;"></div>
-                                            <span style="color: #2c3e50; font-weight: 500;">Inprogress</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="width: 20px; height: 20px; background-color: #fd7e14; border-radius: 3px; margin-right: 12px;"></div>
-                                            <span style="color: #2c3e50; font-weight: 500;">Returned</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Loading State -->
+                <div t-if="this.state.isLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-
-                    <!-- Right Side - Metric Cards -->
-                    <div class="col-lg-4">
-                        <div class="row h-100" style="height: 400px;">
-                            <!-- Completed Card -->
-                            <div class="col-6 mb-3">
-                                <div class="card h-100" style="background: #28a745; border-radius: 15px; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
-                                    <div style="position: absolute; top: 15px; right: 15px;">
-                                        <i class="fa fa-check-circle" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
-                                    </div>
-                                    <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">99</div>
-                                    <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Completed</div>
-                                </div>
-                            </div>
-
-                            <!-- New Card -->
-                            <div class="col-6 mb-3">
-                                <div class="card h-100" style="background: #1e3a8a; border-radius: 15px; box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
-                                    <div style="position: absolute; top: 15px; right: 15px;">
-                                        <i class="fa fa-plus-circle" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
-                                    </div>
-                                    <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">8</div>
-                                    <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">New</div>
-                                </div>
-                            </div>
-
-                            <!-- Inprogress Card -->
-                            <div class="col-6 mb-3">
-                                <div class="card h-100" style="background: #6f42c1; border-radius: 15px; box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
-                                    <div style="position: absolute; top: 15px; right: 15px;">
-                                        <i class="fa fa-clock-o" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
-                                    </div>
-                                    <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">3</div>
-                                    <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Inprogress</div>
-                                </div>
-                            </div>
-
-                            <!-- Returned Card -->
-                            <div class="col-6 mb-3">
-                                <div class="card h-100" style="background: #fd7e14; border-radius: 15px; box-shadow: 0 8px 25px rgba(253, 126, 20, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
-                                    <div style="position: absolute; top: 15px; right: 15px;">
-                                        <i class="fa fa-refresh" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
-                                    </div>
-                                    <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">02</div>
-                                    <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Returned</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="mt-3">Loading dashboard data...</p>
                 </div>
 
-                <!-- Recent Activity Table -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card" style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; border: none;">
-                            <h4 style="color: #2c3e50; margin-bottom: 20px; font-weight: 600;">Recent</h4>
-                            <div class="table-responsive">
-                                <table class="table" style="margin-bottom: 0;">
-                                    <thead>
-                                        <tr style="border-bottom: 2px solid #e9ecef;">
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Unit no.</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Development</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Tenant</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Form</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Submitted date</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Status</th>
-                                            <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF06-001</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase III Block J, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Al Bahar Al Mutawasit Rest LLC</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Permit to lease (PTL)</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">27 Mar 2025</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #e3f2fd; color: #1e3a8a; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">New</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF07-014</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase II Block C, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Blue Horizon Trading</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Renewal of lease</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">15 Feb 2025</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #e8f5e8; color: #28a745; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">Completed</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF08-022</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase I Block A, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Sunrise Cafe LLC</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Permit to lease (PTL)</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">09 Jan 2025</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #f3e5f5; color: #6f42c1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">Inprogress</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF09-018</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase IV Block M, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Red Apple Groceries</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Permit to lease (PTL)</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">22 Dec 2024</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #fff3e0; color: #fd7e14; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">Returned</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF10-033</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase V Block Z, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Golden Spoon Catering</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Renewal of lease</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">05 Nov 2024</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #e8f5e8; color: #28a745; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">Completed</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                        <tr style="border-bottom: 1px solid #f8f9fa;">
-                                            <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">RIFF11-044</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Phase VI Block T, Aljada</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Urban Eats LLC</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">Permit to lease (PTL)</td>
-                                            <td style="padding: 15px 10px; color: #2c3e50;">21 Oct 2024</td>
-                                            <td style="padding: 15px 10px;">
-                                                <span style="background-color: #e3f2fd; color: #1e3a8a; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">New</span>
-                                            </td>
-                                            <td style="padding: 15px 10px;">
-                                                <button class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">View</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                <!-- Error State -->
+                <div t-if="this.state.error" class="alert alert-danger" role="alert">
+                    <strong>Error:</strong> <t t-esc="this.state.error"/>
+                    <button t-on-click="() => this.loadPTLDashboardData()" class="btn btn-outline-danger btn-sm ms-3">Retry</button>
+                </div>
+
+                <!-- Main Dashboard Content -->
+                <div t-if="!this.state.isLoading and !this.state.error">
+                    <div class="row">
+                        <!-- Left Side - Chart and Metrics (50% width) -->
+                        <div class="col-lg-6">
+                            <div class="card" style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; border: none; height: 400px;">
+                                <div class="row h-100">
+                                    <!-- Chart Section -->
+                                    <div class="col-lg-6 d-flex flex-column justify-content-center">
+                                        <div style="text-align: center;">
+                                            <!-- Donut Chart -->
+                                            <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
+                                                <svg width="200" height="200" viewBox="0 0 200 200">
+                                                    <!-- Background circle -->
+                                                    <circle cx="100" cy="100" r="80" fill="none" stroke="#e9ecef" stroke-width="20"/>
+                                                    <!-- Completed segment (green) -->
+                                                    <circle cx="100" cy="100" r="80" fill="none" stroke="#28a745" stroke-width="20" 
+                                                            stroke-dasharray="251.2" stroke-dashoffset="50.24" transform="rotate(-90 100 100)"/>
+                                                    <!-- Inprogress segment (purple) -->
+                                                    <circle cx="100" cy="100" r="80" fill="none" stroke="#6f42c1" stroke-width="20" 
+                                                            stroke-dasharray="251.2" stroke-dashoffset="125.6" transform="rotate(-90 100 100)"/>
+                                                    <!-- Returned segment (coral) -->
+                                                    <circle cx="100" cy="100" r="80" fill="none" stroke="#fd7e14" stroke-width="20" 
+                                                            stroke-dasharray="251.2" stroke-dashoffset="175.84" transform="rotate(-90 100 100)"/>
+                                                    <!-- New segment (dark blue) -->
+                                                    <circle cx="100" cy="100" r="80" fill="none" stroke="#1e3a8a" stroke-width="20" 
+                                                            stroke-dasharray="251.2" stroke-dashoffset="226.08" transform="rotate(-90 100 100)"/>
+                                                </svg>
+                                            </div>
+                                            <div style="margin-top: 15px;">
+                                                <div style="color: #6c757d; font-size: 14px; font-weight: 500;">TOTAL LEASE</div>
+                                                <div style="color: #2c3e50; font-size: 2.5rem; font-weight: 700; margin-top: 5px;">
+                                                    <t t-esc="this.state.ptlData.total_lease or 0"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Legend Section -->
+                                    <div class="col-lg-6 d-flex flex-column justify-content-center">
+                                        <div style="padding: 20px 0;">
+                                            <h5 style="color: #2c3e50; margin-bottom: 20px; font-weight: 600;">Status Breakdown</h5>
+                                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                                <div style="width: 20px; height: 20px; background-color: #28a745; border-radius: 3px; margin-right: 12px;"></div>
+                                                <span style="color: #2c3e50; font-weight: 500;">Completed</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                                <div style="width: 20px; height: 20px; background-color: #1e3a8a; border-radius: 3px; margin-right: 12px;"></div>
+                                                <span style="color: #2c3e50; font-weight: 500;">New</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                                <div style="width: 20px; height: 20px; background-color: #6f42c1; border-radius: 3px; margin-right: 12px;"></div>
+                                                <span style="color: #2c3e50; font-weight: 500;">Inprogress</span>
+                                            </div>
+                                            <div style="display: flex; align-items: center;">
+                                                <div style="width: 20px; height: 20px; background-color: #fd7e14; border-radius: 3px; margin-right: 12px;"></div>
+                                                <span style="color: #2c3e50; font-weight: 500;">Returned</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side - Metric Cards (50% width) -->
+                        <div class="col-lg-6">
+                            <div class="row h-100" style="height: 400px;">
+                                <!-- Completed Card -->
+                                <div class="col-6 mb-3">
+                                    <div class="card h-100" style="background: #28a745; border-radius: 15px; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
+                                        <div style="position: absolute; top: 15px; right: 15px;">
+                                            <i class="fa fa-check-circle" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
+                                        </div>
+                                        <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <t t-esc="this.state.ptlData.completed or 0"/>
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">COMPLETED</div>
+                                    </div>
+                                </div>
+
+                                <!-- New Card -->
+                                <div class="col-6 mb-3">
+                                    <div class="card h-100" style="background: #1e3a8a; border-radius: 15px; box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
+                                        <div style="position: absolute; top: 15px; right: 15px;">
+                                            <i class="fa fa-plus-circle" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
+                                        </div>
+                                        <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <t t-esc="this.state.ptlData.new or 0"/>
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">NEW</div>
+                                    </div>
+                                </div>
+
+                                <!-- Inprogress Card -->
+                                <div class="col-6 mb-3">
+                                    <div class="card h-100" style="background: #6f42c1; border-radius: 15px; box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
+                                        <div style="position: absolute; top: 15px; right: 15px;">
+                                            <i class="fa fa-clock-o" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
+                                        </div>
+                                        <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <t t-esc="this.state.ptlData.inprogress or 0"/>
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">INPROGRESS</div>
+                                    </div>
+                                </div>
+
+                                <!-- Returned Card -->
+                                <div class="col-6 mb-3">
+                                    <div class="card h-100" style="background: #fd7e14; border-radius: 15px; box-shadow: 0 8px 25px rgba(253, 126, 20, 0.3); padding: 25px; text-align: center; position: relative; border: none; display: flex; flex-direction: column; justify-content: center;">
+                                        <div style="position: absolute; top: 15px; right: 15px;">
+                                            <i class="fa fa-refresh" style="font-size: 28px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"></i>
+                                        </div>
+                                        <div style="color: white; font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <t t-esc="this.state.ptlData.returned or 0"/>
+                                        </div>
+                                        <div style="color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">RETURNED</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Section with Header -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card" style="background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; border: none;">
+                                <!-- Table Header -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <h4 style="color: #2c3e50; margin: 0; font-weight: 600;">Recent</h4>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button class="btn btn-outline-primary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
+                                            <i class="fa fa-filter"></i> Filter
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
+                                            <i class="fa fa-download"></i> Export
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" style="border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 500;">
+                                            <i class="fa fa-plus"></i> New PTL
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table" style="margin-bottom: 0;">
+                                        <thead>
+                                            <tr style="border-bottom: 2px solid #e9ecef;">
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Unit no.</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Development</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Tenant</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Form</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Submitted date</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Status</th>
+                                                <th style="color: #2c3e50; font-weight: 600; padding: 15px 10px; border: none;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="this.state.ptlData.recent_leases and this.state.ptlData.recent_leases.length > 0">
+                                                <t t-foreach="this.state.ptlData.recent_leases" t-as="lease" t-key="lease.id">
+                                                    <tr style="border-bottom: 1px solid #f8f9fa;">
+                                                        <td style="padding: 15px 10px; color: #2c3e50; font-weight: 500;">
+                                                            <t t-esc="lease.unit_no or ''"/>
+                                                        </td>
+                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                            <t t-esc="lease.development or ''"/>
+                                                        </td>
+                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                            <t t-esc="lease.tenant_name or ''"/>
+                                                        </td>
+                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                            <t t-esc="lease.approve_form_name or 'Permit to lease (PTL)'"/>
+                                                        </td>
+                                                        <td style="padding: 15px 10px; color: #2c3e50;">
+                                                            <t t-esc="this.formatDate(lease.submitted_date)"/>
+                                                        </td>
+                                                        <td style="padding: 15px 10px;">
+                                                            <span t-attf-style="padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; #{this.getStatusBadgeStyle(lease.global_status)}">
+                                                                <t t-esc="lease.global_status or 'New'"/>
+                                                            </span>
+                                                        </td>
+                                                        <td style="padding: 15px 10px;">
+                                                            <button t-on-click="() => this.openPTLForm(lease.id)" class="btn btn-dark" style="border-radius: 20px; padding: 6px 16px; font-size: 12px; font-weight: 500; border: none;">
+                                                                <i class="fa fa-eye"></i> View
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="7" class="text-center py-4" style="color: #6c757d;">
+                                                        No PTL forms found
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
