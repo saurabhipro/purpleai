@@ -13,6 +13,7 @@ class PTLForm(models.Model):
 
     # Basic Information
     attachment_ids = fields.Many2many('tenant.attachment', string="Attachments")
+    user_id = fields.Many2many('res.users', default=lambda self : self.env.user.id)
 
     form_name = fields.Char(string='Form Name', compute='_compute_form_name', store=True)
     unit_no = fields.Char(string='Unit no.*', required=True, tracking=True)
