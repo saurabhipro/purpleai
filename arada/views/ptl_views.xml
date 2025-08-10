@@ -109,46 +109,51 @@
                         <notebook>
                             <!-- PTL Section Tab -->
                             <page string="📄 PTL Section (Form 01)" name="ptl_section_tab">
-                                <!-- PTL Section Status with Approve/Reject Buttons - Right Aligned -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <strong>PTL Section Status: </strong>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div class="border rounded p-1" style="background-color: #ffffff;">
-                                            <field name="ptl_section_status" 
-                                                options="{'clickable': '1'}"
-                                                widget="statusbar" 
-                                                statusbar_visible="new,pending,approved,rejected" 
-                                                nolabel="1"
-                                                />
+                                <header>
+                                    
+                                    <!-- PTL Section Status with Approve/Reject Buttons - Right Aligned -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center;">
+                                        <div class="" style="background-color: #ffffff;">
+                                                <field name="ptl_section_status" 
+                                                    options="{'clickable': '1'}"
+                                                    widget="statusbar" 
+                                                    statusbar_visible="new,pending,approved,rejected" 
+                                                    nolabel="1"
+                                                    />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <button name="action_submit_ptl_section"
-                                                type="object" 
-                                                groups='arada.group_arada_leasing_team'
-                                                string="✅ Submit" 
-                                                class="btn btn-success btn-sm mr-2" 
-                                                invisible="ptl_section_status not in ['new']" 
-                                                context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
-                                                confirm="Are you sure you want to submit this?"
-                                                />
+                                        <div></div>
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            
+                                            <div>
+                                                <button name="action_submit_ptl_section"
+                                                    type="object" 
+                                                    groups='arada.group_arada_leasing_team'
+                                                    string="✅ Submit" 
+                                                    class="btn btn-success btn-sm mr-2" 
+                                                    invisible="ptl_section_status not in ['new']" 
+                                                    context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
+                                                    confirm="Are you sure you want to submit this?"
+                                                    />
 
-                                            <button name="action_approve_ptl_section" type="object" string="✅ Approve" 
-                                                    class="btn btn-success btn-sm" 
-                                                    invisible="ptl_section_status not in ['pending']"
-                                                    context="{'section_name': 'PTL Section', 'action_type': 'reject'}"
-                                                    groups="arada.group_arada_rdd"/>
-                                            
-                                            <button name="action_reject_ptl_section" type="object" string="❌ Reject" 
-                                                    class="btn btn-danger btn-sm" 
-                                                    invisible="ptl_section_status not in ['pending']"
-                                                    groups="arada.group_arada_rdd"
-                                                    context="{'section_name': 'PTL Section', 'action_type': 'reject'}"/>
-                                            
+                                                <button name="action_approve_ptl_section" type="object" string="✅ Approve" 
+                                                        class="btn btn-success btn-sm" 
+                                                        invisible="ptl_section_status not in ['pending']"
+                                                        context="{'section_name': 'PTL Section', 'action_type': 'reject'}"
+                                                        groups="arada.group_arada_rdd"/>
+                                                
+                                                <button name="action_reject_ptl_section" type="object" string="❌ Reject" 
+                                                        class="btn btn-danger btn-sm" 
+                                                        invisible="ptl_section_status not in ['pending']"
+                                                        groups="arada.group_arada_rdd"
+                                                        context="{'section_name': 'PTL Section', 'action_type': 'reject'}"/>
+                                                
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                
+                                </header>
                                 
                                 <group>
                                     <group string="🏢 Tenancy Location Details">
@@ -191,48 +196,49 @@
                             <!-- Critical Path Section Tab -->
                             <page string="🗺️ Critical Path Section (Form 02)" name="critical_path_section_tab" 
                                   invisible="ptl_section_status != 'approved'">
-                                <!-- Critical Path Section Status - Right Aligned -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <strong>Critical Path Section Status: </strong>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div class="border rounded p-1" style="background-color: #ffffff;">
-                                            <field name="critical_path_section_status"
-                                                options="{'clickable': '1'}"
-                                                widget="statusbar" 
-                                                statusbar_visible="new,pending,approved,rejected" 
-                                                nolabel="1"/>
-                                        </div>
-                                        <div>
-                                            <button name="action_submit_critical_path_section"
-                                                type="object" 
-                                                groups='arada.group_arada_rdd'
-                                                string="✅ Submit" 
-                                                class="btn btn-success btn-sm mr-2" 
-                                                invisible="critical_path_section_status not in ['new']" 
-                                                context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
-                                                confirm="Are you sure you want to submit this?"
-                                                />
-                                            <button name="action_approve_critical_path_section" type="object" string="✅ Approve" 
+
+                                <header>
+                                    <!-- Critical Path Section Status - Right Aligned -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div class="" style="background-color: #ffffff;">
+                                                <field name="critical_path_section_status"
+                                                    options="{'clickable': '1'}"
+                                                    widget="statusbar" 
+                                                    statusbar_visible="new,pending,approved,rejected" 
+                                                    nolabel="1"/>
+                                            </div>
+                                            <div>
+                                                <button name="action_submit_critical_path_section"
+                                                    type="object" 
+                                                    groups='arada.group_arada_rdd'
+                                                    string="✅ Submit" 
                                                     class="btn btn-success btn-sm mr-2" 
-                                                    groups="arada.group_arada_tenant"
-                                                    invisible="critical_path_section_status not in ['pending']" 
-                                                    context="{'section_name': 'Critical Path Section', 'action_type': 'approve'}"/>
-                                            <button name="action_reject_critical_path_section" type="object" string="❌ Reject" 
-                                                    groups="arada.group_arada_tenant"
-                                                    class="btn btn-danger btn-sm" 
-                                                    invisible="critical_path_section_status not in ['pending']"
-                                                    context="{'section_name': 'Critical Path Section', 'action_type': 'reject'}"/>
+                                                    invisible="critical_path_section_status not in ['new']" 
+                                                    context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
+                                                    confirm="Are you sure you want to submit this?"
+                                                    />
+                                                <button name="action_approve_critical_path_section" type="object" string="✅ Approve" 
+                                                        class="btn btn-success btn-sm mr-2" 
+                                                        groups="arada.group_arada_tenant"
+                                                        invisible="critical_path_section_status not in ['pending']" 
+                                                        context="{'section_name': 'Critical Path Section', 'action_type': 'approve'}"/>
+                                                <button name="action_reject_critical_path_section" type="object" string="❌ Reject" 
+                                                        groups="arada.group_arada_tenant"
+                                                        class="btn btn-danger btn-sm" 
+                                                        invisible="critical_path_section_status not in ['pending']"
+                                                        context="{'section_name': 'Critical Path Section', 'action_type': 'reject'}"/>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+
+                                </header>
 
                                 <!-- Professional Table Layout for Critical Path -->
                                 <div class="container-fluid">
                                     <!-- Design Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-paint-brush" title="Design"/> 🎨 Design Activities</h4>
+                                        <h4 class="mb-3"><i class="fa fa-paint-brush" title="Design"/>  Design Activities</h4>
                                         <div class="table-responsive">
                                             <table class="table table-bordered" style="font-size: 14px;">
                                                 <thead style="background-color: #f8f9fa;">
@@ -270,7 +276,7 @@
 
                                     <!-- Authority Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-university" title="Authority"/> 🏛️ Authority Activities</h4>
+                                        <h4 class="mb-3"><i class="fa fa-university" title="Authority"/>  Authority Activities</h4>
                                         <div class="table-responsive">
                                             <table class="table table-bordered" style="font-size: 14px;">
                                                 <thead style="background-color: #f8f9fa;">
@@ -303,7 +309,7 @@
 
                                     <!-- Execution Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-cogs" title="Execution"/> 🚧 Execution Activities</h4>
+                                        <h4 class="mb-3"><i class="fa fa-cogs" title="Execution"/>  Execution Activities</h4>
                                         <div class="table-responsive">
                                             <table class="table table-bordered" style="font-size: 14px;">
                                                 <thead style="background-color: #f8f9fa;">
@@ -351,7 +357,7 @@
 
                                     <!-- Financial Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; margin-bottom: 20px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-money" title="Financial"/> 💰 Financial</h4>
+                                        <h4 class="mb-3"><i class="fa fa-money" title="Financial"/>  Financial</h4>
                                         <group>
                                             <field name="late_opening_penalty" widget="monetary" style="font-size: 16px;"/>
                                         </group>
@@ -359,7 +365,7 @@
 
                                     <!-- Comments Section -->
                                     <div style="border: 1px solid #dee2e6; border-radius: 5px; padding: 15px;">
-                                        <h4 class="mb-3"><i class="fa fa-comment" title="Comments"/> 📝 Comments</h4>
+                                        <h4 class="mb-3"><i class="fa fa-comment" title="Comments"/>  Comments</h4>
                                         <field name="comments" placeholder="Add your comments here..." style="font-size: 16px;"/>
                                     </div>
                                 </div>
@@ -368,38 +374,40 @@
                             <!-- Tenant Appointment Section Tab -->
                             <page string="🤝 Tenant Appointment (Form 03)" name="tenant_appointment_tab" 
                                   invisible="critical_path_section_status != 'approved'">
-                                <!-- Tenant Appointment Section Status - Right Aligned -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <strong>Tenant Appointment Section Status: </strong>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div class="border rounded p-1" style="background-color: #ffffff;">
-                                            <field name="tenant_appointment_section_status" options="{'clickable': '1'}" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
-                                        </div>
-                                        <div>
-                                            <button name="action_submit_tenant_app_section"
-                                                type="object" 
-                                                groups='arada.group_arada_tenant'
-                                                string="✅ Submit" 
-                                                class="btn btn-success btn-sm mr-2" 
-                                                invisible="tenant_appointment_section_status not in ['new']" 
-                                                context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
-                                                confirm="Are you sure you want to submit this?"
-                                                />
-                                            <button name="action_approve_tenant_appointment_section" type="object" string="✅ Approve" 
+
+                                <header>
+                                    <!-- Tenant Appointment Section Status - Right Aligned -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        
+                                        <div style="display: flex; align-items: center; gap: 15px;">
+                                            <div class="" style="background-color: #ffffff;">
+                                                <field name="tenant_appointment_section_status" options="{'clickable': '1'}" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
+                                            </div>
+                                            <div>
+                                                <button name="action_submit_tenant_app_section"
+                                                    type="object" 
+                                                    groups='arada.group_arada_tenant'
+                                                    string="✅ Submit" 
                                                     class="btn btn-success btn-sm mr-2" 
-                                                    groups="arada.group_arada_rdd"
-                                                    invisible="tenant_appointment_section_status not in ['pending']" 
-                                                    context="{'section_name': 'Tenant Appointment Section', 'action_type': 'approve'}"/>
-                                            <button name="action_reject_tenant_appointment_section" type="object" string="❌ Reject" 
-                                                    class="btn btn-danger btn-sm"
-                                                    groups="arada.group_arada_rdd"
-                                                    invisible="tenant_appointment_section_status not in ['pending']"
-                                                    context="{'section_name': 'Tenant Appointment Section', 'action_type': 'reject'}"/>
+                                                    invisible="tenant_appointment_section_status not in ['new']" 
+                                                    context="{'section_name': 'PTL Section', 'action_type': 'approve'}"
+                                                    confirm="Are you sure you want to submit this?"
+                                                    />
+                                                <button name="action_approve_tenant_appointment_section" type="object" string="✅ Approve" 
+                                                        class="btn btn-success btn-sm mr-2" 
+                                                        groups="arada.group_arada_rdd"
+                                                        invisible="tenant_appointment_section_status not in ['pending']" 
+                                                        context="{'section_name': 'Tenant Appointment Section', 'action_type': 'approve'}"/>
+                                                <button name="action_reject_tenant_appointment_section" type="object" string="❌ Reject" 
+                                                        class="btn btn-danger btn-sm"
+                                                        groups="arada.group_arada_rdd"
+                                                        invisible="tenant_appointment_section_status not in ['pending']"
+                                                        context="{'section_name': 'Tenant Appointment Section', 'action_type': 'reject'}"/>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                
+                                </header>
 
                                 <!-- TAR Details and Tenant Appointment Form -->
                                 <div class="container-fluid">
@@ -408,9 +416,9 @@
                                         <h4 style="color: #e67e22; margin-bottom: 15px;">📋 TAR Details (To be approved by lease signatory)</h4>
                                         
                                         <!-- TAR Approval Required -->
-                                        <div style="margin-bottom: 20px; padding: 10px; background-color: #e8f4fd; border-radius: 5px;">
+                                        <!-- <div style="margin-bottom: 20px; padding: 10px; background-color: #e8f4fd; border-radius: 5px;">
                                             <field name="tar_approval_required" string="TAR Approval Required" widget="boolean_toggle"/>
-                                        </div>
+                                        </div> -->
 
                                         <!-- Primary Contact -->
                                         <div style="margin-bottom: 25px;">
@@ -511,13 +519,12 @@
                             <!-- Conceptual Design Section Tab -->
                             <page string="🎨 Conceptual Design (Form 04)" name="conceptual_design_tab" 
                                   invisible="tenant_appointment_section_status != 'pending'">
+
+                                <header>
                                 <!-- Conceptual Design Section Status - Right Aligned -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; border: 1px solid #dee2e6; border-radius: 5px;">
-                                    <div style="display: flex; align-items: center;">
-                                        <strong>Conceptual Design Section Status: </strong>
-                                    </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div class="border rounded p-1" style="background-color: #ffffff;">
+                                        <div class="" style="background-color: #ffffff;">
                                             <field name="conceptual_design_section_status" options="{'clickable': '1'}" widget="statusbar" statusbar_visible="new,pending,approved,rejected" nolabel="1"/>
                                         </div>
                                         <div>
@@ -544,6 +551,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                </header>
 
                                 <!-- Document Submission Layout with Real Attachment Fields -->
                                 <div class="container-fluid">

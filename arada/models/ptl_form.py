@@ -41,14 +41,14 @@ class PTLForm(models.Model):
     # Section-specific statuses (NEW, PENDING, APPROVED, REJECTED)
     ptl_section_status = fields.Selection([
         ('new', 'NEW'),
-        ('pending', 'PENDING'), 
+        ('pending', 'PENDING WITH RDD'), 
         ('approved', 'APPROVED'),
         ('rejected', 'REJECTED')
     ], string='PTL Section Status', default='new', tracking=True)
     
     critical_path_section_status = fields.Selection([
         ('new', 'NEW'),
-        ('pending', 'PENDING'),
+        ('pending', 'PENDING WITH TENANT'),
         ('approved', 'APPROVED'),
         ('rejected', 'REJECTED')
     ], string='Critical Path Section Status', default='new', tracking=True)
