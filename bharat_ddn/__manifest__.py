@@ -31,6 +31,7 @@
         'views/property_survey_views.xml',
         'views/property_group_views.xml',
         'views/services_views.xml',
+        'wizard/create_property.xml',
         'views/res_company_views.xml',
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
