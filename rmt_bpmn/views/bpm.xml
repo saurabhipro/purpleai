@@ -1,0 +1,70 @@
+<odoo>
+    <record id="rmt_bpmn_model_view_list" model="ir.ui.view">
+        <field name="name">rmt.bpmn.model.view.list</field>
+        <field name="model">rmt.bpmn.model</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name" />
+                <field name="desc" string="Description" />
+                <field name="parent_id" string="Parent Diagram" />
+                <field name="tag_ids" string="Tag" widget="many2many_tags" />
+                <button name="actionView" string="View Diagram" type="object" />
+                <button name="actionCreate" string="Edit Diagram" type="object"  groups="rmt_bpmn.group_bpmn_user" />
+                <button name="actionShare" string="Share" type="object"  groups="rmt_bpmn.group_bpmn_user" />
+            </list>
+        </field>
+    </record>
+
+    <record id="rmt_bpmn_model_tag_view_list" model="ir.ui.view">
+        <field name="name">rmt.bpmn.model.tag.view.list</field>
+        <field name="model">rmt.bpmn.model.tag</field>
+        <field name="arch" type="xml">
+            <list string="" editable="bottom">
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="rmt_bpmn_model_action" model="ir.actions.act_window">
+        <field name="name">BPMN Model</field>
+        <field name="res_model">rmt.bpmn.model</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="rmt_bpmn_model_tag_action" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">rmt.bpmn.model.tag</field>
+        <field name="view_mode">list</field>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem
+        id="bpmn_root_menu"
+        name="BPMN"
+        sequence="10"
+        web_icon="rmt_bpmn,static/description/icon.png"
+        />
+
+    <menuitem
+        id="bpmn_model_menu"
+        name="Modeler"
+        action="rmt_bpmn_model_action"
+        parent="bpmn_root_menu"
+        sequence="10"/>
+
+    <menuitem
+        id="bpmn_model_config_menu"
+        name="Configuration"
+        parent="bpmn_root_menu"
+        sequence="11"/>
+
+    <menuitem
+        id="bpmn_model_tag_menu"
+        name="Tags"
+        action="rmt_bpmn_model_tag_action"
+        parent="bpmn_model_config_menu"
+        sequence="10"/>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_rmt_bpmn_model,rmt.bpmn.model,model_rmt_bpmn_model,base.group_user,1,0,0,0
+access_rmt_bpmn_model_tag,rmt.bpmn.model.tag,model_rmt_bpmn_model_tag,base.group_user,1,0,0,0
+access_rmt_bpmn_model_user,rmt.bpmn.model,model_rmt_bpmn_model,rmt_bpmn.group_bpmn_user,1,1,0,0
+access_rmt_bpmn_model_tag_user,rmt.bpmn.model.tag,model_rmt_bpmn_model_tag,rmt_bpmn.group_bpmn_user,1,1,0,0
+access_rmt_bpmn_model_admin,rmt.bpmn.model.admin,model_rmt_bpmn_model,rmt_bpmn.group_bpmn_manager,1,1,1,1
+access_rmt_bpmn_model_tag_admin,rmt.bpmn.model.tag,model_rmt_bpmn_model_tag,rmt_bpmn.group_bpmn_manager,1,1,1,1
