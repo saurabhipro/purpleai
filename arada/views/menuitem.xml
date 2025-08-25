@@ -13,7 +13,6 @@
         <menuitem id="ddn_parent_menu_arada_info" name="ARADA" sequence="1">
             <menuitem id="arada_dashboard_menu" name="Dashboard" action="arada_dashboard_action" sequence="1"/>
             <menuitem id="ddn_menu_ptl_forms" name="Lease" action="action_ptl_form" sequence="2"/>
-            <!-- <menuitem id="menu_arada_workflow" name="Workflows" action="action_arada_workflow" sequence="2"/> -->
             <menuitem
                 id="bpmn_model_menu"
                 name="Workflow"

@@ -95,6 +95,8 @@
 
                         <group>
                             <group string="📋 Tenant Information">
+                    <field name="user_id" invisible="1"/>
+
                                 
                                 <field name="tenant_name" readonly="ptl_section_status != 'new'"/>
                                 <field name="unit_no" readonly="ptl_section_status != 'new'"/>

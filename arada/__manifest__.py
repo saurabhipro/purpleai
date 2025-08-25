@@ -8,7 +8,7 @@
     """,
     'author': 'Your Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['base', 'mail', 'web'],
+    'depends': ['base', 'mail', 'web', 'rmt_bpmn'],
     'data': [
         'security/arada_security.xml',
         'security/ir.model.access.csv',
