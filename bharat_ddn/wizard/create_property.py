@@ -37,7 +37,7 @@ class PropertyCreateWizard(models.TransientModel):
             if rec.no_of_property:
                 for i in range(rec.no_of_property):
                     new_seq += 1
-                    new_upic_no = f"{last_upic_no[:-4]}{new_seq:04d}" if last_property else f"{rec.zone_id.code}{rec.ward_id.code}{rec.colony_id.code}{new_seq:04d}"
+                    new_upic_no = f"{last_upic_no[:-4]}{new_seq:04d}" if last_property else f"{rec.zone_id.code}-{rec.colony_id.code}-{new_seq:04d}"
                     
                     self.env['ddn.property.info'].create({
                         'upic_no': new_upic_no,
