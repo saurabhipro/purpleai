@@ -32,6 +32,7 @@
 
 
     'demo': [],
+    "images": ['arada/static/description/icon.png'],
     'installable': True,
     'application': True,
     'auto_install': False,
