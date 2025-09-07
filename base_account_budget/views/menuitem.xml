@@ -1,0 +1,62 @@
+<odoo>
+    <data>
+
+        <record model="ir.actions.act_window" id="act_budget_view">
+            <field name="name">Budgets</field>
+            <field name="res_model">budget.budget</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="view_id" ref="budget_budget_view_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a new budget.
+                </p>
+                <p>
+                    A budget is a forecast of your company's income and/or expenses
+                    expected for a period in the future. A budget is defined on
+                    some
+                    financial accounts and/or analytic accounts (that may represent
+                    projects, departments, categories of products, etc.)
+                </p>
+                <p>
+                    By keeping track of where your money goes, you may be less
+                    likely to overspend, and more likely to meet your financial
+                    goals. Forecast a budget by detailing the expected revenue per
+                    analytic account and monitor its evolution based on the actuals
+                    realised during that period.
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_budget_lines_view">
+            <field name="name">Budgets</field>
+            <field name="res_model">budget.lines</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_budget_line_tree"/>
+        </record>
+
+
+        <record id="open_budget_post_form" model="ir.actions.act_window">
+            <field name="name">Budgetary Positions</field>
+            <field name="res_model">account.budget.post</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="view_id" ref="view_budget_post_tree"/>
+            <field name="search_view_id" ref="view_budget_post_search"/>
+        </record>
+
+        <menuitem parent="account.menu_finance_entries"
+            id="menu_act_budget_view"
+            name="Budgets"
+            action="act_budget_view" sequence="60"
+            groups="account.group_account_user"/>
+
+
+        <menuitem parent="account.account_reports_management_menu"
+            id="menu_act_crossovered_budget_lines_view"
+            action="act_budget_lines_view" sequence="20"/>
+
+
+        <menuitem action="open_budget_post_form" id="menu_budget_post_form"
+            parent="account.account_management_menu"
+            sequence="5"/>
+    </data>
+</odoo>

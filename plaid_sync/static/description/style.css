@@ -1,0 +1,441 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  width: 100% !important;
+}
+
+.banner .background {
+  width: 100%;
+  height: 400px;
+  background-color: #ab0039;
+  position: relative;
+}
+
+.banner .background::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url(../images/Ellipse.png);
+  background-repeat: no-repeat;
+  background-size: 150px;
+  background-position: top right;
+}
+
+.banner .background .container {
+  height: 100%;
+  background-image: url(../images/vertical-lines.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+
+.banner .background .container h2 {
+  font-size: 85px;
+  line-height: 100px;
+  color: #18191f;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+.banner .background .container h3 {
+  font-size: 40px;
+  line-height: 45px;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.banner .background .container p {
+  font-size: 17px;
+  line-height: 25px;
+  color: #fff;
+  text-align: center;
+  font-weight: 400;
+  padding: 0 20px;
+}
+
+.main_content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.main_content::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  width: 325px;
+  height: 325px;
+  background-image: url(../images/elipse-half.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left;
+}
+
+.main_content .caligraphy_background {
+  position: relative;
+}
+
+.main_content .caligraphy_background::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 765px;
+  width: 100%;
+  height: 100%;
+  background-image: url(../images/caligraphy.png);
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-position: right 70px;
+  z-index: -1;
+  opacity: 0.7;
+}
+
+.main_content .caligraphy_background .container .description h2 {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 64px;
+  color: #18191f;
+}
+
+.main_content .caligraphy_background .container .description p {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #18191f;
+}
+
+.main_content .caligraphy_background .container .description p:last-child {
+  margin-bottom: 50px;
+}
+
+.main_content .caligraphy_background .container .img-box {
+  text-align: center;
+}
+
+.main_content .caligraphy_background .container .img-box img {
+  width: 760px;
+}
+
+.main_content .caligraphy_background .container .how_to h2 {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 64px;
+  color: #18191f;
+}
+
+.main_content .caligraphy_background .container .how_to p {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #18191f;
+}
+
+.main_content .caligraphy_background .container .how_to ul {
+  margin-left: 20px;
+}
+
+.main_content .caligraphy_background .container .how_to ul li {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #18191f;
+}
+
+.main_content .caligraphy_background .container .how_to ul li .info_img {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.main_content .caligraphy_background .container .how_to ul li .info_img .w-55 {
+  width: 55% !important;
+}
+
+.main_content .caligraphy_background .container .how_to ul li .info_img .h-620 {
+  height: 620px;
+}
+
+.main_content .caligraphy_background .container .how_to ul li .text-left {
+  text-align: left;
+}
+
+.main_content .caligraphy_background .container .how_to ul .ml-100 {
+  margin-left: 100px;
+}
+
+.main_content .caligraphy_background .container .how_to ul .mt-20 {
+  margin-top: 20px;
+}
+
+.main_content .caligraphy_background .container .last-child {
+  margin-top: 50px;
+}
+
+.main_content .contact_us {
+  padding: 100px 0;
+  color: #fff;
+  margin-top: 80px;
+  background-color: #ab0039;
+}
+
+.main_content .contact_us .container .row .first_child h2 {
+  margin-top: 0px !important;
+  font-size: 33px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #fff;
+  font-family: montserrat;
+  margin-bottom: 90px;
+}
+
+.main_content .contact_us .container .row .first_child .information {
+  border: 1px solid #fff;
+  margin: 0 70px;
+  border-radius: 10px;
+  padding: 10px 0;
+  position: relative;
+}
+
+.main_content .contact_us .container .row .first_child .information::before {
+  content: "";
+  position: absolute;
+  left: 40%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  height: 100%;
+  background-color: #fff;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row .col span {
+  display: flex;
+  flex-direction: column;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row .col .number {
+  font-size: 67px;
+  font-weight: 600;
+  line-height: 75px;
+  color: #fff;
+  font-family: montserrat;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row .col .text {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  color: #fff;
+  font-family: montserrat;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row .col:first-child {
+  flex-basis: 40%;
+}
+
+.main_content .contact_us .container .row .first_child .information .counter #row .col:last-child {
+  flex-basis: 60%;
+}
+
+.main_content .contact_us .container .row .first_child h4 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #fff;
+  font-family: montserrat;
+  margin-top: 80px;
+  margin-bottom: 20px;
+}
+
+.main_content .contact_us .container .row .first_child #axiom_clients .carousel-inner img {
+  width: 100px;
+  height: 100px;
+  filter: grayscale(1);
+}
+
+.main_content .contact_us .container .row .first_child #axiom_clients .carousel-indicators {
+  position: unset !important;
+  margin-left: 0px !important;
+  width: 100% !important;
+  margin-top: 25px;
+}
+
+.main_content .contact_us .container .row .first_child #axiom_clients .carousel-indicators li {
+  width: 60px !important;
+  height: 3px !important;
+  border: unset !important;
+  background-color: #a7a7a7;
+  margin: 0px !important;
+}
+
+.main_content .contact_us .container .row .first_child #axiom_clients .carousel-indicators li.active {
+  background-color: #fff;
+}
+
+.main_content .contact_us .container .row .first_child #axiom_clients .carousel-indicators .indicator {
+  margin-right: 35px !important;
+}
+
+.main_content .contact_us .container .row .last_child .contact_with_us {
+  width: 370px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 45px 40px;
+  border-radius: 30px;
+}
+
+.main_content .contact_us .container .row .last_child .contact_with_us form label {
+  color: #3d3d3d;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.main_content .contact_us .container .row .last_child .contact_with_us form input,
+.main_content .contact_us .container .row .last_child .contact_with_us form textarea {
+  border-radius: 10px;
+}
+
+.main_content .contact_us .container .row .last_child .contact_with_us form .btn-block {
+  margin-top: 25px;
+  background-color: #a20437;
+  border: 1px solid #a20437;
+  color: #fff;
+  border-radius: 30px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  font-family: montserrat;
+  transition: all 0.5s;
+}
+
+.main_content .contact_us .container .row .last_child .contact_with_us form .btn-block:hover {
+  background-color: transparent;
+  border: 1px solid #a20437;
+  color: #a20437;
+}
+
+@media only screen and (max-width: 1400px) {
+  .main_content .caligraphy_background::after {
+    top: 640px;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  body {
+    overflow-x: hidden;
+  }
+  .main_content .caligraphy_background .container .content h2 {
+    font-size: 45px;
+    line-height: 50px;
+    margin-top: 60px;
+  }
+  .main_content .caligraphy_background .container img {
+    width: 70%;
+  }
+}
+
+@media only screen and (max-width: 1024px) and (orientation: landscape) {
+  .main_content .caligraphy_background .container img {
+    width: 50%;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .banner .background {
+    height: auto;
+  }
+  .banner .background .container {
+    background-size: cover;
+  }
+  .banner .background .container h2 {
+    font-size: 55px;
+    line-height: 65px;
+    margin-bottom: 15px;
+  }
+  .banner .background .container h3 {
+    font-size: 30px;
+    line-height: 35px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .banner .background .container p {
+    font-size: 16px;
+    text-align: left;
+    margin-bottom: 30px;
+  }
+  .main_content {
+    margin-top: 20px;
+  }
+  .main_content .caligraphy_background::after {
+    background-size: contain;
+    top: 85px;
+  }
+  .main_content .caligraphy_background .container .first_child {
+    margin-top: 15px !important;
+  }
+  .main_content .caligraphy_background .container .last-child {
+    margin-top: 0px;
+  }
+  .main_content .caligraphy_background .container .img-box img {
+    width: 100%;
+  }
+  .main_content .caligraphy_background .container .content h2 {
+    margin-top: 50px;
+  }
+  .main_content .caligraphy_background .container .description h2, .main_content .caligraphy_background .container .how_to h2 {
+    font-size: 40px;
+    line-height: 50px;
+  }
+  .main_content .caligraphy_background .container .ml-100 {
+    margin-left: 0px !important;
+  }
+  .main_content .caligraphy_background .container img {
+    width: 100%;
+  }
+  .main_content .contact_us {
+    margin-top: 50px;
+    padding: 40px 0;
+  }
+  .main_content .contact_us .container .row .first_child h2 {
+    margin-bottom: 40px;
+  }
+  .main_content .contact_us .container .row .first_child .information {
+    margin: 0px;
+  }
+  .main_content .contact_us .container .row .first_child .information::before {
+    left: 37%;
+  }
+  .main_content .contact_us .container .row .first_child h4 {
+    margin-top: 50px;
+  }
+  .main_content .contact_us .container .row .last_child {
+    margin-top: 30px;
+  }
+  .main_content .contact_us .container .row .last_child .contact_with_us {
+    width: unset;
+  }
+}
+
+@media only screen and (max-width: 767px) and (orientation: landscape) {
+  .main_content .caligraphy_background::after {
+    top: 270px !important;
+  }
+}

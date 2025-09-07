@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="stripe_payment_provider_form_inherit" model="ir.ui.view">
+        <field name="name">stripe.payment.provider.form.inherit</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='configuration']" position="after">
+                <page string="Fees" name="stripe_fees" invisible="code != 'stripe'">
+                    <group name="stripe_payment_fees">
+                        <field name="stripe_fees_active"/>
+                        <field name="stripe_fees_dom_fixed" invisible="stripe_fees_active == False"/>
+                        <field name="stripe_fees_dom_var" invisible="stripe_fees_active == False"/>
+                        <field name="stripe_fees_int_fixed" invisible="stripe_fees_active == False"/>
+                        <field name="stripe_fees_int_var" invisible="stripe_fees_active == False"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

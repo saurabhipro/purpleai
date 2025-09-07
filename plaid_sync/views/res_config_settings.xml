@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <record id="config_setting_account_plaid_inherit" model="ir.ui.view">
+            <field name="name">config.setting.account.plaid.inherit</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="30"/>
+            <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--            <xpath expr="//div[@data-key='account']" position="inside">-->
+            <xpath expr="//block[@id='quick_edit_mode']" position="after">
+                <h2>Plaid Credentials</h2>
+                <div class="row mt16 o_settings_container" name="plaid_container_1">
+                    <div class="col-6 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="plaid_client" class="col-lg-4 o_light_label"/>
+                                    <field name="plaid_client"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="plaid_secret" class="col-lg-4 o_light_label"/>
+                                    <field name="plaid_secret" password="True"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="plaid_account_setting" class="col-lg-4 o_light_label"/>
+                                    <field name="plaid_account_setting"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</data>
+        </odoo>

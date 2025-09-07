@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <record id="online_sync_plaid_view_form" model="ir.ui.view">
+            <field name="name">online.sync.plaid.view.form</field>
+            <field name="model">online.sync.plaid</field>
+            <field name="arch" type="xml">
+                <form string="Plaid Integration">
+                    <header>
+                        <button name="start_sync"
+                                type="object"
+                                string="Connect To Plaid"
+                                state="unlinked"
+                                class="oe_highlight">
+                        </button>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="bank_journal_id"/>
+                            <h1>
+                                <field name="bank_journal_id"
+                                      readonly = "state  == 'linked'"
+                                       options="{'no_open': True, 'no_create': True}"
+                                       required="1"/>
+                            </h1>
+                        </div>
+                        <field name="plaid_access_token" invisible="1"/>
+                        <!--                            <field name="accounts" widget="radio" readonly="1"-->
+                        <!--                                   states="linked"/>-->
+                        <field name="plaid_institution_name"
+                               state="linked"
+                               readonly="1"/>
+                        <notebook>
+                            <page string="Accounts">
+                                <field name="accounts_line_ids" readonly="1">
+                                    <list>
+                                        <field name="account_name"/>
+                                        <field name="account_type"/>
+                                        <field name="account_subtype"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="online_sync_plaid_view_tree" model="ir.ui.view">
+            <field name="name">online.sync.plaid.view.tree</field>
+            <field name="model">online.sync.plaid</field>
+            <field name="arch" type="xml">
+                <list string="Online Plaid Synchronization">
+                    <field name="bank_journal_id" options="{'no_open': 'True'}"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_online_sync_plaid" model="ir.actions.act_window">
+            <field name="name">Online Sync via Plaid</field>
+            <field name="res_model">online.sync.plaid</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Online Sync via Plaid"
+                  id="menu_online_sync_plaid"
+                  action="action_online_sync_plaid"
+                  parent="account.root_payment_menu"
+        />
+    </data>
+</odoo>

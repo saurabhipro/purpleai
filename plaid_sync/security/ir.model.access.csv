@@ -1,0 +1,9 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+acl_online_sync_plaid_user,acl.online.sync.plaid.user,model_online_sync_plaid,account.group_account_manager,1,1,1,1
+acl_online_sync_plaid_lines_user,acl.online.sync.plaid.lines.user,model_online_sync_plaid_lines,account.group_account_manager,1,1,1,1
+acl_plaid_transaction_wizard_user,acl_plaid_transaction_wizard_user,model_plaid_transaction_wizard,account.group_account_manager,1,1,1,1
+
+
+
+access_account_cashbox_line,account.bank.statement.cashbox.line,model_account_cashbox_line,account.group_account_user,1,1,1,1
+access_account_cashbox,account.bank.statement.cashbox,model_account_bank_statement_cashbox,account.group_account_user,1,1,1,1

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+	<data>
+
+		<!-- <template id="assets_backend" name="email attachment assets" inherit_id="web.assets_backend">
+			<xpath expr="." position="inside">
+				<script type="text/javascript" src="/odoo_email_attachment_app/static/src/js/attachment.js"></script>
+			</xpath>
+		</template>
+ -->
+
+		<record id="inherited_view_attachment_form" model="ir.ui.view">
+			<field name="name">ir.attachment form.inherit</field>
+			<field name="model">ir.attachment</field>
+			<field name="inherit_id" ref="base.view_attachment_form"/>
+			<field name="arch" type="xml">
+				<field name="res_model" position="after">
+					<field name="res_obj_model" invisible="1"/>
+					<field name="res_obj_id" invisible="1"/>
+				</field>
+			</field>
+		</record>
+
+
+		<!-- Inherit Sale Order -->
+		<record id="inherited_sale_order_view_form" model="ir.ui.view">
+			<field name="name">sale.order.view.form.inherit</field>
+			<field name="model">sale.order</field>
+			<field name="inherit_id" ref="sale.view_order_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//div[@name='button_box']" position="inside">
+					<button class="oe_stat_button" name="action_open_attachments" type="object" icon="fa-file-text-o">
+						<field string="Attachment Files" name="attachment_count" widget="statinfo" />
+					</button>
+				</xpath>
+			</field>
+		</record>
+
+	</data>
+</odoo>

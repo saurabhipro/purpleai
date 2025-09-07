@@ -1,0 +1,105 @@
+<odoo>
+
+    <!-- Hide Base Breadcrum -->
+    <template id="portal_breadcrumbs_inherit" inherit_id="portal.portal_breadcrumbs">
+        <xpath expr="//ol" position="attributes">
+            <attribute name="hidden">1</attribute>
+        </xpath>
+    </template>
+
+
+    <!-- Own BreadCrumps -->
+    <template id="portal_breadcrumbs" name="Portal Breadcrumbs">
+        <ol t-if="page_name != 'home'" class="o_portal_submenu breadcrumb mb-0 flex-grow-1 px-0">
+            <li class="breadcrumb-item ms-1"><a href="/" aria-label="Home" title="Home"><i class="fa fa-home"/></a></li>
+
+            <!-- Manage Contacts -->
+            <li t-if="page_name == 'customer_own_res_partner_create'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / Create Your Company</li>
+            <li t-if="page_name == 'customer_own_details'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / Edit - <t t-esc="partner.name"/></li>
+            <li t-if="page_name == 'customer_own_child_details'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / <a t-att-href="'/my/contact-edit/' + str(partner_id) + '/' + str(edit_partner_id)">Edit</a> / Add Contacts &amp; Address</li>
+            <li t-if="page_name == 'customer_own_sale_order_details'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / New Order Form</li>
+
+            <li t-if="page_name == 'customer_own_sale_order_list'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / Order List</li>
+            <li t-elif="page_name == 'customer_own_sale_order_list_all'" class="breadcrumb-item">My All Orders</li>
+            <li t-if="page_name == 'customer_own_sale_order_edit_all'" class="breadcrumb-item"><a t-att-href="'/my/order-list-all/' + str(partner_id)">My All Orders</a> / Edit Order - <span t-esc="sale_order.name"></span></li>
+
+            
+            <li t-if="page_name == 'customer_own_sale_order_edit'" class="breadcrumb-item"><a t-att-href="'/my/contact-list/' + str(partner_id)">My Contacts List</a> / <a t-att-href="'/my/order-list/' + str(partner_id) + '/' + str(edit_partner_id)">Order List</a> / Edit Order - <span t-esc="sale_order.name"></span></li>
+            <li t-if="page_name == 'customer_own_res_partner_list'" class="breadcrumb-item">My Contacts List</li>
+            <!-- <li t-if="page_name == 'customer_own_sale_order_list_all'" class="breadcrumb-item">My All Orders</li> -->
+
+            
+            
+        </ol>
+    </template>
+
+
+    <!-- Main Page Screen -->
+    <template id="spotboxai_portal_my_home" name="My Portal" priority="30">
+        <t t-call="portal.portal_layout">
+            <t t-set="my_details" t-value="True"/>
+            <div class="o_portal_my_home">
+                <div class="oe_structure" id="oe_structure_portal_my_home_1"/>
+                <div class="o_portal_docs row g-2">
+                    <div class="o_portal_doc_spinner spinner-border text-o-color-2 align-self-center mt-5"/>
+                    <div t-if="portal_alert_category_enable" class="o_portal_category row g-2 mt-3" id="portal_alert_category"/>
+                    <div t-if="portal_client_category_enable" class="o_portal_category row g-2 mt-3" id="portal_client_category"/>
+                    <div class="o_portal_category row g-2 mt-3" id="portal_common_category">
+                        <t t-call="portal.portal_docs_entry" t-if="False"/>
+
+                       
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/spotbox_ai_portal/static/src/img/resized_default_image_fixed.png'"/>
+                            <!-- <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/> -->
+                            <t t-set="title">Manage Contacts</t>
+                            <t t-set="url" t-value="'/my/contact-list/' + str(partner_id)"/>
+                            <t t-set="text">Contact, Invoice Address, Delivery Address, Other Address</t>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+                        
+
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/sale/static/src/img/bag.svg'"/>
+                            <t t-set="title">My Orders</t>
+                            <t t-set="text">View &amp; Edit your Order</t>
+                            <t t-set="url" t-value="'/my/order-list-all/' + str(partner_id)"/>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/portal/static/src/img/portal-connection.svg'"/>
+                            <t t-set="title">Connection &amp; Security</t>
+                            <t t-set="text">Configure your connection parameters</t>
+                            <t t-set="url" t-value="'/my/security'"/>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+
+                        
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="oe_structure" id="oe_structure_portal_my_home_2"/>
+        </t>
+    </template>
+
+
+    <template id="portal_my_security_inherited" inherit_id="auth_totp_portal.totp_portal_hook"
+              name="Password policy data for portal">
+            <xpath expr="//section[2]" position="attributes">
+                <attribute name="class">d-none</attribute>
+            </xpath>
+
+            <xpath expr="//section[@name='portal_revoke_all_devices_popup']" position="attributes">
+                <attribute name="class">d-none</attribute>
+            </xpath>
+
+            <xpath expr="//section[@name='portal_deactivate_account']" position="attributes">
+                <attribute name="class">d-none</attribute>
+            </xpath>
+        
+    </template>
+
+
+</odoo>

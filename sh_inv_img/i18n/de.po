@@ -1,0 +1,100 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sh_inv_img
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.1alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-08 07:41+0000\n"
+"PO-Revision-Date: 2020-10-08 07:41+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__display_name
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move_line__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__id
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move_line__id
+msgid "ID"
+msgstr "ICH WÜRDE"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move_line__sh_product_img
+#: model_terms:ir.ui.view,arch_db:sh_inv_img.sh_account_invoice_template_custom
+msgid "Image"
+msgstr "Bild"
+
+#. module: sh_inv_img
+#: model:ir.model,name:sh_inv_img.model_account_move
+msgid "Journal Entry"
+msgstr "Tagebucheintrag"
+
+#. module: sh_inv_img
+#: model:ir.model,name:sh_inv_img.model_account_move_line
+msgid "Journal Item"
+msgstr "Journal Item"
+
+#. module: sh_inv_img
+#: model:ir.model.fields.selection,name:sh_inv_img.selection__account_move__sh_image_size__large
+msgid "Large"
+msgstr "Groß"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move____last_update
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move_line____last_update
+msgid "Last Modified on"
+msgstr "Zuletzt geändert am"
+
+#. module: sh_inv_img
+#: model:ir.model.fields.selection,name:sh_inv_img.selection__account_move__sh_image_size__medium
+msgid "Medium"
+msgstr "Mittel"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_bank_statement_line__sh_image_size
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__sh_image_size
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_payment__sh_image_size
+msgid "Print Image Size"
+msgstr "Bildgröße drucken"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_bank_statement_line__sh_print_product_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__sh_print_product_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_payment__sh_print_product_img
+msgid "Print Product Image"
+msgstr "Produktbild drucken"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_bank_statement_line__sh_print_line_no
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__sh_print_line_no
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_payment__sh_print_line_no
+msgid "Print Serial Number"
+msgstr "Seriennummer drucken"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_bank_statement_line__sh_print_taxes
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__sh_print_taxes
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_payment__sh_print_taxes
+msgid "Print Taxes"
+msgstr "Steuern drucken"
+
+#. module: sh_inv_img
+#: model:ir.model.fields.selection,name:sh_inv_img.selection__account_move__sh_image_size__small
+msgid "Small"
+msgstr "Klein"
+
+#. module: sh_inv_img
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_bank_statement_line__sh_dummy
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_move__sh_dummy
+#: model:ir.model.fields,field_description:sh_inv_img.field_account_payment__sh_dummy
+msgid "dummy_fields"
+msgstr "Dummy_Felder"
