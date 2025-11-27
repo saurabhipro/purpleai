@@ -1,8 +1,0 @@
-<odoo>
-    <data>
-        <!-- Create a new group for portal users that allows them to create contacts -->
-        <record id="group_portal_user_contact_creation" model="res.groups">
-            <field name="name">Portal User Contact Creation</field>
-        </record>
-    </data>
-</odoo>

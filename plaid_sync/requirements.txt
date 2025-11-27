@@ -1,2 +1,0 @@
-plaid-python==9.9.0
-pandas==1.3.5
