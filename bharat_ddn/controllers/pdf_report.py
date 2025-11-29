@@ -25,6 +25,7 @@ class PDFConfig:
     # BASE_EXPORT_DIR = '/home/anjli/Anjli/crm/BharatDDN/pdf'  # Base directory for all PDF exports
 
     BASE_EXPORT_DIR = '/home/odoo18/odoo/downloaded_pdfs'  # Base directory for all PDF exports
+    # BASE_EXPORT_DIR = '/home/anjli/bharat_ddn/bharat_ddn/downloaded_pdfs'
     FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf"
     IMAGE_QUALITY = 20 # Increased quality for better clarity
@@ -279,7 +280,7 @@ class PdfGeneratorController(http.Controller):
             return processed_count, colony_dir, None
 
     @http.route(['/download/ward_properties_pdf', '/download/ward_properties_pdf/<string:source>'], type='http', auth='user', methods=['GET'], csrf=True)
-    def download_ward_properties_pdf(self, source, **kw):
+    def download_ward_properties_pdf(self, source=None, **kw):
         _logger.info("Starting PDF generation process")
         ward_id = kw.get('ward_id')
         colony_id = kw.get('colony_id')
