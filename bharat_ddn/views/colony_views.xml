@@ -23,6 +23,15 @@
             <field name="arch" type="xml">
                 <form string="Colony">
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                        <button type="object"
+                                class="oe_stat_button"
+                                icon="fa-home"
+                                name="action_open_property">
+                            <field name="property_count" widget="statinfo"
+                                   string="property"/>
+                        </button>
+                    </div>
                         <group>
                             <field name="name"/>
                             <field name="code"/>

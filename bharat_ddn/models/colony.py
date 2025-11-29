@@ -12,12 +12,25 @@ class Colony(models.Model):
     active = fields.Boolean(string='Active', default=True)
     code = fields.Char(string='Code')
     pdf_url = fields.Char(string='PDF URL', tracking=True)
-    property_count = fields.Integer(string="Property Count", compute="_action_property_count", readonly=True, store=True)
+    property_count = fields.Integer(string="Property Count", compute="_action_property_count")
+
+    def action_open_property(self):
+        """Smart button action to open related colony"""
+        self.ensure_one()
+        return {
+            'name': 'Property Records',
+            'type': 'ir.actions.act_window',
+            'res_model': 'ddn.property.info',
+            'view_mode': 'list,form',
+            'domain': [('company_id','=',self.company_id.id),('colony_id', '=', self.id)],
+            'context': {'default_colony_id': self.id},
+        }
 
 
     def _action_property_count(self):
-        property_count = self.env['ddn.property.info'].search_count([('company_id','=',self.company_id.id),('colony_id','=',self.id)])
-        self.property_count = property_count
+        for rec in self:
+            property_count = self.env['ddn.property.info'].search_count([('company_id','=',rec.company_id.id),('colony_id','=',rec.id)])
+            rec.property_count = property_count
              
     def update_ward(self):
         """Update the pdf_url field and return a dynamic URL using colony_id."""
