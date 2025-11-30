@@ -30,7 +30,7 @@ class PDFConfig:
     FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf"
     IMAGE_QUALITY = 20 # Increased quality for better clarity
-    BATCH_SIZE = 1000  # Process 20 properties at a time
+    BATCH_SIZE = 6000  # Process 20 properties at a time
     
     # Adjusted for 8x4 plate dimensions
     CENTER_FONT_SIZE = 150  # Increased height to make text taller
