@@ -31,45 +31,40 @@ class PDFConfig:
     IMAGE_QUALITY = 20 # Increased quality for better clarity
     BATCH_SIZE = 1000  # Process 20 properties at a time
     
-    CENTER_FONT_SIZE = 140
-    VALUE_FONT_SIZE = 120
+    # Adjusted for 8x4 plate dimensions
+    CENTER_FONT_SIZE = 150  # Increased height to make text taller
+    VALUE_FONT_SIZE = 85    # Reduced to fit within boxes (Z14, SDNA, 0002)
 
     IMAGE_FORMAT = 'JPEG'
     BACKGROUND_COLOR = 'white'  # Added background color setting
    
-    CENTER_TEXT_Y = 500
-    VALUE_TEXT_Y = 570
+    # Y positions scaled for 8x4 (4/6 = 0.667 ratio)
+    CENTER_TEXT_Y = 380  # Moved down to be closer to the red row table
+    VALUE_TEXT_Y = 350   # Scaled from 570
     CENTER_TEXT_RIGHT_MARGIN = 60  # Increase this value to move text further left
     TEXT_OUTLINE_OFFSET = 5
-    # Table Cell Positions and Dimensions
-    TABLE_ROW_Y = 850
-    BOX_START_X = 150
+    # Table Cell Positions and Dimensions - moved down and to the right
+    TABLE_ROW_Y = 650    # Moved down more to fit in red row (was 550)
+    BOX_START_X = 250    # Moved right more for better positioning
     BOX_WIDTH = 250
-    BOX_GAP = 350
+    BOX_GAP = 280        # Adjusted gap to move locality and unit more to the right
+    
+    # Individual box X offset adjustments (adjust these to fine-tune positioning)
+    ZONE_X_OFFSET = -60   # Move Z14 left (negative = left, positive = right)
+    LOCALITY_X_OFFSET = 50  # Move SDNA right (negative = left, positive = right)
+    UNIT_NO_X_OFFSET = 150   # Move UNIT text right (negative = left, positive = right)
     QR_VERSION = 1
     QR_ERROR_CORRECTION = qrcode.constants.ERROR_CORRECT_H
-    QR_BOX_SIZE = 20
-    QR_BORDER = 1   
+    QR_BOX_SIZE = 14     # Further reduced for better fit in box
+    QR_BORDER = 2        # Increased border for better visibility
    
-    ZONE_BOX = {
-        'x': 200,
-        'width': 100
-    }
-    LOCALITY_BOX = {
-        'x': 800,
-        'width': 0
-    }
-    UNIT_NO_BOX = {
-        'x': 1200,
-        'width': 5
-    }
    
-    # QR Code Settings
+    # QR Code Settings - Adjusted to fit in box for 8x4 plate
     QR_BOX = {
-        'x': 100,
-        'y': 270,
-        'width': 330,
-        'height': 320
+        'x': 90,        # Adjusted position
+        'y': 180,        # Moved up slightly
+        'width': 320,    # Further reduced for better fit in box
+        'height': 320   # Square aspect, reduced for better fit
     }
    
  
@@ -97,12 +92,14 @@ class PDFExportStatus:
 
 class PdfGeneratorController(http.Controller):
  
-    def draw_centered_text(self, x, y, width, text, font, color):
-        """Helper function to draw centered text"""
+    def draw_centered_text(self, x, y, width, text, font, color, x_offset=0):
+        """Helper function to draw centered text with optional X offset adjustment"""
         draw = ImageDraw.Draw(self.current_image)
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
-        x_centered = x + (width - text_width) // 2
+        
+        # Center the text and apply X offset
+        x_centered = x + (width - text_width) // 2 + x_offset
         draw.text((x_centered, y), text, font=font, fill=color)
  
     def generate_ddn_image(self, property_rec, bg_image_path):
@@ -154,13 +151,13 @@ class PdfGeneratorController(http.Controller):
             zone_x = PDFConfig.BOX_START_X
             locality_x = zone_x + PDFConfig.BOX_WIDTH + PDFConfig.BOX_GAP
             unit_no_x = locality_x + PDFConfig.BOX_WIDTH + PDFConfig.BOX_GAP
+
+            # Draw the values in the table with individual X offsets
+            self.draw_centered_text(zone_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, zone, value_font, 'white', PDFConfig.ZONE_X_OFFSET)
+            self.draw_centered_text(locality_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, locality, value_font, 'white', PDFConfig.LOCALITY_X_OFFSET)
+            self.draw_centered_text(unit_no_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, formatted_unit_no, value_font, 'white', PDFConfig.UNIT_NO_X_OFFSET)
  
-            # Draw the values in the table
-            self.draw_centered_text(zone_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, zone, value_font, 'white')
-            self.draw_centered_text(locality_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, locality, value_font, 'white')
-            self.draw_centered_text(unit_no_x, PDFConfig.TABLE_ROW_Y, PDFConfig.BOX_WIDTH, formatted_unit_no, value_font, 'white')
- 
-            # QR code
+            # QR code - fit in existing background box (no new border)
             qr = qrcode.QRCode(
                 version=PDFConfig.QR_VERSION,
                 error_correction=PDFConfig.QR_ERROR_CORRECTION,
@@ -172,12 +169,17 @@ class PdfGeneratorController(http.Controller):
             qr.add_data(full_url)
             qr.make(fit=True)
             qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
-            qr_img = qr_img.resize((PDFConfig.QR_BOX['width'], PDFConfig.QR_BOX['height']), Image.LANCZOS)
+            
+            # Resize QR code to fit within the existing background box with padding
+            qr_padding = 10  # Small padding inside the existing box
+            qr_actual_width = PDFConfig.QR_BOX['width'] - (qr_padding * 2)
+            qr_actual_height = PDFConfig.QR_BOX['height'] - (qr_padding * 2)
+            qr_img = qr_img.resize((qr_actual_width, qr_actual_height), Image.LANCZOS)
            
-            # Create a white background for QR code
-            qr_bg = Image.new('RGB', (PDFConfig.QR_BOX['width'], PDFConfig.QR_BOX['height']), 'white')
-            qr_bg.paste(qr_img, (0, 0))
-            final_image.paste(qr_bg, (PDFConfig.QR_BOX['x'], PDFConfig.QR_BOX['y']))
+            # Paste QR code directly into the existing background box (no new border)
+            qr_paste_x = PDFConfig.QR_BOX['x'] + qr_padding
+            qr_paste_y = PDFConfig.QR_BOX['y'] + qr_padding
+            final_image.paste(qr_img, (qr_paste_x, qr_paste_y))
  
             return final_image
  
