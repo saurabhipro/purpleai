@@ -13,6 +13,10 @@ class Colony(models.Model):
     code = fields.Char(string='Code')
     pdf_url = fields.Char(string='PDF URL', tracking=True)
     property_count = fields.Integer(string="Property Count", compute="_action_property_count")
+    pdf_status = fields.Selection([
+        ('uploaded', '✓ Uploaded'),
+        ('not_uploaded', '✗ Not Uploaded')
+    ], string='PDF Status', compute='_compute_pdf_status', store=False)
 
     def action_open_property(self):
         """Smart button action to open related colony"""
@@ -31,6 +35,15 @@ class Colony(models.Model):
         for rec in self:
             property_count = self.env['ddn.property.info'].search_count([('company_id','=',rec.company_id.id),('colony_id','=',rec.id)])
             rec.property_count = property_count
+
+    @api.depends('pdf_url')
+    def _compute_pdf_status(self):
+        """Compute PDF status based on whether pdf_url exists"""
+        for rec in self:
+            if rec.pdf_url and rec.pdf_url.strip():
+                rec.pdf_status = 'uploaded'
+            else:
+                rec.pdf_status = 'not_uploaded'
              
     def update_ward(self):
         """Update the pdf_url field and return a dynamic URL using colony_id."""

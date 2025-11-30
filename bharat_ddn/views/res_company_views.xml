@@ -22,6 +22,9 @@
                                     <field name="aws_secret_key"/>
                                 </group>
                             </group>
+                            <group>
+                                <field name="s3_pdf_path_prefix" placeholder="pdf/ or ddnindore/pdf/" help="Specify the S3 path prefix where PDF files will be stored. PDFs will be organized colony-wise under this path. Example: pdf/ or ddnindore/pdf/"/>
+                            </group>
 
                         </page>
                     </xpath>

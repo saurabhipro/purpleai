@@ -14,6 +14,7 @@ import zipfile
 import shutil
 import time
 import traceback
+import boto3
 
 _logger = logging.getLogger(__name__)
 
@@ -208,6 +209,78 @@ class PdfGeneratorController(http.Controller):
         
         return colony_dir
 
+    def upload_pdfs_to_s3(self, pdf_paths, colony_id):
+        """Upload PDF files to S3 and return the S3 URL"""
+        try:
+            colony = request.env['ddn.colony'].sudo().browse(colony_id)
+            if not colony.exists():
+                raise ValueError(f"Colony with ID {colony_id} not found")
+            
+            company = colony.company_id
+            if not company or not company.s3_bucket_name or not company.aws_acsess_key:
+                _logger.warning("S3 configuration not found. Skipping S3 upload.")
+                return None
+            
+            # Get S3 configuration
+            AWS_ACCESS_KEY = company.aws_acsess_key
+            AWS_SECRET_KEY = company.aws_secret_key
+            AWS_REGION = company.aws_region or 'ap-south-1'
+            S3_BUCKET_NAME = company.s3_bucket_name
+            
+            # Safely get PDF path prefix (handle case where field doesn't exist in DB yet)
+            try:
+                PDF_PATH_PREFIX = (company.s3_pdf_path_prefix or 'pdf/').strip()
+            except (AttributeError, KeyError):
+                PDF_PATH_PREFIX = 'pdf/'
+            
+            if not PDF_PATH_PREFIX.endswith('/'):
+                PDF_PATH_PREFIX += '/'
+            
+            # Initialize S3 client
+            s3_client = boto3.client(
+                's3',
+                aws_access_key_id=AWS_ACCESS_KEY,
+                aws_secret_access_key=AWS_SECRET_KEY,
+                region_name=AWS_REGION
+            )
+            
+            # Get colony name for S3 path
+            colony_name = colony.name.replace(" ", "_").lower()
+            
+            # Upload all PDFs and collect URLs
+            s3_urls = []
+            for pdf_path in pdf_paths:
+                if not os.path.exists(pdf_path):
+                    continue
+                
+                filename = os.path.basename(pdf_path)
+                # S3 key: pdf_path_prefix/colony_name/filename
+                s3_key = f"{PDF_PATH_PREFIX}{colony_name}/{filename}"
+                
+                # Upload to S3
+                with open(pdf_path, 'rb') as pdf_file:
+                    s3_client.put_object(
+                        Bucket=S3_BUCKET_NAME,
+                        Key=s3_key,
+                        Body=pdf_file.read(),
+                        ContentType='application/pdf'
+                    )
+                
+                # Generate S3 URL
+                s3_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
+                s3_urls.append(s3_url)
+                _logger.info(f"Uploaded PDF to S3: {s3_url}")
+            
+            # If multiple PDFs, return the first one (or combine them)
+            # For now, return the first batch PDF URL
+            if s3_urls:
+                return s3_urls[0]  # Return first PDF URL
+            return None
+            
+        except Exception as e:
+            _logger.error(f"Error uploading PDFs to S3: {str(e)}", exc_info=True)
+            return None
+
     def process_property_batch(self, property_ids, bg_image_path, colony_id=None, batch_number=1):
         processed_count = 0
         error_count = 0
@@ -385,6 +458,16 @@ class PdfGeneratorController(http.Controller):
                 PDFExportStatus.set_export_status(colony_id, True, output_dir)
                 _logger.info(f"All batches processed. Total processed: {total_processed}")
                 _logger.info(f"PDFs are available in directory: {output_dir}")
+                
+                # Upload PDFs to S3 if batch PDFs exist
+                if batch_pdf_paths:
+                    s3_url = self.upload_pdfs_to_s3(batch_pdf_paths, colony_id)
+                    if s3_url:
+                        # Update colony's pdf_url with S3 URL
+                        colony = request.env['ddn.colony'].sudo().browse(colony_id)
+                        colony.write({'pdf_url': s3_url})
+                        _logger.info(f"Updated colony PDF URL to: {s3_url}")
+                
                 # Return success message with directory information
                 return request.make_response(
                     f"PDF generation completed. {total_processed} properties processed. Files are available in: {output_dir}",
