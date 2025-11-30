@@ -13,6 +13,7 @@
                     <field name="property_count"/>
                     <field name="company_id"/>
                     <field name="pdf_status" widget="badge" decoration-success="pdf_status == 'uploaded'" decoration-danger="pdf_status == 'not_uploaded'" string="PDF"/>
+                    <field name="pdf_url" widget="copy_clipboard" string="PDF URL"/>
                 </list>
             </field>
         </record>
