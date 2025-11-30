@@ -857,6 +857,95 @@ class PropertyIdDataAPI(http.Controller):
         except Exception as e:
             return Response(json.dumps({'error': str(e)}), status=500, content_type='application/json')
 
+    @http.route('/api/property/delete_survey', type='http', auth='public', methods=['POST'], csrf=False)
+    @check_permission
+    def delete_survey(self, **kwargs):
+        """Delete survey and reset property to allow re-survey."""
+        try:
+            data = json.loads(request.httprequest.data or "{}")
+            upic_no = data.get('upic_no', '').strip()
+            uuid = data.get('uuid', '').strip()
+            
+            # Validate input
+            if not upic_no and not uuid:
+                return Response(
+                    json.dumps({'error': 'Either upic_no or uuid is required'}),
+                    status=400,
+                    content_type='application/json'
+                )
+            
+            # Find property record
+            domain = []
+            if upic_no:
+                domain = [('upic_no', '=', upic_no)]
+            elif uuid:
+                domain = [('uuid', '=', uuid)]
+            
+            property_record = request.env['ddn.property.info'].sudo().search(domain, limit=1)
+            
+            if not property_record:
+                return Response(
+                    json.dumps({'error': 'Property not found'}),
+                    status=404,
+                    content_type='application/json'
+                )
+            
+            # Delete all survey records
+            if property_record.survey_line_ids:
+                property_record.survey_line_ids.unlink()
+            
+            # Reset property fields
+            reset_vals = {
+                'property_status': 'pdf_downloaded',
+                'address_line_1': False,
+                'address_line_2': False,
+                'property_id': False,
+                'owner_name': False,
+                'property_type': False,
+                'latitude': False,
+                'longitude': False,
+                'mobile_no': False,
+                'surveyer_id': False,
+            }
+            
+            property_record.write(reset_vals)
+            
+            _logger.info(f"Survey deleted and property reset for: {property_record.upic_no}")
+            
+            return Response(
+                json.dumps({
+                    'status': 'success',
+                    'message': 'Survey deleted successfully. Property reset to pdf_downloaded status.',
+                    'upic_no': property_record.upic_no,
+                    'uuid': property_record.uuid,
+                    'property_status': property_record.property_status
+                }),
+                status=200,
+                content_type='application/json'
+            )
+            
+        except jwt.ExpiredSignatureError:
+            _logger.error("JWT token has expired")
+            return Response(
+                json.dumps({'status': 'error', 'message': 'JWT token has expired'}),
+                status=401,
+                content_type='application/json'
+            )
+        except jwt.InvalidTokenError:
+            _logger.error("Invalid JWT token")
+            return Response(
+                json.dumps({'status': 'error', 'message': 'Invalid JWT token'}),
+                status=401,
+                content_type='application/json'
+            )
+        except Exception as e:
+            _logger.error(f"Error deleting survey: {str(e)}")
+            return Response(
+                json.dumps({'status': 'error', 'message': 'An error occurred', 'details': str(e)}),
+                status=500,
+                content_type='application/json'
+            )
+
     @http.route('/api/surveyor/surveys', type='http', auth='public', methods=['GET'], csrf=False)
     @check_permission
     def list_surveyor_surveys(self, **kwargs):
