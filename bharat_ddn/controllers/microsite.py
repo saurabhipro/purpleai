@@ -9,6 +9,19 @@ _logger = logging.getLogger(__name__)
 
 class CustomWebsite(http.Controller):
     
+    def _get_template_by_company(self, property):
+        """Determine which template to use based on company name."""
+        if not property or not property.company_id:
+            return 'bharat_ddn.id_indore_microsite_template'
+        
+        company_name = property.company_id.name.lower()
+        # Check if company name contains "sambhaji" or "sambhajinagar"
+        if 'sambhaji' in company_name or 'sambhajinagar' in company_name:
+            return 'bharat_ddn.id_sambhaji_microsite_template'
+        
+        # Default to Indore template
+        return 'bharat_ddn.id_indore_microsite_template'
+    
     @http.route('/qr.html', auth='public', website=True)
     def get_property_details_by_ddn(self, **kw):
         """Handle QR code URL with ddn parameter (UPIC number)."""
@@ -32,11 +45,12 @@ class CustomWebsite(http.Controller):
         if not property:
             return "No property found"
         
-        # Render the same template as /get/<uuid> route
+        # Get services and template based on company
         services = request.env['ddn.services'].sudo().search([('company_id','=',property.company_id.id)]) if property else request.env['ddn.services'].sudo().search([])
+        template_name = self._get_template_by_company(property)
         
         return request.render(
-            'bharat_ddn.id_indore_microsite_template',
+            template_name,
             {
                 'property': property,
                 'services': services,
@@ -58,8 +72,12 @@ class CustomWebsite(http.Controller):
 
         if not property:
             return "No property found"
+        
+        # Get template based on company
+        template_name = self._get_template_by_company(property)
+        
         return request.render(
-            'bharat_ddn.id_indore_microsite_template',
+            template_name,
             {
                 'property': property,
                 'services': services,

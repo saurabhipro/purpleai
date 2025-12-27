@@ -37,6 +37,7 @@
         'wizard/ddn_report.xml',
         'views/dashboard.xml',
         'views/indore_microsite.xml',
+        'views/sambhaji_microsite.xml',
         'views/property_id_data_views.xml',
         'views/menuitems.xml',  # Load menus last
 
