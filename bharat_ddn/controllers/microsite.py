@@ -9,6 +9,41 @@ _logger = logging.getLogger(__name__)
 
 class CustomWebsite(http.Controller):
     
+    @http.route('/qr.html', auth='public', website=True)
+    def get_property_details_by_ddn(self, **kw):
+        """Handle QR code URL with ddn parameter (UPIC number)."""
+        ddn = kw.get('ddn', '').strip()
+        if not ddn:
+            return "No property identifier provided"
+        
+        # Log the scan
+        scan_url = request.httprequest.url
+        
+        # Search for property by UPIC number
+        property = request.env['ddn.property.info'].sudo().search([('upic_no', '=', ddn)], limit=1)
+        
+        # Log the QR scan
+        request.env['ddn.qr.scan'].sudo().create({
+            'uuid': property.uuid if property else '',
+            'scan_url': scan_url,
+            'property_id': property.id if property else False,
+        })
+        
+        if not property:
+            return "No property found"
+        
+        # Render the same template as /get/<uuid> route
+        services = request.env['ddn.services'].sudo().search([('company_id','=',property.company_id.id)]) if property else request.env['ddn.services'].sudo().search([])
+        
+        return request.render(
+            'bharat_ddn.id_indore_microsite_template',
+            {
+                'property': property,
+                'services': services,
+                'Markup': Markup,
+            }
+        )
+    
     @http.route('/get/<string:uuid>', auth='public', website=True)
     def get_property_details_by_uuid(self, uuid, **kw):
         # Log the scan
