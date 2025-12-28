@@ -10,8 +10,8 @@
                 <field name="title"/>
                 <field name="upic_no"/>
                 <field name="status" widget="badge" decoration-success="status == 'done'" decoration-warning="status == 'processing'" decoration-danger="status == 'error'"/>
-                <field name="video_url" string="Video URL" widget="url" invisible="status != 'done'"/>
-                <field name="shareable_link" string="Shareable Link" widget="url" invisible="not shareable_link"/>
+                <field name="video_url" widget="url" invisible="status != 'done'"/>
+                <field name="shareable_link" widget="url" invisible="not shareable_link"/>
                 <field name="create_date"/>
             </list>
         </field>
