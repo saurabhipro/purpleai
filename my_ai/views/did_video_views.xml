@@ -59,11 +59,9 @@
                     </group>
                     <group string="Video Links" invisible="status != 'done'">
                         <field name="video_url" readonly="1" widget="url" string="Video URL" 
-                               placeholder="Video URL will appear here after generation..."
                                help="Click to open or copy this URL to share the original video"/>
                         <field name="shareable_link" readonly="1" widget="url" string="Shareable Link" 
                                invisible="not shareable_link"
-                               placeholder="Shareable link will appear here after storing video..."
                                help="Public link to share the video (stored in Odoo)"/>
                         <field name="talk_id" readonly="1" invisible="1"/>
                         <field name="attachment_id" readonly="1" invisible="1"/>
