@@ -131,32 +131,36 @@ class DIDVideo(models.Model):
         }
     
     def action_copy_video_url(self):
-        """Copy video URL to clipboard - returns URL for JavaScript copy"""
+        """Copy video URL to clipboard"""
         self.ensure_one()
         if not self.video_url:
             raise UserError('No video URL available.')
         
         return {
             'type': 'ir.actions.client',
-            'tag': 'clipboard',
+            'tag': 'display_notification',
             'params': {
-                'text': self.video_url,
-                'message': 'Video URL copied to clipboard!',
+                'title': 'Copy Video URL',
+                'message': f'Video URL: {self.video_url}',
+                'type': 'info',
+                'sticky': True,
             }
         }
     
     def action_copy_shareable_link(self):
-        """Copy shareable link to clipboard - returns URL for JavaScript copy"""
+        """Copy shareable link to clipboard"""
         self.ensure_one()
         if not self.shareable_link:
             raise UserError('No shareable link available. Please download and store the video first.')
         
         return {
             'type': 'ir.actions.client',
-            'tag': 'clipboard',
+            'tag': 'display_notification',
             'params': {
-                'text': self.shareable_link,
-                'message': 'Shareable link copied to clipboard!',
+                'title': 'Copy Shareable Link',
+                'message': f'Shareable Link: {self.shareable_link}',
+                'type': 'info',
+                'sticky': True,
             }
         }
 
