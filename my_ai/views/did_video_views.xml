@@ -49,6 +49,10 @@
                             <field name="status" readonly="1"/>
                         </group>
                         <group>
+                            <field name="avatar_url" placeholder="Leave empty to use default avatar from settings" 
+                                   help="Enter custom avatar image URL or leave empty to use default"/>
+                            <field name="voice_id" placeholder="Leave empty to use default voice (Hindi)" 
+                                   help="For Hindi: hi-IN-MadhurNeural (male), hi-IN-SwaraNeural (female). For English: en-US-JennyNeural"/>
                             <field name="create_date" readonly="1"/>
                             <field name="write_date" readonly="1"/>
                         </group>

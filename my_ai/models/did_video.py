@@ -21,6 +21,8 @@ class DIDVideo(models.Model):
     upic_no = fields.Char(string='UPIC Number', help='Enter the UPIC number to generate personalized greeting video')
     property_id = fields.Many2one('ddn.property.info', string='Property', readonly=True)
     script_text = fields.Text(string='Script Text', required=True, help='Script will be auto-generated based on UPIC number')
+    avatar_url = fields.Char(string='Avatar Image URL', help='Leave empty to use default avatar from settings')
+    voice_id = fields.Char(string='Voice ID', help='Leave empty to use default voice from settings. For Hindi use: hi-IN-MadhurNeural or hi-IN-SwaraNeural')
     status = fields.Selection([
         ('draft', 'Draft'),
         ('processing', 'Processing'),
@@ -42,15 +44,20 @@ class DIDVideo(models.Model):
                 ward_name = property.ward_id.name if property.ward_id else "N/A"
                 colony_name = property.colony_id.name if property.colony_id else "N/A"
                 
-                self.script_text = f"""Hello {owner_name},
+                # Generate Hindi script
+                self.script_text = f"""नमस्ते {owner_name},
 
-Welcome to Bharat DDN!
+भारत DDN में आपका स्वागत है!
 
-Your DDN Number is {ddn_number}.
+आपका DDN नंबर {ddn_number} है।
 
-Your property is located in Zone {zone_name}, Ward {ward_name}, and Colony {colony_name}.
+आपकी संपत्ति जोन {zone_name}, वार्ड {ward_name}, और कॉलोनी {colony_name} में स्थित है।
 
-Thank you for being part of Bharat DDN."""
+भारत DDN का हिस्सा बनने के लिए धन्यवाद।"""
+                
+                # Set default Hindi voice if not set
+                if not self.voice_id:
+                    self.voice_id = 'hi-IN-MadhurNeural'  # Hindi male voice
                 
                 if not self.title:
                     self.title = f"Greeting Video - {ddn_number}"
@@ -84,14 +91,18 @@ Thank you for being part of Bharat DDN."""
         return settings.did_api_url or 'https://api.d-id.com/talks'
     
     def _get_avatar_url(self):
-        """Get avatar URL from settings"""
+        """Get avatar URL from record or settings"""
+        if self.avatar_url:
+            return self.avatar_url
         settings = self.env['my.ai.settings'].get_settings()
-        return settings.did_default_avatar_url or 'https://create-images-results.d-id.com/DefaultPresenters/Emma_f.jpg'
+        return settings.did_default_avatar_url or 'https://d-id-public-bucket.s3.amazonaws.com/alice.jpg'
     
     def _get_voice_id(self):
-        """Get voice ID from settings"""
+        """Get voice ID from record or settings"""
+        if self.voice_id:
+            return self.voice_id
         settings = self.env['my.ai.settings'].get_settings()
-        return settings.did_default_voice_id or 'en-US-JennyNeural'
+        return settings.did_default_voice_id or 'hi-IN-MadhurNeural'
     
     # Video Results
     talk_id = fields.Char(string='Talk ID', readonly=True, help='D-ID Talk ID')

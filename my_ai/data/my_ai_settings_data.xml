@@ -7,7 +7,7 @@
             <field name="did_api_key">c2F1cmFiaC5tZWhyb3RyYWdAZ21haWwuY29t:9i_1ChZ4nrkX6KxgnxGr5</field>
             <field name="did_api_url">https://api.d-id.com/talks</field>
             <field name="did_default_avatar_url">https://d-id-public-bucket.s3.amazonaws.com/alice.jpg</field>
-            <field name="did_default_voice_id">en-US-JennyNeural</field>
+            <field name="did_default_voice_id">hi-IN-MadhurNeural</field>
         </record>
     </data>
 </odoo>

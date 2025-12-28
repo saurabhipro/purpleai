@@ -29,16 +29,16 @@ class MyAISettings(models.Model):
     
     did_default_avatar_url = fields.Char(
         string='Default Avatar Image URL',
-        default='https://create-images-results.d-id.com/DefaultPresenters/Emma_f.jpg',
+        default='https://d-id-public-bucket.s3.amazonaws.com/alice.jpg',
         required=True,
-        help='Default avatar image URL for video generation'
+        help='Default avatar image URL for video generation. You can use D-ID presenters or upload your own image.'
     )
     
     did_default_voice_id = fields.Char(
         string='Default Voice ID',
-        default='en-US-JennyNeural',
+        default='hi-IN-MadhurNeural',
         required=True,
-        help='Default Microsoft voice ID (e.g., en-US-JennyNeural, en-US-GuyNeural)'
+        help='Default Microsoft voice ID. For Hindi: hi-IN-MadhurNeural (male), hi-IN-SwaraNeural (female). For English: en-US-JennyNeural, en-US-GuyNeural'
     )
 
     @api.model
@@ -53,8 +53,8 @@ class MyAISettings(models.Model):
                 'active': True,
                 'did_api_key': '',
                 'did_api_url': 'https://api.d-id.com/talks',
-                'did_default_avatar_url': 'https://create-images-results.d-id.com/DefaultPresenters/Emma_f.jpg',
-                'did_default_voice_id': 'en-US-JennyNeural',
+                'did_default_avatar_url': 'https://d-id-public-bucket.s3.amazonaws.com/alice.jpg',
+                'did_default_voice_id': 'hi-IN-MadhurNeural',
             })
         return settings
     
