@@ -15,11 +15,11 @@ A custom AI module for Bharat DDN project.
     'data': [
         'security/ir.model.access.csv',
         'data/my_ai_settings_data.xml',
+        'views/menu_views.xml',
         'views/my_ai_views.xml',
         'views/my_ai_settings_views.xml',
         'views/did_video_views.xml',
         'views/res_config_settings_views.xml',
-        'views/menu_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
