@@ -62,20 +62,11 @@
                                nolabel="1" widget="text"/>
                     </group>
                     <group string="Video Links" invisible="status != 'done'">
-                        <group>
-                            <field name="video_url" readonly="1" widget="copy_clipboard" string="Video URL" 
-                                   help="Click the copy icon to copy the URL to clipboard"/>
-                            <button name="action_copy_video_url" string="Copy Video URL" type="object" 
-                                    class="btn-secondary" icon="fa-copy" 
-                                    invisible="not video_url"/>
-                        </group>
-                        <group invisible="not shareable_link">
-                            <field name="shareable_link" readonly="1" widget="copy_clipboard" string="Shareable Link" 
-                                   help="Click the copy icon to copy the shareable link to clipboard"/>
-                            <button name="action_copy_shareable_link" string="Copy Shareable Link" type="object" 
-                                    class="btn-secondary" icon="fa-copy" 
-                                    invisible="not shareable_link"/>
-                        </group>
+                        <field name="video_url" readonly="1" widget="copy_clipboard" string="Video URL" 
+                               help="Click the copy icon next to the URL to copy it to clipboard"/>
+                        <field name="shareable_link" readonly="1" widget="copy_clipboard" string="Shareable Link" 
+                               invisible="not shareable_link"
+                               help="Click the copy icon next to the link to copy it to clipboard"/>
                         <field name="talk_id" readonly="1" invisible="1"/>
                         <field name="attachment_id" readonly="1" invisible="1"/>
                     </group>
