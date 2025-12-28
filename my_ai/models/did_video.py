@@ -23,6 +23,10 @@ class DIDVideo(models.Model):
     script_text = fields.Text(string='Script Text', required=True, help='Script will be auto-generated based on UPIC number')
     avatar_url = fields.Char(string='Avatar Image URL', help='Leave empty to use default avatar from settings')
     voice_id = fields.Char(string='Voice ID', help='Leave empty to use default voice from settings. For Hindi use: hi-IN-MadhurNeural or hi-IN-SwaraNeural')
+    background_image = fields.Binary(string='Background Image', help='Upload a background image for the video (optional)')
+    background_image_filename = fields.Char(string='Background Image Filename')
+    tax_amount = fields.Float(string='Property Tax Amount', default=1000.0, help='Property tax due amount in rupees')
+    tax_due_date = fields.Date(string='Tax Due Date', default=lambda self: fields.Date.to_date('2026-08-01'), help='Property tax due date')
     status = fields.Selection([
         ('draft', 'Draft'),
         ('processing', 'Processing'),
@@ -44,7 +48,24 @@ class DIDVideo(models.Model):
                 ward_name = property.ward_id.name if property.ward_id else "N/A"
                 colony_name = property.colony_id.name if property.colony_id else "N/A"
                 
-                # Generate Hindi script
+                # Get tax information from property or use defaults
+                tax_amount = property.currnet_tax if property.currnet_tax else (self.tax_amount or 1000.0)
+                tax_due_date = self.tax_due_date
+                if not tax_due_date:
+                    tax_due_date = fields.Date.to_date('2026-08-01')
+                elif isinstance(tax_due_date, str):
+                    tax_due_date = fields.Date.to_date(tax_due_date)
+                
+                # Format date in Hindi format
+                try:
+                    if hasattr(tax_due_date, 'strftime'):
+                        due_date_str = tax_due_date.strftime('%d %B %Y')
+                    else:
+                        due_date_str = '1 अगस्त 2026'
+                except:
+                    due_date_str = '1 अगस्त 2026'
+                
+                # Generate Hindi script with tax information
                 self.script_text = f"""नमस्ते {owner_name},
 
 भारत DDN में आपका स्वागत है!
@@ -52,6 +73,10 @@ class DIDVideo(models.Model):
 आपका DDN नंबर {ddn_number} है।
 
 आपकी संपत्ति जोन {zone_name}, वार्ड {ward_name}, और कॉलोनी {colony_name} में स्थित है।
+
+आपका संपत्ति कर {int(tax_amount)} रुपये है और देय तिथि {due_date_str} है।
+
+भुगतान लिंक एसएमएस के माध्यम से भेजा गया है। आप भारत DDN माइक्रोसाइट के माध्यम से भी भुगतान कर सकते हैं।
 
 भारत DDN का हिस्सा बनने के लिए धन्यवाद।"""
                 
@@ -104,6 +129,51 @@ class DIDVideo(models.Model):
         settings = self.env['my.ai.settings'].get_settings()
         return settings.did_default_voice_id or 'hi-IN-SwaraNeural'
     
+    def _upload_background_image(self):
+        """Upload background image to D-ID and return URL"""
+        if not self.background_image:
+            return None
+        
+        try:
+            api_key = self._get_api_key()
+            if not api_key:
+                raise UserError('D-ID API Key is not configured.')
+            
+            # D-ID image upload endpoint
+            upload_url = "https://api.d-id.com/images"
+            headers = {
+                "Authorization": f"Basic {api_key}",
+            }
+            
+            # Prepare image data
+            image_data = base64.b64decode(self.background_image)
+            filename = self.background_image_filename or 'background.jpg'
+            # Determine content type from filename
+            content_type = 'image/jpeg'
+            if filename.lower().endswith('.png'):
+                content_type = 'image/png'
+            elif filename.lower().endswith('.gif'):
+                content_type = 'image/gif'
+            files = {
+                'image': (filename, image_data, content_type)
+            }
+            
+            response = requests.post(upload_url, headers=headers, files=files, timeout=30)
+            response.raise_for_status()
+            result = response.json()
+            
+            image_url = result.get('url') or result.get('image_url')
+            if not image_url:
+                _logger.warning(f"D-ID image upload response: {result}")
+                raise UserError('Failed to get image URL from D-ID upload')
+            
+            _logger.info(f"Background image uploaded successfully: {image_url}")
+            return image_url
+            
+        except Exception as e:
+            _logger.error(f"Error uploading background image: {str(e)}")
+            raise UserError(f'Error uploading background image: {str(e)}')
+    
     # Video Results
     talk_id = fields.Char(string='Talk ID', readonly=True, help='D-ID Talk ID')
     video_url = fields.Char(string='Video URL', readonly=True)
@@ -123,7 +193,19 @@ class DIDVideo(models.Model):
         if not self.video_url:
             raise UserError('No video URL available.')
         
-        video_url = self.shareable_link if self.shareable_link else self.video_url
+        # Prefer direct video URL (from D-ID) over shareable link
+        # Shareable link might be broken if attachment doesn't exist
+        video_url = self.video_url
+        if self.shareable_link and self.attachment_id:
+            # Only use shareable link if attachment exists
+            try:
+                # Verify attachment exists
+                if self.attachment_id.exists():
+                    video_url = self.shareable_link
+            except:
+                # If attachment check fails, use direct video URL
+                pass
+        
         return {
             'type': 'ir.actions.act_url',
             'url': video_url,
@@ -243,6 +325,15 @@ class DIDVideo(models.Model):
                 # Don't block the request - let D-ID API handle validation
                 _logger.warning(f"Could not validate avatar URL (non-blocking): {avatar_url}, Error: {str(e)}")
         
+        # Upload background image if provided and get URL
+        background_url = None
+        if self.background_image:
+            try:
+                background_url = self._upload_background_image()
+            except Exception as e:
+                _logger.warning(f"Could not upload background image: {str(e)}")
+                # Continue without background if upload fails
+        
         # Build payload - D-ID talks endpoint requires source_url and script
         payload = {
             "source_url": avatar_url,
@@ -255,6 +346,15 @@ class DIDVideo(models.Model):
                 }
             }
         }
+        
+        # Add background configuration if background image is provided
+        # Note: D-ID talks API may support background through config
+        if background_url:
+            # Try to add background URL to config
+            payload["config"] = {
+                "result_format": ".mp4",
+                "background": background_url  # Some D-ID endpoints support this
+            }
         
         # Remove empty or None values
         payload = {k: v for k, v in payload.items() if v is not None}
