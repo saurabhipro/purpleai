@@ -36,9 +36,9 @@ class MyAISettings(models.Model):
     
     did_default_voice_id = fields.Char(
         string='Default Voice ID',
-        default='hi-IN-MadhurNeural',
+        default='hi-IN-SwaraNeural',
         required=True,
-        help='Default Microsoft voice ID. For Hindi: hi-IN-MadhurNeural (male), hi-IN-SwaraNeural (female). For English: en-US-JennyNeural, en-US-GuyNeural'
+        help='Default Microsoft voice ID. For Hindi: hi-IN-SwaraNeural (female), hi-IN-MadhurNeural (male). For English: en-US-JennyNeural, en-US-GuyNeural'
     )
 
     @api.model
@@ -54,7 +54,7 @@ class MyAISettings(models.Model):
                 'did_api_key': '',
                 'did_api_url': 'https://api.d-id.com/talks',
                 'did_default_avatar_url': 'https://d-id-public-bucket.s3.amazonaws.com/alice.jpg',
-                'did_default_voice_id': 'hi-IN-MadhurNeural',
+                'did_default_voice_id': 'hi-IN-SwaraNeural',
             })
         return settings
     

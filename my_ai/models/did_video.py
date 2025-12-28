@@ -57,7 +57,7 @@ class DIDVideo(models.Model):
                 
                 # Set default Hindi voice if not set
                 if not self.voice_id:
-                    self.voice_id = 'hi-IN-MadhurNeural'  # Hindi male voice
+                    self.voice_id = 'hi-IN-SwaraNeural'  # Hindi female voice
                 
                 if not self.title:
                     self.title = f"Greeting Video - {ddn_number}"
@@ -102,7 +102,7 @@ class DIDVideo(models.Model):
         if self.voice_id:
             return self.voice_id
         settings = self.env['my.ai.settings'].get_settings()
-        return settings.did_default_voice_id or 'hi-IN-MadhurNeural'
+        return settings.did_default_voice_id or 'hi-IN-SwaraNeural'
     
     # Video Results
     talk_id = fields.Char(string='Talk ID', readonly=True, help='D-ID Talk ID')
