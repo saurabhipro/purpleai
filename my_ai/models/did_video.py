@@ -129,6 +129,36 @@ class DIDVideo(models.Model):
             'url': video_url,
             'target': 'new',
         }
+    
+    def action_copy_video_url(self):
+        """Copy video URL to clipboard - returns URL for JavaScript copy"""
+        self.ensure_one()
+        if not self.video_url:
+            raise UserError('No video URL available.')
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'clipboard',
+            'params': {
+                'text': self.video_url,
+                'message': 'Video URL copied to clipboard!',
+            }
+        }
+    
+    def action_copy_shareable_link(self):
+        """Copy shareable link to clipboard - returns URL for JavaScript copy"""
+        self.ensure_one()
+        if not self.shareable_link:
+            raise UserError('No shareable link available. Please download and store the video first.')
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'clipboard',
+            'params': {
+                'text': self.shareable_link,
+                'message': 'Shareable link copied to clipboard!',
+            }
+        }
 
     def action_generate_video(self):
         """Generate video using D-ID API"""
