@@ -209,6 +209,25 @@ class PdfGeneratorController(http.Controller):
         
         return colony_dir
 
+    def cleanup_old_s3_batches(self, colony_id, s3_client, bucket_name, pdf_path_prefix, colony_name):
+        """Delete old batch PDF files from S3 for the colony"""
+        try:
+            # List all objects in the colony's S3 folder
+            prefix = f"{pdf_path_prefix}{colony_name}/batch_"
+            response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+            
+            if 'Contents' in response:
+                # Delete all old batch PDFs
+                objects_to_delete = [{'Key': obj['Key']} for obj in response['Contents'] if obj['Key'].endswith('.pdf')]
+                if objects_to_delete:
+                    s3_client.delete_objects(
+                        Bucket=bucket_name,
+                        Delete={'Objects': objects_to_delete}
+                    )
+                    _logger.info(f"Deleted {len(objects_to_delete)} old batch PDF(s) from S3 for colony: {colony_name}")
+        except Exception as e:
+            _logger.warning(f"Could not cleanup old S3 batches for colony {colony_name}: {e}")
+
     def upload_pdfs_to_s3(self, pdf_paths, colony_id):
         """Upload PDF files to S3 and return the S3 URL"""
         try:
@@ -246,6 +265,9 @@ class PdfGeneratorController(http.Controller):
             
             # Get colony name for S3 path
             colony_name = colony.name.replace(" ", "_").lower()
+            
+            # Clean up old batch PDFs from S3 before uploading new ones
+            self.cleanup_old_s3_batches(colony_id, s3_client, S3_BUCKET_NAME, PDF_PATH_PREFIX, colony_name)
             
             # Upload all PDFs and collect URLs
             s3_urls = []
@@ -398,6 +420,19 @@ class PdfGeneratorController(http.Controller):
         company = request.env.user.company_id
         if not company or not company.plate_background_image:
             return request.not_found("No background image configured for your company.")
+
+        # Clear old PDF URLs from colony record before starting fresh generation
+        if colony_id:
+            try:
+                colony = request.env['ddn.colony'].sudo().browse(colony_id)
+                if colony.exists():
+                    colony.write({
+                        'pdf_url': False,
+                        'pdf_urls': False
+                    })
+                    _logger.info(f"Cleared old PDF URLs for colony ID: {colony_id}")
+            except Exception as e:
+                _logger.warning(f"Could not clear old PDF URLs for colony {colony_id}: {e}")
 
         try:
             # Ensure base export directory exists
