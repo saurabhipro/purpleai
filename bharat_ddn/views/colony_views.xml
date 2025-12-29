@@ -39,8 +39,8 @@
                             <field name="ward_id"/>
                             <field name="property_count"/>
                             <field name="company_id" options="{'no_create_edit':True, 'no_create':True, 'no_open':True}"/>
-                            <field name="pdf_url" widget="url" readonly="1" attrs="{'invisible': [('pdf_urls_html', '!=', False)]}"/>
-                            <field name="pdf_urls_html" widget="html" readonly="1" string="PDF Download Links" attrs="{'invisible': [('pdf_urls_html', '=', False)]}"/>
+                            <field name="pdf_url" widget="url" readonly="1" invisible="pdf_urls"/>
+                            <field name="pdf_urls_html" widget="html" readonly="1" string="PDF Download Links" invisible="not pdf_urls"/>
                         </group>
                     </sheet>
                     <chatter/>
