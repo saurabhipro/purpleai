@@ -30,7 +30,7 @@ class PDFConfig:
     FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # FONT_PATH = "C:\\Windows\\Fonts\\arial.ttf"
     IMAGE_QUALITY = 20 # Increased quality for better clarity
-    BATCH_SIZE = 6000  # Process 20 properties at a time
+    BATCH_SIZE = 5000  # Process 20 properties at a time
     
     # Adjusted for 8x4 plate dimensions
     CENTER_FONT_SIZE = 150  # Increased height to make text taller
@@ -271,11 +271,8 @@ class PdfGeneratorController(http.Controller):
                 s3_urls.append(s3_url)
                 _logger.info(f"Uploaded PDF to S3: {s3_url}")
             
-            # If multiple PDFs, return the first one (or combine them)
-            # For now, return the first batch PDF URL
-            if s3_urls:
-                return s3_urls[0]  # Return first PDF URL
-            return None
+            # Return all S3 URLs for all batches
+            return s3_urls if s3_urls else None
             
         except Exception as e:
             _logger.error(f"Error uploading PDFs to S3: {str(e)}", exc_info=True)
@@ -461,12 +458,18 @@ class PdfGeneratorController(http.Controller):
                 
                 # Upload PDFs to S3 if batch PDFs exist
                 if batch_pdf_paths:
-                    s3_url = self.upload_pdfs_to_s3(batch_pdf_paths, colony_id)
-                    if s3_url:
-                        # Update colony's pdf_url with S3 URL
+                    s3_urls = self.upload_pdfs_to_s3(batch_pdf_paths, colony_id)
+                    if s3_urls:
+                        # Update colony's pdf_url with first S3 URL (for backward compatibility)
+                        # Update colony's pdf_urls with all S3 URLs (one per line)
                         colony = request.env['ddn.colony'].sudo().browse(colony_id)
-                        colony.write({'pdf_url': s3_url})
-                        _logger.info(f"Updated colony PDF URL to: {s3_url}")
+                        all_urls_text = '\n'.join(s3_urls)
+                        colony.write({
+                            'pdf_url': s3_urls[0] if s3_urls else '',  # First URL for backward compatibility
+                            'pdf_urls': all_urls_text  # All URLs, one per line
+                        })
+                        _logger.info(f"Updated colony PDF URLs. Total batches: {len(s3_urls)}")
+                        _logger.info(f"First PDF URL: {s3_urls[0] if s3_urls else 'None'}")
                 
                 # Return success message with directory information
                 return request.make_response(

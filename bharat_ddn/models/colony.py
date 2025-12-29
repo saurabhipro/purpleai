@@ -12,6 +12,8 @@ class Colony(models.Model):
     active = fields.Boolean(string='Active', default=True)
     code = fields.Char(string='Code')
     pdf_url = fields.Char(string='PDF URL', tracking=True)
+    pdf_urls = fields.Text(string='PDF URLs (All Batches)', help='All batch PDF URLs, one per line')
+    pdf_urls_html = fields.Html(string='PDF Download Links', compute='_compute_pdf_urls_html', sanitize=False)
     property_count = fields.Integer(string="Property Count", compute="_action_property_count")
     pdf_status = fields.Selection([
         ('uploaded', '✓ Uploaded'),
@@ -44,6 +46,29 @@ class Colony(models.Model):
                 rec.pdf_status = 'uploaded'
             else:
                 rec.pdf_status = 'not_uploaded'
+    
+    @api.depends('pdf_urls')
+    def _compute_pdf_urls_html(self):
+        """Compute HTML field to display all PDF URLs as clickable links"""
+        for rec in self:
+            if rec.pdf_urls and rec.pdf_urls.strip():
+                urls = [url.strip() for url in rec.pdf_urls.split('\n') if url.strip()]
+                if urls:
+                    html_content = '<div style="display: flex; flex-direction: column; gap: 8px;">'
+                    for idx, url in enumerate(urls, 1):
+                        html_content += f'''
+                        <div style="margin-bottom: 5px;">
+                            <a href="{url}" target="_blank" style="text-decoration: none; color: #007bff; font-weight: bold;">
+                                Batch {idx} - Download PDF
+                            </a>
+                        </div>
+                        '''
+                    html_content += '</div>'
+                    rec.pdf_urls_html = html_content
+                else:
+                    rec.pdf_urls_html = False
+            else:
+                rec.pdf_urls_html = False
              
     def update_ward(self):
         """Update the pdf_url field and return a dynamic URL using colony_id."""
