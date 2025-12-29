@@ -188,8 +188,13 @@ class PdfGeneratorController(http.Controller):
             _logger.error(f"Error generating DDN image for property {getattr(property_rec, 'id', 'unknown')}: {e}", exc_info=True)
             raise
  
-    def get_colony_folder(self, colony_id):
-        """Create and return colony-specific folder path"""
+    def get_colony_folder(self, colony_id, create_only=False):
+        """Create and return colony-specific folder path
+        
+        Args:
+            colony_id: ID of the colony
+            create_only: If True, only create folder without deleting existing one (used during batch processing)
+        """
         colony = request.env['ddn.colony'].sudo().browse(colony_id)
         if not colony.exists():
             raise ValueError(f"Colony with ID {colony_id} not found")
@@ -197,15 +202,17 @@ class PdfGeneratorController(http.Controller):
         colony_name = colony.name.replace(" ", "_").lower()
         colony_dir = os.path.join(PDFConfig.BASE_EXPORT_DIR, colony_name)
         
-        # Remove existing folder if it exists (clean old files before generating new ones)
-        if os.path.exists(colony_dir):
+        # Only remove existing folder if create_only is False (first time setup)
+        if not create_only and os.path.exists(colony_dir):
             shutil.rmtree(colony_dir)
+            _logger.info(f"Cleaned old folder for colony: {colony_name}")
             
-        # Create new folder
+        # Create new folder (or ensure it exists)
         os.makedirs(colony_dir, exist_ok=True)
         
-        # Update export status
-        PDFExportStatus.set_export_status(colony_id, True, colony_dir)
+        # Update export status only on first call
+        if not create_only:
+            PDFExportStatus.set_export_status(colony_id, True, colony_dir)
         
         return colony_dir
     
@@ -326,10 +333,11 @@ class PdfGeneratorController(http.Controller):
             _logger.error(f"Error uploading PDFs to S3: {str(e)}", exc_info=True)
             return None
 
-    def process_property_batch(self, property_ids, bg_image_path, colony_id=None, batch_number=1):
+    def process_property_batch(self, property_ids, bg_image_path, colony_dir, colony_id=None, batch_number=1):
         processed_count = 0
         error_count = 0
-        colony_dir = self.get_colony_folder(colony_id) if colony_id else os.path.join(PDFConfig.BASE_EXPORT_DIR, "sudama_nagar")
+        # Use provided colony_dir - do NOT recreate/delete folder here
+        # This ensures PDFs from previous batches are not deleted
         os.makedirs(colony_dir, exist_ok=True)
 
         # Create a single PDF for this batch with sequential numbering
@@ -482,6 +490,15 @@ class PdfGeneratorController(http.Controller):
             output_dir = None
             batch_pdf_paths = []
 
+            # Create colony folder ONCE before processing batches
+            # This ensures PDFs from previous batches are NOT deleted during processing
+            if colony_id:
+                output_dir = self.get_colony_folder(colony_id, create_only=False)
+                _logger.info(f"Created colony folder: {output_dir}")
+            else:
+                output_dir = os.path.join(PDFConfig.BASE_EXPORT_DIR, "sudama_nagar")
+                os.makedirs(output_dir, exist_ok=True)
+
             # Process all batches
             for i in range(0, len(property_ids), batch_size):
                 batch_ids = property_ids[i:i + batch_size]
@@ -489,7 +506,7 @@ class PdfGeneratorController(http.Controller):
                 _logger.info(f"Processing batch {batch_number} with {len(batch_ids)} properties")
                 
                 processed, output_dir, batch_pdf_path = self.process_property_batch(
-                    batch_ids, bg_image_path, colony_id, batch_number=batch_number)
+                    batch_ids, bg_image_path, output_dir, colony_id, batch_number=batch_number)
                 total_processed += processed
                 
                 _logger.info(f"Batch {batch_number} processing result: processed={processed}, path={batch_pdf_path}, exists={os.path.exists(batch_pdf_path) if batch_pdf_path else False}, source={source}")
