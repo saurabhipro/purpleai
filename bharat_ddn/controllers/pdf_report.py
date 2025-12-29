@@ -197,7 +197,7 @@ class PdfGeneratorController(http.Controller):
         colony_name = colony.name.replace(" ", "_").lower()
         colony_dir = os.path.join(PDFConfig.BASE_EXPORT_DIR, colony_name)
         
-        # Remove existing folder if it exists
+        # Remove existing folder if it exists (clean old files before generating new ones)
         if os.path.exists(colony_dir):
             shutil.rmtree(colony_dir)
             
@@ -208,6 +208,21 @@ class PdfGeneratorController(http.Controller):
         PDFExportStatus.set_export_status(colony_id, True, colony_dir)
         
         return colony_dir
+    
+    def cleanup_local_pdfs(self, pdf_paths):
+        """Delete local PDF files after successful S3 upload"""
+        deleted_count = 0
+        for pdf_path in pdf_paths:
+            try:
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+                    deleted_count += 1
+                    _logger.info(f"Deleted local PDF file: {pdf_path}")
+            except Exception as e:
+                _logger.warning(f"Could not delete local PDF file {pdf_path}: {e}")
+        
+        if deleted_count > 0:
+            _logger.info(f"Cleaned up {deleted_count} local PDF file(s) after successful S3 upload")
 
     def cleanup_old_s3_batches(self, colony_id, s3_client, bucket_name, pdf_path_prefix, colony_name):
         """Delete old batch PDF files from S3 for the colony"""
@@ -271,28 +286,39 @@ class PdfGeneratorController(http.Controller):
             
             # Upload all PDFs and collect URLs
             s3_urls = []
-            for pdf_path in pdf_paths:
+            _logger.info(f"Starting S3 upload for {len(pdf_paths)} PDF file(s)")
+            for idx, pdf_path in enumerate(pdf_paths, 1):
                 if not os.path.exists(pdf_path):
+                    _logger.warning(f"Batch {idx}: PDF file does not exist: {pdf_path}")
                     continue
                 
                 filename = os.path.basename(pdf_path)
                 # S3 key: pdf_path_prefix/colony_name/filename
                 s3_key = f"{PDF_PATH_PREFIX}{colony_name}/{filename}"
                 
-                # Upload to S3
-                with open(pdf_path, 'rb') as pdf_file:
-                    s3_client.put_object(
-                        Bucket=S3_BUCKET_NAME,
-                        Key=s3_key,
-                        Body=pdf_file.read(),
-                        ContentType='application/pdf'
-                    )
-                
-                # Generate S3 URL
-                s3_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
-                s3_urls.append(s3_url)
-                _logger.info(f"Uploaded PDF to S3: {s3_url}")
+                try:
+                    # Upload to S3
+                    _logger.info(f"Uploading batch {idx} to S3: {s3_key}")
+                    with open(pdf_path, 'rb') as pdf_file:
+                        pdf_data = pdf_file.read()
+                        file_size = len(pdf_data)
+                        _logger.info(f"  File size: {file_size} bytes")
+                        
+                        s3_client.put_object(
+                            Bucket=S3_BUCKET_NAME,
+                            Key=s3_key,
+                            Body=pdf_data,
+                            ContentType='application/pdf'
+                        )
+                    
+                    # Generate S3 URL
+                    s3_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
+                    s3_urls.append(s3_url)
+                    _logger.info(f"  ✓ Successfully uploaded batch {idx} to S3: {s3_url}")
+                except Exception as e:
+                    _logger.error(f"  ✗ Failed to upload batch {idx} ({filename}) to S3: {str(e)}", exc_info=True)
             
+            _logger.info(f"S3 upload completed. Successfully uploaded {len(s3_urls)} out of {len(pdf_paths)} file(s)")
             # Return all S3 URLs for all batches
             return s3_urls if s3_urls else None
             
@@ -466,9 +492,17 @@ class PdfGeneratorController(http.Controller):
                     batch_ids, bg_image_path, colony_id, batch_number=batch_number)
                 total_processed += processed
                 
+                _logger.info(f"Batch {batch_number} processing result: processed={processed}, path={batch_pdf_path}, exists={os.path.exists(batch_pdf_path) if batch_pdf_path else False}, source={source}")
+                
                 if not source and batch_pdf_path and os.path.exists(batch_pdf_path):
                     batch_pdf_paths.append(batch_pdf_path)
-                    _logger.info(f"Added batch PDF to list: {batch_pdf_path}")
+                    _logger.info(f"✓ Added batch {batch_number} PDF to upload list: {batch_pdf_path}")
+                elif source:
+                    _logger.info(f"  Skipping batch {batch_number} - source is '{source}' (not adding to S3 upload list)")
+                elif not batch_pdf_path:
+                    _logger.warning(f"  Batch {batch_number} - No PDF path returned from process_property_batch")
+                elif not os.path.exists(batch_pdf_path):
+                    _logger.warning(f"  Batch {batch_number} - PDF file does not exist: {batch_pdf_path}")
 
                 if source == 'erp' and batch_pdf_path and os.path.exists(batch_pdf_path):
                         with open(batch_pdf_path, 'rb') as f:
@@ -492,9 +526,15 @@ class PdfGeneratorController(http.Controller):
                 _logger.info(f"PDFs are available in directory: {output_dir}")
                 
                 # Upload PDFs to S3 if batch PDFs exist
+                _logger.info(f"Preparing to upload {len(batch_pdf_paths)} batch PDF(s) to S3")
+                for idx, path in enumerate(batch_pdf_paths, 1):
+                    _logger.info(f"  Batch {idx}: {path} (exists: {os.path.exists(path)})")
+                
                 if batch_pdf_paths:
                     s3_urls = self.upload_pdfs_to_s3(batch_pdf_paths, colony_id)
-                    if s3_urls:
+                    if s3_urls and len(s3_urls) == len(batch_pdf_paths):
+                        # All batches successfully uploaded to S3
+                        _logger.info(f"S3 upload successful. All {len(s3_urls)} batch(es) uploaded.")
                         # Update colony's pdf_url with first S3 URL (for backward compatibility)
                         # Update colony's pdf_urls with all S3 URLs (one per line)
                         colony = request.env['ddn.colony'].sudo().browse(colony_id)
@@ -504,7 +544,28 @@ class PdfGeneratorController(http.Controller):
                             'pdf_urls': all_urls_text  # All URLs, one per line
                         })
                         _logger.info(f"Updated colony PDF URLs. Total batches: {len(s3_urls)}")
-                        _logger.info(f"First PDF URL: {s3_urls[0] if s3_urls else 'None'}")
+                        for idx, url in enumerate(s3_urls, 1):
+                            _logger.info(f"  Batch {idx} URL: {url}")
+                        
+                        # Delete local PDF files only after all batches are successfully uploaded to S3
+                        _logger.info("All batches uploaded to S3. Cleaning up local PDF files...")
+                        self.cleanup_local_pdfs(batch_pdf_paths)
+                    elif s3_urls and len(s3_urls) < len(batch_pdf_paths):
+                        # Partial upload - keep local files
+                        _logger.warning(f"Only {len(s3_urls)} out of {len(batch_pdf_paths)} batches uploaded to S3. Keeping local files.")
+                        colony = request.env['ddn.colony'].sudo().browse(colony_id)
+                        all_urls_text = '\n'.join(s3_urls)
+                        colony.write({
+                            'pdf_url': s3_urls[0] if s3_urls else '',
+                            'pdf_urls': all_urls_text
+                        })
+                        for idx, url in enumerate(s3_urls, 1):
+                            _logger.info(f"  Batch {idx} URL: {url}")
+                    else:
+                        _logger.error("S3 upload failed or returned no URLs. Local PDF files will be kept for manual upload.")
+                        _logger.error("Check S3 configuration and logs above for details.")
+                else:
+                    _logger.warning("No batch PDF paths to upload to S3")
                 
                 # Return success message with directory information
                 return request.make_response(
