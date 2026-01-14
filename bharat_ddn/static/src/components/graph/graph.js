@@ -4,6 +4,7 @@ import { Component, onMounted } from "@odoo/owl";
 
 export class GraphComponent extends Component {
     setup() {
+        this.chartInstance = null;
         onMounted(() => this.renderChart());
     }
 
@@ -22,7 +23,25 @@ export class GraphComponent extends Component {
     const bgColor = baseColors.slice(0, values.length);
     const borderColor = bgColor.map(c => c.replace('ff', 'cc'));
 
-    const ctx = document.getElementById(this.props.canvas_id)?.getContext('2d');
+    const canvasElement = document.getElementById(this.props.canvas_id);
+    if (!canvasElement) {
+        console.error("❌ Canvas element not found for", this.props.canvas_id);
+        return;
+    }
+
+    // Destroy existing chart instance if it exists
+    if (this.chartInstance) {
+        this.chartInstance.destroy();
+        this.chartInstance = null;
+    }
+
+    // Also check for any existing chart on this canvas using Chart.js registry
+    const existingChart = Chart.getChart(canvasElement);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const ctx = canvasElement.getContext('2d');
     if (!ctx) {
         console.error("❌ Canvas context not found for", this.props.canvas_id);
         return;
@@ -86,7 +105,7 @@ export class GraphComponent extends Component {
         }
     })();
 
-    new Chart(ctx, {
+    this.chartInstance = new Chart(ctx, {
     type: chartType,
     data: {
         labels,

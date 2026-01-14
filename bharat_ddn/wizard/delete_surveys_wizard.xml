@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Delete Surveys Wizard Form View -->
+        <record id="delete_surveys_wizard_form" model="ir.ui.view">
+            <field name="name">delete.surveys.wizard.form</field>
+            <field name="model">delete.surveys.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Delete Surveys">
+                    <sheet>
+                        <group>
+                            <group string="Choose Input Method" invisible="show_result">
+                                <field name="show_result" invisible="1"/>
+                                <field name="input_method" widget="radio"/>
+                            </group>
+                            
+                            <group string="Upload Excel File" invisible="show_result or input_method != 'excel'">
+                                <label for="excel_file" string="Excel File"/>
+                                <div>
+                                    <field name="excel_file" filename="filename" widget="binary"/>
+                                    <field name="filename" invisible="1"/>
+                                </div>
+                                <p class="text-muted">
+                                    Upload an Excel file (.xlsx or .xls) containing a column named "UPIC", "UPICNO", or "UPIC NO" with the UPIC numbers of properties whose surveys need to be deleted.
+                                </p>
+                            </group>
+                            
+                            <group string="Paste UPIC Numbers" invisible="show_result or input_method != 'text'">
+                                <field name="upic_text" widget="text" placeholder="Enter UPIC numbers separated by commas&#10;Example: UPIC001, UPIC002, UPIC003&#10;or one per line:&#10;UPIC001&#10;UPIC002&#10;UPIC003"/>
+                                <p class="text-muted">
+                                    Enter UPIC numbers separated by commas, semicolons, or line breaks. Duplicates will be automatically removed.
+                                </p>
+                            </group>
+                            
+                            <group string="Results" invisible="not show_result">
+                                <field name="total_records" readonly="1"/>
+                                <field name="success_count" readonly="1"/>
+                                <field name="failed_count" readonly="1"/>
+                                <field name="not_found_count" readonly="1"/>
+                            </group>
+                            
+                            <group string="Download Result File" invisible="not show_result">
+                                <label for="result_file" string="Result File"/>
+                                <div>
+                                    <field name="result_file" filename="result_filename" widget="binary" readonly="1"/>
+                                    <field name="result_filename" invisible="1"/>
+                                </div>
+                                <p class="text-muted">
+                                    Download the result file to see detailed information about the operation. The file contains separate sheets for successful, failed, and not found records.
+                                </p>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_delete_surveys" 
+                                string="Delete Surveys" 
+                                type="object" 
+                                class="btn-primary" 
+                                invisible="show_result"/>
+                        <button name="action_close" 
+                                string="Close" 
+                                type="object" 
+                                class="btn-secondary" 
+                                invisible="not show_result"/>
+                        <button string="Cancel" 
+                                class="btn-secondary" 
+                                special="cancel" 
+                                invisible="show_result"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Server Action to Open Delete Surveys Wizard -->
+        <record id="action_delete_surveys_wizard" model="ir.actions.act_window">
+            <field name="name">Delete Surveys</field>
+            <field name="res_model">delete.surveys.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="bharat_ddn.model_ddn_property_survey"/>
+            <field name="binding_view_types">list</field>
+        </record>
+
+    </data>
+</odoo>

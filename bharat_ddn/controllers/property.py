@@ -170,6 +170,11 @@ class PropertyDetailsAPI(http.Controller):
             if property_status == 'surveyed' and not property_type_id:
                 return Response(json.dumps({'error': 'property_type_id is required when property_status is "surveyed"'}), status=400, content_type='application/json')
             
+            # Validate owner_name is not blank for 'surveyed' status
+            owner_name = data.get('owner_name', '').strip()
+            if property_status == 'surveyed' and not owner_name:
+                return Response(json.dumps({'error': 'owner_name is required when property_status is "surveyed"'}), status=400, content_type='application/json')
+            
             # Prepare survey line values (all fields optional for visit_again)
             survey_line_vals = self._prepare_survey_line_vals(data, property_status)
             
@@ -895,6 +900,7 @@ class PropertyIdDataAPI(http.Controller):
                 property_record.survey_line_ids.unlink()
             
             # Reset property fields
+            # Note: Clearing lat/long will automatically clear the computed digipin field
             reset_vals = {
                 'property_status': 'pdf_downloaded',
                 'address_line_1': False,

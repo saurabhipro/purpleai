@@ -105,14 +105,25 @@ export class OwlCrmDashboard extends Component {
 
                 // Render surveyed per day chart if Chart.js is loaded
                 setTimeout(() => {
-                    if (window.Chart && document.getElementById('surveyedPerDayChart')) {
-                        const ctx = document.getElementById('surveyedPerDayChart').getContext('2d');
+                    const canvasElement = document.getElementById('surveyedPerDayChart');
+                    if (window.Chart && canvasElement) {
                         const chartData = this.state.property_info.surveyed_per_day || [];
                         const labels = chartData.map(item => item.date);
                         const counts = chartData.map(item => item.count);
+                        
+                        // Destroy existing chart instance using Chart.js registry
+                        const existingChart = Chart.getChart(canvasElement);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                        
+                        // Also destroy global instance if it exists
                         if (window.surveyedPerDayChartInstance) {
                             window.surveyedPerDayChartInstance.destroy();
+                            window.surveyedPerDayChartInstance = null;
                         }
+                        
+                        const ctx = canvasElement.getContext('2d');
                         window.surveyedPerDayChartInstance = new Chart(ctx, {
                             type: 'bar',
                             data: {

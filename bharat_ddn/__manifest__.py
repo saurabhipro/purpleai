@@ -35,6 +35,7 @@
         'views/res_company_views.xml',
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
+        'wizard/delete_surveys_wizard.xml',
         'views/dashboard.xml',
         'views/indore_microsite.xml',
         'views/sambhaji_microsite.xml',
