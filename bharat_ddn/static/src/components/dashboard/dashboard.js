@@ -81,6 +81,24 @@ export class OwlCrmDashboard extends Component {
         ]);
     }
 
+    _onClickScansToday(ev) {
+        if (!ev.target.closest('a')) return;
+
+        const today = new Date();
+        const todayStart = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+        const todayEnd = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+        this._openListView('ddn.qr.scan', [
+            ['scan_time', '>=', todayStart],
+            ['scan_time', '<=', todayEnd],
+        ]);
+    }
+
+    _onClickTotalScans(ev) {
+        if (!ev.target.closest('a')) return;
+        this._openListView('ddn.qr.scan');
+    }
+
     async loadDashboardData() {
         try {
             // Property status wise data

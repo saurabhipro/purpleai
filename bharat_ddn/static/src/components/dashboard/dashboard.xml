@@ -190,19 +190,23 @@
                                 <div class="label">Surveyors</div>
                             </a>
                         </div>
-                        <div class="dashboard-card bg-blue">
-                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
-                            <div class="count">
-                                <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
-                            </div>
-                            <div class="label">Scans Today</div>
+                        <div t-on-click="_onClickScansToday">
+                            <a href="#" class="dashboard-card bg-blue" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
+                                <div class="count">
+                                    <t t-esc="(this.state.property_info['total_qr_scans_today'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans_today'] || 0)"/>
+                                </div>
+                                <div class="label">Scans Today</div>
+                            </a>
                         </div>
-                        <div class="dashboard-card bg-pink">
-                            <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
-                            <div class="count">
-                                <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
-                            </div>
-                            <div class="label">Total Scans</div>
+                        <div t-on-click="_onClickTotalScans">
+                            <a href="#" class="dashboard-card bg-pink" target="_blank">
+                                <span class="bg-icon"><i class="fa fa-qrcode"></i></span>
+                                <div class="count">
+                                    <t t-esc="(this.state.property_info['total_qr_scans'] || 0) + ' / ' + (this.state.property_info['unique_qr_scans'] || 0)"/>
+                                </div>
+                                <div class="label">Total Scans</div>
+                            </a>
                         </div>
                     </div>
                     <div>

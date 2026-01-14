@@ -36,10 +36,12 @@
         'wizard/property_import_wizard_view.xml',
         'wizard/ddn_report.xml',
         'wizard/delete_surveys_wizard.xml',
+        'wizard/qr_scan_export_wizard.xml',
         'views/dashboard.xml',
         'views/indore_microsite.xml',
         'views/sambhaji_microsite.xml',
         'views/property_id_data_views.xml',
+        'views/qr_scan_views.xml',
         'views/menuitems.xml',  # Load menus last
 
         # 'views/assets.xml',
