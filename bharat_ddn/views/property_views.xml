@@ -23,6 +23,7 @@
                     <field name="toilet_no" optional="hide"/>
                     <field name="plot_taxable_area_sqft" optional="hide"/>
 
+                    <field name="surveyer_id" optional="show"/>
                     <field name="owner_name" optional="show"/>
                     <field name="renter_name" optional="hide"/>
                     <field name="occupier_name" optional="hide"/>

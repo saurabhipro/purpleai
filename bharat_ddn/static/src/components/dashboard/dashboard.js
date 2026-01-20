@@ -75,9 +75,9 @@ export class OwlCrmDashboard extends Component {
         const todayStart = new Date(today.setHours(0, 0, 0, 0)).toISOString();
         const todayEnd = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
-        this._openListView('ddn.property.survey', [
-            ['create_date', '>=', todayStart],
-            ['create_date', '<=', todayEnd],
+        this._openListView('ddn.property.info', [
+            ['survey_line_ids.create_date', '>=', todayStart],
+            ['survey_line_ids.create_date', '<=', todayEnd],
         ]);
     }
 
