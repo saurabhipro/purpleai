@@ -7,7 +7,10 @@
             <field name="model">ddn.property.survey</field>
             <field name="arch" type="xml">
                 <list string="Property Types">
-                    <field name="property_id"/>
+                    <field name="info_property_id"/>
+                    <field name="ward_id"/>
+                    <field name="colony_id"/>
+                    <field name="property_id" string="UPIC No" />
                     <field name="survey_date"/>
                     <field name="surveyer_id"/>
                     <field name="owner_name"/>

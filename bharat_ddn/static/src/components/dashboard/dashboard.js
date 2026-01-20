@@ -33,8 +33,8 @@ export class OwlCrmDashboard extends Component {
             type: 'ir.actions.act_window',
             name: _t('Properties'),
             res_model: resModel,
-            view_mode: 'list',
-            views: [[false, 'list']],
+            view_mode: 'list,form',
+            views: [[false, 'list'], [false, 'form']],
             domain: domain,
         });
     }
@@ -108,18 +108,18 @@ export class OwlCrmDashboard extends Component {
                 [],
                 {}
             );
-            
-            
+
+
             if (propertyDetails && propertyDetails.length > 0) {
                 const data = propertyDetails[0];
-                
+
                 // Ensure ward_data is always an array
                 this.state.property_info = {
                     ...data,
                     ward_data: Array.isArray(data.ward_data) ? data.ward_data : [],
                     total_surveyors: data.total_surveyors || 0
                 };
-                
+
 
                 // Render surveyed per day chart if Chart.js is loaded
                 setTimeout(() => {
@@ -128,19 +128,19 @@ export class OwlCrmDashboard extends Component {
                         const chartData = this.state.property_info.surveyed_per_day || [];
                         const labels = chartData.map(item => item.date);
                         const counts = chartData.map(item => item.count);
-                        
+
                         // Destroy existing chart instance using Chart.js registry
                         const existingChart = Chart.getChart(canvasElement);
                         if (existingChart) {
                             existingChart.destroy();
                         }
-                        
+
                         // Also destroy global instance if it exists
                         if (window.surveyedPerDayChartInstance) {
                             window.surveyedPerDayChartInstance.destroy();
                             window.surveyedPerDayChartInstance = null;
                         }
-                        
+
                         const ctx = canvasElement.getContext('2d');
                         window.surveyedPerDayChartInstance = new Chart(ctx, {
                             type: 'bar',

@@ -13,6 +13,12 @@ class SurveyParameters(models.Model):
     
     unit = fields.Char('Unit')
     property_id = fields.Many2one('ddn.property.info', 'Property ID')
+    # Related fields for Dashboard/List View
+    # Related fields for Dashboard/List View
+    ward_id = fields.Many2one('ddn.ward', related='property_id.ward_id', string='Ward', store=True)
+    colony_id = fields.Many2one('ddn.colony', related='property_id.colony_id', string='Colony', store=True)
+    info_property_id = fields.Char(related='property_id.property_id', string='Property ID', store=True)
+
     company_id = fields.Many2one('res.company', string="Company", related='property_id.company_id', store=True, default=lambda self : self.env.company.id, readonly=True)
     address_line_1 = fields.Char('Address Line 1')
     address_line_2 = fields.Char('Address Line 2')
