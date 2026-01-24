@@ -118,6 +118,10 @@
         .cursor-pointer {
             cursor: pointer;
         }
+        .highlight-survey-row {
+            background-color: #fff9c4 !important; /* Pastel yellow highlight */
+            border-left: 4px solid #fbc02d;
+        }
         .property-ward-table tbody tr:hover {
             background-color: rgba(33, 150, 243, 0.1); 
         }
@@ -238,7 +242,7 @@
                                 </thead>
                                 <tbody>
                                     <tr t-foreach="state.property_info.ward_data || []" t-as="ward" t-key="ward.ward" 
-                                        class="cursor-pointer"
+                                        t-att-class="'cursor-pointer ' + (ward.has_surveys_today ? 'highlight-survey-row' : '')"
                                         t-on-click="_onClickWardRow"
                                         t-att-data-ward="ward.ward"
                                         t-att-data-zone="ward.zone">

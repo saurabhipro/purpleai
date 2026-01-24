@@ -20,15 +20,15 @@ class Dashboard(models.Model):
         today_start = datetime.combine(today, datetime.min.time())
         today_end = datetime.combine(today, datetime.max.time())
 
-        surveys_today = self.env['ddn.property.survey'].search_count([
+        surveys_today_recs = self.env['ddn.property.survey'].search([
             ('create_date', '>=', today_start),
             ('create_date', '<=', today_end)
         ])
+        
+        # Get set of ward names that have surveys today
+        wards_surveyed_today = set(surveys_today_recs.mapped('ward_id.name'))
 
-        active_surveyors_today = len(set(self.env['ddn.property.survey'].search([
-            ('create_date', '>=', today_start),
-            ('create_date', '<=', today_end)
-        ]).mapped('surveyer_id')))
+        active_surveyors_today = len(set(surveys_today_recs.mapped('surveyer_id')))
 
         total_surveyors = self.env['res.users'].search_count([('is_surveyor', '=', True)])
 
@@ -96,7 +96,8 @@ class Dashboard(models.Model):
                 'surveyed': surveyed,
                 'unlocked': unlocked,
                 'discovered': discovered,
-                'zone': ward_zone_name
+                'zone': ward_zone_name,
+                'has_surveys_today': group_key in wards_surveyed_today
             }
 
         # Prepare total status counts for pie chart
@@ -118,7 +119,7 @@ class Dashboard(models.Model):
             'total_wards': self.env['ddn.ward'].search_count([]),
             'total_colonies': self.env['ddn.colony'].search_count([]),
             'total_surveyors': f"{total_surveyors} / {active_surveyors_today}",
-            'surveys_today': surveys_today,
+            'surveys_today': len(surveys_today_recs),
             'total_qr_scans_today': qr_scans_today,
             'unique_qr_scans_today': unique_qr_scans_today,
             'total_qr_scans': total_qr_scans,
@@ -134,6 +135,7 @@ class Dashboard(models.Model):
                     'surveyed_count': data['surveyed'],
                     'unlocked_count': data['unlocked'],
                     'discovered_count': data['discovered'],
+                    'has_surveys_today': data.get('has_surveys_today', False),
                 } for ward, data in result.items()
             ],
             # ✅ Add pie chart data here:
