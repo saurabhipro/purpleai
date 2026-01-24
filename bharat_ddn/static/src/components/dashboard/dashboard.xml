@@ -115,6 +115,12 @@
                 padding: 8px 4px 6px 10px;
             }
         }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .property-ward-table tbody tr:hover {
+            background-color: rgba(33, 150, 243, 0.1); 
+        }
         </style>
         <div class="vh-100 overflow-auto bg-muted">
             <div class="row m-3">
@@ -231,7 +237,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr t-foreach="state.property_info.ward_data || []" t-as="ward" t-key="ward.ward">
+                                    <tr t-foreach="state.property_info.ward_data || []" t-as="ward" t-key="ward.ward" 
+                                        class="cursor-pointer"
+                                        t-on-click="_onClickWardRow"
+                                        t-att-data-ward="ward.ward"
+                                        t-att-data-zone="ward.zone">
                                         <td><t t-esc="ward.zone"/></td>
                                         <td><t t-esc="ward.ward"/></td>
                                         <td><t t-esc="ward.total_count"/></td>

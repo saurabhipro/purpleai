@@ -99,6 +99,16 @@ export class OwlCrmDashboard extends Component {
         this._openListView('ddn.qr.scan');
     }
 
+    _onClickWardRow(ev) {
+        const { ward, zone } = ev.currentTarget.dataset;
+        if (ward && zone) {
+            this._openListView('ddn.property.info', [
+                ['ward_id.name', '=', ward],
+                ['zone_id.name', '=', zone]
+            ]);
+        }
+    }
+
     async loadDashboardData() {
         try {
             // Property status wise data

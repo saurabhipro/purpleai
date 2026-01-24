@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
@@ -123,10 +124,23 @@ class PdfGeneratorController(http.Controller):
             center_font = ImageFont.truetype(PDFConfig.FONT_PATH, PDFConfig.CENTER_FONT_SIZE)
             value_font = ImageFont.truetype(PDFConfig.FONT_PATH, PDFConfig.VALUE_FONT_SIZE)
  
+            # Helper to clean text
+            def clean_text_val(val):
+                if not val: return "-"
+                val = str(val)
+                # Remove decimals entirely: 123.77 -> 123
+                return re.sub(r'\.\d+', '', val)
+
             # Property details
             zone = getattr(property_rec.zone_id, 'name', '-') if property_rec.zone_id else '-'
-            locality = getattr(property_rec.colony_id, 'code', '-') if property_rec.colony_id else '-'
+            
+            raw_locality = getattr(property_rec.colony_id, 'code', '-') if property_rec.colony_id else '-'
+            locality = clean_text_val(raw_locality)
+            
             raw_unit_no = property_rec.unit_no or "-"
+            # Clean unit no as well
+            raw_unit_no = clean_text_val(raw_unit_no)
+            
             formatted_unit_no = str(raw_unit_no).zfill(4) if raw_unit_no != "-" else "-"
  
             # Center text (with outline)
