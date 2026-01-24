@@ -3,6 +3,7 @@ from odoo import models, fields
 class AradaWorkflow(models.Model):
     _name = 'arada.workflow'
     _description = 'Arada Workflow'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(string='Name', required=True)
     

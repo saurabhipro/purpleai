@@ -19,7 +19,7 @@ class SurveyParameters(models.Model):
     colony_id = fields.Many2one('ddn.colony', related='property_id.colony_id', string='Colony', store=True)
     info_property_id = fields.Char(related='property_id.property_id', string='Property ID', store=True)
 
-    company_id = fields.Many2one('res.company', string="Company", related='property_id.company_id', store=True, default=lambda self : self.env.company.id, readonly=True)
+    company_id = fields.Many2one('res.company', string="Company", related='property_id.company_id', store=True, readonly=True)
     address_line_1 = fields.Char('Address Line 1')
     address_line_2 = fields.Char('Address Line 2')
     total_floors = fields.Char('Total Floors')
