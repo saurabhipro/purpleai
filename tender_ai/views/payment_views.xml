@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tende_ai_payment_list" model="ir.ui.view">
+        <field name="name">tende_ai.payment.list</field>
+        <field name="model">tende_ai.payment</field>
+        <field name="arch" type="xml">
+            <list string="Payment Details" default_order="transaction_date desc">
+                <field name="bidder_id" invisible="1"/>
+                <field name="company_name" string="Company Name" readonly="1"/>
+                <field name="vendor" string="Vendor"/>
+                <field name="payment_mode" string="Mode"/>
+                <field name="bank_name" string="Bank"/>
+                <field name="transaction_id" string="Transaction ID"/>
+                <field name="amount_inr" string="Amount (INR)"/>
+                <field name="transaction_date" string="Date"/>
+                <field name="status" string="Status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_tende_ai_payment" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="res_model">tende_ai.payment</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_tende_ai_payment_list"/>
+    </record>
+</odoo>
+

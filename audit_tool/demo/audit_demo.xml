@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Users are assumed to exist or we use Admin/Base users for demo simplicity -->
+        
+        <!-- Step 1: Draft Memos -->
+        <record id="audit_memo_demo_1" model="audit.memo">
+            <field name="subject">Internal Audit 2026 - Q1</field>
+            <field name="description">&lt;p&gt;Initial draft for Q1 audit.&lt;/p&gt;</field>
+            <field name="state">draft</field>
+            <field name="priority">1</field>
+        </record>
+        
+        <record id="audit_memo_demo_2" model="audit.memo">
+            <field name="subject">Expense Review - Marketing</field>
+            <field name="description">&lt;p&gt;Reviewing marketing outcome expenses.&lt;/p&gt;</field>
+            <field name="state">draft</field>
+        </record>
+
+        <!-- Step 2: Pending Partner Review -->
+        <record id="audit_memo_demo_3" model="audit.memo">
+            <field name="subject">Compliance Check - Safety</field>
+            <field name="description">&lt;p&gt;Submitted for partner approval.&lt;/p&gt;</field>
+            <field name="state">partner_review</field>
+            <field name="priority">2</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+        </record>
+        
+        <record id="audit_memo_demo_4" model="audit.memo">
+            <field name="subject">IT Asset Verification</field>
+            <field name="description">&lt;p&gt;Need approval to proceed with asset tagging.&lt;/p&gt;</field>
+            <field name="state">partner_review</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 3: Pending NPSG Assignment -->
+        <record id="audit_memo_demo_5" model="audit.memo">
+            <field name="subject">HR Process Audit</field>
+            <field name="description">&lt;p&gt;Approved by partner, waiting for NPSG assignment.&lt;/p&gt;</field>
+            <field name="state">npsg_assignment</field>
+            <field name="priority">3</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 4: In Progress (Preparer) -->
+        <record id="audit_memo_demo_6" model="audit.memo">
+            <field name="subject">Tax Filing Review</field>
+            <field name="description">&lt;p&gt;Work in progress.&lt;/p&gt;</field>
+            <field name="facts_of_case">&lt;p&gt;Fact: Taxes were filed on time.&lt;/p&gt;</field>
+            <field name="state">in_progress</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+            <field name="preparer_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 5: Level 1 Review -->
+        <record id="audit_memo_demo_7" model="audit.memo">
+            <field name="subject">Supplier Contracts Review</field>
+            <field name="description">&lt;p&gt;Drafted and sent for Level 1 review.&lt;/p&gt;</field>
+            <field name="state">level_1_review</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+            <field name="preparer_id" ref="base.user_admin"/>
+            <field name="reviewer_1_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 6: Final Review -->
+        <record id="audit_memo_demo_8" model="audit.memo">
+            <field name="subject">Financial Statements FY25</field>
+            <field name="description">&lt;p&gt;Final check before release.&lt;/p&gt;</field>
+            <field name="npsg_views">&lt;p&gt;Looks compliant.&lt;/p&gt;</field>
+            <field name="state">final_review</field>
+            <field name="priority">3</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+            <field name="preparer_id" ref="base.user_admin"/>
+            <field name="reviewer_1_id" ref="base.user_admin"/>
+            <field name="reviewer_final_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 7: Approved -->
+        <record id="audit_memo_demo_9" model="audit.memo">
+            <field name="subject">Payroll Audit - January</field>
+            <field name="description">&lt;p&gt;Completed and approved.&lt;/p&gt;</field>
+            <field name="state">approved</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Step 8: Rejected/Returned -->
+        <record id="audit_memo_demo_10" model="audit.memo">
+            <field name="subject">Petty Cash Verification</field>
+            <field name="description">&lt;p&gt;Discrepancies found.&lt;/p&gt;</field>
+            <field name="state">rejected</field>
+            <field name="engagement_partner_id" ref="base.user_admin"/>
+        </record>
+
+    </data>
+</odoo>

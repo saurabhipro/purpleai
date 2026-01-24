@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sequence_tende_ai_job" model="ir.sequence">
+            <field name="name">Tender AI Job Sequence</field>
+            <field name="code">tende_ai.job</field>
+            <field name="prefix">TENDER_</field>
+            <field name="padding">3</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+        </record>
+    </data>
+</odoo>
+

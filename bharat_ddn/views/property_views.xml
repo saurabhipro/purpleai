@@ -7,7 +7,7 @@
             <field name="name">ddn.property.info.list</field>
             <field name="model">ddn.property.info</field>
             <field name="arch" type="xml">
-                <list>
+                <list decoration-danger="not property_id">
                     <field name="uuid" optional="hide"/>
                     <field name="upic_no" optional="show"/>
                     <field name="digipin" optional="show"/>
@@ -15,7 +15,7 @@
                     <field name="zone_id" optional="show"/>
                     <field name="ward_id" optional="show"/>
                     <field name="colony_id" optional="show"/>
-                    <field name="property_type" optional="show"/>
+                    <field name="property_type" optional="show" widget="badge" decoration-info="property_type" decoration-bf="1"/>
                     <field name="property_id" optional="show"/>
                     <field name="plot_no" optional="hide"/>
                     <field name="bill_no" optional="hide"/>
@@ -313,6 +313,7 @@
                     <field name="ward_id"/>
                     <field name="property_status"/>
                     <field name="owner_name"/>
+                    <field name="property_id"/>
                     <field name="latitude"/>
                     <field name="longitude"/>
                     <field name="property_type"/>

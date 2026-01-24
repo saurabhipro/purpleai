@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="module_category_audit" model="ir.module.category">
+            <field name="name">Audit Tool</field>
+            <field name="description">Access management for Audit Tool</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Engagement Team -->
+        <record id="group_audit_et" model="res.groups">
+            <field name="name">Engagement Team (ET)</field>
+            <field name="category_id" ref="module_category_audit"/>
+        </record>
+
+        <!-- Engagement Partner -->
+        <record id="group_audit_ep" model="res.groups">
+            <field name="name">Engagement Partner (EP)</field>
+            <field name="category_id" ref="module_category_audit"/>
+        </record>
+
+        <!-- NPSG Team -->
+        <record id="group_audit_npsg" model="res.groups">
+            <field name="name">NPSG Team</field>
+            <field name="category_id" ref="module_category_audit"/>
+        </record>
+
+        <!-- Preparer -->
+        <record id="group_audit_preparer" model="res.groups">
+            <field name="name">Preparer</field>
+            <field name="category_id" ref="module_category_audit"/>
+        </record>
+
+        <!-- Reviewer -->
+        <record id="group_audit_reviewer" model="res.groups">
+            <field name="name">Reviewer</field>
+            <field name="category_id" ref="module_category_audit"/>
+        </record>
+
+        <!-- Admin -->
+        <record id="group_audit_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="category_id" ref="module_category_audit"/>
+            <field name="implied_ids" eval="[(4, ref('group_audit_et')), (4, ref('group_audit_ep')), (4, ref('group_audit_npsg')), (4, ref('group_audit_preparer')), (4, ref('group_audit_reviewer'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

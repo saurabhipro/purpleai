@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_tende_ai_root"
+              name="Tender AI"
+              sequence="100"/>
+
+    <menuitem id="menu_tende_ai_dashboard"
+              name="Dashboard"
+              parent="menu_tende_ai_root"
+              action="action_tende_ai_dashboard_owl"
+              sequence="5"/>
+
+    <menuitem id="menu_tende_ai_job"
+              name="Tender Processing"
+              parent="menu_tende_ai_root"
+              action="action_tende_ai_job"
+              sequence="10"/>
+
+    <menuitem id="menu_tende_ai_tender"
+              name="Tenders"
+              parent="menu_tende_ai_root"
+              action="action_tende_ai_tender"
+              sequence="20"/>
+
+    <menuitem id="menu_tende_ai_bidder"
+              name="Bidders"
+              parent="menu_tende_ai_root"
+              action="action_tende_ai_bidder"
+              sequence="30"/>
+</odoo>
+

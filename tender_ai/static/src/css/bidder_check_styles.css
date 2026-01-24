@@ -1,0 +1,159 @@
+.tender_ai_criteria_results .o_data_row.text-danger td {
+  background-color: #fde2e7 !important; /* light pink */
+}
+
+.tender_ai_criteria_results .o_data_row.text-danger {
+  color: inherit !important;
+}
+
+.tender_ai_eval_summary .o_data_row.text-success td {
+  background-color: #dff7e6 !important; /* light green */
+}
+
+.tender_ai_eval_summary .o_data_row.text-danger td {
+  background-color: #fde2e7 !important; /* light pink */
+}
+
+.tender_ai_eval_summary .o_data_row.text-success,
+.tender_ai_eval_summary .o_data_row.text-danger {
+  color: inherit !important;
+}
+
+/* Make labels in Tender Job -> General Information look bolder/clearer */
+.tender_ai_bold_labels .o_form_label,
+.tender_ai_bold_labels label.o_form_label {
+  font-weight: 700 !important;
+}
+
+/* Make labels/titles bold across ALL Tender AI forms (scoped by class on form root) */
+.tender_ai_form .o_form_label,
+.tender_ai_form label.o_form_label {
+  font-weight: 700 !important;
+}
+
+.tender_ai_form .o_horizontal_separator,
+.tender_ai_form .o_group .o_inner_group > tbody > tr > td > label {
+  font-weight: 700 !important;
+}
+
+/* Tender Job banner (shows which tender you're working on) */
+.tender_ai_tender_banner {
+  background: linear-gradient(135deg, #7b4b3a, #a36b54);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.tender_ai_tender_banner_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tender_ai_tender_banner_title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+.tender_ai_tender_badge {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+}
+
+.tender_ai_tender_banner .o_field_widget {
+  color: #fff;
+}
+
+.tender_ai_tender_ref {
+  opacity: 0.95;
+}
+
+.tender_ai_tender_banner_desc {
+  margin-top: 8px;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.tender_ai_tender_banner_actions .btn {
+  border-radius: 999px;
+}
+
+/* Fix: PDF/File viewer close button not clickable/visible under some themes.
+   Ensure Odoo's FileViewer header stays above the embedded PDF iframe. */
+.o-FileViewer {
+  z-index: 1 !important;
+}
+
+.o-FileViewer-header {
+  z-index: 3 !important;
+}
+
+.o-FileViewer-main {
+  z-index: 2 !important;
+}
+
+/* List/table header styling (global across backend) */
+.o_list_view thead th,
+.o_list_renderer thead th {
+  background-color: #7b4b3a !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.o_list_view thead th .o_column_sortable,
+.o_list_renderer thead th .o_column_sortable {
+  color: #ffffff !important;
+}
+
+.o_list_view thead th i,
+.o_list_renderer thead th i {
+  color: #ffffff !important;
+}
+
+/* Icons next to key labels (Tender AI Job header fields) */
+.tender_ai_form label.o_form_label[for="name"]::before {
+  content: "\f02b"; /* fa-tag */
+}
+.tender_ai_form label.o_form_label[for="tender_reference"]::before {
+  content: "\f02e"; /* fa-bookmark */
+}
+.tender_ai_form label.o_form_label[for="companies_detected"]::before {
+  content: "\f1ad"; /* fa-building */
+}
+.tender_ai_form label.o_form_label[for="detected_company_ids"]::before {
+  content: "\f0c0"; /* fa-users */
+}
+.tender_ai_form label.o_form_label[for="create_uid"]::before {
+  content: "\f007"; /* fa-user */
+}
+.tender_ai_form label.o_form_label[for="zip_filename"]::before {
+  content: "\f1c6"; /* fa-file-archive-o */
+}
+.tender_ai_form label.o_form_label[for="zip_file"]::before {
+  content: "\f0c6"; /* fa-paperclip */
+}
+
+.tender_ai_form label.o_form_label[for="name"]::before,
+.tender_ai_form label.o_form_label[for="tender_reference"]::before,
+.tender_ai_form label.o_form_label[for="companies_detected"]::before,
+.tender_ai_form label.o_form_label[for="detected_company_ids"]::before,
+.tender_ai_form label.o_form_label[for="create_uid"]::before,
+.tender_ai_form label.o_form_label[for="zip_filename"]::before,
+.tender_ai_form label.o_form_label[for="zip_file"]::before {
+  font-family: FontAwesome;
+  display: inline-block;
+  margin-right: 8px;
+  opacity: 0.9;
+}
+
+

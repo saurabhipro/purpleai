@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add PDF preview to the standard attachment form -->
+    <record id="view_ir_attachment_form_pdf_preview" model="ir.ui.view">
+        <field name="name">ir.attachment.form.pdf.preview (tender_ai)</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='datas' and @filename='name' and @invisible]" position="after">
+                <separator string="Preview" invisible="type == 'url' or mimetype != 'application/pdf'"/>
+                <field name="datas"
+                       widget="pdf_viewer"
+                       filename="name"
+                       nolabel="1"
+                       class="w-100"
+                       invisible="type == 'url' or mimetype != 'application/pdf'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+

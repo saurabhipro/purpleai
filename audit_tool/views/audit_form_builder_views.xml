@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form Definition View -->
+    <record id="view_audit_form_definition_tree" model="ir.ui.view">
+        <field name="name">audit.form.definition.list</field>
+        <field name="model">audit.form.definition</field>
+        <field name="arch" type="xml">
+            <list string="Form Fields" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="field_type" optional="show"/>
+                <field name="help_text" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action for Configuration -->
+    <record id="action_audit_form_definition" model="ir.actions.act_window">
+        <field name="name">Form Builder</field>
+        <field name="res_model">audit.form.definition</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_audit_form_builder" name="Memo Form Builder" parent="menu_audit_config" 
+              action="action_audit_form_definition" sequence="20"/>
+
+</odoo>

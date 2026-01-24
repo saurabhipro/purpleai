@@ -1,0 +1,136 @@
+.tender_ai_dashboard {
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(123, 75, 58, 0.06), rgba(255, 255, 255, 0) 240px);
+}
+
+.tad_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.tad_title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.tad_title_icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+}
+
+.tad_header_right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tad_updated {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.tad_loading {
+  padding: 20px;
+  text-align: center;
+}
+
+.tad_section {
+  margin: 16px 0 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 12px 12px 14px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.04);
+}
+
+.tad_section_title {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin: 6px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(123, 75, 58, 0.08);
+  border: 1px solid rgba(123, 75, 58, 0.10);
+}
+
+.tad_grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1400px) {
+  .tad_grid {
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .tad_grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+.tad_card {
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  color: #111827;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  min-height: 78px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.tad_card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+}
+
+.tad_card:active {
+  transform: translateY(-1px);
+}
+
+.tad_card_label {
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.tad_card_value {
+  font-size: 26px;
+  font-weight: 900;
+  margin-top: 8px;
+}
+
+/* Pattern backgrounds (same feel as Bhuarjan dashboard) */
+.tad_purple { background-image: url('/bhuarjan/static/img/purple_pattern.jpg'); }
+.tad_green  { background-image: url('/bhuarjan/static/img/green_pattern.jpg'); }
+.tad_blue   { background-image: url('/bhuarjan/static/img/blue_pattern.jpg'); }
+.tad_orange { background-image: url('/bhuarjan/static/img/orange_pattern.jpg'); }
+.tad_pink   { background-image: url('/bhuarjan/static/img/pink_pattern.jpg'); }
+.tad_yellow { background-image: url('/bhuarjan/static/img/yellow_pattern.jpg'); }
+
+

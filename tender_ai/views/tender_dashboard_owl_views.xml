@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_tende_ai_dashboard_owl" model="ir.actions.client">
+        <field name="name">Tender AI Dashboard</field>
+        <field name="tag">tender_ai.dashboard</field>
+    </record>
+</odoo>
+
+

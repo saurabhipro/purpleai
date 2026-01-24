@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tende_ai_job_user,tende_ai.job.user,model_tende_ai_job,base.group_user,1,1,1,1
+access_tende_ai_tender_user,tende_ai.tender.user,model_tende_ai_tender,base.group_user,1,1,1,0
+access_tende_ai_bidder_user,tende_ai.bidder.user,model_tende_ai_bidder,base.group_user,1,0,0,0
+access_tende_ai_payment_user,tende_ai.payment.user,model_tende_ai_payment,base.group_user,1,0,0,0
+access_tende_ai_work_experience_user,tende_ai.work_experience.user,model_tende_ai_work_experience,base.group_user,1,0,0,0
+access_tende_ai_eligibility_criteria_user,tende_ai.eligibility_criteria.user,model_tende_ai_eligibility_criteria,base.group_user,1,0,0,0
+access_tende_ai_bidder_check_user,tende_ai.bidder_check.user,model_tende_ai_bidder_check,base.group_user,1,0,0,0
+access_tende_ai_bidder_check_line_user,tende_ai.bidder_check_line.user,model_tende_ai_bidder_check_line,base.group_user,1,0,0,0
+access_tende_ai_client_query_user,tende_ai.client_query.user,model_tende_ai_client_query,base.group_user,1,1,1,1
+access_tende_ai_dashboard_user,tende_ai.dashboard.user,model_tende_ai_dashboard,base.group_user,1,1,1,1
+access_tende_ai_job_chat_wizard_user,tende_ai.job.chat.wizard.user,model_tende_ai_job_chat_wizard,base.group_user,1,1,1,1
+

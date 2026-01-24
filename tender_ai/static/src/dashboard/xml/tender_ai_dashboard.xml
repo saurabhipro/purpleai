@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="tender_ai.TenderAIDashboard" owl="1">
+        <div class="tender_ai_dashboard">
+            <div class="tad_header">
+                <div class="tad_title">
+                    <span class="tad_title_icon"><i class="fa fa-briefcase"/></span>
+                    <span class="tad_title_text">Tender AI Dashboard</span>
+                </div>
+                <div class="tad_header_right">
+                    <span class="tad_updated" t-if="state.lastUpdate">Last updated: <t t-esc="state.lastUpdate"/></span>
+                    <button class="btn btn-secondary tad_refresh" t-on-click="refresh">
+                        <i class="fa fa-refresh"/> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div t-if="state.loading" class="tad_loading">
+                <i class="fa fa-spinner fa-spin"/> Loading...
+            </div>
+            <div t-if="state.error" class="alert alert-danger">
+                <b>Error:</b> <t t-esc="state.error"/>
+            </div>
+
+            <div t-if="!state.loading" class="tad_content">
+                <div class="tad_section">
+                    <div class="tad_section_title"><i class="fa fa-briefcase"/> JOB STATISTICS</div>
+                    <div class="tad_grid">
+                        <div class="tad_card tad_purple" t-on-click="() => this.openJobs([])">
+                            <div class="tad_card_label">Total Jobs</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_jobs || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_green" t-on-click="() => this.openJobs([['state','=','completed']])">
+                            <div class="tad_card_label">Completed</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.completed_jobs || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_blue" t-on-click="() => this.openJobs([['state','in',['extracting','extracted','processing']]])">
+                            <div class="tad_card_label">In Progress</div>
+                            <div class="tad_card_value"><t t-esc="(state.stats.extracting_jobs||0) + (state.stats.extracted_jobs||0) + (state.stats.processing_jobs||0)"/></div>
+                        </div>
+                        <div class="tad_card tad_orange" t-on-click="() => this.openJobs([['state','=','failed']])">
+                            <div class="tad_card_label">Failed</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.failed_jobs || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_pink">
+                            <div class="tad_card_label">Success Rate</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.success_rate || 0"/>%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tad_section">
+                    <div class="tad_section_title"><i class="fa fa-building"/> COMPANY &amp; BIDDER STATISTICS</div>
+                    <div class="tad_grid">
+                        <div class="tad_card tad_yellow" t-on-click="openBidders">
+                            <div class="tad_card_label">Total Companies</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_companies || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_blue" t-on-click="openBidders">
+                            <div class="tad_card_label">Total Bidders</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_bidders || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_green" t-on-click="openPayments">
+                            <div class="tad_card_label">Total Payments</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_payments || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_orange" t-on-click="openWorkExperience">
+                            <div class="tad_card_label">Work Experience</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_work_experience || 0"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tad_section">
+                    <div class="tad_section_title"><i class="fa fa-cogs"/> PROCESSING STATISTICS</div>
+                    <div class="tad_grid">
+                        <div class="tad_card tad_purple">
+                            <div class="tad_card_label">PDFs Processed</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_pdfs_processed || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_green">
+                            <div class="tad_card_label">AI API Calls</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_ai_calls || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_pink">
+                            <div class="tad_card_label">Total Tokens</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.total_tokens || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_blue">
+                            <div class="tad_card_label">Avg Time (min)</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.avg_processing_time_min || 0"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tad_section">
+                    <div class="tad_section_title"><i class="fa fa-check-circle"/> TENDER STATUS</div>
+                    <div class="tad_grid">
+                        <div class="tad_card tad_green" t-on-click="() => this.openTenders([['state','=','approved']])">
+                            <div class="tad_card_label">Approved</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.approved_tenders || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_purple" t-on-click="() => this.openTenders([['state','=','published']])">
+                            <div class="tad_card_label">Published</div>
+                            <div class="tad_card_value"><t t-esc="state.stats.published_tenders || 0"/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
+
+
