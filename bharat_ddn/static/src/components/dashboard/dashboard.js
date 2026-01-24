@@ -28,7 +28,7 @@ export class OwlCrmDashboard extends Component {
     }
 
 
-    _openListView(resModel, domain = []) {
+    _openListView(resModel, domain = [], context = {}) {
         this.action.doAction({
             type: 'ir.actions.act_window',
             name: _t('Properties'),
@@ -36,6 +36,7 @@ export class OwlCrmDashboard extends Component {
             view_mode: 'list,form',
             views: [[false, 'list'], [false, 'form']],
             domain: domain,
+            context: context,
         });
     }
 
@@ -105,7 +106,7 @@ export class OwlCrmDashboard extends Component {
             this._openListView('ddn.property.info', [
                 ['ward_id.name', '=', ward],
                 ['zone_id.name', '=', zone]
-            ]);
+            ], { 'group_by': 'property_status' });
         }
     }
 
