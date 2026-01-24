@@ -79,7 +79,7 @@ export class OwlCrmDashboard extends Component {
         this._openListView('ddn.property.info', [
             ['survey_line_ids.create_date', '>=', todayStart],
             ['survey_line_ids.create_date', '<=', todayEnd],
-        ]);
+        ], { 'group_by': 'property_status' });
     }
 
     _onClickScansToday(ev) {
