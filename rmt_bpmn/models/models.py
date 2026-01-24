@@ -5,6 +5,7 @@ import uuid
 
 class BpmnModeler(models.Model):
     _name = 'rmt.bpmn.model'
+    _description = 'BPMN Model'
 
     name = fields.Char("Bpmn Name")
     desc = fields.Text()
@@ -48,5 +49,6 @@ class BpmnModeler(models.Model):
 
 class BpmnModelerTag(models.Model):
     _name = 'rmt.bpmn.model.tag'
+    _description = 'BPMN Model Tag'
 
     name = fields.Char()
