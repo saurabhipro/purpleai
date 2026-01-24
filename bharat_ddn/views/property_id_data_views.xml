@@ -9,6 +9,8 @@
                 <field name="property_id"/>
                 <field name="owner_name"/>
                 <field name="address"/>
+                <field name="ward_id"/>
+                <field name="zone_id"/>
                 <field name="mobile_no"/>
                 <field name="currnet_tax"/>
                 <field name="total_amount"/>
@@ -25,6 +27,8 @@
                     <field name="property_id"/>
                     <field name="owner_name"/>
                     <field name="address"/>
+                    <field name="ward_id"/>
+                    <field name="zone_id"/>
                     <field name="mobile_no"/>
                     <field name="currnet_tax"/>
                     <field name="total_amount"/>
@@ -42,6 +46,8 @@
                 <field name="property_id"/>
                 <field name="owner_name"/>
                 <field name="address"/>
+                <field name="ward_id"/>
+                <field name="zone_id"/>
                 <field name="mobile_no"/>
                 <field name="currnet_tax"/>
                 <field name="total_amount"/>

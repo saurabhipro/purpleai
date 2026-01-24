@@ -8,6 +8,8 @@ class PropertyIdData(models.Model):
     property_id = fields.Char('Property ID', required=True)
     owner_name = fields.Char('Owner Name')
     address = fields.Char('Address')
+    ward_id = fields.Many2one('ddn.ward', string='Ward')
+    zone_id = fields.Many2one('ddn.zone', string='Zone')
     mobile_no = fields.Char('Mobile No')
     currnet_tax = fields.Float('Current Tax')
     total_amount = fields.Float('Total Amount')
