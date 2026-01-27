@@ -11,7 +11,7 @@
                         <group invisible="state != 'choose'">
                             <field name="state" invisible="1"/>
                             <div class="alert alert-info mb-3" role="alert">
-                                <i class="fa fa-info-circle"/> <strong>Note:</strong> This will export <strong>ALL</strong> QR scan records from the database (sorted by most recent first).
+                                <i class="fa fa-info-circle" title="Info"/> <strong>Note:</strong> This will export <strong>ALL</strong> QR scan records from the database (sorted by most recent first).
                             </div>
                             <p class="text-muted">
                                 The Excel report will include the following columns:
@@ -35,7 +35,7 @@
                                 <field name="filename" invisible="1"/>
                             </div>
                             <p class="text-success">
-                                <i class="fa fa-check-circle"/> Report generated successfully! Click above to download.
+                                <i class="fa fa-check-circle" title="Success"/> Report generated successfully! Click above to download.
                             </p>
                         </group>
                     </sheet>

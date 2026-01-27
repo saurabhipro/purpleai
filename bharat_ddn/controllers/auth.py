@@ -22,9 +22,8 @@ class JWTAuthController(http.Controller):
         if not check_surveyor:
             return Response(json.dumps({'error': 'Access restricted: You must be assigned to the Surveyor group to proceed.'}), status=400, content_type='application/json')
 
-        existing_otp = request.env['mobile.otp'].sudo().search([('mobile', '=', mobile)])
-        if existing_otp:
-            existing_otp.unlink()
+        # Use SQL to delete existing OTPs to avoid concurrent update errors
+        request.env.cr.execute("DELETE FROM mobile_otp WHERE mobile=%s", (mobile,))
 
         otp_code = str(random.randint(1000, 9999))  # Generate random OTP by default
         try:
