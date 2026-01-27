@@ -17,7 +17,7 @@ class SurveyParameters(models.Model):
     # Related fields for Dashboard/List View
     ward_id = fields.Many2one('ddn.ward', related='property_id.ward_id', string='Ward', store=True)
     colony_id = fields.Many2one('ddn.colony', related='property_id.colony_id', string='Colony', store=True)
-    info_property_id = fields.Char(related='property_id.property_id', string='Property ID', store=True)
+    info_property_id = fields.Char(related='property_id.property_id', string='Property Ref ID', store=True)
 
     company_id = fields.Many2one('res.company', string="Company", related='property_id.company_id', store=True, readonly=True)
     address_line_1 = fields.Char('Address Line 1')

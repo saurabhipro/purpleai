@@ -15,10 +15,11 @@ class BpmnModeler(models.Model):
     url_share = fields.Char()
     tag_ids = fields.Many2many('rmt.bpmn.model.tag', string="Tags")
 
-    @api.model
-    def create(self, vals):
-        vals['access_token'] = str(uuid.uuid4())
-        return super(BpmnModeler, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals['access_token'] = str(uuid.uuid4())
+        return super(BpmnModeler, self).create(vals_list)
 
     def actionShare(self):
         if not self.access_token:
