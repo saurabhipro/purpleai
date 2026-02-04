@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="id_sambhaji_microsite_template" name="Bharat DDN Sambhaji Nagar">
+  <template id="id_sambhaji_microsite_template" name="UDAN Sambhaji Nagar">
     <t t-call="website.layout">
       <!-- External CSS -->
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -881,8 +881,8 @@
         <section class="id_sambhaji_microsite_template">
           <!-- Header Section with Carousel -->
           <div class="welcome-strip">
-            <span>Welcome to Digital Pata</span><br/>
-            <span>Sambhaji Nagar Municipal Corporation.</span>
+            <span>Welcome to UDAN</span><br/>
+            <span>Unique Digital Addressing System</span>
           </div>
           <header class="header-gradient text-white py-0" style="position:relative;">
             <!-- 1. Build a flat list of banners -->
@@ -913,7 +913,6 @@
                   <div class="carousel-item active" style="background-image: linear-gradient(135deg, var(--primary-brown) 0%, var(--accent-brown) 100%);">
                     <div class="carousel-content-hero">
                       <h1 class="carousel-title-hero">Welcome to DDN Sambhajinagar</h1>
-                      <p class="carousel-subtitle-hero">Digital Pata</p>
                     </div>
                   </div>
                 </t>
@@ -952,7 +951,7 @@
                   </div>
                   <div class="col-6">
                     <div class="property-label">
-                      <i class="bi bi-qr-code me-1 property-icon-theme"></i> Digital Pata
+                      <i class="bi bi-qr-code me-1 property-icon-theme"></i> UDAN
                     </div>
                     <div class="property-value">
                       <t t-if="property.upic_no"><t t-out="property.upic_no"/></t>
@@ -1011,14 +1010,14 @@
                             <t t-set="directions_driving" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=driving'"/>
                             <t t-set="directions_walking" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=walking'"/>
                             <t t-set="directions_transit" t-value="'https://www.google.com/maps/dir/?api=1&amp;destination=' + lat + ',' + lng + '&amp;travelmode=transit'"/>
-                            <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🚗 Drive: ' + directions_driving + '%0A🚶 Walk: ' + directions_walking + '%0A🚌 Transit: ' + directions_transit"/>
+                            <t t-set="share_text" t-value="'Check out this property on UDAN!' + '%0A%0A' + property_url + '%0A%0A📍 Location: ' + lat + ', ' + lng + '%0A🗺️ View on Map: ' + maps_url + '%0A🚗 Drive: ' + directions_driving + '%0A🚶 Walk: ' + directions_walking + '%0A🚌 Transit: ' + directions_transit"/>
                           </t>
                           <t t-else="">
                             <t t-set="maps_url" t-value="''"/>
                             <t t-set="directions_driving" t-value="''"/>
                             <t t-set="directions_walking" t-value="''"/>
                             <t t-set="directions_transit" t-value="''"/>
-                            <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                            <t t-set="share_text" t-value="'Check out this property on UDAN!' + '%0A%0A' + property_url"/>
                           </t>
                         </t>
                         <t t-else="">
@@ -1026,7 +1025,7 @@
                           <t t-set="directions_driving" t-value="''"/>
                           <t t-set="directions_walking" t-value="''"/>
                           <t t-set="directions_transit" t-value="''"/>
-                          <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                          <t t-set="share_text" t-value="'Check out this property on UDAN!' + '%0A%0A' + property_url"/>
                           <t t-set="valid_coords" t-value="False"/>
                         </t>
                       </t>
@@ -1035,7 +1034,7 @@
                         <t t-set="directions_driving" t-value="''"/>
                         <t t-set="directions_walking" t-value="''"/>
                         <t t-set="directions_transit" t-value="''"/>
-                        <t t-set="share_text" t-value="'Check out this property on Bharat DDN!' + '%0A%0A' + property_url"/>
+                        <t t-set="share_text" t-value="'Check out this property on UDAN!' + '%0A%0A' + property_url"/>
                         <t t-set="valid_coords" t-value="False"/>
                       </t>
                       <a t-att-href="'https://wa.me/?text=' + share_text"
@@ -1225,104 +1224,104 @@
               </div>
               <div class="faq-container">
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is Digital Pata?</div>
-                  <div class="faq-answer">Digital Pata is a digital address code that uniquely identifies any location in India, making navigation and service delivery easier and more precise.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is UDAN?</div>
+                  <div class="faq-answer">UDAN is a digital address code that uniquely identifies any location in India, making navigation and service delivery easier and more precise.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is Digital Pata different from a regular postal address?</div>
-                  <div class="faq-answer">Digital Pata is based on latitude and longitude, ensuring accuracy even in areas without formal addresses, unlike traditional postal addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is UDAN different from a regular postal address?</div>
+                  <div class="faq-answer">UDAN is based on latitude and longitude, ensuring accuracy even in areas without formal addresses, unlike traditional postal addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Why do we need Digital Pata when we already have postal addresses?</div>
-                  <div class="faq-answer">Digital Pata provides a precise, digital way to locate properties, especially useful in areas with ambiguous or missing addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Why do we need UDAN when we already have postal addresses?</div>
+                  <div class="faq-answer">UDAN provides a precise, digital way to locate properties, especially useful in areas with ambiguous or missing addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata available offline?</div>
-                  <div class="faq-answer">Digital Pata can be accessed online, but you can save or print your Digital Pata for offline use.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is UDAN available offline?</div>
+                  <div class="faq-answer">UDAN can be accessed online, but you can save or print your UDAN for offline use.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be used for navigation?</div>
-                  <div class="faq-answer">Yes, Digital Pata can be used with navigation apps to find precise locations.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can UDAN be used for navigation?</div>
+                  <div class="faq-answer">Yes, UDAN can be used with navigation apps to find precise locations.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will my postal address change if I use Digital Pata?</div>
-                  <div class="faq-answer">No, your postal address remains the same. Digital Pata is an additional digital identifier.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will my postal address change if I use UDAN?</div>
+                  <div class="faq-answer">No, your postal address remains the same. UDAN is an additional digital identifier.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is a Digital Pata generated for a specific location?</div>
-                  <div class="faq-answer">Digital Pata is generated using the latitude and longitude of the location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How is a UDAN generated for a specific location?</div>
+                  <div class="faq-answer">UDAN is generated using the latitude and longitude of the location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is my personal address data stored in Digital Pata?</div>
-                  <div class="faq-answer">No personal data is stored in the Digital Pata itself; it is a code representing a location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is my personal address data stored in UDAN?</div>
+                  <div class="faq-answer">No personal data is stored in the UDAN itself; it is a code representing a location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be used for rural or remote areas?</div>
-                  <div class="faq-answer">Yes, Digital Pata is especially useful in rural or remote areas where formal address systems may not exist.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can UDAN be used for rural or remote areas?</div>
+                  <div class="faq-answer">Yes, UDAN is especially useful in rural or remote areas where formal address systems may not exist.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How precise is the Digital Pata system?</div>
-                  <div class="faq-answer">Digital Pata is highly precise as it is based on GPS coordinates.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How precise is the UDAN system?</div>
+                  <div class="faq-answer">UDAN is highly precise as it is based on GPS coordinates.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the difference between pincode and Digital Pata?</div>
-                  <div class="faq-answer">Pincode refers to a postal region, while Digital Pata is unique to a specific location or property.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the difference between pincode and UDAN?</div>
+                  <div class="faq-answer">Pincode refers to a postal region, while UDAN is unique to a specific location or property.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata applicable only within India?</div>
-                  <div class="faq-answer">Currently, Digital Pata is designed for use within India.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is UDAN applicable only within India?</div>
+                  <div class="faq-answer">Currently, UDAN is designed for use within India.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the benefit of Digital Pata in emergency situations?</div>
-                  <div class="faq-answer">Digital Pata helps emergency services reach your exact location quickly and efficiently.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> What is the benefit of UDAN in emergency situations?</div>
+                  <div class="faq-answer">UDAN helps emergency services reach your exact location quickly and efficiently.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I find my Digital Pata?</div>
-                  <div class="faq-answer">You can find your Digital Pata using the official portal or by contacting your local municipal office.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I find my UDAN?</div>
+                  <div class="faq-answer">You can find your UDAN using the official portal or by contacting your local municipal office.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Do I have to login or signup for finding Digital Pata?</div>
-                  <div class="faq-answer">No login or signup is required to find your Digital Pata.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Do I have to login or signup for finding UDAN?</div>
+                  <div class="faq-answer">No login or signup is required to find your UDAN.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does Digital Pata help in government services?</div>
-                  <div class="faq-answer">Digital Pata enables accurate delivery of government services and correspondence to your location.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does UDAN help in government services?</div>
+                  <div class="faq-answer">UDAN enables accurate delivery of government services and correspondence to your location.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does Digital Pata handle changes in infrastructure, such as new buildings or roads?</div>
-                  <div class="faq-answer">Digital Pata can be updated to reflect changes in infrastructure, ensuring continued accuracy.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How does UDAN handle changes in infrastructure, such as new buildings or roads?</div>
+                  <div class="faq-answer">UDAN can be updated to reflect changes in infrastructure, ensuring continued accuracy.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can a building having multiple residents/homes have different Digital Pata?</div>
-                  <div class="faq-answer">Yes, each unit or home within a building can have its own unique Digital Pata.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can a building having multiple residents/homes have different UDAN?</div>
+                  <div class="faq-answer">Yes, each unit or home within a building can have its own unique UDAN.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will Digital Pata replace traditional addresses?</div>
-                  <div class="faq-answer">Digital Pata is meant to supplement, not replace, traditional addresses.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will UDAN replace traditional addresses?</div>
+                  <div class="faq-answer">UDAN is meant to supplement, not replace, traditional addresses.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can Digital Pata be useful for rural villages?</div>
-                  <div class="faq-answer">Yes, Digital Pata is especially beneficial for rural villages lacking formal address systems.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Can UDAN be useful for rural villages?</div>
+                  <div class="faq-answer">Yes, UDAN is especially beneficial for rural villages lacking formal address systems.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I fetch or decode a Digital Pata?</div>
-                  <div class="faq-answer">You can fetch or decode a Digital Pata using the official Digital Pata portal or app.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How do I fetch or decode a UDAN?</div>
+                  <div class="faq-answer">You can fetch or decode a UDAN using the official UDAN portal or app.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Does Digital Pata work in areas with no internet access?</div>
-                  <div class="faq-answer">Digital Pata can be used offline if you have already saved or printed your code, but online access is needed for updates.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Does UDAN work in areas with no internet access?</div>
+                  <div class="faq-answer">UDAN can be used offline if you have already saved or printed your code, but online access is needed for updates.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is Digital Pata secure?</div>
-                  <div class="faq-answer">Yes, Digital Pata is secure and does not store personal information.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Is UDAN secure?</div>
+                  <div class="faq-answer">Yes, UDAN is secure and does not store personal information.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will Digital Pata affect my privacy?</div>
-                  <div class="faq-answer">No, Digital Pata does not contain or reveal any personal data.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> Will UDAN affect my privacy?</div>
+                  <div class="faq-answer">No, UDAN does not contain or reveal any personal data.</div>
                 </div>
                 <div class="faq-item" onclick="toggleFAQ(this)">
-                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How can businesses benefit from Digital Pata?</div>
-                  <div class="faq-answer">Businesses can use Digital Pata for accurate deliveries, customer verification, and service reach in both urban and rural areas.</div>
+                  <div class="faq-question"><span class="faq-icon"><i class="bi bi-plus"></i></span> How can businesses benefit from UDAN?</div>
+                  <div class="faq-answer">Businesses can use UDAN for accurate deliveries, customer verification, and service reach in both urban and rural areas.</div>
                 </div>
               </div>
             </div>

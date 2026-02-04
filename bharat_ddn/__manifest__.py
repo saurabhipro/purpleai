@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Bharat DDN',
+    'name': 'UDAN',
     'summary': """
         Digital Pata
     """,
@@ -16,7 +16,6 @@
         # Security
         'security/ir_rule.xml',
         'security/ir.model.access.csv',
-        
         
         # Views
         'views/zone_views.xml',

@@ -4,7 +4,7 @@
         <field name="res_model">res.users</field>
         <field name="view_mode">list,form</field>
     </record>
-    <menuitem id="ddn_parent_menu_property_info" name="Digital Pata" sequence="1">
+    <menuitem id="ddn_parent_menu_property_info" name="UDAN" sequence="1">
         <menuitem id="ddn_menu_property_dashboard" name="Dashboard" action="my_dashboard_action" sequence="1"/>
         <menuitem id="ddn_menu_property_info" name="Property" action="action_property_info" sequence="2"/>
         <menuitem id="ddn_menu_survey" name="Surveys" action="action_property_survey" sequence="3"/>

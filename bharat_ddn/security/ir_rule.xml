@@ -1,7 +1,7 @@
 <odoo>
     <!-- Create Group HOD Admin -->
     <record id="group_category_bharat_ddn" model="ir.module.category">
-        <field name="name">Bharat Ddn</field>
+        <field name="name">UDAN</field>
         <field name="description">Access rights for HOD related roles.</field>
         <field name="sequence">45</field>
     </record>
