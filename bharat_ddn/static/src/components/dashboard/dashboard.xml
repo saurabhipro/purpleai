@@ -236,8 +236,7 @@
                                         <th>Uploaded</th>
                                         <th>Plates Remaining</th>
                                         <th>Surveyed</th>
-                                        <th>Unlocked</th>
-                                        <th>Discovered</th>
+                                        <th>% Surveyed</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -252,8 +251,7 @@
                                         <td><t t-esc="ward.uploaded_count"/></td>
                                         <td><t t-esc="ward.pdf_downloaded_count"/></td>
                                         <td><t t-esc="ward.surveyed_count"/></td>
-                                        <td><t t-esc="ward.unlocked_count"/></td>
-                                        <td><t t-esc="ward.discovered_count"/></td>
+                                        <td><t t-esc="ward.surveyed_percent"/>%</td>
                                     </tr>
                                 </tbody>
                             </table>

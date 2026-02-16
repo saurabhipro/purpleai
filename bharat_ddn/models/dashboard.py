@@ -136,6 +136,7 @@ class Dashboard(models.Model):
                     'unlocked_count': data['unlocked'],
                     'discovered_count': data['discovered'],
                     'has_surveys_today': data.get('has_surveys_today', False),
+                    'surveyed_percent': round((data['surveyed'] / data['count']) * 100, 2) if data['count'] > 0 else 0,
                 } for ward, data in result.items()
             ],
             # ✅ Add pie chart data here:
