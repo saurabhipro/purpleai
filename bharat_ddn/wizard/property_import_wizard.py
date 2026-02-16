@@ -15,6 +15,7 @@ _logger = logging.getLogger(__name__)
 class PropertyImportSheet(models.TransientModel):
     _name = 'property.import.sheet'
     _description = 'Import Sheet'
+    _rec_name = 'name'
 
     wizard_id = fields.Many2one('property.import.wizard', string='Wizard', ondelete='cascade')
     name = fields.Char('Sheet Name')
@@ -75,14 +76,14 @@ class PropertyImportWizard(models.TransientModel):
                         tmp.seek(0)
                         wb = openpyxl.load_workbook(tmp.name, read_only=True)
                         
-                        # Reset selection and prepare new list
+                        # Reset selection
                         self.selected_sheet = False
-                        sheet_lines = []
-                        for s in wb.sheetnames:
-                             if s:
-                                sheet_lines.append((0, 0, {'name': str(s)}))
                         
-                        self.sheet_ids = [(5, 0, 0)] + sheet_lines # Clear and add
+                        # Create persistent (transient) records for sheets to ensure Many2one dropdown works correctly
+                        vals_list = [{'name': str(s)} for s in wb.sheetnames if s]
+                        new_sheets = self.env['property.import.sheet'].create(vals_list)
+                        
+                        self.sheet_ids = [(6, 0, new_sheets.ids)] # Replace list
                         
                         os.unlink(tmp.name)
                 except Exception as e:
