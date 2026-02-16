@@ -166,6 +166,14 @@ class PropertyImportWizard(models.TransientModel):
                         msg += f"Expected columns: {', '.join(header_map_config.keys())}"
                         raise UserError(msg)
 
+                    # Determine target model and specific field mappings
+                    if self.import_type == 'property_id':
+                         target_model_name = 'property.id.data'
+                         address_field = 'address'
+                    else:
+                         target_model_name = 'ddn.property.info'
+                         address_field = 'address_line_1'
+
                     rows = []
                     for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
                         # Extract data using the map
@@ -206,10 +214,16 @@ class PropertyImportWizard(models.TransientModel):
                              vals['company_id'] = company_id.id if company_id else False
 
                         vals['property_id'] = str(row_data.get('property id')).strip() if row_data.get('property id') else False
-                        vals['upic_no'] = str(row_data.get('upicno')).strip() if row_data.get('upicno') else False
-                        vals['unit_no'] = str(row_data.get('unit_no')).strip() if row_data.get('unit_no') else False
+                        
+                        if self.import_type == 'upic':
+                            vals['upic_no'] = str(row_data.get('upicno')).strip() if row_data.get('upicno') else False
+                            vals['unit_no'] = str(row_data.get('unit_no')).strip() if row_data.get('unit_no') else False
+                        else:
+                             # Only set these for property_id import if relevant, otherwise skip or default
+                             pass
+
                         vals['owner_name'] = row_data.get('owner name')
-                        vals['address_line_1'] = row_data.get('address')
+                        vals[address_field] = row_data.get('address') # Dynamic address field
                         vals['mobile_no'] = row_data.get('mobile no')
                         
                         # Fundamental check
@@ -234,19 +248,19 @@ class PropertyImportWizard(models.TransientModel):
             total_records = len(rows)
             processed_records = 0
             
-            _logger.info(f"Starting import of {total_records} records")
+            _logger.info(f"Starting import of {total_records} records into {target_model_name}")
             
             for row in rows:
                 try:
                     existing_property = False
                     if self.import_type == 'property_id':
-                        # Check if property with same Property ID exists
+                        # Check if property with same Property ID exists in property.id.data
                         if row.get('property_id'):
-                            existing_property = self.env['ddn.property.info'].search([
+                            existing_property = self.env['property.id.data'].search([
                                 ('property_id', '=', row['property_id'])
                             ], limit=1)
                     elif self.import_type == 'upic':
-                        # Check if property with same UPIC exists
+                        # Check if property with same UPIC exists in ddn.property.info
                         if row.get('upic_no'):
                              existing_property = self.env['ddn.property.info'].search([
                                 ('upic_no', '=', row['upic_no'])
@@ -262,7 +276,7 @@ class PropertyImportWizard(models.TransientModel):
                                 # Create records
                                 for record in current_batch:
                                     try:
-                                        self.env['ddn.property.info'].create(record)
+                                        self.env[target_model_name].create(record)
                                         created_records += 1
                                     except Exception as e:
                                         _logger.error(f"Error creating record: {str(e)}")
@@ -291,7 +305,7 @@ class PropertyImportWizard(models.TransientModel):
                 try:
                     for record in current_batch:
                         try:
-                            self.env['ddn.property.info'].create(record)
+                            self.env[target_model_name].create(record)
                             created_records += 1
                         except Exception as e:
                              _logger.error(f"Error creating record: {str(e)}")
@@ -307,8 +321,10 @@ class PropertyImportWizard(models.TransientModel):
             vals_to_write = {}
             
             # 1. Success Message
+            target_label = "Imported Property Data (Temporary)" if target_model_name == 'property.id.data' else "Main Property Database"
+            
             if created_records > 0:
-                vals_to_write['generated_success_msg'] = f"Success! {created_records} property records were successfully imported."
+                vals_to_write['generated_success_msg'] = f"Success! {created_records} property records were successfully imported into {target_label}."
             else:
                 vals_to_write['generated_success_msg'] = False
 
