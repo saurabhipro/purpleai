@@ -38,3 +38,4 @@ access_ddn_qr_scan_user,access.ddn.qr.scan.user,model_ddn_qr_scan,base.group_use
 access_property_create_wizard,access.property.create.wizard,model_property_create_wizard,base.group_user,1,1,1,1
 access_delete_surveys_wizard,access.delete.surveys.wizard,model_delete_surveys_wizard,base.group_user,1,1,1,1
 access_qr_scan_export_wizard,access.qr.scan.export.wizard,model_qr_scan_export_wizard,base.group_user,1,1,1,1
+access_property_import_sheet,access.property.import.sheet,model_property_import_sheet,base.group_user,1,1,1,1

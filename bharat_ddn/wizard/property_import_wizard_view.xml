@@ -4,6 +4,12 @@
         <field name="model">property.import.wizard</field>
         <field name="arch" type="xml">
             <form string="Import Property Data">
+                <div class="alert alert-success" role="alert" invisible="not generated_success_msg">
+                    <field name="generated_success_msg" readonly="1" force_save="1"/>
+                </div>
+                <div class="alert alert-danger" role="alert" invisible="not generated_warning_msg">
+                    <field name="generated_warning_msg" readonly="1" force_save="1"/>
+                </div>
                 <group>
                     <field name="import_type" widget="radio" options="{'horizontal': true}"/>
                     <field name="filename" invisible="1"/>

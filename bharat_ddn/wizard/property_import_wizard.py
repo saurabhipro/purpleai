@@ -39,6 +39,8 @@ class PropertyImportWizard(models.TransientModel):
     limit_count = fields.Integer('No of Records', default=10)
     error_file = fields.Binary('Error File', readonly=True)
     error_filename = fields.Char('Error Filename', readonly=True)
+    generated_success_msg = fields.Text('Success Message', readonly=True)
+    generated_warning_msg = fields.Text('Warning Message', readonly=True)
 
     def get_headers_map(self):
         if self.import_type == 'upic':
@@ -79,15 +81,6 @@ class PropertyImportWizard(models.TransientModel):
                         
                         self.sheet_ids = [(5, 0, 0)] + sheet_lines # Clear and add
                         
-                        # Auto-select first sheet
-                        if sheet_lines:
-                             # Since we are in onchange and records aren't saved, we can't easily set Many2one to a NewId record effectively for display sometimes.
-                             # But let's try relying on the fact that we just assigned sheet_ids.
-                             pass 
-                             # Note: Setting selected_sheet here might be tricky until saved. 
-                             # However, we can try to set it to the first item if UI supports it.
-                             # For now, let user select or default logic in action_import might be needed if they don't select.
-                        
                         os.unlink(tmp.name)
                 except Exception as e:
                     _logger.warning(f"Could not read excel sheets: {e}")
@@ -110,18 +103,15 @@ class PropertyImportWizard(models.TransientModel):
             rows = []
             
             if ext == '.csv':
-                # Simplified CSV support - assuming standard mapping slightly different from Excel for now specific to requester or just generic
-                # But requirement focuses on Excel tabs.
+                # Simplified CSV support
                 csvfile = StringIO(file_content.decode('utf-8'))
                 reader = csv.DictReader(csvfile)
-                # Map CSV headers loosely
                 rows = list(reader)
-                # TODO: Adapt CSV logic if needed, but focusing on Excel as per request
             elif ext in ('.xls', '.xlsx'):
                 try:
                     import pandas as pd
                 except ImportError:
-                    pass # pandas optional if we use openpyxl directly
+                    pass
                 
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
                     tmp.write(file_content)
@@ -135,7 +125,6 @@ class PropertyImportWizard(models.TransientModel):
                          else:
                             raise ValidationError(f"Sheet '{self.selected_sheet.name}' not found. Available: {wb.sheetnames}")
                     else:
-                        # Fallback to first sheet if nothing selected manually (and onchange didn't stick)
                         if wb.sheetnames:
                             target_sheet = wb[wb.sheetnames[0]]
                         else:
@@ -191,10 +180,6 @@ class PropertyImportWizard(models.TransientModel):
                         zone_name = row_data.get('zone')
                         if zone_name:
                             zone_id = self.env['ddn.zone'].search([('name', 'ilike', str(zone_name).strip())], limit=1)
-                            if not zone_id:
-                                # Dictionary to log error? Or skip?
-                                # For now, let's skip/log or keep False
-                                pass 
                             vals['zone_id'] = zone_id.id if zone_id else False
 
                         # Process Ward
@@ -314,8 +299,19 @@ class PropertyImportWizard(models.TransientModel):
 
             _logger.info(f"Import completed. Total records processed: {processed_records}, Created: {created_records}, Skipped: {len(skipped_records)}")
 
-            # Generate error file if there are skipped records
+            # Prepare Wizard Updates
+            vals_to_write = {}
+            
+            # 1. Success Message
+            if created_records > 0:
+                vals_to_write['generated_success_msg'] = f"Success! {created_records} property records were successfully imported."
+            else:
+                vals_to_write['generated_success_msg'] = False
+
+            # 2. Warning/Error Message & File
             if skipped_records:
+                vals_to_write['generated_warning_msg'] = f"Warning: {len(skipped_records)} records were skipped due to duplicates or errors. Please check the error file below."
+                
                 error_wb = openpyxl.Workbook()
                 error_sheet = error_wb.active
                 
@@ -337,30 +333,31 @@ class PropertyImportWizard(models.TransientModel):
                 with open(error_file_path.name, 'rb') as f:
                     error_file_content = f.read()
                 
-                # Update wizard with error file
-                self.write({
-                    'error_file': base64.b64encode(error_file_content),
-                    'error_filename': 'import_errors.xlsx'
-                })
+                vals_to_write['error_file'] = base64.b64encode(error_file_content)
+                vals_to_write['error_filename'] = 'import_errors.xlsx'
                 
                 # Clean up temporary file
                 os.unlink(error_file_path.name)
-                
-                return {
-                    'type': 'ir.actions.act_window',
-                    'res_model': 'property.import.wizard',
-                    'res_id': self.id,
-                    'view_mode': 'form',
-                    'target': 'new',
-                }
+            else:
+                vals_to_write['generated_warning_msg'] = False
+                vals_to_write['error_file'] = False
+                vals_to_write['error_filename'] = False
+
+            self.write(vals_to_write)
+            
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'property.import.wizard',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
 
         except UserError as ue:
              raise ue
         except Exception as e:
             _logger.error(f"Import failed: {str(e)}")
             raise ValidationError('Import failed: %s' % str(e))
-        
-        return {'type': 'ir.actions.act_window_close'}
 
     def action_test_record(self):
         zone_id = self.env['ddn.zone'].search([('name', '=', 'TEST ZONE')], limit=1)
