@@ -16,8 +16,8 @@ class PropertyImportSheet(models.TransientModel):
     _name = 'property.import.sheet'
     _description = 'Import Sheet'
 
-    wizard_id = fields.Many2one('property.import.wizard', string='Wizard')
-    name = fields.Char('Sheet Name', required=True)
+    wizard_id = fields.Many2one('property.import.wizard', string='Wizard', ondelete='cascade')
+    name = fields.Char('Sheet Name')
 
 class PropertyImportWizard(models.TransientModel):
     _name = 'property.import.wizard'
@@ -75,9 +75,12 @@ class PropertyImportWizard(models.TransientModel):
                         tmp.seek(0)
                         wb = openpyxl.load_workbook(tmp.name, read_only=True)
                         
+                        # Reset selection and prepare new list
+                        self.selected_sheet = False
                         sheet_lines = []
                         for s in wb.sheetnames:
-                             sheet_lines.append((0, 0, {'name': s}))
+                             if s:
+                                sheet_lines.append((0, 0, {'name': str(s)}))
                         
                         self.sheet_ids = [(5, 0, 0)] + sheet_lines # Clear and add
                         
