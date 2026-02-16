@@ -22,7 +22,6 @@
             <menuitem id="mobile_otp_menu_item" name="OTP" action="mobile_otp_action" sequence="9"/>
             <menuitem id="ddn_menu_property_import" name="Import Properties" action="action_property_import_wizard" sequence="10"/>
             <menuitem id="ddn_menu_property_id_data" name="Imported Property Data" action="action_property_id_data" sequence="11"/>
-            <menuitem id="menu_property_import_wizard" name="Import Property Wizard" sequence="12" action="action_property_import_wizard"/>
             <menuitem id="menu_ddn_services_manage" name="Manage Services" action="action_ddn_services" sequence="13"/>
             <menuitem id="menu_ddn_property_create_wizard_mneu" name="Create Property" action="action_property_create_wizard" sequence="50"/>        
         </menuitem>
