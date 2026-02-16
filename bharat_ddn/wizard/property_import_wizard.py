@@ -12,14 +12,22 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+class PropertyImportSheet(models.TransientModel):
+    _name = 'property.import.sheet'
+    _description = 'Import Sheet'
+
+    wizard_id = fields.Many2one('property.import.wizard', string='Wizard')
+    name = fields.Char('Sheet Name', required=True)
+
 class PropertyImportWizard(models.TransientModel):
     _name = 'property.import.wizard'
     _description = 'Wizard to import property data'
 
     data_file = fields.Binary('CSV or Excel File', required=True)
     filename = fields.Char('Filename')
-    sheet_name = fields.Char('Sheet Name', help="Name of the sheet to import. Defaults to the first sheet if empty.")
-    available_sheets = fields.Text('Available Sheets', readonly=True)
+    sheet_ids = fields.One2many('property.import.sheet', 'wizard_id', string='Sheets')
+    selected_sheet = fields.Many2one('property.import.sheet', string='Select Sheet', domain="[('id', 'in', sheet_ids)]")
+    
     import_type = fields.Selection([
         ('property_id', 'Property ID Data'),
         ('upic', 'UPIC Data')
@@ -64,18 +72,26 @@ class PropertyImportWizard(models.TransientModel):
                         tmp.write(file_content)
                         tmp.seek(0)
                         wb = openpyxl.load_workbook(tmp.name, read_only=True)
-                        formatted_sheets = [] 
-                        for s in wb.sheetnames:
-                             formatted_sheets.append(s)
                         
-                        self.available_sheets = ", ".join(formatted_sheets)
-                        if formatted_sheets:
-                            self.sheet_name = formatted_sheets[0]
+                        sheet_lines = []
+                        for s in wb.sheetnames:
+                             sheet_lines.append((0, 0, {'name': s}))
+                        
+                        self.sheet_ids = [(5, 0, 0)] + sheet_lines # Clear and add
+                        
+                        # Auto-select first sheet
+                        if sheet_lines:
+                             # Since we are in onchange and records aren't saved, we can't easily set Many2one to a NewId record effectively for display sometimes.
+                             # But let's try relying on the fact that we just assigned sheet_ids.
+                             pass 
+                             # Note: Setting selected_sheet here might be tricky until saved. 
+                             # However, we can try to set it to the first item if UI supports it.
+                             # For now, let user select or default logic in action_import might be needed if they don't select.
                         
                         os.unlink(tmp.name)
                 except Exception as e:
                     _logger.warning(f"Could not read excel sheets: {e}")
-                    self.available_sheets = "Could not read sheets."
+                    self.sheet_ids = [(5, 0, 0)]
 
     def action_import(self):
         if not self.data_file:
@@ -113,13 +129,17 @@ class PropertyImportWizard(models.TransientModel):
                     wb = openpyxl.load_workbook(tmp.name, data_only=True)
                     
                     target_sheet = None
-                    if self.sheet_name:
-                        if self.sheet_name in wb.sheetnames:
-                            target_sheet = wb[self.sheet_name]
-                        else:
-                            raise ValidationError(f"Sheet '{self.sheet_name}' not found. Available: {wb.sheetnames}")
+                    if self.selected_sheet:
+                         if self.selected_sheet.name in wb.sheetnames:
+                            target_sheet = wb[self.selected_sheet.name]
+                         else:
+                            raise ValidationError(f"Sheet '{self.selected_sheet.name}' not found. Available: {wb.sheetnames}")
                     else:
-                        target_sheet = wb.active
+                        # Fallback to first sheet if nothing selected manually (and onchange didn't stick)
+                        if wb.sheetnames:
+                            target_sheet = wb[wb.sheetnames[0]]
+                        else:
+                             target_sheet = wb.active
                         
                     sheet = target_sheet
                     

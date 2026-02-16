@@ -8,8 +8,8 @@
                     <field name="import_type" widget="radio" options="{'horizontal': true}"/>
                     <field name="filename" invisible="1"/>
                     <field name="data_file" filename="filename"/>
-                    <field name="available_sheets" invisible="not available_sheets"/>
-                    <field name="sheet_name" placeholder="Leave empty for first sheet" invisible="not available_sheets"/>
+                    <field name="sheet_ids" invisible="1"/>
+                    <field name="selected_sheet" domain="[('id', 'in', sheet_ids)]" options="{'no_create': True, 'no_open': True}"/>
                     <field name="import_limit_option" widget="radio" options="{'horizontal': true}"/>
                     <field name="limit_count" invisible="import_limit_option == 'all'"/>
                     <field name="error_file" filename="error_filename" readonly="1" invisible="not error_file"/>
