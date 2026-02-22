@@ -41,8 +41,8 @@
             </sheet>
 
             <notebook>
-                <page name="govt_line_ids" string="Govt Services">
-                    <!-- Govt Services -->
+                <page name="govt_line_ids" string="Payment Services">
+                    <!-- Payment Services -->
                 <field name="govt_line_ids">
                     <list>
                         <field name="name"/>
@@ -132,8 +132,8 @@
                     </field>
                 </page>
 
-                <!-- Dial Services -->
-                <page string="Dial Services">
+                <!-- Emergency Services -->
+                <page string="Emergency Services">
                     <field name="dial_line_ids">
                         <list>
                             <field name="name"/>
