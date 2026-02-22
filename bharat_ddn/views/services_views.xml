@@ -102,8 +102,6 @@
                             <field name="name"/>
                             <field name="mobile"/>
                             <field name="icon"/>
-                            <field name="text"/>
-                            <field name="hyperlink"/>
                             <field name="is_global"/>
                             <field name="company_id"/>
                             <field name="zone_id"/>
@@ -117,8 +115,6 @@
                                     <field name="name"/>
                                     <field name="mobile"/>
                                     <field name="icon"/>
-                                    <field name="text"/>
-                                    <field name="hyperlink"/>
                                     <field name="company_id"/>
                                     <field name="zone_id" domain="[('company_id','=',company_id)]" invisible="is_global" options="{'no_create':True, 'no_create_edit':True}"/>
                                     <field name="ward_id" domain="[('zone_id','=',zone_id),('company_id','=',company_id)]" invisible="is_global" options="{'no_create':True, 'no_create_edit':True}"/>

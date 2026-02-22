@@ -1160,7 +1160,7 @@
 
                             <div class="col-6 col-md-3">
                               <a t-att-href="'tel:+%s' % dial.mobile" class="ui-link text-decoration-none">
-                                <div t-att-class="'emergency-card emergency-bg-' + dial.bg_color + ' text-center'">
+                                <div t-att-class="'emergency-card emergency-bg-' + (dial.bg_color or '') + ' text-center'">
                                   <div>
                                     <t t-out="Markup(dial.icon)"/>
                                     <div class="emergency-label"><t t-out="dial.name"/></div>
