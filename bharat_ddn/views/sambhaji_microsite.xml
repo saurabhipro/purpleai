@@ -1145,7 +1145,42 @@
             </div>
 
 
+
+            <!-- Tracking Services -->
+            <section class="py-1">
+              <div class="center-section">
+                <div class="card p-4 position-relative border border-white rounded-4">
+                  <div class="section-title-container">
+                    <div class="section-title-bg" style="background: linear-gradient(135deg, #1ABC9C 0%, #16A085 100%); box-shadow: 0 4px 12px rgba(26,188,156,0.25);">Tracking Services</div>
+                  </div>
+                  <div class="d-flex justify-content-center align-items-stretch flex-wrap" style="gap: 1.2rem; padding: 0.5rem 0;">
+
+                    <t t-foreach="srv.tracking_line_ids" t-as="track">
+                      <t t-if="track.is_active">
+                        <a t-att-href="track.hyperlink or '#'" target="_blank" class="ui-link text-decoration-none">
+                          <div class="payment-service-box text-center">
+                            <div class="mb-2 mx-auto d-flex align-items-center justify-content-center"
+                                 style="width:54px; height:54px; border-radius:14px;
+                                        background: linear-gradient(135deg, #1ABC9C 0%, #16A085 100%);
+                                        box-shadow: 0 2px 8px rgba(26,188,156,0.25);
+                                        border: 2.5px solid #fff;">
+                              <t t-out="Markup(track.icon)"/>
+                            </div>
+                            <div class="govt-service-label" style="color: #16A085;">
+                              <t t-out="track.name"/>
+                            </div>
+                          </div>
+                        </a>
+                      </t>
+                    </t>
+
+                  </div>
+                </div>
+              </div>
+            </section>
+
             <!-- Emergency Services -->
+
             <section class="py-1">
               <div class="center-section">
                 <div class="card p-4 position-relative border border-white rounded-4">

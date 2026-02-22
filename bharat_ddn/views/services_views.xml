@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="action_ddn_services" model="ir.actions.act_window">
         <field name="name">DDN Services</field>
         <field name="res_model">ddn.services</field>
