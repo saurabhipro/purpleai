@@ -4,7 +4,7 @@ class GovtWard(models.Model):
     _name = 'ddn.services'
     _description = 'DDN Services'
 
-    company_id = fields.Many2one('res.company', string="Company", default=lambda self : self.env.company.id, readonly=True)
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self : self.env.company.id)
     name = fields.Char(string="Name")
     header = fields.Char(string="Header1")
     header2 = fields.Char(string="Header2")
