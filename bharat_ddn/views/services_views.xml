@@ -135,6 +135,7 @@
                             <field name="name"/>
                             <field name="mobile"/>
                             <field name="icon"/>
+                            <field name="bg_color"/>
                             <field name="is_global"/>
                             <field name="is_active"/>
                         </list>
@@ -144,6 +145,7 @@
                                     <field name="name"/>
                                     <field name="mobile"/>
                                     <field name="icon"/>
+                                    <field name="bg_color"/>
                                 </group>
                                 <group>
                                     <field name="is_global"/>
