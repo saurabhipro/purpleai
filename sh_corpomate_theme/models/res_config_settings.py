@@ -2,7 +2,6 @@
 # Part of Softhealer Technologies.
 
 from odoo import fields, models, tools
-from odoo.tools.misc import file_path
 import base64
 
 
@@ -33,9 +32,7 @@ class Website(models.Model):
 
 
     def sh_corpomate_theme_default_logo_scrolled(self):
-        image_path = file_path(
-            'website', 'static/src/img', 'website_logo.svg')
-        with tools.file_open(image_path, 'rb') as logo_file:
+        with tools.file_open('website/static/src/img/website_logo.svg', 'rb') as logo_file:
             return base64.b64encode(logo_file.read())
 
     sh_corpomate_theme_logo_scrolled = fields.Binary(
