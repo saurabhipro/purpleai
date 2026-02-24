@@ -83,6 +83,7 @@ class ExtractionMaster(models.Model):
                 try:
                     import fitz
                     import logging
+                    import unicodedata
                     _logger = logging.getLogger(__name__)
 
                     pdf_data = base64.b64decode(self.test_pdf_file)
@@ -95,30 +96,58 @@ class ExtractionMaster(models.Model):
                             page_idx = int(page_str) - 1
                             if 0 <= page_idx < doc.page_count:
                                 page = doc.load_page(page_idx)
+                                
+                                # 1. Try to find and highlight the value
                                 val = r.get('value')
                                 if val and len(str(val)) > 1:
-                                    # Try to find and highlight the value
-                                    # Limit search to avoid too many global matches if value is common
-                                    rects = page.search_for(str(val))
-                                    for rect in rects[:10]:
-                                        page.add_highlight_annot(rect)
-                                        found_any = True
+                                    search_val = unicodedata.normalize('NFKC', str(val)).strip()
+                                    rects = page.search_for(search_val)
+                                    
+                                    # If multi-word search failed, try words individually
+                                    if not rects and " " in search_val:
+                                        for word in search_val.split():
+                                            if len(word) > 2:
+                                                rects.extend(page.search_for(word))
+                                    
+                                    for rect in rects[:20]:
+                                        try:
+                                            page.add_highlight_annot(rect)
+                                            found_any = True
+                                        except Exception:
+                                            pass
                                 
-                                # Also try to find paragraph fragment if value search failed or for better coverage
+                                # 2. Also try paragraph fragment for context
                                 paragraph = r.get('paragraph')
                                 if paragraph and len(str(paragraph)) > 10:
-                                    # Just use first 50 chars of paragraph for reliable matching
-                                    fragment = str(paragraph)[:50]
+                                    # Try a few fragments of the paragraph
+                                    para_clean = unicodedata.normalize('NFKC', str(paragraph)).strip()
+                                    # Get first 40 chars, skipping common small words if possible
+                                    fragment = para_clean[:40]
                                     rects = page.search_for(fragment)
-                                    for rect in rects[:5]:
-                                        page.add_highlight_annot(rect)
-                                        found_any = True
+                                    
+                                    # If first fragment failed, try moving a bit forward
+                                    if not rects and len(para_clean) > 80:
+                                        fragment2 = para_clean[40:80]
+                                        rects = page.search_for(fragment2)
+                                        
+                                    for rect in rects[:10]:
+                                        try:
+                                            page.add_highlight_annot(rect)
+                                            found_any = True
+                                        except Exception:
+                                            pass
                     
                     if found_any:
                         out_pdf = doc.tobytes(garbage=4, deflate=True)
                         self.test_pdf_highlighted = base64.b64encode(out_pdf)
+                        _logger.info("AI Extraction: PDF highlighted successfully (%d hits)", found_any)
                     else:
                         self.test_pdf_highlighted = self.test_pdf_file
+                        _logger.warning("AI Extraction: No matches found in PDF for highlighting")
+                except ImportError:
+                    import logging
+                    logging.getLogger(__name__).error("PDF Highlighting failed: 'fitz' (PyMuPDF) not installed in Odoo environment.")
+                    self.test_pdf_highlighted = self.test_pdf_file
                 except Exception as e:
                     import logging
                     logging.getLogger(__name__).warning("PDF Highlighting failed: %s", str(e))
