@@ -37,9 +37,36 @@
                                     <field name="field_key"/>
                                     <field name="instruction"/>
                                     <field name="active"/>
-                                    <button name="%(action_extraction_test_wizard)d" string="Test" type="action" icon="fa-flask" context="{'default_field_id': id}"/>
                                 </list>
                             </field>
+                        </page>
+                        <page string="Test Extraction">
+                            <group>
+                                <field name="test_pdf_file" filename="test_pdf_filename"/>
+                                <field name="test_pdf_filename" invisible="1"/>
+                                <button name="action_run_test_extraction" 
+                                        string="Run Test Extraction (Bulk)" 
+                                        type="object" 
+                                        class="btn-primary" 
+                                        icon="fa-flask"
+                                        invisible="not test_pdf_file"/>
+                            </group>
+                            <div class="alert alert-info" role="alert" invisible="test_pdf_file">
+                                Upload a PDF file here to test all active extraction fields at once.
+                            </div>
+                        </page>
+                        <page string="Test Results" invisible="not test_result_ids">
+                            <field name="test_result_ids" readonly="1">
+                                <list>
+                                    <field name="field_name"/>
+                                    <field name="value"/>
+                                    <field name="page"/>
+                                    <field name="paragraph" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Highlighted PDF Result" invisible="not test_pdf_highlighted">
+                            <field name="test_pdf_highlighted" widget="pdf_viewer" nolabel="1" class="w-100"/>
                         </page>
                     </notebook>
                 </sheet>

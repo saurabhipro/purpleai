@@ -14,3 +14,4 @@ access_tende_ai_extraction_master_user,tende_ai.extraction_master.user,model_ten
 access_tende_ai_custom_extraction_user,tende_ai.custom_extraction.user,model_tende_ai_custom_extraction,base.group_user,1,1,1,1
 access_tende_ai_extraction_test_wizard_user,tende_ai.extraction_test_wizard.user,model_tende_ai_extraction_test_wizard,base.group_user,1,1,1,1
 access_tende_ai_extraction_field_user,tende_ai.extraction_field.user,model_tende_ai_extraction_field,base.group_user,1,1,1,1
+access_tende_ai_extraction_test_result_user,tende_ai.extraction_test_result.user,model_tende_ai_extraction_test_result,base.group_user,1,1,1,1

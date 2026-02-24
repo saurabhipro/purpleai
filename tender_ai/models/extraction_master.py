@@ -16,6 +16,118 @@ class ExtractionMaster(models.Model):
     field_ids = fields.One2many('tende_ai.extraction_field', 'master_id', string='Extraction Fields')
     active = fields.Boolean(default=True)
 
+    # Test Fields
+    test_pdf_file = fields.Binary(string='Test PDF File')
+    test_pdf_filename = fields.Char(string='Test PDF Filename')
+    test_pdf_highlighted = fields.Binary(string='Highlighted PDF', readonly=True)
+    test_result_ids = fields.One2many('tende_ai.extraction_test_result', 'master_id', string='Test Results')
+
+    def action_run_test_extraction(self):
+        self.ensure_one()
+        if not self.test_pdf_file:
+            from odoo.exceptions import UserError
+            raise UserError(_("Please upload a PDF file to test."))
+
+        import base64
+        import tempfile
+        import os
+        from ..services.company_parser import _extract_from_single_pdf
+
+        # Clear old results
+        self.test_result_ids.unlink()
+
+        # Create temp file
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+            tmp.write(base64.b64decode(self.test_pdf_file))
+            tmp_path = tmp.name
+
+        try:
+            # Build custom fields prompt for all active fields
+            active_fields = self.field_ids.filtered(lambda f: f.active)
+            if not active_fields:
+                return
+
+            prompts = []
+            for f in active_fields:
+                prompts.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
+            
+            custom_fields_prompt = "\n".join(prompts)
+            model = "gemini-3-flash-preview"
+
+            # Call service
+            res = _extract_from_single_pdf(
+                company_name="Test Extraction",
+                pdf_path=tmp_path,
+                model=model,
+                env=self.env,
+                custom_fields_prompt=custom_fields_prompt
+            )
+
+            results = res.get("customExtractions") or []
+            test_vals = []
+            for r in results:
+                # Find field_id by key
+                field = active_fields.filtered(lambda f: f.field_key == r.get('fieldKey'))
+                if field:
+                    test_vals.append((0, 0, {
+                        'field_id': field[0].id,
+                        'value': r.get('value'),
+                        'page': r.get('page'),
+                        'paragraph': r.get('paragraph'),
+                    }))
+            
+            if test_vals:
+                self.write({'test_result_ids': test_vals})
+
+                # Highlight PDF results
+                try:
+                    import fitz
+                    import logging
+                    _logger = logging.getLogger(__name__)
+
+                    pdf_data = base64.b64decode(self.test_pdf_file)
+                    doc = fitz.open(stream=pdf_data, filetype="pdf")
+                    
+                    found_any = False
+                    for r in results:
+                        page_str = r.get('page')
+                        if page_str and str(page_str).isdigit():
+                            page_idx = int(page_str) - 1
+                            if 0 <= page_idx < doc.page_count:
+                                page = doc.load_page(page_idx)
+                                val = r.get('value')
+                                if val and len(str(val)) > 1:
+                                    # Try to find and highlight the value
+                                    # Limit search to avoid too many global matches if value is common
+                                    rects = page.search_for(str(val))
+                                    for rect in rects[:10]:
+                                        page.add_highlight_annot(rect)
+                                        found_any = True
+                                
+                                # Also try to find paragraph fragment if value search failed or for better coverage
+                                paragraph = r.get('paragraph')
+                                if paragraph and len(str(paragraph)) > 10:
+                                    # Just use first 50 chars of paragraph for reliable matching
+                                    fragment = str(paragraph)[:50]
+                                    rects = page.search_for(fragment)
+                                    for rect in rects[:5]:
+                                        page.add_highlight_annot(rect)
+                                        found_any = True
+                    
+                    if found_any:
+                        out_pdf = doc.tobytes(garbage=4, deflate=True)
+                        self.test_pdf_highlighted = base64.b64encode(out_pdf)
+                    else:
+                        self.test_pdf_highlighted = self.test_pdf_file
+                except Exception as e:
+                    import logging
+                    logging.getLogger(__name__).warning("PDF Highlighting failed: %s", str(e))
+                    self.test_pdf_highlighted = self.test_pdf_file
+
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
 class ExtractionField(models.Model):
     _name = 'tende_ai.extraction_field'
     _description = 'Custom Extraction Field'
@@ -31,3 +143,15 @@ class ExtractionField(models.Model):
     _sql_constraints = [
         ('field_key_unique', 'unique(field_key)', 'The field key must be unique!')
     ]
+
+class ExtractionTestResult(models.Model):
+    _name = 'tende_ai.extraction_test_result'
+    _description = 'Extraction Test Result'
+    _order = 'id'
+
+    master_id = fields.Many2one('tende_ai.extraction_master', string='Master', required=True, ondelete='cascade')
+    field_id = fields.Many2one('tende_ai.extraction_field', string='Field')
+    field_name = fields.Char(related='field_id.name', string='Field Name')
+    value = fields.Text(string='Extracted Value')
+    page = fields.Char(string='Page')
+    paragraph = fields.Text(string='Source Context')
