@@ -31,6 +31,10 @@ GENERAL RULES:
 - Extract ALL rows you can find in this PDF for:
   (1) payments
   (2) workExperience
+  (3) customExtractions (custom fields listed below)
+
+CUSTOM EXTRACTION FIELDS:
+{custom_fields_prompt}
 
 Return JSON EXACTLY in this schema:
 
@@ -69,6 +73,14 @@ Return JSON EXACTLY in this schema:
       "completionCertificate": "",
       "attachment": ""
     }}
+  ],
+  "customExtractions": [
+    {{
+      "fieldKey": "TECHNICAL_FIELD_KEY",
+      "value": "EXTRACTED_VALUE",
+      "page": "PAGE_NO",
+      "paragraph": "EXACT_PARAGRAPH_OR_CONTEXT_AS_EVIDENCE"
+    }}
   ]
 }}
 
@@ -80,8 +92,14 @@ WORK EXPERIENCE RULES:
 - dateOfStart/dateOfCompletion: keep as shown in PDF.
 - completionCertificate: Yes/No or certificate number if present, else "".
 - attachment: filename/attachment reference if present, else "".
-""".strip()
 
+CUSTOM EXTRACTION RULES:
+- For each field requested in CUSTOM EXTRACTION FIELDS, provide one or more matches in customExtractions[].
+- fieldKey: MUST match exactly the field key provided in the instructions.
+- value: The actual data extracted.
+- page: The page number where this was found.
+- paragraph: A snippet of original text which proves this extraction is correct.
+""".strip()
 
 # ----------------------------
 # Helpers
@@ -235,19 +253,34 @@ def _dedupe_work_experience(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
     return deduped
 
 
+def _normalize_custom_extractions(arr: Any) -> List[Dict[str, str]]:
+    if not isinstance(arr, list):
+        return []
+    out: List[Dict[str, str]] = []
+    for x in arr:
+        if not isinstance(x, dict):
+            continue
+        out.append({
+            "fieldKey": str(x.get("fieldKey", "") or "").strip(),
+            "value": str(x.get("value", "") or "").strip(),
+            "page": str(x.get("page", "") or "").strip(),
+            "paragraph": str(x.get("paragraph", "") or "").strip(),
+        })
+    return out
+
+
 def _coerce_schema(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Normalize into:
-      {"bidder": {...}, "payments": [...], "workExperience": [...]}
-
-    Sometimes the AI service may return bidder fields at root instead of inside "bidder".
+      {"bidder": {...}, "payments": [...], "workExperience": [...], "customExtractions": [...]}
     """
     if not isinstance(data, dict):
-        return {"bidder": {}, "payments": [], "workExperience": []}
+        return {"bidder": {}, "payments": [], "workExperience": [], "customExtractions": []}
 
     bidder = data.get("bidder")
     payments = data.get("payments")
     work_exp = data.get("workExperience")
+    custom_ext = data.get("customExtractions")
 
     if not isinstance(bidder, dict):
         possible_keys = {
@@ -261,8 +294,16 @@ def _coerce_schema(data: Dict[str, Any]) -> Dict[str, Any]:
 
     if not isinstance(work_exp, list):
         work_exp = []
+    
+    if not isinstance(custom_ext, list):
+        custom_ext = []
 
-    return {"bidder": bidder, "payments": payments, "workExperience": work_exp}
+    return {
+        "bidder": bidder, 
+        "payments": payments, 
+        "workExperience": work_exp,
+        "customExtractions": custom_ext
+    }
 
 
 def _merge_tokens(total: Dict[str, int], usage: Dict[str, Any]) -> Dict[str, int]:
@@ -286,12 +327,12 @@ def _merge_tokens(total: Dict[str, int], usage: Dict[str, Any]) -> Dict[str, int
 # ----------------------------
 # Parallel extraction per PDF
 # ----------------------------
-def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=None) -> Dict[str, Any]:
+def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=None, custom_fields_prompt: str = "") -> Dict[str, Any]:
     """
     Upload 1 PDF + call the AI service 1 time.
     Returns:
       {
-        "bidder": {...}, "payments": [...], "workExperience": [...],
+        "bidder": {...}, "payments": [...], "workExperience": [...], "customExtractions": [...],
         "analytics": {"pdfPath","model","durationMs","tokens","success","error"}
       }
     
@@ -300,8 +341,12 @@ def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=N
         pdf_path: Path to the PDF file
         model: AI model to use
         env: Optional Odoo environment (api.Environment). Used to get API key from system parameters.
+        custom_fields_prompt: Optional prompt snippet for custom fields
     """
-    prompt = ONE_PDF_PROMPT_TEMPLATE.format(company_name=company_name)
+    prompt = ONE_PDF_PROMPT_TEMPLATE.format(
+        company_name=company_name,
+        custom_fields_prompt=custom_fields_prompt or "None requested."
+    )
 
     per_pdf_t0 = time.time()
     try:
@@ -342,6 +387,7 @@ def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=N
             "bidder": data.get("bidder") or {},
             "payments": data.get("payments") or [],
             "workExperience": data.get("workExperience") or [],
+            "customExtractions": data.get("customExtractions") or [],
             "analytics": {
                 "pdfPath": pdf_path,
                 "pdfName": os.path.basename(pdf_path),
@@ -359,6 +405,7 @@ def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=N
             "bidder": {},
             "payments": [],
             "workExperience": [],
+            "customExtractions": [],
             "analytics": {
                 "pdfPath": pdf_path,
                 "pdfName": os.path.basename(pdf_path),
@@ -446,13 +493,32 @@ def extract_company_bidder_and_payments(
 
     all_payments: List[Dict[str, str]] = []
     all_work_exp: List[Dict[str, str]] = []
+    all_custom_ext: List[Dict[str, str]] = []
+
+    # Get custom fields from field master if env is provided
+    custom_fields_prompt = ""
+    if env:
+        try:
+            # Fetch active fields for bidder documents
+            fields_to_extract = env['tende_ai.extraction_field'].search([
+                ('active', '=', True),
+                ('master_id.active', '=', True),
+                ('master_id.document_type', '=', 'bidder')
+            ])
+            if fields_to_extract:
+                prompt_lines = []
+                for f in fields_to_extract:
+                    prompt_lines.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
+                custom_fields_prompt = "\n".join(prompt_lines)
+        except Exception:
+            pass
 
     total_tokens = {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0}
     per_pdf_analytics: List[Dict[str, Any]] = []
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = [
-            ex.submit(_extract_from_single_pdf, company_name, pdf_path, model, env)
+            ex.submit(_extract_from_single_pdf, company_name, pdf_path, model, env, custom_fields_prompt)
             for pdf_path in valid_pdfs
         ]
 
@@ -463,10 +529,18 @@ def extract_company_bidder_and_payments(
                 bidder_part = result.get("bidder") or {}
                 payments_part = result.get("payments") or []
                 work_part = result.get("workExperience") or []
+                custom_part = result.get("customExtractions") or []
 
                 bidder_result = _merge_first_non_empty(bidder_result, bidder_part)
                 all_payments.extend(_normalize_payments(payments_part))
                 all_work_exp.extend(_normalize_work_experience(work_part, company_name))
+                
+                # Add source file info to custom extractions
+                norm_custom = _normalize_custom_extractions(custom_part)
+                pdf_name = (result.get("analytics") or {}).get("pdfName") or "N/A"
+                for nc in norm_custom:
+                    nc["source_file"] = pdf_name
+                all_custom_ext.extend(norm_custom)
 
                 # ✅ per-pdf analytics + token totals
                 a = result.get("analytics") or {}
@@ -503,6 +577,7 @@ def extract_company_bidder_and_payments(
         "bidder": bidder_result,
         "payments": all_payments,
         "work_experience": all_work_exp,
+        "custom_extractions": all_custom_ext,
         "analytics": company_analytics,
     }
 

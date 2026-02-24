@@ -95,6 +95,16 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Custom Extraction">
+                            <field name="custom_extraction_ids" nolabel="1">
+                                <list create="false" edit="false">
+                                    <field name="field_name"/>
+                                    <field name="value"/>
+                                    <field name="source_page"/>
+                                    <field name="source_para" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
                         <page string="Workflow Info">
                             <group>
                                 <group>

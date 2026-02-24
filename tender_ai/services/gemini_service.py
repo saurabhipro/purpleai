@@ -5,6 +5,7 @@ import time
 import re
 import threading
 import logging
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -36,6 +37,16 @@ _last_cleanup_time = 0
 _CLEANUP_INTERVAL = 300  # Run cleanup every 5 minutes instead of on every call
 
 
+def _get_file_hash(file_path):
+    """Calculate SHA256 hash of a file for content-based caching."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read in 64kb chunks
+        for byte_block in iter(lambda: f.read(65536), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
 def _cleanup_file_cache(lazy=True):
     """
     Remove expired entries from file cache to prevent memory leaks.
@@ -52,14 +63,14 @@ def _cleanup_file_cache(lazy=True):
         return
     
     with _file_cache_lock:
-        expired_paths = [
-            path for path, (_, _, upload_time) in _file_cache.items()
+        expired_keys = [
+            key for key, (_, _, upload_time) in _file_cache.items()
             if current_time - upload_time >= _FILE_CACHE_TTL
         ]
-        for path in expired_paths:
-            del _file_cache[path]
-        if expired_paths:
-            _logger.debug("AI API: Cleaned up %d expired file cache entries", len(expired_paths))
+        for key in expired_keys:
+            del _file_cache[key]
+        if expired_keys:
+            _logger.debug("AI API: Cleaned up %d expired file cache entries", len(expired_keys))
         _last_cleanup_time = current_time
 
 
@@ -204,22 +215,21 @@ def upload_file_to_gemini(
     # Lazy cleanup: only run if enough time has passed
     _cleanup_file_cache(lazy=True)
     
-    # Check cache first
+    # Check cache first using file hash
+    file_hash = None
     if use_cache:
-        with _file_cache_lock:
-            if file_path in _file_cache:
-                cached_file, cached_name, upload_time = _file_cache[file_path]
-                # Check if cache is still valid (within TTL)
-                if time.time() - upload_time < _FILE_CACHE_TTL:
-                    _logger.debug("GEMINI API: Using cached file for %s (uploaded %.1f seconds ago)", 
-                                file_path, time.time() - upload_time)
-                    if wait_active:
-                        # Only verify file is ACTIVE if we need to wait
-                        # For cached files, assume they're still active (they expire from cache after TTL)
-                        # This avoids unnecessary API calls
+        try:
+            file_hash = _get_file_hash(file_path)
+            with _file_cache_lock:
+                if file_hash in _file_cache:
+                    cached_file, cached_name, upload_time = _file_cache[file_hash]
+                    # Check if cache is still valid (within TTL)
+                    if time.time() - upload_time < _FILE_CACHE_TTL:
+                        _logger.debug("GEMINI API: Using cached file for %s (hash: %s, uploaded %.1f seconds ago)", 
+                                    file_path, file_hash[:8], time.time() - upload_time)
                         return cached_file
-                    else:
-                        return cached_file
+        except Exception as e:
+            _logger.debug("GEMINI API: Could not calculate hash for caching: %s", str(e))
     
     client = _get_client(env=env)
 
@@ -242,9 +252,9 @@ def upload_file_to_gemini(
     
     if not wait_active:
         # Cache the file even if not waiting for ACTIVE
-        if use_cache and name:
+        if use_cache and name and file_hash:
             with _file_cache_lock:
-                _file_cache[file_path] = (f, name, time.time())
+                _file_cache[file_hash] = (f, name, time.time())
         return f
 
     if not name:
@@ -255,21 +265,38 @@ def upload_file_to_gemini(
         try:
             with _GEMINI_SEM:
                 f2 = client.files.get(name=name)
-            state = str(getattr(f2, "state", "")).upper()
-            if state == "ACTIVE":
+            
+            # SDK might return state as string or enum. 
+            # We convert to string and check if 'ACTIVE' is present.
+            state_val = getattr(f2, "state", "")
+            state = str(state_val).upper()
+            
+            if "ACTIVE" in state:
                 # Cache the active file
-                if use_cache:
+                if use_cache and file_hash:
                     with _file_cache_lock:
-                        _file_cache[file_path] = (f2, name, time.time())
+                        _file_cache[file_hash] = (f2, name, time.time())
                 return f2
-        except Exception:
+            
+            if "FAILED" in state:
+                _logger.error("GEMINI API: File processing failed for %s. State: %s", name, state)
+                break
+                
+            # Log every few seconds if still processing small files
+            elapsed = time.time() - start
+            if int(elapsed) % 10 == 0:
+                _logger.debug("GEMINI API: Still waiting for file %s to be ACTIVE (Current state: %s, Elapsed: %.1fs)", 
+                             name, state, elapsed)
+                             
+        except Exception as e:
+            _logger.debug("GEMINI API: Error checking file state: %s", str(e))
             pass
         time.sleep(1)
 
     # Cache even if not ACTIVE (might become ACTIVE later)
-    if use_cache and name:
+    if use_cache and name and file_hash:
         with _file_cache_lock:
-            _file_cache[file_path] = (f, name, time.time())
+            _file_cache[file_hash] = (f, name, time.time())
     
     return f
 

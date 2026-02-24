@@ -167,6 +167,18 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Custom Extraction" icon="fa-magic">
+                            <field name="custom_extraction_ids" nolabel="1" readonly="1">
+                                <list create="0" delete="0" default_order="bidder_id, field_id">
+                                    <field name="bidder_id"/>
+                                    <field name="field_name"/>
+                                    <field name="value"/>
+                                    <field name="source_file"/>
+                                    <field name="source_page"/>
+                                    <field name="source_para" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
                         <page string="Eligibility Evaluation" icon="fa-check-circle">
                             <field name="bidder_check_ids" nolabel="1" readonly="1">
                                 <list create="0" delete="0" default_order="create_date desc" class="tender_ai_eval_summary"

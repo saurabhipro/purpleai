@@ -214,6 +214,7 @@ class TenderJob(models.Model):
     # Flat tables for Job tabs (no nesting)
     payment_ids = fields.One2many('tende_ai.payment', 'job_id', string='Payments', readonly=True)
     work_experience_ids = fields.One2many('tende_ai.work_experience', 'job_id', string='Work Experience', readonly=True)
+    custom_extraction_ids = fields.One2many('tende_ai.custom_extraction', 'job_id', string='Custom Extractions', readonly=True)
 
     @api.depends('analytics')
     def _compute_analytics_html(self):
@@ -1138,12 +1139,29 @@ class TenderJob(models.Model):
 
             # 1️⃣ Tender extraction
             model = os.getenv("AI_TENDER_MODEL") or os.getenv("GEMINI_TENDER_MODEL") or "gemini-3-flash-preview"
+            
+            # Fetch custom fields for tender
+            tender_custom_prompt = ""
+            tender_fields = self.env['tende_ai.extraction_field'].sudo().search([
+                ('active', '=', True),
+                ('master_id.active', '=', True),
+                ('master_id.document_type', '=', 'tender')
+            ])
+            if tender_fields:
+                prompt_lines = []
+                for f in tender_fields:
+                    prompt_lines.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
+                tender_custom_prompt = "\n".join(prompt_lines)
+
             _logger.info("TENDER AI [Job %s]: Starting tender extraction with AI service", self.name)
-            _logger.info("TENDER AI [Job %s]:   - Model: configured", self.name)
-            _logger.info("TENDER AI [Job %s]:   - PDF Path: %s", self.name, tender_pdf_path)
             _logger.info("TENDER AI [Job %s]: Calling AI service: tender extraction", self.name)
             tender_start_time = time.time()
-            tender_data = extract_tender_from_pdf_with_gemini(tender_pdf_path, model=model, env=self.env) or {}
+            tender_data = extract_tender_from_pdf_with_gemini(
+                tender_pdf_path, 
+                model=model, 
+                env=self.env, 
+                custom_fields_prompt=tender_custom_prompt
+            ) or {}
             tender_duration = time.time() - tender_start_time
             _logger.info("TENDER AI [Job %s]: ✓ AI call completed for tender extraction", self.name)
             _logger.info("TENDER AI [Job %s]:   - Duration: %.2f seconds", self.name, tender_duration)
@@ -1203,6 +1221,25 @@ class TenderJob(models.Model):
                     })
                 if criteria_records:
                     self.env['tende_ai.eligibility_criteria'].sudo().create(criteria_records)
+
+            # Custom extractions for tender
+            tender_custom_list = tender_data.get('customExtractions', [])
+            if tender_custom_list:
+                field_map = {f.field_key: f.id for f in tender_fields}
+                tender_custom_records = []
+                for tc in tender_custom_list:
+                    f_key = tc.get('fieldKey')
+                    if f_key in field_map:
+                        tender_custom_records.append({
+                            'tender_id': tender.id,
+                            'field_id': field_map[f_key],
+                            'value': tc.get('value'),
+                            'source_file': 'tender.pdf',
+                            'source_page': tc.get('page'),
+                            'source_para': tc.get('paragraph'),
+                        })
+                if tender_custom_records:
+                    self.env['tende_ai.custom_extraction'].sudo().create(tender_custom_records)
 
             # Update job with tender info
             self._safe_job_write({
@@ -1309,6 +1346,7 @@ class TenderJob(models.Model):
                     bidder_data = result.get("bidder") or {}
                     payments = result.get("payments") or []
                     work_exp = result.get("work_experience") or []
+                    custom_ext = result.get("custom_extractions") or []
                     pdf_paths = result.get("_pdf_paths") or []
 
                     vendor_company_name = bidder_data.get('vendorCompanyName', '') or company_name
@@ -1405,6 +1443,29 @@ class TenderJob(models.Model):
                             })
                         if work_records:
                             self.env['tende_ai.work_experience'].sudo().create(work_records)
+
+                    if custom_ext:
+                        master_fields = self.env['tende_ai.extraction_field'].sudo().search([
+                            ('active', '=', True),
+                            ('master_id.active', '=', True),
+                            ('master_id.document_type', '=', 'bidder')
+                        ])
+                        master_map = {f.field_key: f.id for f in master_fields}
+                        
+                        custom_records = []
+                        for ce in custom_ext:
+                            f_key = ce.get('fieldKey')
+                            if f_key in master_map:
+                                custom_records.append({
+                                    'bidder_id': bidder.id,
+                                    'field_id': master_map[f_key],
+                                    'value': ce.get('value'),
+                                    'source_file': ce.get('source_file'),
+                                    'source_page': ce.get('page'),
+                                    'source_para': ce.get('paragraph'),
+                                })
+                        if custom_records:
+                            self.env['tende_ai.custom_extraction'].sudo().create(custom_records)
 
                     # Commit after each bidder so UI updates
                     try:
@@ -2092,6 +2153,7 @@ class TenderJob(models.Model):
             "bidder": result.get("bidder") or {},
             "payments": result.get("payments") or [],
             "work_experience": result.get("work_experience") or [],
+            "custom_extractions": result.get("custom_extractions") or [],
             "analytics": result.get("analytics") or {},
             # Critical: used by _attach_company_pdfs_to_bidder() to auto-create bidder attachments
             "_pdf_paths": pdf_paths,

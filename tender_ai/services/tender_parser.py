@@ -22,8 +22,11 @@ The tender PDF contains a section/table like:
 "Bidder's Minimum Eligibility Criteria" (may be numbered like 13, 14, etc.)
 You MUST extract all rows from that table, if present.
 
+CUSTOM EXTRACTION FIELDS:
+{custom_fields_prompt}
+
 REQUIRED JSON SCHEMA:
-{
+{{
   "departmentName": "",
   "tenderId": "",
   "refNo": "",
@@ -44,13 +47,21 @@ REQUIRED JSON SCHEMA:
   "nit": "",
 
   "bidderEligibilityCriteria": [
-    {
+    {{
       "slNo": "",
       "criteria": "",
       "supportingDocument": ""
-    }
+    }}
+  ],
+  "customExtractions": [
+    {{
+      "fieldKey": "TECHNICAL_FIELD_KEY",
+      "value": "EXTRACTED_VALUE",
+      "page": "PAGE_NO",
+      "paragraph": "EXACT_PARAGRAPH_OR_CONTEXT_AS_EVIDENCE"
+    }}
   ]
-}
+}}
 
 ELIGIBILITY CRITERIA EXTRACTION RULES:
 - Find the section/table heading similar to:
@@ -63,6 +74,13 @@ ELIGIBILITY CRITERIA EXTRACTION RULES:
 - supportingDocument: full text from the "Supporting Document / Information..." column.
 - Preserve line breaks as spaces (make it readable).
 - If table not found, return bidderEligibilityCriteria as [].
+
+CUSTOM EXTRACTION RULES:
+- For each field requested in CUSTOM EXTRACTION FIELDS, provide one or more matches in customExtractions[].
+- fieldKey: MUST match exactly the field key provided in the instructions.
+- value: The actual data extracted.
+- page: The page number where this was found.
+- paragraph: A snippet of original text which proves this extraction is correct.
 
 RESPONSE REQUIREMENT:
 Return ONLY the raw JSON object. Do not include markdown formatting or any explanation.
@@ -125,7 +143,7 @@ def _normalize_criteria(arr: Any) -> List[Dict[str, str]]:
     return out
 
 
-def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-3-flash-preview", env=None) -> dict:
+def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-3-flash-preview", env=None, custom_fields_prompt: str = "") -> dict:
     """
     Uploads tender.pdf to the AI service, extracts structured tender data + eligibility criteria,
     and returns a dictionary with analytics.
@@ -139,12 +157,13 @@ def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-3-fl
         pdf_path: Path to the tender PDF file
         model: AI model to use
         env: Optional Odoo environment (api.Environment). Used to get API key from system parameters.
+        custom_fields_prompt: Optional prompt snippet for custom fields
     """
     uploaded_file = upload_file_to_gemini(pdf_path, env=env)
 
     # generate_with_gemini now returns dict: {text, usage, model, durationMs}
     out = generate_with_gemini(
-        contents=[uploaded_file, TENDER_PROMPT],
+        contents=[uploaded_file, TENDER_PROMPT.format(custom_fields_prompt=custom_fields_prompt or "None requested.")],
         model=model,
         env=env,
     )

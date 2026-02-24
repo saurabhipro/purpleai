@@ -10,4 +10,7 @@ access_tende_ai_bidder_check_line_user,tende_ai.bidder_check_line.user,model_ten
 access_tende_ai_client_query_user,tende_ai.client_query.user,model_tende_ai_client_query,base.group_user,1,1,1,1
 access_tende_ai_dashboard_user,tende_ai.dashboard.user,model_tende_ai_dashboard,base.group_user,1,1,1,1
 access_tende_ai_job_chat_wizard_user,tende_ai.job.chat.wizard.user,model_tende_ai_job_chat_wizard,base.group_user,1,1,1,1
-
+access_tende_ai_extraction_master_user,tende_ai.extraction_master.user,model_tende_ai_extraction_master,base.group_user,1,1,1,1
+access_tende_ai_custom_extraction_user,tende_ai.custom_extraction.user,model_tende_ai_custom_extraction,base.group_user,1,1,1,1
+access_tende_ai_extraction_test_wizard_user,tende_ai.extraction_test_wizard.user,model_tende_ai_extraction_test_wizard,base.group_user,1,1,1,1
+access_tende_ai_extraction_field_user,tende_ai.extraction_field.user,model_tende_ai_extraction_field,base.group_user,1,1,1,1

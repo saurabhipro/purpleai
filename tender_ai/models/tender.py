@@ -62,6 +62,7 @@ class Tender(models.Model):
     
     # Related Records
     eligibility_criteria = fields.One2many('tende_ai.eligibility_criteria', 'tender_id', string='Eligibility Criteria')
+    custom_extraction_ids = fields.One2many('tende_ai.custom_extraction', 'tender_id', string='Custom Extractions')
 
     def action_submit_for_approval(self):
         for rec in self:

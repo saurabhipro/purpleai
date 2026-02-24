@@ -27,5 +27,16 @@
               parent="menu_tende_ai_root"
               action="action_tende_ai_bidder"
               sequence="30"/>
+
+    <menuitem id="menu_tende_ai_config"
+              name="Configuration"
+              parent="menu_tende_ai_root"
+              sequence="100"/>
+
+    <menuitem id="menu_tende_ai_extraction_master"
+              name="Extraction Master"
+              parent="menu_tende_ai_config"
+              action="action_extraction_master"
+              sequence="10"/>
 </odoo>
 
