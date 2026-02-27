@@ -17,7 +17,8 @@ class ExtractionMaster(models.Model):
     active = fields.Boolean(default=True)
 
     # Test Fields
-    test_pdf_file = fields.Binary(string='Test PDF File')
+    test_file_ids = fields.One2many('tende_ai.extraction_test_file', 'master_id', string='Test Files')
+    test_pdf_file = fields.Binary(string='Test PDF File (Single)')
     test_pdf_filename = fields.Char(string='Test PDF Filename')
     test_pdf_highlighted = fields.Binary(string='Highlighted PDF', readonly=True)
     test_result_ids = fields.One2many('tende_ai.extraction_test_result', 'master_id', string='Test Results')
@@ -32,9 +33,23 @@ class ExtractionMaster(models.Model):
 
     def action_run_test_extraction(self):
         self.ensure_one()
-        if not self.test_pdf_file:
+        
+        # Get all files (new relation + legacy single field)
+        files_to_test = []
+        if self.test_pdf_file:
+            files_to_test.append({
+                'content': self.test_pdf_file,
+                'name': self.test_pdf_filename or 'test.pdf'
+            })
+        for f in self.test_file_ids:
+            files_to_test.append({
+                'content': f.file,
+                'name': f.filename or 'test.pdf'
+            })
+
+        if not files_to_test:
             from odoo.exceptions import UserError
-            raise UserError(_("Please upload a PDF file to test."))
+            raise UserError(_("Please upload at least one PDF file to test."))
 
         import base64
         import tempfile
@@ -44,159 +59,111 @@ class ExtractionMaster(models.Model):
         # Clear old results
         self.test_result_ids.unlink()
 
-        # Create temp file
-        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-            tmp.write(base64.b64decode(self.test_pdf_file))
-            tmp_path = tmp.name
+        total_kb_text = []
+        all_results = []
+        active_fields = self.field_ids.filtered(lambda f: f.active)
+        if not active_fields:
+            return
 
-        try:
-            # Build custom fields prompt for all active fields
-            active_fields = self.field_ids.filtered(lambda f: f.active)
-            if not active_fields:
-                return
+        prompts = []
+        for f in active_fields:
+            prompts.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
+        custom_fields_prompt = "\n".join(prompts)
+        model = "gemini-3-flash-preview"
 
-            prompts = []
-            for f in active_fields:
-                prompts.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
-            
-            custom_fields_prompt = "\n".join(prompts)
-            model = "gemini-3-flash-preview"
+        for file_info in files_to_test:
+            # Create temp file
+            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+                tmp.write(base64.b64decode(file_info['content']))
+                tmp_path = tmp.name
 
-            # Call service
-            res = _extract_from_single_pdf(
-                company_name="Test Extraction",
-                pdf_path=tmp_path,
-                model=model,
-                env=self.env,
-                custom_fields_prompt=custom_fields_prompt
-            )
+            try:
+                # Call service
+                res = _extract_from_single_pdf(
+                    company_name="Test Extraction",
+                    pdf_path=tmp_path,
+                    model=model,
+                    env=self.env,
+                    custom_fields_prompt=custom_fields_prompt
+                )
 
-            results = res.get("customExtractions") or []
-            test_vals = []
-            for r in results:
-                # Find field_id by key
-                field = active_fields.filtered(lambda f: f.field_key == r.get('fieldKey'))
-                if field:
-                    test_vals.append((0, 0, {
-                        'field_id': field[0].id,
-                        'value': r.get('value'),
-                        'page': r.get('page'),
-                        'paragraph': r.get('paragraph'),
-                    }))
-            
-            if test_vals:
-                self.write({'test_result_ids': test_vals})
+                results = res.get("customExtractions") or []
+                for r in results:
+                    field = active_fields.filtered(lambda f: f.field_key == r.get('fieldKey'))
+                    if field:
+                        all_results.append((0, 0, {
+                            'field_id': field[0].id,
+                            'value': r.get('value'),
+                            'page': r.get('page'),
+                            'paragraph': r.get('paragraph'),
+                            # Store source file in results if we want to distinguish? 
+                            # Maybe later.
+                        }))
 
-                # --- 1. Extract Full Text for Knowledge Base (if empty) ---
+                # KB Text Extraction for this file
                 try:
                     import fitz
-                    pdf_data = base64.b64decode(self.test_pdf_file)
-                    doc = fitz.open(stream=pdf_data, filetype="pdf")
-                    full_text = []
-                    for page in doc:
-                        full_text.append(page.get_text())
-                    
-                    extracted_text = "\n".join(full_text).strip()
-                    if len(extracted_text) < 150:
-                        # FALLBACK: If PyMuPDF failed (likely scanned or complex font), use Gemini to read it
-                        from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini
-                        _logger = logging.getLogger(__name__)
-                        _logger.info("AI: PyMuPDF returned thin text. Falling back to Gemini Multimodal OCR for KB.")
-                        
-                        ocr_prompt = (
-                            "Carefully read this entire document and transcribe all text content exactly. "
-                            "Preserve the structure. If it's in Hindi, transcribe it in Hindi. "
-                            "Output ONLY the transcribed text."
-                        )
-                        uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                        ocr_res = generate_with_gemini(
-                            contents=[ocr_prompt, uploaded],
-                            model="gemini-1.5-flash",
-                            env=self.env
-                        )
-                        if isinstance(ocr_res, dict):
-                            extracted_text = ocr_res.get('text', '').strip()
-                        else:
-                            extracted_text = str(ocr_res).strip()
-                    
-                    self.write({
-                        'kb_text': extracted_text,
-                        'kb_state': 'indexed' if len(extracted_text) > 20 else 'empty'
-                    })
-                except Exception as e:
                     import logging
-                    logging.getLogger(__name__).warning("KB Extraction failed: %s", str(e))
-
-                # --- 2. Highlight PDF results ---
-                try:
-                   # ... (existing highlighting code)
-                    import fitz
-                    import logging
-                    import unicodedata
                     _logger = logging.getLogger(__name__)
 
-                    pdf_data = base64.b64decode(self.test_pdf_file)
-                    doc = fitz.open(stream=pdf_data, filetype="pdf")
+                    doc = fitz.open(stream=base64.b64decode(file_info['content']), filetype="pdf")
+                    file_text = []
+                    for page in doc:
+                        file_text.append(page.get_text())
                     
-                    found_any = False
-                    for r in results:
-                        page_str = r.get('page')
-                        if page_str and str(page_str).isdigit():
-                            page_idx = int(page_str) - 1
-                            if 0 <= page_idx < doc.page_count:
-                                page = doc.load_page(page_idx)
-                                
-                                # 1. Try to find and highlight the value
-                                val = r.get('value')
-                                if val and len(str(val)) > 1:
-                                    search_val = unicodedata.normalize('NFKC', str(val)).strip()
-                                    rects = page.search_for(search_val)
-                                    
-                                    # If multi-word search failed, try words individually
-                                    if not rects and " " in search_val:
-                                        for word in search_val.split():
-                                            if len(word) > 2:
-                                                rects.extend(page.search_for(word))
-                                    
-                                    for rect in rects[:20]:
-                                        try:
-                                            page.add_highlight_annot(rect)
-                                            found_any = True
-                                        except Exception:
-                                            pass
-                                
-                                # 2. Also try paragraph fragment for context
-                                paragraph = r.get('paragraph')
-                                if paragraph and len(str(paragraph)) > 10:
-                                    # Try a few fragments of the paragraph
-                                    para_clean = unicodedata.normalize('NFKC', str(paragraph)).strip()
-                                    fragment = para_clean[:40]
-                                    rects = page.search_for(fragment)
-                                    
-                                    if not rects and len(para_clean) > 80:
-                                        fragment2 = para_clean[40:80]
-                                        rects = page.search_for(fragment2)
-                                        
-                                    for rect in rects[:10]:
-                                        try:
-                                            page.add_highlight_annot(rect)
-                                            found_any = True
-                                        except Exception:
-                                            pass
+                    extracted_text = "\n".join(file_text).strip()
+                    # Fallback for scanned
+                    if len(extracted_text) < 150:
+                        from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini
+                        ocr_prompt = "Transcribe all text from this PDF exactly."
+                        uploaded = upload_file_to_gemini(tmp_path, env=self.env)
+                        ocr_res = generate_with_gemini([ocr_prompt, uploaded], model="gemini-3-flash-preview", env=self.env)
+                        extracted_text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
                     
-                    if found_any:
-                        out_pdf = doc.tobytes(garbage=4, deflate=True)
-                        self.test_pdf_highlighted = base64.b64encode(out_pdf)
-                    else:
-                        self.test_pdf_highlighted = self.test_pdf_file
+                    if extracted_text:
+                        total_kb_text.append(f"--- SOURCE: {file_info['name']} ---\n{extracted_text}")
+
+                    # Highlighting (Special Case: Highlighted PDF only shows for LAST file or merges?)
+                    # For simplicity, we just highlight the last file uploaded as visual proof
+                    if file_info == files_to_test[-1]:
+                        found_any = False
+                        import unicodedata
+                        for r in results:
+                            page_str = r.get('page')
+                            if page_str and str(page_str).isdigit():
+                                page_idx = int(page_str) - 1
+                                if 0 <= page_idx < doc.page_count:
+                                    page = doc.load_page(page_idx)
+                                    val = r.get('value')
+                                    if val and len(str(val)) > 1:
+                                        search_val = unicodedata.normalize('NFKC', str(val)).strip()
+                                        rects = page.search_for(search_val)
+                                        if not rects and " " in search_val:
+                                            for word in search_val.split():
+                                                if len(word) > 2: rects.extend(page.search_for(word))
+                                        for rect in rects[:20]:
+                                            try: page.add_highlight_annot(rect); found_any = True
+                                            except Exception: pass
+                        
+                        if found_any:
+                            self.test_pdf_highlighted = base64.b64encode(doc.tobytes(garbage=4, deflate=True))
+                        else:
+                            self.test_pdf_highlighted = file_info['content']
+
                 except Exception as e:
                     import logging
-                    logging.getLogger(__name__).warning("PDF Highlighting failed: %s", str(e))
-                    self.test_pdf_highlighted = self.test_pdf_file
+                    logging.getLogger(__name__).warning("Processing test file failed: %s", str(e))
 
-        finally:
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+            finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+
+        # Write final results
+        self.write({
+            'test_result_ids': all_results,
+            'kb_text': "\n\n".join(total_kb_text),
+            'kb_state': 'indexed' if total_kb_text else 'empty'
+        })
 
     def action_doc_chat(self):
         self.ensure_one()
@@ -302,3 +269,11 @@ class ExtractionMasterChatMessage(models.Model):
     master_id = fields.Many2one('tende_ai.extraction_master', string='Master', required=True, ondelete='cascade')
     role = fields.Selection([('user', 'User'), ('assistant', 'AI')], string="Role", required=True)
     content = fields.Text(string="Message content", required=True)
+
+class ExtractionTestFile(models.Model):
+    _name = 'tende_ai.extraction_test_file'
+    _description = 'Extraction Test File'
+
+    master_id = fields.Many2one('tende_ai.extraction_master', string='Master')
+    file = fields.Binary(string='PDF File', required=True)
+    filename = fields.Char(string='Filename')

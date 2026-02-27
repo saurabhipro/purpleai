@@ -455,26 +455,7 @@ def generate_with_gemini(
 ) -> Any:
     """
     Generic AI call.
-
-    Returns (backward compatible):
-      - dict: {"text": "...", "usage": {...}, "model": "..."}  (preferred)
-      - raises on fatal errors
-
-    `contents` can be:
-      - a string prompt
-      - a list like [uploaded_file, prompt] OR [prompt, uploaded_file] OR [file1, file2, prompt]
-    
-    NOTE: When contents includes file objects, the SDK will make GET requests
-    to fetch file metadata before each generate_content() call. This is expected SDK
-    behavior for file validation. You may see repeated GET requests for the same file
-    IDs in logs - this is normal and cannot be avoided without modifying the SDK.
-    
-    Args:
-        contents: Content to send to the AI service
-        model: Model name to use
-        max_retries: Maximum retry attempts
-        temperature: Temperature for generation
-        env: Optional Odoo environment (api.Environment). Used to get API key from system parameters.
+    ... [docs] ...
     """
     if genai is None:
         raise RuntimeError("google-genai package is not installed")
@@ -482,8 +463,15 @@ def generate_with_gemini(
     client = _get_client(env=env)
     last_err: Optional[Exception] = None
 
+    # Ensure model name has the proper 'models/' prefix
+    # Different API keys/SDKs handle this differently, so we normalize here.
+    if not model.startswith('models/'):
+        full_model_name = f"models/{model}"
+    else:
+        full_model_name = model
+
     _logger.debug("GEMINI API: Calling generate_content() - Model: %s, Temperature: %.2f", 
-                  model, temperature)
+                  full_model_name, temperature)
 
     for attempt in range(max_retries + 1):
         try:
@@ -492,7 +480,7 @@ def generate_with_gemini(
             
             t0 = time.time()
             with _GEMINI_SEM:
-                response = _generate_content_compat(client, model=model, contents=contents, temperature=temperature)
+                response = _generate_content_compat(client, model=full_model_name, contents=contents, temperature=temperature)
             t1 = time.time()
 
             text = _extract_text(response)
@@ -532,4 +520,11 @@ def generate_with_gemini(
             last_err = e
             time.sleep(1)
 
-    raise RuntimeError(f"AI call failed after retries: {last_err}")
+def list_available_models(env=None):
+    """Returns a list of model names available to the current API key."""
+    try:
+        client = _get_client(env=env)
+        return [m.name for m in client.models.list()]
+    except Exception as e:
+        _logger.error("Error listing Gemini models: %s", str(e))
+        return []

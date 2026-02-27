@@ -11,3 +11,6 @@ from . import extraction_master
 from . import custom_extraction
 from . import client_query
 from . import mail_bot_inherit
+from . import quick_doc_chat
+from . import discuss_channel
+from . import property_ai_query
