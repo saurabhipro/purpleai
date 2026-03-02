@@ -50,7 +50,7 @@ class QuickDocChat(models.Model):
                 
                 try:
                     uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                    res = generate_with_gemini(["Transcribe this PDF exactly."], model="gemini-1.5-flash", env=self.env)
+                    res = generate_with_gemini(["Transcribe this PDF exactly."], model="gemini-2.0-flash-lite", env=self.env)
                     text = (res.get('text') if isinstance(res, dict) else str(res)).strip()
                 finally:
                     if os.path.exists(tmp_path):
@@ -91,7 +91,7 @@ class QuickDocChat(models.Model):
         )
 
         try:
-            res = generate_with_gemini(prompt, model="gemini-3-flash-preview", temperature=0.3, env=self.env)
+            res = generate_with_gemini(prompt, model="gemini-2.0-flash-lite", temperature=0.3, env=self.env)
             answer = res.get('text') if isinstance(res, dict) else str(res)
             
             self.write({

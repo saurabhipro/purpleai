@@ -69,7 +69,7 @@ class ExtractionMaster(models.Model):
         for f in active_fields:
             prompts.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
         custom_fields_prompt = "\n".join(prompts)
-        model = "gemini-3-flash-preview"
+        model = "gemini-2.0-flash-lite"
 
         for file_info in files_to_test:
             # Create temp file
@@ -117,7 +117,7 @@ class ExtractionMaster(models.Model):
                         from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini
                         ocr_prompt = "Transcribe all text from this PDF exactly."
                         uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                        ocr_res = generate_with_gemini([ocr_prompt, uploaded], model="gemini-3-flash-preview", env=self.env)
+                        ocr_res = generate_with_gemini([ocr_prompt, uploaded], model="gemini-2.0-flash-lite", env=self.env)
                         extracted_text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
                     
                     if extracted_text:
@@ -199,7 +199,7 @@ class ExtractionMaster(models.Model):
         try:
             res = generate_with_gemini(
                 contents=prompt,
-                model="gemini-3-flash-preview",
+                model="gemini-2.0-flash-lite",
                 temperature=0.3,
                 env=self.env
             )

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<templates xml:space="preserve">
+
+    <!-- main split view form -->
+    <t t-name="spiffy_split_view.SplitviewContainer">
+        <div class="formview-panel" t-ref="formview-panel">
+            <div class="formview-container" t-ref="formview-container">
+                <SplitViewForm t-props="formViewProps"/>
+            </div>
+        </div>
+    </t>
+
+    <!-- split view status indicator -->
+    <t t-name="spiffy_split_view.SplitViewStatusIndicator">
+        <div class="o_form_status_indicator d-md-flex align-items-center align-self-md-end me-auto" t-att-class="{ o_form_status_indicator_new_record: props.model.root.isNew }">
+            <div class="o_form_status_indicator_buttons d-flex" t-att-class="{ invisible: !(props.model.root.isNew or displayButtons) }">
+                <button
+                    type="button"
+                    class="o_form_button_save btn btn-light px-1 py-0 lh-sm"
+                    data-hotkey="s"
+                    t-on-click.stop="save"
+                    data-tooltip="Save manually"
+                    aria-label="Save manually"
+                    t-ref="save">
+                    <i class="fa fa-cloud-upload fa-fw" />
+                </button>
+                <button
+                    type="button"
+                    class="o_form_button_cancel btn btn-light px-1 py-0 lh-sm"
+                    data-hotkey="j"
+                    t-on-click.stop="discard"
+                    data-tooltip="Discard changes"
+                    aria-label="Discard changes">
+                    <i class="fa fa-undo fa-fw" />
+                </button>
+            </div>
+            <span
+                t-if="!props.model.root.isNew and indicatorMode === 'invalid'"
+                class="text-danger small ms-2"
+                data-tooltip="Unable to save. Correct the issue or discard changes">
+                <i class="fa fa-warning" />
+            </span>
+        </div>
+    </t>
+
+    <!-- split view control panel -->
+    <t t-inherit="web.FormView" t-name="spiffy_split_view.SplitViewForm" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_form_view_container')]/Layout" position="inside">
+            <t t-set-slot="control-panel-external-action">
+                <button class="btn btn-primary" title="Close" t-on-click="env.config.close">X</button>
+            </t>
+        </xpath>
+    </t>
+    <t t-name="spiffy_split_view.SplitViewControlPanel">
+        <div class="o_control_panel" t-ref="root">
+            <div t-if="display['top']" class="o_cp_top" t-att-class="{ 'flex-wrap': env.isSmall }">
+                <div class="o_cp_top_left d-flex flex-grow-1 align-items-center" t-att-class="{ 'w-100': env.isSmall }">
+                    <t t-if="display['top-left']">
+                        <t t-slot="control-panel-breadcrumb">
+                            <t t-if="env.isSmall">
+                                <t t-call="web.Breadcrumbs.Small" t-if="!env.config.noBreadcrumbs"/>
+                            </t>
+                            <t t-else="">
+                                <t t-call="web.Breadcrumbs" t-if="!env.config.noBreadcrumbs"/>
+                            </t>
+                        </t>
+                    </t>
+                </div>
+                <div class="o_cp_bottom_right w-auto flex-shrink-0 justify-content-between align-items-center"
+                     t-att-class="{ 'flex-grow-1' : env.isSmall }">
+                    <t t-slot="control-panel-action-menu" t-if="display['bottom-left']"/>
+                    <t t-slot="control-panel-create-button" />
+                    <t t-slot="control-panel-external-action"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

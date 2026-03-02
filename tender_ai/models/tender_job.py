@@ -117,6 +117,52 @@ class TenderJob(models.Model):
         readonly=True,
     )
 
+    # Token usage — stored so they are queryable and visible in list views
+    extraction_prompt_tokens = fields.Integer(string='Extraction Prompt Tokens', readonly=True, default=0)
+    extraction_output_tokens = fields.Integer(string='Extraction Output Tokens', readonly=True, default=0)
+    extraction_total_tokens = fields.Integer(string='Extraction Total Tokens', readonly=True, default=0)
+
+    evaluation_prompt_tokens = fields.Integer(string='Evaluation Prompt Tokens', readonly=True, default=0)
+    evaluation_output_tokens = fields.Integer(string='Evaluation Output Tokens', readonly=True, default=0)
+    evaluation_total_tokens = fields.Integer(string='Evaluation Total Tokens', readonly=True, default=0)
+
+    total_prompt_tokens = fields.Integer(
+        string='Total Prompt Tokens',
+        compute='_compute_total_tokens',
+        store=True, readonly=True,
+    )
+    total_output_tokens = fields.Integer(
+        string='Total Output Tokens',
+        compute='_compute_total_tokens',
+        store=True, readonly=True,
+    )
+    total_tokens_all = fields.Integer(
+        string='Total Tokens Used',
+        compute='_compute_total_tokens',
+        store=True, readonly=True,
+    )
+
+    # Cost in INR (computed from token counts × system parameter rates)
+    extraction_cost_inr = fields.Float(
+        string='Extraction Cost (₹)',
+        compute='_compute_costs_inr',
+        store=True, readonly=True, digits=(10, 4),
+    )
+    evaluation_cost_inr = fields.Float(
+        string='Evaluation Cost (₹)',
+        compute='_compute_costs_inr',
+        store=True, readonly=True, digits=(10, 4),
+    )
+    total_cost_inr = fields.Float(
+        string='Total AI Cost (₹)',
+        compute='_compute_costs_inr',
+        store=True, readonly=True, digits=(10, 4),
+    )
+
+    # AI Model used at runtime
+    extraction_model = fields.Char(string='Extraction Model', readonly=True)
+    evaluation_model = fields.Char(string='Evaluation Model', readonly=True)
+
     # Related Records
     bidders = fields.One2many('tende_ai.bidder', 'job_id', string='Bidders', readonly=True)
     detected_company_ids = fields.Many2many(
@@ -216,7 +262,12 @@ class TenderJob(models.Model):
     work_experience_ids = fields.One2many('tende_ai.work_experience', 'job_id', string='Work Experience', readonly=True)
     custom_extraction_ids = fields.One2many('tende_ai.custom_extraction', 'job_id', string='Custom Extractions', readonly=True)
 
-    @api.depends('analytics')
+    @api.depends(
+        'analytics',
+        'extraction_prompt_tokens', 'extraction_output_tokens', 'extraction_total_tokens',
+        'evaluation_prompt_tokens', 'evaluation_output_tokens', 'evaluation_total_tokens',
+        'extraction_cost_inr', 'evaluation_cost_inr', 'total_cost_inr',
+    )
     def _compute_analytics_html(self):
         def _esc(v):
             if v is None:
@@ -225,6 +276,13 @@ class TenderJob(models.Model):
                     .replace("&", "&amp;")
                     .replace("<", "&lt;")
                     .replace(">", "&gt;"))
+
+        def _fmt_inr(val):
+            """Format a float as ₹ with 4 decimal places."""
+            try:
+                return f"\u20b9{float(val):,.4f}" if val else "\u20b90.0000"
+            except Exception:
+                return "\u20b90.0000"
 
         for rec in self:
             data = {}
@@ -294,11 +352,63 @@ class TenderJob(models.Model):
                     "</div>"
                 )
 
+            # ── Cost Breakdown Table ──────────────────────────────────────────
+            ext_prompt  = rec.extraction_prompt_tokens or 0
+            ext_output  = rec.extraction_output_tokens or 0
+            ext_total   = rec.extraction_total_tokens or 0
+            eval_prompt = rec.evaluation_prompt_tokens or 0
+            eval_output = rec.evaluation_output_tokens or 0
+            eval_total  = rec.evaluation_total_tokens or 0
+            tot_prompt  = rec.total_prompt_tokens or 0
+            tot_output  = rec.total_output_tokens or 0
+            tot_all     = rec.total_tokens_all or 0
+
+            ext_cost    = rec.extraction_cost_inr or 0.0
+            eval_cost   = rec.evaluation_cost_inr or 0.0
+            tot_cost    = rec.total_cost_inr or 0.0
+
+            cost_rows = ""
+            for label, prompt, output, total, cost in [
+                ("Extraction", ext_prompt, ext_output, ext_total, ext_cost),
+                ("Evaluation", eval_prompt, eval_output, eval_total, eval_cost),
+                ("<b>Total</b>", tot_prompt, tot_output, tot_all, tot_cost),
+            ]:
+                cost_rows += (
+                    "<tr>"
+                    f"<td style='padding:6px 10px; font-weight:600;'>{label}</td>"
+                    f"<td style='padding:6px 10px; text-align:right;'>{prompt:,}</td>"
+                    f"<td style='padding:6px 10px; text-align:right;'>{output:,}</td>"
+                    f"<td style='padding:6px 10px; text-align:right;'>{total:,}</td>"
+                    f"<td style='padding:6px 10px; text-align:right; color:#1a6e37; font-weight:600;'>{_fmt_inr(cost)}</td>"
+                    "</tr>"
+                )
+
+            cost_table = (
+                "<div style='margin-top:20px;'>"
+                "<div style='font-weight:700; margin-bottom:8px; font-size:1.05em;'>\u2699\ufe0f AI Cost Breakdown (INR)</div>"
+                "<table class='table table-sm table-bordered' style='width:100%;'>"
+                "<thead style='background:#f8f9fa;'><tr>"
+                "<th style='padding:6px 10px;'>Stage</th>"
+                "<th style='padding:6px 10px; text-align:right;'>Prompt Tokens</th>"
+                "<th style='padding:6px 10px; text-align:right;'>Output Tokens</th>"
+                "<th style='padding:6px 10px; text-align:right;'>Total Tokens</th>"
+                "<th style='padding:6px 10px; text-align:right;'>Cost (\u20b9 INR)</th>"
+                "</tr></thead>"
+                f"<tbody>{cost_rows}</tbody>"
+                "</table>"
+                "<div style='font-size:0.82em; color:#666; margin-top:4px;'>"
+                "Pricing configured in Settings &rarr; Technical &rarr; System Parameters "
+                "(<code>tender_ai.cost_per_million_input_tokens_inr</code> / <code>tender_ai.cost_per_million_output_tokens_inr</code>)"
+                "</div>"
+                "</div>"
+            ) if (tot_all or ext_total or eval_total) else ""
+
             rec.analytics_html = (
                 "<div>"
                 "<table class='table table-sm' style='width:100%; border:1px solid #ddd;'>"
                 f"<tbody>{kpi_html}</tbody>"
                 "</table>"
+                f"{cost_table}"
                 f"{company_table}"
                 "</div>"
             )
@@ -345,6 +455,47 @@ class TenderJob(models.Model):
             except Exception:
                 minutes = 0.0
             rec.processing_time_minutes = minutes
+
+    @api.depends(
+        'extraction_prompt_tokens', 'extraction_output_tokens', 'extraction_total_tokens',
+        'evaluation_prompt_tokens', 'evaluation_output_tokens', 'evaluation_total_tokens',
+    )
+    def _compute_total_tokens(self):
+        for rec in self:
+            rec.total_prompt_tokens  = (rec.extraction_prompt_tokens  or 0) + (rec.evaluation_prompt_tokens  or 0)
+            rec.total_output_tokens  = (rec.extraction_output_tokens  or 0) + (rec.evaluation_output_tokens  or 0)
+            rec.total_tokens_all     = (rec.extraction_total_tokens   or 0) + (rec.evaluation_total_tokens   or 0)
+
+    @api.depends(
+        'extraction_prompt_tokens', 'extraction_output_tokens',
+        'evaluation_prompt_tokens', 'evaluation_output_tokens',
+    )
+    def _compute_costs_inr(self):
+        """Compute INR cost per stage using system parameters for pricing."""
+        ICP = self.env['ir.config_parameter'].sudo()
+        try:
+            input_rate  = float(ICP.get_param('tender_ai.cost_per_million_input_tokens_inr',  '6.53'))
+            output_rate = float(ICP.get_param('tender_ai.cost_per_million_output_tokens_inr', '26.10'))
+        except Exception:
+            input_rate, output_rate = 6.53, 26.10
+
+        for rec in self:
+            def _cost(prompt_tok, output_tok):
+                return round(
+                    (prompt_tok  / 1_000_000.0) * input_rate +
+                    (output_tok  / 1_000_000.0) * output_rate,
+                    4
+                )
+
+            rec.extraction_cost_inr = _cost(
+                rec.extraction_prompt_tokens or 0,
+                rec.extraction_output_tokens or 0,
+            )
+            rec.evaluation_cost_inr = _cost(
+                rec.evaluation_prompt_tokens or 0,
+                rec.evaluation_output_tokens or 0,
+            )
+            rec.total_cost_inr = rec.extraction_cost_inr + rec.evaluation_cost_inr
 
     def _safe_job_write(self, vals, max_retries=5, base_delay=0.15):
         """Write on job with savepoint+retry to survive SerializationFailure."""
@@ -1138,8 +1289,9 @@ class TenderJob(models.Model):
                 return
 
             # 1️⃣ Tender extraction
-            model = os.getenv("AI_TENDER_MODEL") or os.getenv("GEMINI_TENDER_MODEL") or "gemini-3-flash-preview"
-            
+            model = os.getenv("AI_TENDER_MODEL") or os.getenv("GEMINI_TENDER_MODEL") or "gemini-2.0-flash-lite"
+            self._safe_job_write({'extraction_model': model})
+
             # Fetch custom fields for tender
             tender_custom_prompt = ""
             tender_fields = self.env['tende_ai.extraction_field'].sudo().search([
@@ -1273,6 +1425,7 @@ class TenderJob(models.Model):
 
             # Store extraction analytics (parsing only). Evaluation will append/override later.
             try:
+                ext_tokens = parse_metrics.get("tokensTotal") or {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0}
                 analytics = {
                     "jobId": self.name,
                     "stage": "extracted",
@@ -1280,10 +1433,16 @@ class TenderJob(models.Model):
                     "totalPdfReceived": int(parse_metrics.get("totalPdfReceived") or 0),
                     "totalValidPdfProcessed": int(parse_metrics.get("totalValidPdfProcessed") or 0),
                     "apiCallsTotal": int(parse_metrics.get("apiCallsTotal") or 0),
-                    "tokensTotal": parse_metrics.get("tokensTotal") or {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0},
+                    "tokensTotal": ext_tokens,
                     "perCompany": parse_metrics.get("perCompany") or [],
                 }
-                self._safe_job_write({'analytics': json.dumps(analytics, ensure_ascii=False)})
+                self._safe_job_write({
+                    'analytics': json.dumps(analytics, ensure_ascii=False),
+                    # Persist token counts as dedicated fields for cost computation
+                    'extraction_prompt_tokens': int(ext_tokens.get('promptTokens') or 0),
+                    'extraction_output_tokens': int(ext_tokens.get('outputTokens') or 0),
+                    'extraction_total_tokens':  int(ext_tokens.get('totalTokens')  or 0),
+                })
             except Exception:
                 pass
 
@@ -1319,7 +1478,7 @@ class TenderJob(models.Model):
 
         company_workers = int(os.getenv("COMPANY_WORKERS", "4"))
         pdf_workers = int(os.getenv("PDF_WORKERS_PER_COMPANY", "5"))
-        model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-3-flash-preview"
+        model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-2.0-flash-lite"
 
         total_pdfs_received = 0
         total_valid_pdfs = 0
@@ -1751,7 +1910,8 @@ class TenderJob(models.Model):
 
             company_workers = int(os.getenv("COMPANY_WORKERS", "4"))
             pdf_workers = int(os.getenv("PDF_WORKERS_PER_COMPANY", "5"))
-            model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-3-flash-preview"
+            model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-2.0-flash-lite"
+            self._safe_job_write({'evaluation_model': model})
             _logger.info("TENDER AI [Job %s]: Processing configuration - Company Workers: %d, PDF Workers: %d, Model: configured", 
                         self.name, company_workers, pdf_workers)
 

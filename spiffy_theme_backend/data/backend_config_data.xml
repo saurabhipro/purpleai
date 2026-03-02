@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data noupdate="1">
+        <record id="backend_config_data" model="backend.config">
+            <field name="light_primary_bg_color">#0097a7</field>
+            <field name="light_primary_text_color">#ffffff</field>
+        </record>
+    </data>
+</odoo>

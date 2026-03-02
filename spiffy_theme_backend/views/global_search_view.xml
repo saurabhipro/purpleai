@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<odoo>
+	<record id="global_search_config_list_view" model="ir.ui.view">
+		<field name="name">global.search.bizople.list.view</field>
+		<field name="model">global.search.bizople</field>
+		<field name="type">list</field>
+		<field name="arch" type="xml">
+			<list string="Global Search">
+				<field name="name"/>
+				<field name="global_model_id"/>
+				<field name="global_field_ids" widget="many2many_tags" optional="hide"/>
+			</list>
+		</field>
+	</record>
+
+	<record id="global_search_config_form_view" model="ir.ui.view">
+		<field name="name">global.search.bizople.form.view</field>
+		<field name="model">global.search.bizople</field>
+		<field name="type">form</field>
+		<field name="arch" type="xml">
+			<form string="Global Search">
+				<sheet>
+					<group>
+	                    <group>
+							<field name="name" required="1"/>
+							<field name="global_model_id" required="1" options="{'no_create_edit': True, 'no_create': True}"/>
+						</group>
+						<group>
+							<field name="global_field_ids" widget="many2many_tags" required="1" options="{'no_create_edit': True, 'no_create': True}"/>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<record id="action_global_search_config" model="ir.actions.act_window">
+        <field name="name">Global Search</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">global.search.bizople</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem action="spiffy_theme_backend.action_global_search_config" id="global_search_config_menuitem" parent="spiffy_theme_backend.bizople_backend_theme_configuration_mainmenu" sequence="9"/>
+</odoo>

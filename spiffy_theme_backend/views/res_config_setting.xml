@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record id="res_config_settings_backend_config" model="ir.ui.view">
+            <field name="name">res.config.settings.backend.config</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Backend Settings" string="Backend Settings" name="Backend Settings" groups="base.group_system" logo="/spiffy_theme_backend/static/description/icon.png">
+                        <div id="backend_config_view">
+                            <block title="Spiffy General Setting" name="backend_setting_container">
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_favicon">
+                                    <div class="o_setting_right_pane">
+                                        <label for="spiffy_favicon"/>
+                                        <field name='spiffy_favicon' widget="image" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_backend_menubar_logo">
+                                    <div class="o_setting_right_pane">
+                                        <label for="backend_menubar_logo"/>
+                                        <field name='backend_menubar_logo' widget="image" />
+                                    </div>
+                                    <div class="o_setting_right_pane">
+                                        <label for="backend_menubar_logo_icon"/>
+                                        <field name='backend_menubar_logo_icon' widget="image" />
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_tab_name">
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="tab_name"/></p>
+                                        <field name='tab_name'/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_tab_name">
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="backend_theme_level"/></p>
+                                        <field name='backend_theme_level' groups="base.group_system"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_tab_name">
+                                    <div class="o_setting_right_pane mb-3">
+                                        <p class="o_form_label"><label for="login_page_style"/></p>
+                                        <field name='login_page_style' groups="base.group_system"/>
+                                    </div>
+
+                                    <div class="o_setting_box">
+                                        <div class="o_setting_left_pane">
+                                            <field name='show_bg_image' groups="base.group_system"/>
+                                        </div>
+                                        <div class="o_setting_right_pane">
+                                            <label for="show_bg_image"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="o_setting_right_pane" invisible="show_bg_image==False" >
+                                        <p class="o_form_label"><label for="login_page_background_img"/></p>
+                                        <field name='login_page_background_img' widget="image" groups="base.group_system" required="show_bg_image==True"/>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_tab_name">
+                                    <div class="o_setting_right_pane mb-3">
+                                        <p class="o_form_label"><label for="login_page_background_color"/></p>
+                                        <field name='login_page_background_color' widget="color" groups="base.group_system"/>
+                                    </div>
+                                    
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="login_page_text_color"/></p>
+                                        <field name='login_page_text_color' widget="color" groups="base.group_system"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_toolbar_color">
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="spiffy_toobar_color"/></p>
+                                        <field name='spiffy_toobar_color' widget="color" groups="base.group_system"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6 o_setting_box" id="config_settings_prevent_auto_save">
+                                    <div class="o_setting_left_pane">
+                                        <field name='prevent_auto_save' groups="base.group_system"/>
+                                    </div>
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="prevent_auto_save"/></p>
+                                        <field name='prevent_auto_save_warning' invisible="prevent_auto_save==False" groups="base.group_system"/>
+                                    </div>
+                                </div>
+                            </block>
+                            <block title="Spiffy Progressive Web Application (PWA)" name="website_pwa_setting">
+                                <div class="col-xs-12 col-md-6 o_setting_box" id="website PWA">
+                                    <div class="">
+                                        <div class="col-12 o_setting_box">
+                                            <div class="o_setting_left_pane">
+                                                <field name="enable_pwa"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="enable_pwa"/>
+                                                <div class="text-muted">
+                                                    Enable Backend Progressive Web Application
+                                                </div>
+
+                                                <div class="mt16 o_setting_box" invisible="enable_pwa==False">
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="PWA Name" for="app_name_pwa"/>
+                                                        <field name="app_name_pwa" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="Short Name" for="app_name_pwa"/>
+                                                        <field name="short_name_pwa" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="Description" for="description_pwa"/>
+                                                        <field name="description_pwa" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="Start url" for="start_url_pwa"/>
+                                                        <field name="start_url_pwa" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="PWA Shortcuts" for="pwa_shortcuts_ids"/>
+                                                        <field name="pwa_shortcuts_ids" widget="many2many_tags"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="Background Color" for="background_color_pwa"/>
+                                                        <field name="background_color_pwa" widget="color" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="Theme Color" for="theme_color_pwa"/>
+                                                        <field name="theme_color_pwa" widget="color" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="PWA Icon (512 x 512)" for="image_512_pwa"/>
+                                                        <field name="image_512_pwa" widget="image" required="enable_pwa==True"/>
+                                                    </div>
+                                                    <div class="">
+                                                        <label class="col-lg-5 o_light_label" string="PWA Icon (192 x 192)" for="image_192_pwa"/>
+                                                        <field name="image_192_pwa" widget="image" required="enable_pwa==True"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </block>
+                        </div>
+                        <div id="firebase_config_view" groups="base.group_no_one">
+                            <block title="Android Notificator (Firebase key)" name="firebase_notification">
+                                <div class="col-12 col-lg-6 o_setting_box" id="firebase_key_files">
+                                    <div class="o_setting_right_pane">
+                                        <p class="o_form_label"><label for="firebase_key_file"/></p>
+                                        <field name="firebase_key_file"/>
+                                    </div>
+                                </div>
+                            </block>
+                        </div>
+                    </app>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

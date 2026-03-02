@@ -74,7 +74,7 @@ class DiscussChannel(models.Model):
                     tmp_path = tmp.name
                 try:
                     uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                    ocr_res = generate_with_gemini(["Transcribe this document exactly."], model="gemini-3-flash-preview", env=self.env)
+                    ocr_res = generate_with_gemini(["Transcribe this document exactly."], model="gemini-2.0-flash-lite", env=self.env)
                     text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
                 finally:
                     if os.path.exists(tmp_path): os.remove(tmp_path)
@@ -118,7 +118,7 @@ class DiscussChannel(models.Model):
         )
 
         try:
-            res = generate_with_gemini(prompt, model="gemini-3-flash-preview", temperature=0.3, env=self.env)
+            res = generate_with_gemini(prompt, model="gemini-2.0-flash-lite", temperature=0.3, env=self.env)
             answer = (res.get('text') if isinstance(res, dict) else str(res)).strip()
             
             if answer:

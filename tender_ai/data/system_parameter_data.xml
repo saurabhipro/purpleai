@@ -6,6 +6,17 @@
             <field name="key">tender_ai.max_file_size_mb</field>
             <field name="value">2048</field>
         </record>
+
+        <!-- AI Token Pricing in INR (per 1 Million tokens) -->
+        <!-- gemini-2.0-flash-lite: $0.075/1M input, $0.30/1M output @ ~₹87/$ -->
+        <record id="ir_config_parameter_tender_ai_input_token_cost" model="ir.config_parameter">
+            <field name="key">tender_ai.cost_per_million_input_tokens_inr</field>
+            <field name="value">6.53</field>
+        </record>
+        <record id="ir_config_parameter_tender_ai_output_token_cost" model="ir.config_parameter">
+            <field name="key">tender_ai.cost_per_million_output_tokens_inr</field>
+            <field name="value">26.10</field>
+        </record>
     </data>
 </odoo>
 

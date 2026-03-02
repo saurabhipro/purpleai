@@ -421,7 +421,7 @@ def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=N
 def extract_company_bidder_and_payments(
     company_name: str,
     pdf_paths: List[str],
-    model: str = "gemini-3-flash-preview",
+    model: str = "gemini-2.0-flash-lite",
     max_workers: int = 6,
     env=None,
 ) -> Dict[str, Any]:

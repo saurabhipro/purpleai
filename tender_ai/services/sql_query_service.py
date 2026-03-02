@@ -46,7 +46,7 @@ USER QUESTION: {question}
 SQL QUERY:"""
 
     try:
-        res = generate_with_gemini(prompt, model="gemini-3-flash-preview", temperature=0.0, env=env)
+        res = generate_with_gemini(prompt, model="gemini-2.0-flash-lite", temperature=0.0, env=env)
         sql = (res.get('text') if isinstance(res, dict) else str(res)).strip()
         sql = re.sub(r'```sql|```', '', sql).strip()
         

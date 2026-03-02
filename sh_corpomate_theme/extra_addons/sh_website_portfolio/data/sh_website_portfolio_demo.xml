@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="sh_website_portfolio_webmenu" model="website.menu">
-        <field name="name">Portfolio</field>
-        <field name="url">/page/portfolio</field>
-        <field name="parent_id" ref="website.main_menu" />
-    </record>
-</odoo>

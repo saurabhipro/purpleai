@@ -1,42 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_tende_ai_root"
-              name="Tender AI"
-              sequence="100"/>
-
+    <!-- Child menuitems with actions: loads LAST so all actions are already defined -->
     <menuitem id="menu_tende_ai_dashboard"
               name="Dashboard"
-              parent="menu_tende_ai_root"
+              parent="tender_ai.menu_tende_ai_root"
               action="action_tende_ai_dashboard_owl"
               sequence="5"/>
 
+    <menuitem id="menu_quick_doc_chat"
+              name="Odoo Chat AI"
+              parent="tender_ai.menu_tende_ai_root"
+              action="action_quick_doc_chat"
+              sequence="6"/>
+
     <menuitem id="menu_tende_ai_job"
               name="Tender Processing"
-              parent="menu_tende_ai_root"
+              parent="tender_ai.menu_tende_ai_root"
               action="action_tende_ai_job"
               sequence="10"/>
 
     <menuitem id="menu_tende_ai_tender"
               name="Tenders"
-              parent="menu_tende_ai_root"
+              parent="tender_ai.menu_tende_ai_root"
               action="action_tende_ai_tender"
               sequence="20"/>
 
     <menuitem id="menu_tende_ai_bidder"
               name="Bidders"
-              parent="menu_tende_ai_root"
+              parent="tender_ai.menu_tende_ai_root"
               action="action_tende_ai_bidder"
               sequence="30"/>
 
-    <menuitem id="menu_tende_ai_config"
-              name="Configuration"
-              parent="menu_tende_ai_root"
-              sequence="100"/>
-
     <menuitem id="menu_tende_ai_extraction_master"
               name="Extraction Master"
-              parent="menu_tende_ai_config"
+              parent="tender_ai.menu_tende_ai_config"
               action="action_extraction_master"
               sequence="10"/>
 </odoo>
-

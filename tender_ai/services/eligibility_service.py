@@ -69,7 +69,7 @@ def evaluate_bidder_against_criteria(
       - durationMs, usage, model
     """
     t0 = time.time()
-    model = model or (os.getenv("AI_EVAL_MODEL") or os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-3-flash-preview")
+    model = model or (os.getenv("AI_EVAL_MODEL") or os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-2.0-flash-lite")
 
     use_pdfs = str(os.getenv("AI_EVAL_USE_PDFS", "0")).strip().lower() in ("1", "true", "yes", "y")
     pdf_paths = pdf_paths or []

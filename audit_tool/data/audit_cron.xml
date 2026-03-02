@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Cron job temporarily disabled due to stability issues during upgrade loops. 
-         Please configure the Scheduled Action manually in Technical Settings if required. -->
-    <data noupdate="1">
-    </data>
-</odoo>

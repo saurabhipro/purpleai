@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <menuitem id="menu_audit_root" name="Audit Tool" sequence="10" action="action_open_audit_dashboard_server"/>
-
-    <menuitem id="menu_audit_memos" name="Memos" parent="menu_audit_root" sequence="10" action="action_audit_memo"/>
-
-</odoo>

@@ -21,13 +21,14 @@
     'category': 'Tools',
     'author': 'Bhuarjan',
     'website': 'bhuarjan.com',
-    'depends': ['base', 'mail', 'mail_bot', 'web'],
+    'depends': ['base', 'mail', 'web'],
     'data': [
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
         'data/system_parameter_data.xml',
         'wizard/tender_ai_chat_wizard.xml',
         'wizard/extraction_test_wizard.xml',
+        'views/menu_root.xml',                      # Root menu only (no actions) — must load first
         'views/tender_dashboard_owl_views.xml',
         'views/tender_dashboard_views.xml',
         'views/tender_job_views.xml',
@@ -44,7 +45,7 @@
         'views/discuss_channel_views.xml',
         'views/property_ai_query_views.xml',
         'views/ir_attachment_views.xml',
-        'views/menu_views.xml',
+        'views/menu_views.xml',                     # Child menus with actions — must load last
     ],
     'assets': {
         'web.assets_backend': [

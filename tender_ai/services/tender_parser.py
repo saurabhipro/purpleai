@@ -143,7 +143,7 @@ def _normalize_criteria(arr: Any) -> List[Dict[str, str]]:
     return out
 
 
-def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-3-flash-preview", env=None, custom_fields_prompt: str = "") -> dict:
+def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-2.0-flash-lite", env=None, custom_fields_prompt: str = "") -> dict:
     """
     Uploads tender.pdf to the AI service, extracts structured tender data + eligibility criteria,
     and returns a dictionary with analytics.

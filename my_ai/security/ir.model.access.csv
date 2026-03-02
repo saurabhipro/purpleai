@@ -1,8 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_my_ai_base_user,my_ai.base.user,model_my_ai_base,base.group_user,1,1,1,1
-access_my_ai_base_public,my_ai.base.public,model_my_ai_base,,1,0,0,0
-access_my_ai_settings_user,my_ai.settings.user,model_my_ai_settings,base.group_user,1,1,1,1
-access_my_ai_settings_public,my_ai.settings.public,model_my_ai_settings,,1,0,0,0
-access_my_ai_did_video_user,my_ai.did.video.user,model_my_ai_did_video,base.group_user,1,1,1,1
-access_my_ai_did_video_public,my_ai.did.video.public,model_my_ai_did_video,,1,0,0,0
-

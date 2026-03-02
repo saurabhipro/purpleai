@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <data>
+        <record id="menu_icon_change_list_view" model="ir.ui.view">
+            <field name="name">menu.icon.change.list.view</field>
+            <field name="model">ir.ui.menu</field>
+            <field name="arch" type="xml">
+                <list string="Menu" editable="bottom" create="false" delete="false" js_class="button_in_tree">
+                    <field name="complete_name"/>
+                    <field name="web_icon_data" widget="image" class="o_image_64_max" readonly='1'/>
+                    <field name="icon_img" widget="image" class="o_image_64_max"/>
+                    <!-- <field name="spiffy_app_group_id"/> -->
+                    <field name="use_icon"/>
+                    <field name="icon_class_name" invisible="use_icon==False" placeholder="Enter class name here.. (e.g. ri-class-name)"/>
+                </list>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="change_menu_icon_action">
+	        <field name="name">Menu Configuration</field>
+	        <field name="res_model">ir.ui.menu</field>
+	        <field name="view_id" ref="menu_icon_change_list_view"/>
+            <field name="domain">[('parent_id', '=', False)]</field>
+	        <field name="view_mode">list</field>
+	    </record>
+	</data>
+</odoo>

@@ -225,7 +225,7 @@ def answer_job_question(
         f"USER_QUESTION:\n{question}\n"
     )
 
-    used_model = model or "gemini-3-flash-preview"
+    used_model = model or "gemini-2.0-flash-lite"
     try:
         out = generate_with_gemini(contents=prompt, model=used_model, temperature=0.2, env=env)
         if isinstance(out, dict):

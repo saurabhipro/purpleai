@@ -1,0 +1,13 @@
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<templates id="template" xml:space="preserve">
+	<t t-name="MobileAppsFunnelInherit" t-inherit="web.MobileAppsFunnel" t-inherit-mode="extension">
+        <xpath expr="//img[@t-att-src='androidAppstoreImagePath']/.." position="attributes">
+            <attribute name="href">https://play.google.com/store/apps/details?id=com.bizople.spiffy</attribute>
+        </xpath>
+
+        <xpath expr="//img[@t-att-src='iosAppstoreImagePath']/.." position="attributes">
+            <attribute name="href">https://apps.apple.com/in/app/spiffy-odoo-mobile-app/id6449771773</attribute>
+        </xpath>
+	</t>
+</templates>

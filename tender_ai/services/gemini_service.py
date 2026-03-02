@@ -448,7 +448,7 @@ def _generate_content_compat(client, model: str, contents: Any, temperature: flo
 
 def generate_with_gemini(
     contents: Any,
-    model: str = "gemini-3-flash-preview",
+    model: str = "gemini-2.0-flash-lite",
     max_retries: int = 3,
     temperature: float = 0.1,
     env=None,

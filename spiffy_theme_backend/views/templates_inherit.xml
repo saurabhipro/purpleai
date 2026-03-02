@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<odoo>
+    <template id="biz_responsive_web_layout_template" inherit_id="web.layout" name="Bizople Responsive Web Layout">
+        <xpath expr="//meta[last()]" position="after">
+            <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+            <link rel="stylesheet" type="text/css" href="/spiffy_theme_backend/static/lib/RemixIcon/remixicon.css" />
+        </xpath>
+    </template>
+
+    <template id="biz_webclient_bootstrap_inherit" inherit_id="web.webclient_bootstrap" name="webclient bootstrap inherit">
+        <xpath expr="//t[@t-set='head_web']" position="replace">
+            <t t-set="head_web">
+                <t t-set="company" t-value="request.env.company.sudo()"></t>
+                <t t-set="color_code" t-value="company.spiffy_toobar_color and company.spiffy_toobar_color or '#0097a7'"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+                <meta name="theme-color" t-att-content="color_code"/>
+                <!-- <link rel="manifest" href="/web/manifest.webmanifest" crossorigin="use-credentials"/> -->
+                <link rel="apple-touch-icon" t-attf-href="'/web/image/res.company/%s/spiffy_favicon' % (company.id)"/>
+                <script type="text/javascript">
+                    // Block to avoid leaking variables in the script scope
+                    {
+                        odoo.__session_info__ = <t t-out="json.dumps(session_info)"/>;
+                        const { user_context,  cache_hashes } = odoo.__session_info__;
+                        const lang = new URLSearchParams(document.location.search).get("lang");
+                        let menuURL = `/web/webclient/load_menus/${cache_hashes.load_menus}`;
+                        if (lang) {
+                            user_context.lang = lang;
+                            menuURL += `?lang=${lang}`
+                        }
+                        odoo.reloadMenus = () => fetch(menuURL).then(res => res.json());
+                        odoo.loadMenusPromise = odoo.reloadMenus();
+                        // Prefetch translations to speedup webclient. This is done in JS because link rel="prefetch"
+                        // is not yet supported on safari.
+                        fetch(`/web/webclient/translations/${cache_hashes.translations}?lang=${user_context.lang}`);
+                    }
+                </script>
+                <t t-if="request.httprequest.cookies.get('color_scheme') == 'dark'">
+                    <t t-call-assets="web.assets_web_dark"/>
+                </t>
+                <t t-else="">
+                    <t t-call-assets="web.assets_web"/>
+                </t>
+                <t t-call="web.conditional_assets_tests"/>
+            </t>
+        </xpath>
+    </template>
+
+     <template id="spiffy_web_neutralize_banner_template"  name="Neutralize Banner" inherit_id="web.neutralize_banner">
+        <xpath expr="//span[@id='oe_neutralize_banner']/.." position="attributes">
+            <attribute name="class">oe_neutralize_banner_active</attribute>
+        </xpath>
+    </template>
+</odoo>

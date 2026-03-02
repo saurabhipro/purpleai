@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="sh_default_website_whatsapp_data" model="res.config.settings">
-        <field name="sww_banner_img" type="base64" file="sh_corpomate_theme/static/src/images/extra_addons/sh_website_wtsapp/default_image.png" />
-    </record>
-</odoo>

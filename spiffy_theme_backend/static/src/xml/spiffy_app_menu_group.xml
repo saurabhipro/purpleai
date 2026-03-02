@@ -1,0 +1,470 @@
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<templates id="template" xml:space="preserve">
+    
+	<t t-name="spiffy_theme_backend.AppMenuGroup">
+		<div class="row m-0 spiffy-app">
+			<t t-if="group_info">
+				<t t-foreach="group_info" t-as="result" t-key="result.id">
+					<div class="app-box col-1 mb16 spiffy-menu-group">
+						<a
+							t-att-data-menu="result.id"
+							t-attf-data-action-model="{{result.actionModel ? result.actionModel : ''}}"
+							t-attf-data-action-id="{{result.actionID ? result.actionID : ''}}"
+							t-att-data-menu-xmlid="result.xmlid" t-attf-class="top_menu_horizontal">
+							<div class="group-app-icon app-image">
+								<t t-if="result.use_group_icon">
+									<t t-if="result.group_icon_class_name">
+										<span t-att-class="'ri ' + result.group_icon_class_name" class="group_app_icon"></span>
+									</t>
+									<t t-elif="result.group_menu_icon">
+										<img class="img img-fluid group_app_icon" t-att-src="'/web/image/spiffy.app.group/' + result.id + '/group_menu_icon'" />
+									</t>
+									<t t-else="">
+										<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+									</t>
+								</t>
+								<t t-else="">
+									<t t-if="result.group_menu_icon">
+										<img class="img img-fluid group_app_icon" t-att-src="'/web/image/spiffy.app.group/' + result.id + '/group_menu_icon'" />
+									</t>
+									<t t-else="">
+										<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+									</t>
+								</t>
+							</div>
+							<div class="menu-name">
+								<t t-esc="result.name" />
+							</div>
+						</a>
+						<div class="submenu-group spiffy-submenu-group d-none" id="submenu-group">
+							<div class="row app-group-popup">
+								<t t-foreach="menu_info" t-as="menu" t-key="menu.id">
+									<t t-foreach="result.group_menu_list_ids" t-as="group" t-key="group.id">
+										<t t-if="menu">
+											<t t-if="menu.id == group">
+												<div class="app-box col-2 spiffy-main-group">
+													<a role="menuitem"
+														t-att-href="getMenuItemHref(menu)"
+														t-att-data-menu="menu.id"
+														t-attf-data-menu-xmlid="menu.xmlID"
+														t-attf-data-action-id="{{menu.actionID ? menu.actionID : ''}}"
+														class="main_link o_app submenu-link spiffy_main_group">
+														<div class="app-image mb8 menu-app-image">
+															<t t-if="menu.use_icon">
+																<t t-if="menu.icon_class_name">
+																	<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+																</t>
+																<t t-elif="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" 
+																			t-att-src="menu.webIconData"/>
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+															<t t-else="">
+																<t t-if="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+														</div>
+														<div class="group-menu-name">
+															<t t-esc="menu.name" />
+														</div>
+													</a>
+												</div>
+											</t>
+										</t>
+									</t>
+								</t>
+							</div>
+						</div>
+					</div>
+				</t>
+			</t>
+			<t t-foreach="menu_info" t-as="menu" t-key="menu.id">
+				<t t-if="menu">
+					<t t-if="!menu.spiffy_app_group_id">
+						<div class="col-1 app-box mb16">
+							<a role="menuitem" 
+								t-att-href="getMenuItemHref(menu)"
+								class="d-block o_app spiffy_main_app text-center text-center" 
+								t-att-data-menu-id="menu.id" 
+								t-att-data-menu-xmlid="menu.xmlID" 
+								t-att-data-action-id="menu.actionID">
+								<div class="app-image mb8">
+									<t t-if="menu.use_icon">
+										<t t-if="menu.icon_class_name">
+											<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+										</t>
+										<t t-elif="menu.icon_img">
+											<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+										</t>
+										<t t-elif="menu.webIcon">
+											<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+											<t t-if="icon_data and icon_data[1] == 'svg'">
+												<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+											</t>
+											<t t-else="">
+												<img class="img img-fluid group_app_icon" 
+													t-att-src="menu.webIconData"/>
+											</t>
+										</t>
+										<t t-else="">
+											<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+										</t>
+									</t>
+									<t t-else="">
+										<t t-if="menu.icon_img">
+											<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+										</t>
+										<t t-elif="menu.webIcon">
+											<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+											<t t-if="icon_data and icon_data[1] == 'svg'">
+												<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+											</t>
+											<t t-else="">
+												<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+											</t>
+										</t>
+										<t t-else="">
+											<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+										</t>
+									</t>
+								</div>
+								<div class="app-name">
+									<t t-esc="menu.name" />
+								</div>
+							</a>
+							<div class="fav_app_select d-none ">
+								<span class="ri ri-check-line"/>
+							</div>
+						</div>
+					</t>
+				</t>
+			</t>
+		</div>
+	</t>
+
+    <t t-name="spiffy_theme_backend.AllAppsMenus" >
+		<ul id="accordion">
+			<div id="blur-overlay" class="spiffy-menu-group-list" style="display: none;"></div>
+			<t t-if="group_info">
+				<t t-foreach="group_info" t-as="result" t-key="result.id">
+					<li class="spiffy-menu-group">
+						<div class="top-menu-vertical-mini" style="display: none;"></div>
+						<a
+							t-att-data-menu="result.id"
+							t-attf-data-action-model="{{result.actionModel ? result.actionModel : ''}}"
+							t-attf-data-action-id="{{result.actionID ? result.actionID : ''}}"
+							t-att-data-menu-xmlid="result.xmlid" t-attf-class="main_link dropdown-btn menu-link-for-apps"
+							>
+							<div class="app-image">
+								<t t-if="result.use_group_icon">
+									<t t-if="result.group_icon_class_name">
+										<span t-att-class="'ri ' + result.group_icon_class_name" class="app_icon group_menu_icon mb-1"></span>
+									</t>
+									<t t-elif="result.group_menu_icon">
+										<img class="img img-fluid app_icon group_menu_icon mb-1" t-att-src="'/web/image/spiffy.app.group/' + result.id + '/group_menu_icon'" />
+									</t>
+									<t t-else="">
+										<img class="img img-fluid app_icon group_menu_icon mb-1" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+									</t>
+								</t>
+								<t t-else="">
+									<t t-if="result.group_menu_icon">
+										<img class="img img-fluid app_icon group_menu_icon mb-1" t-att-src="'/web/image/spiffy.app.group/' + result.id + '/group_menu_icon'" />
+									</t>
+									<t t-else="">
+										<img class="img img-fluid app_icon group_menu_icon mb-1" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+									</t>
+								</t>
+							</div>
+							<span>
+								<t t-esc="result.name" />
+							</span>
+							<div>
+								<span class="group-count">
+									<t t-esc="result.group_menu_list_ids.length" />
+								</span>
+								<span class="ri ri-arrow-right-s-line ms-auto dropdown_icon" />
+							</div>
+						</a>
+						
+						<ul class="submenu-group collapse">
+
+							<t t-foreach="menu_info" t-as="menu" t-key="menu.id">
+								<t t-foreach="result.group_menu_list_ids" t-as="group" t-key="group.id">
+									<t t-if="menu">
+										<t t-if="menu.id == group">
+											<t t-if="!menu.childrenTree.length">
+												<li class="main-group">
+													<a t-att-href="getMenuItemHref(menu)"
+														t-att-data-menu="menu.id"
+														t-attf-data-action-model="{{menu.actionModel ? menu.actionModel : ''}}"
+														t-attf-data-action-id="{{menu.actionID ? menu.actionID : ''}}"
+														t-att-data-menu-xmlid="menu.xmlid" t-attf-class="main_link submenu-link parent_menus">
+														<div class="app_icon group-menu-icon mb-1 app-image">
+															<t t-if="menu.use_icon">
+																<t t-if="menu.icon_class_name">
+																	<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+																</t>
+																<t t-elif="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" 
+																			t-att-src="menu.webIconData"/>
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+															<t t-else="">
+																<t t-if="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+														</div>
+														<div class="menu-name">
+															<t t-esc="menu.name" />
+														</div>
+													</a>
+												</li>
+											</t>
+											<t t-else="">
+												<li class="spiffy-main-group">
+													<a  t-att-href="getMenuItemHref(menu)"
+														t-att-data-menu="menu.id"
+														t-attf-data-action-model="{{menu.actionModel ? menu.actionModel : ''}}"
+														t-attf-data-action-id="{{menu.actionID ? menu.actionID : ''}}"
+														t-att-data-menu-xmlid="menu.xmlid" t-attf-class="main_link dropdown-btn submenu-link parent_main_menus">
+														<div class="app_icon group-menu-icon mb-1 app-image">
+															<t t-if="menu.use_icon">
+																<t t-if="menu.icon_class_name">
+																	<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+																</t>
+																<t t-elif="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" 
+																			t-att-src="menu.webIconData"/>
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+															<t t-else="">
+																<t t-if="menu.icon_img">
+																	<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+																</t>
+																<t t-elif="menu.webIcon">
+																	<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+																	<t t-if="icon_data and icon_data[1] == 'svg'">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+																	</t>
+																	<t t-else="">
+																		<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+																	</t>
+																</t>
+																<t t-else="">
+																	<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+																</t>
+															</t>
+														</div>
+														<div class="menu-name">
+															<t t-esc="menu.name" />
+														</div>
+														<span class="ri ri-arrow-right-s-line ms-auto dropdown_icon" />
+													</a>
+													<ul t-attf-class="header-sub-menus-group">
+														<t t-set="parent_menu_id" t-value="menu.id" />
+														<t t-foreach="menu.children" t-as="menuid" t-key="menuid">
+															<t t-set="menu" t-value="menuService.getMenuAsTree(menuid)"/>
+															<t t-call="AllmenuRecursive">
+															</t>
+														</t>
+													</ul>
+												</li>
+											</t>
+										</t>
+									</t>
+								</t>
+							</t>
+						</ul>
+					</li>
+				</t>
+			</t>
+			<t t-foreach="app_menu_list" t-as="app_list_id" t-key="app_list_id">
+				<t t-foreach="menu_info" t-as="menu" t-key="menu.id">
+					<t t-if="menu">
+						<t t-if="menu.id == app_list_id">
+							<t t-if="!menu.childrenTree.length">
+								<li>
+									<a t-att-href="getMenuItemHref(menu)"
+										t-att-data-menu="menu.id"
+										t-attf-data-action-model="{{menu.actionModel ? menu.actionModel : ''}}"
+										t-attf-data-action-id="{{menu.actionID ? menu.actionID : ''}}"
+										t-att-data-menu-xmlid="menu.xmlid" t-attf-class="main_link parent-main-menu">
+										<div class="app_icon group-menu-icon app-image">
+											<t t-if="menu.use_icon">
+												<t t-if="menu.icon_class_name">
+													<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+												</t>
+												<t t-elif="menu.icon_img">
+													<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+												</t>
+												<t t-elif="menu.webIcon">
+													<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+													<t t-if="icon_data and icon_data[1] == 'svg'">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+													</t>
+													<t t-else="">
+														<img class="img img-fluid group_app_icon" 
+															t-att-src="menu.webIconData"/>
+													</t>
+												</t>
+												<t t-else="">
+													<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+												</t>
+											</t>
+											<t t-else="">
+												<t t-if="menu.icon_img">
+													<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+												</t>
+												<t t-elif="menu.webIcon">
+													<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+													<t t-if="icon_data and icon_data[1] == 'svg'">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+													</t>
+													<t t-else="">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+													</t>
+												</t>
+												<t t-else="">
+													<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+												</t>
+											</t>
+										</div>
+										<span>
+											<t t-esc="menu.name" />
+										</span>
+									</a>
+								</li>
+							</t>
+							<t t-else="">
+								<li>
+									
+									<a t-att-href="getMenuItemHref(menu)" t-att-data-menu="menu.id"
+										t-attf-data-action-model="{{menu.actionModel ? menu.actionModel : ''}}"
+										t-attf-data-action-id="{{menu.actionID ? menu.actionID : ''}}"
+										t-att-data-menu-xmlid="menu.xmlid" t-attf-class="main_link dropdown-btn parent-menu">
+										<div class="app_icon group-menu-icon app-image">
+											<t t-if="menu.use_icon">
+												<t t-if="menu.icon_class_name">
+													<span t-att-class="'ri ' + menu.icon_class_name" class="group_app_icon"></span>
+												</t>
+												<t t-elif="menu.icon_img">
+													<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+												</t>
+												<t t-elif="menu.webIcon">
+													<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+													<t t-if="icon_data and icon_data[1] == 'svg'">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+													</t>
+													<t t-else="">
+														<img class="img img-fluid group_app_icon" 
+															t-att-src="menu.webIconData"/>
+													</t>
+												</t>
+												<t t-else="">
+													<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+												</t>
+											</t>
+											<t t-else="">
+												<t t-if="menu.icon_img">
+													<img class="img img-fluid group_app_icon" t-att-src="'/web/image/ir.ui.menu/' + menu.id + '/icon_img'" />
+												</t>
+												<t t-elif="menu.webIcon">
+													<t t-set="icon_data" t-value="menu.webIcon and menu.webIcon.split('/icon.')"/>
+													<t t-if="icon_data and icon_data[1] == 'svg'">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIcon.replace(',', '/')" />
+													</t>
+													<t t-else="">
+														<img class="img img-fluid group_app_icon" t-att-src="menu.webIconData" />
+													</t>
+												</t>
+												<t t-else="">
+													<img class="img img-fluid group_app_icon" src="/spiffy_theme_backend/static/description/bizople-icon.png" />
+												</t>
+											</t>
+										</div>
+										<span>
+											<t t-esc="menu.name" />
+										</span>
+										<span class="ri ri-arrow-right-s-line ms-auto dropdown_icon" />
+									</a>
+									<ul t-attf-class="header-sub-menus">
+										<t t-set="parent_menu_id" t-value="menu.id" />
+										<t t-foreach="menu.children" t-as="menuid" t-key="menuid">
+											<t t-set="menu" t-value="menuService.getMenuAsTree(menuid)"/>
+											<t t-call="AllmenuRecursive">
+											</t>
+										</t>
+									</ul>
+								</li>
+							</t>
+						</t>
+					</t>
+				</t>
+			</t>
+		</ul>
+	</t>
+</templates>

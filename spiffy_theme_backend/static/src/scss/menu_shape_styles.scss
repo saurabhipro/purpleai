@@ -1,0 +1,185 @@
+// -*- coding: utf-8 -*-
+// Developed by Bizople Solutions Pvt. Ltd.
+// See LICENSE file for full copyright and licensing details
+body.o_web_client.apply_menu_shape_style{
+    .appdrawer_section{
+        .app-box{
+            .o_app{
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+            }
+            .app-image{
+                width: 64px !important;
+                height: 64px !important;
+                background-color: var(--menu-shape-bg-color) !important;
+                img{
+                    padding: 10px;
+                }
+                .fa,.ri{
+                    padding: 10px !important;
+                    font-size: 44px !important;
+                    line-height: 44px;
+                    display: inline-block;
+                }
+            }
+        }
+    }
+    .fav_app_island{
+        .app-box{
+            img{
+                padding: 4px;
+                width: 28px !important;
+                height: 28px !important;
+                line-height: 28px !important;
+            }
+            .app-image{
+                background-color: var(--menu-shape-bg-color) !important;
+                .fa,.ri{
+                    padding: 4px;
+                    font-size: 20px !important;
+                }
+            }
+        }
+    }
+    &.top_menu_vertical:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon{
+        img{
+            padding: 4px;
+            background-color: var(--menu-shape-bg-color) !important;
+            max-width: 28px !important;
+            min-width: 28px !important;
+        }
+        .fa,.ri{
+            padding: 6px;
+            background-color: var(--menu-shape-bg-color) !important;
+            font-size: 16px !important;
+            background-color: var(--menu-shape-bg-color) !important;
+            display: inline;
+        }
+    }
+    &.top_menu_vertical_mini:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, &.top_menu_vertical_mini:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app-image{
+        // img,.fa,.ri{
+        //     // padding: 10px;
+        //     // width: 44px;
+        //     // height: 44px;
+        //     // min-width: 44px !important;        
+        // }
+        img{
+            background-color: var(--menu-shape-bg-color) !important;
+        }
+        .fa,.ri{
+            font-size: 24px !important;
+            line-height: 44px !important;
+            background-color: var(--menu-shape-bg-color) !important;
+            display: inline;
+        }
+    }
+    &.top_menu_vertical_mini_2:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon{
+        img{
+            padding: 4px;
+            background-color: var(--menu-shape-bg-color) !important;
+            max-width: 28px !important;
+            min-width: 28px !important;
+        }
+        .fa,.ri{
+            padding: 6px;
+            background-color: var(--menu-shape-bg-color) !important;
+            font-size: 16px !important;
+            background-color: var(--menu-shape-bg-color) !important;
+            display: inline;
+        }
+    }
+    .o_home_menu{
+        .o_apps{
+            .app-image{
+                &:not(:empty){
+                    width: 64px !important;
+                    height: 64px;
+                    background-color: var(--menu-shape-bg-color) !important;
+                }
+                img{
+                    padding: 10px;
+                }
+                .fa,.ri{
+                    padding: 10px !important;
+                    font-size: 44px !important;
+                    line-height: 44px;
+                    display: inline-block;
+                }
+            }
+        }
+    }
+    &.biz_shape_rounded{
+        .o_home_menu{
+            .o_apps{
+                .app-image{
+                    border-radius: 10px !important;
+                    .fa,.ri{
+                        border-radius: 10px !important;
+                    }
+                }
+            }
+        }
+        .appdrawer_section,.fav_app_island{
+            .app-box{
+                .app-image{
+                    border-radius: 10px !important;
+                }
+            }
+        }
+        &.top_menu_vertical:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon{ 
+            img,.fa,.ri{border-radius: 6px !important;}
+        }
+        &.top_menu_vertical_mini_2:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon{ 
+            img,.fa,.ri{border-radius: 6px !important;}
+        }
+        &.top_menu_vertical_mini:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{
+            img,.fa,.ri{border-radius: 10px !important;}
+        }
+        .o_home_menu .o_apps .app-image, .app_icon{
+            img,.fa,.ri{border-radius: 10px !important;}
+        }
+    }
+    &.biz_shape_circle{
+        .o_home_menu{
+            .o_apps{
+                .app-image, .app_icon{
+                    border-radius: 50px !important;
+                    .fa,.ri{
+                        border-radius: 50px !important;
+                    }
+                }
+            }
+        }
+        .appdrawer_section,.fav_app_island{
+            .app-box{
+                .app-image, .app_icon {
+                    border-radius: 50px !important;
+                }
+            }
+        }
+        &.top_menu_vertical:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon{ 
+            img,.fa,.ri{border-radius: 50px !important;}
+        }
+        &.top_menu_vertical_mini_2:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{ 
+            img,.fa,.ri{border-radius: 50px !important;}
+        }
+        &.top_menu_vertical_mini:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{
+            img,.fa,.ri{border-radius: 50px !important;}
+        }
+    }
+    &.biz_shape_square{
+        &.top_menu_vertical:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{ 
+            img,.fa,.ri{border-radius: 0 !important;}
+        }
+        &.top_menu_vertical_mini_2:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{ 
+            img,.fa,.ri{border-radius: 0 !important;}
+        }
+        &.top_menu_vertical_mini:not(.o_in_studio) .o_main_navbar .o_navbar_apps_menu .app_icon, .app-image{
+            img,.fa,.ri{border-radius: 0 !important;}
+        }
+        .o_home_menu .o_apps .app-image, .app-image{
+            img,.fa,.ri{border-radius: 0 !important;}
+        }
+    }
+}

@@ -1,0 +1,184 @@
+// -*- coding: utf-8 -*-
+// Developed by Bizople Solutions Pvt. Ltd.
+// See LICENSE file for full copyright and licensing details
+body.o_web_client {
+    &.dark_mode{
+        .o_calendar_renderer{
+            .o_calendar_widget{
+                .o_calendar_disabled{
+                    background-color: rgba(78, 80, 83, 0.5);
+                }
+            }
+        }
+    }
+    .o_calendar_sidebar_container {
+        padding-right: 0 !important;
+
+        .o_calendar_filter .o_calendar_filter_item .o_cw_filter_input_bg.o_beside_avatar {
+            border: 0 !important;
+        }
+        .o_calendar_sidebar .o_datetime_picker {
+            .btn{
+                padding: 4px !important;
+                border-radius: 0 !important;
+            }
+            .o_cell_md{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+    }
+    .o_calendar_renderer .o_calendar_widget .fc-head-container {
+        background-color: var(--biz-theme-body-color) !important;
+        color: var(--biz-theme-body-text-color) !important;
+    }
+    .o_calendar_sidebar_container,.o_calendar_mini,.ui-datepicker {
+        background-color: var(--biz-theme-body-color) !important;
+        color: var(--biz-theme-body-text-color) !important;
+
+        a {
+            color: var(--biz-theme-body-text-color) !important;
+        }
+    }
+
+    .o_calendar_sidebar_container{
+        .ui-datepicker{
+            td.ui-datepicker-current-day a{
+                background-color: var(--biz-theme-primary-rgba);
+                color: var(--biz-theme-primary-text-color) !important;
+            }
+        }
+    }
+
+    .o_cw_filter_color_7 .o_cw_filter_input_bg{
+        background: var(--biz-theme-primary-rgba);
+
+        .fa{
+            line-height: inherit;
+        }
+    }
+
+    .fc {
+        .fc-row{
+            .fc-content-skeleton, .fc-mirror-skeleton {
+                table, td{
+                    background: unset !important;
+                }
+            }
+            .fc-content-skeleton{
+                --o-cw-color: var(--biz-theme-body-text-color) !important;
+                .fc-event{
+                    &:hover{
+                        color: var(--o-event-bg) !important;
+                    }
+                }
+            }
+        }
+    }
+
+    .o_calendar_view {
+        .o_calendar_widget {
+            .fc-dayGridMonth-view{
+                .fc-bg{
+                    .fc-today{
+                        background: transparent;
+                    }
+                }
+            }
+            .fc-timeGridWeek-view, .fc-timeGridDay-view {
+                .fc-today {
+                    span {
+                        color: var(--biz-theme-primary-text-color) !important;
+                    }
+                    border-radius: var(--border-radius-lg);
+                    background: var(--biz-theme-primary-color) !important;
+                    color: var(--biz-theme-primary-text-color);
+                }
+            }
+        }
+        .fc-view {
+            background-color: var(--biz-theme-body-color) !important;
+            color: var(--biz-theme-body-text-color) !important;
+        }
+        .fc-day-grid {
+            background-color: transparent !important;
+        }
+        // table {
+        //     td {
+        //         span {
+        //             color: var(--biz-theme-body-text-color) !important;
+        //         }
+        //     }
+        // }
+    }
+}
+
+body.o_web_client.dark_mode {
+    .o_timeoff_calendar{
+        .o_timeoff_card{
+            background-color: var(--biz-theme-body-color) !important;
+            color: var(--dark-theme-body-text-color) !important;
+
+            .o_timeoff_name {
+                color: var(--biz-theme-primary-color);
+            }
+        }
+        .o_timeoff_dashboard {
+            z-index: 1;
+        }
+    }
+    .o_calendar_renderer{
+        background-color: var(--biz-theme-body-color) !important;
+        color: var(--dark-theme-body-text-color) !important;
+        .o_calendar_widget {
+            .fc-dayGridMonth-view {
+                // .o-fc-week-header{
+                //     color: var(--light-theme-secondary-text-color) !important;
+                // }
+                // th {
+                //     color: var(--light-theme-secondary-text-color) !important;
+                // }
+                .fc-col-header-cell {
+                    background: rgba(78, 80, 83, 0.5) !important;
+                }
+                .fc-scroller-harness{
+                    background-color: var(--dark-theme-secondary-color) !important;
+                }
+            }
+        }
+         div.fc a {
+             color: var(--dark-theme-body-text-color) !important;
+         }
+    }
+    .o_calendar_view {
+        table {
+            td {
+                border-right: transparent !important;
+                border-left: transparent !important;
+            }
+        }
+
+        .o_calendar_sidebar_container .o_calendar_sidebar {
+            background-color: var(--dark-theme-secondary-color) !important;
+        }
+
+        .o_calendar_widget {
+            .fc-widget-header {
+                border-color: transparent !important;
+                border-bottom-color: #818181!important;
+
+            }
+
+            .fc-timeGridWeek-view {
+                .fc-axis.fc-time {
+                    border-top-color: transparent !important;
+                }
+
+                .fc-slats tr:first-child td.fc-widget-content:last-child {
+                    box-shadow: inset 0 1px 0 #545454 !important;
+                }
+            }
+        }
+    }
+}

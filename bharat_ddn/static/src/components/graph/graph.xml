@@ -1,9 +1,0 @@
-<templates xml:space="preserve">
-    <t t-name="bharat_ddn.GraphComponent" owl="1">
-        <div class="p-2 h-100 w-100 border rounded shadow-sm bg-white">
-            <div t-ref="emp_graph" class="emp_graph text-center">
-                <canvas t-att-id="props.canvas_id" style="width:100%; height:auto;"></canvas>
-            </div>
-        </div>
-    </t>
-</templates>

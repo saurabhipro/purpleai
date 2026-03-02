@@ -12,9 +12,12 @@
                        decoration-info="state in ('extracting','processing')"
                        decoration-warning="state in ('cancelled',)"/>
                 <field name="tender_reference"/>
-                <field name="extraction_time_minutes" string="Extraction Time (min)"/>
-                <field name="evaluation_time_minutes" string="Evaluation Time (min)"/>
-                <field name="processing_time_minutes" string="Total Time (min)"/>
+                <field name="extraction_model" string="Model" optional="show"/>
+                <field name="extraction_time_minutes" string="Extract (min)"/>
+                <field name="evaluation_time_minutes" string="Eval (min)"/>
+                <field name="processing_time_minutes" string="Total (min)"/>
+                <field name="total_tokens_all" string="Tokens" optional="show"/>
+                <field name="total_cost_inr" string="Cost (₹)" optional="show"/>
                 <field name="companies_detected"/>
                 <field name="create_uid" string="Created By"/>
                 <field name="create_date"/>
@@ -81,6 +84,14 @@
                             <field name="zip_filename"/>
                             <field name="zip_file" filename="zip_filename" required="1"
                                    readonly="state != 'draft'"/>
+                            <field name="extraction_model" string="Extraction Model" readonly="1"
+                                   invisible="not extraction_model"/>
+                            <field name="evaluation_model" string="Evaluation Model" readonly="1"
+                                   invisible="not evaluation_model"/>
+                            <field name="total_tokens_all" string="Total Tokens" readonly="1"
+                                   invisible="not total_tokens_all"/>
+                            <field name="total_cost_inr" string="Total AI Cost (₹)" readonly="1"
+                                   invisible="not total_cost_inr"/>
                         </group>
                     </group>
                     <notebook>

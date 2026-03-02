@@ -136,10 +136,4 @@
         </field>
     </record>
 
-    <!-- Menuitem -->
-    <menuitem id="menu_quick_doc_chat"
-              name="Odoo Chat AI"
-              parent="menu_tende_ai_root"
-              action="action_quick_doc_chat"
-              sequence="5"/>
 </odoo>

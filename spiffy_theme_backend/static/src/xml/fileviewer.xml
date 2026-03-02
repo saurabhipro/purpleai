@@ -1,0 +1,33 @@
+<!-- # Part of Odoo Module Developed by Bizople Solutions Pvt. Ltd.
+# See LICENSE file for full copyright and licensing details. -->
+<templates id="template" xml:space="preserve">
+    <t t-inherit="web.FileViewer" t-inherit-mode="extension" >
+		<xpath expr="//div[hasclass('o-FileViewer-header')]//a[@t-att-href='state.file.downloadUrl']" position="replace">
+			<t t-if="bg_color">
+				<a t-on-click="() => this._spiffyattachmentdownload()" class="text-reset" download="">
+					<i class="fa fa-download fa-fw" role="img"/>
+					<span>Download</span>
+				</a>
+			</t>
+			<t t-else="">
+				<a t-att-href="state.file.downloadUrl" class="text-reset" download="">
+					<i class="fa fa-download fa-fw" role="img"/>
+					<span>Download</span>
+				</a>
+			</t>
+			
+		</xpath>
+		<xpath expr="//div[@t-if='state.file.isImage']//a[@t-att-href='state.file.downloadUrl']" position="replace">
+			<t t-if="bg_color">
+				<a t-on-click="() => this._spiffyattachmentdownload()" class="text-reset" download="">
+					<i class="fa fa-download fa-fw" role="img"/>
+				</a>
+			</t>
+			<t t-else="">
+				<a t-att-href="state.file.downloadUrl" class="text-reset" download="">
+					<i class="fa fa-download fa-fw" role="img"/>
+				</a>
+			</t>
+		</xpath>
+	</t>
+</templates>

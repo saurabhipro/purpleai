@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-    <record id="default_pwa_front_config" model="sh.pwa.frontend.config">
-    	<field name="name">sh_pwa_frontend_config</field>
-    </record>
-
-</odoo>
