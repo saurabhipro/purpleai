@@ -18,6 +18,61 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 
+# ─── Default model fallback (used when nothing is configured) ─────────────────
+_DEFAULT_MODEL_FALLBACK = "gemini-2.5-flash-preview-04-17"
+
+# Cache for configured model (invalidated when settings change)
+_model_cache = None
+_model_cache_lock = threading.Lock()
+
+
+def get_configured_model(env=None) -> str:
+    """
+    Returns the AI model to use, in priority order:
+      1. Odoo System Parameter: tender_ai.default_model
+      2. Environment variable: AI_MODEL or AI_COMPANY_MODEL or GEMINI_COMPANY_MODEL
+      3. Hardcoded fallback: gemini-2.5-flash-preview-04-17
+    """
+    global _model_cache
+    with _model_cache_lock:
+        if _model_cache:
+            return _model_cache
+
+    # 1. System parameter (set via Purple AI Settings page)
+    if env:
+        try:
+            model = env['ir.config_parameter'].sudo().get_param('tender_ai.default_model', '')
+            if model:
+                with _model_cache_lock:
+                    _model_cache = model
+                return model
+        except Exception:
+            pass
+
+    # 2. Environment variables
+    model = (
+        os.getenv("AI_MODEL") or
+        os.getenv("AI_TENDER_MODEL") or
+        os.getenv("AI_COMPANY_MODEL") or
+        os.getenv("GEMINI_COMPANY_MODEL") or
+        os.getenv("GEMINI_TENDER_MODEL")
+    )
+    if model:
+        with _model_cache_lock:
+            _model_cache = model
+        return model
+
+    # 3. Hardcoded fallback
+    return _DEFAULT_MODEL_FALLBACK
+
+
+def _invalidate_model_cache():
+    """Call this after changing the configured model in settings."""
+    global _model_cache
+    with _model_cache_lock:
+        _model_cache = None
+
+
 
 # Thread-local storage so each thread gets its own client (thread-safe for parallel calls)
 _thread_local = threading.local()
@@ -448,7 +503,7 @@ def _generate_content_compat(client, model: str, contents: Any, temperature: flo
 
 def generate_with_gemini(
     contents: Any,
-    model: str = "gemini-2.0-flash-lite",
+    model: str = None,
     max_retries: int = 3,
     temperature: float = 0.1,
     env=None,
@@ -460,6 +515,7 @@ def generate_with_gemini(
     if genai is None:
         raise RuntimeError("google-genai package is not installed")
     
+    model = model or get_configured_model(env)
     client = _get_client(env=env)
     last_err: Optional[Exception] = None
 

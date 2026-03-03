@@ -31,7 +31,7 @@ def _compact_history(history: Any, max_turns: int = 8) -> List[Dict[str, str]]:
 
 def _build_job_context(job) -> Dict[str, Any]:
     """
-    Build a context blob for LLM Q&A about a Tender AI job.
+    Build a context blob for LLM Q&A about a Purple AI job.
     Default is "safe": we avoid bidder contact details (email/phone/PAN/GSTIN/address).
     """
     tender = job.tender_id
@@ -195,9 +195,10 @@ def answer_job_question(
 
     # Use existing Gemini integration from this module.
     try:
-        from .gemini_service import generate_with_gemini  # type: ignore
+        from .gemini_service import generate_with_gemini, get_configured_model
     except Exception:
-        generate_with_gemini = None  # type: ignore
+        generate_with_gemini = None
+        get_configured_model = None
 
     if generate_with_gemini is None:
         return {
@@ -208,7 +209,7 @@ def answer_job_question(
         }
 
     system = (
-        "You are an assistant for Tender AI.\n"
+        "You are an assistant for Purple AI.\n"
         "Answer ONLY using the provided JOB_CONTEXT_JSON.\n"
         "If the answer is not present, say it is not available in the job data.\n"
         "Be concise and compute simple summaries if asked.\n"
@@ -225,7 +226,7 @@ def answer_job_question(
         f"USER_QUESTION:\n{question}\n"
     )
 
-    used_model = model or "gemini-2.0-flash-lite"
+    used_model = model or get_configured_model(env)
     try:
         out = generate_with_gemini(contents=prompt, model=used_model, temperature=0.2, env=env)
         if isinstance(out, dict):
@@ -238,7 +239,7 @@ def answer_job_question(
             }
         return {"success": True, "answer": _safe_str(out).strip(), "model": used_model}
     except Exception as e:
-        _logger.error("Tender AI chat failed for job_id=%s: %s", job_id, str(e), exc_info=True)
+        _logger.error("Purple AI chat failed for job_id=%s: %s", job_id, str(e), exc_info=True)
         return {
             "success": False,
             "status": 502,
@@ -260,6 +261,6 @@ def post_chat_to_job_chatter(env, job_id: int, question: str, answer: str) -> No
     try:
         job.message_post(body=body, subtype_xmlid="mail.mt_note")
     except Exception:
-        _logger.warning("Tender AI: failed posting chat to chatter (job_id=%s)", job_id, exc_info=True)
+        _logger.warning("Purple AI: failed posting chat to chatter (job_id=%s)", job_id, exc_info=True)
 
 

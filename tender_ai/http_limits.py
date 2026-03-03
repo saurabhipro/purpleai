@@ -47,23 +47,23 @@ def _apply_max_content_length_patch():
     try:
         value = int(str(raw).strip())
     except Exception:
-        _logger.warning("Tender AI: invalid %s=%r (must be integer bytes). Ignored.", key, raw)
+        _logger.warning("Purple AI: invalid %s=%r (must be integer bytes). Ignored.", key, raw)
         return
 
     if value <= 0:
-        _logger.warning("Tender AI: %s must be > 0. Ignored.", key)
+        _logger.warning("Purple AI: %s must be > 0. Ignored.", key)
         return
 
     current = getattr(odoo_http, "DEFAULT_MAX_CONTENT_LENGTH", None)
     if isinstance(current, int) and value <= current:
-        _logger.info("Tender AI: %s=%s <= current (%s). No change.", key, value, current)
+        _logger.info("Purple AI: %s=%s <= current (%s). No change.", key, value, current)
         return
 
     try:
         odoo_http.DEFAULT_MAX_CONTENT_LENGTH = value
-        _logger.info("Tender AI: set Odoo DEFAULT_MAX_CONTENT_LENGTH to %s bytes via %s", value, key)
+        _logger.info("Purple AI: set Odoo DEFAULT_MAX_CONTENT_LENGTH to %s bytes via %s", value, key)
     except Exception as e:
-        _logger.warning("Tender AI: failed to set DEFAULT_MAX_CONTENT_LENGTH: %s", str(e))
+        _logger.warning("Purple AI: failed to set DEFAULT_MAX_CONTENT_LENGTH: %s", str(e))
 
 
 _apply_max_content_length_patch()

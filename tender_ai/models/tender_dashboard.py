@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class TenderDashboard(models.TransientModel):
     _name = 'tende_ai.dashboard'
-    _description = 'Tender AI Dashboard'
+    _description = 'Purple AI Dashboard'
     
     @api.model
     def default_get(self, fields_list):
@@ -70,10 +70,12 @@ class TenderDashboard(models.TransientModel):
         total_pdfs = 0
         total_calls = 0
         total_tokens = 0
-        # parse analytics for latest N jobs to keep it fast
+        total_cost = 0.0
+        # parse analytics / fields for latest N jobs to keep it fast
         try:
-            jobs = Job.search([("state", "=", "completed"), ("analytics", "!=", False)], order="create_date desc", limit=200)
+            jobs = Job.search([("state", "=", "completed")], order="create_date desc", limit=200)
             for j in jobs:
+                total_cost += j.total_cost_inr or 0.0
                 try:
                     a = j.analytics
                     if isinstance(a, str):
@@ -108,6 +110,7 @@ class TenderDashboard(models.TransientModel):
             "total_pdfs_processed": total_pdfs,
             "total_ai_calls": total_calls,
             "total_tokens": total_tokens,
+            "total_cost_incurred": round(total_cost, 2),
             "avg_processing_time_min": round(avg_processing_time, 2),
         }
 
@@ -260,7 +263,7 @@ class TenderDashboard(models.TransientModel):
         """Open all jobs"""
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Tender Processing Jobs',
+            'name': 'Purple Processing Jobs',
             'res_model': 'tende_ai.job',
             'view_mode': 'list,form',
             'domain': [],

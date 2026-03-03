@@ -1,6 +1,6 @@
 .tender_ai_dashboard {
   padding: 18px;
-  background: linear-gradient(180deg, rgba(123, 75, 58, 0.06), rgba(255, 255, 255, 0) 240px);
+  background: linear-gradient(180deg, rgba(107, 76, 154, 0.06), rgba(255, 255, 255, 0) 240px);
 }
 
 .tad_header {
@@ -64,8 +64,8 @@
   gap: 8px;
   padding: 6px 10px;
   border-radius: 10px;
-  background: rgba(123, 75, 58, 0.08);
-  border: 1px solid rgba(123, 75, 58, 0.10);
+  background: rgba(107, 76, 154, 0.08);
+  border: 1px solid rgba(107, 76, 154, 0.10);
 }
 
 .tad_grid {
@@ -126,11 +126,26 @@
 }
 
 /* Pattern backgrounds (same feel as Bhuarjan dashboard) */
-.tad_purple { background-image: url('/bhuarjan/static/img/purple_pattern.jpg'); }
-.tad_green  { background-image: url('/bhuarjan/static/img/green_pattern.jpg'); }
-.tad_blue   { background-image: url('/bhuarjan/static/img/blue_pattern.jpg'); }
-.tad_orange { background-image: url('/bhuarjan/static/img/orange_pattern.jpg'); }
-.tad_pink   { background-image: url('/bhuarjan/static/img/pink_pattern.jpg'); }
-.tad_yellow { background-image: url('/bhuarjan/static/img/yellow_pattern.jpg'); }
+.tad_purple {
+  background-image: url('/tender_ai/static/img/purple_pattern.jpg');
+}
 
+.tad_green {
+  background-image: url('/tender_ai/static/img/green_pattern.jpg');
+}
 
+.tad_blue {
+  background-image: url('/tender_ai/static/img/blue_pattern.jpg');
+}
+
+.tad_orange {
+  background-image: url('/tender_ai/static/img/orange_pattern.jpg');
+}
+
+.tad_pink {
+  background-image: url('/tender_ai/static/img/pink_pattern.jpg');
+}
+
+.tad_yellow {
+  background-image: url('/tender_ai/static/img/yellow_pattern.jpg');
+}

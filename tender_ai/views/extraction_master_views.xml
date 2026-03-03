@@ -85,7 +85,7 @@
                                        decoration-warning="kb_state == 'empty'"/>
                             </group>
                             <label for="kb_text" string="Indexed Text Content" invisible="kb_state != 'indexed'"/>
-                            <field name="kb_text" readonly="1" class="bg-light p-2" invisible="kb_state != 'indexed'"/>
+                            <field name="kb_text" readonly="1" invisible="kb_state != 'indexed'"/>
                             
                             <div class="alert alert-warning" role="alert" invisible="kb_state != 'empty'">
                                 <i class="fa fa-exclamation-triangle" title="Warning icon"/> <b>Document not indexed.</b> The system could not extract searchable text from this PDF. Chat will not be available.

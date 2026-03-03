@@ -24,7 +24,7 @@ class ExtractionMaster(models.Model):
     test_result_ids = fields.One2many('tende_ai.extraction_test_result', 'master_id', string='Test Results')
 
     # Knowledge Base & Chat
-    kb_text = fields.Text(string='Full Document Text (KB)', help="Automatically extracted text stored locally for chat")
+    kb_text = fields.Html(string='Full Document Text (KB)', help="Automatically extracted text stored locally for chat")
     kb_state = fields.Selection([('empty', 'Empty'), ('indexed', 'Indexed')], default='empty', string="KB State")
     
     chat_question = fields.Char(string="Ask a Question about the Document")
@@ -55,30 +55,40 @@ class ExtractionMaster(models.Model):
         import tempfile
         import os
         from ..services.company_parser import _extract_from_single_pdf
+        from ..services.gemini_service import get_configured_model
 
         # Clear old results
         self.test_result_ids.unlink()
 
-        total_kb_text = []
+        import fitz
+        import logging
+        import unicodedata
+        _logger = logging.getLogger(__name__)
+
         all_results = []
         active_fields = self.field_ids.filtered(lambda f: f.active)
-        if not active_fields:
+        if not active_fields and not files_to_test:
             return
 
         prompts = []
         for f in active_fields:
             prompts.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
         custom_fields_prompt = "\n".join(prompts)
-        model = "gemini-2.0-flash-lite"
+        model = get_configured_model(self.env)
 
+        merged_doc = fitz.open()
+        global_page_offset = 0
+        total_kb_html = []
+        
         for file_info in files_to_test:
             # Create temp file
             with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
-                tmp.write(base64.b64decode(file_info['content']))
+                content_bytes = base64.b64decode(file_info['content'])
+                tmp.write(content_bytes)
                 tmp_path = tmp.name
 
             try:
-                # Call service
+                # Call extraction service for this PDF
                 res = _extract_from_single_pdf(
                     company_name="Test Extraction",
                     pdf_path=tmp_path,
@@ -96,74 +106,78 @@ class ExtractionMaster(models.Model):
                             'value': r.get('value'),
                             'page': r.get('page'),
                             'paragraph': r.get('paragraph'),
-                            # Store source file in results if we want to distinguish? 
-                            # Maybe later.
                         }))
 
                 # KB Text Extraction for this file
-                try:
-                    import fitz
-                    import logging
-                    _logger = logging.getLogger(__name__)
+                doc = fitz.open(stream=content_bytes, filetype="pdf")
+                file_text = []
+                for page in doc:
+                    file_text.append(page.get_text())
+                
+                extracted_text = "\n".join(file_text).strip()
+                # Fallback for scanned
+                if len(extracted_text) < 150:
+                    from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini, get_configured_model
+                    ocr_prompt = "Transcribe all text from this PDF exactly."
+                    uploaded = upload_file_to_gemini(tmp_path, env=self.env)
+                    ocr_res = generate_with_gemini([ocr_prompt, uploaded], model=model, env=self.env)
+                    extracted_text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
+                
+                if extracted_text:
+                    safe_text = extracted_text.replace("<", "&lt;").replace(">", "&gt;")
+                    total_kb_html.append(
+                        f"<div class='kb_section' style='margin-bottom: 20px; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;'>"
+                        f"  <div style='background: #e9ecef; padding: 8px 12px; border-bottom: 1px solid #dee2e6; font-weight: bold; color: #495057;'>"
+                        f"    <i class='fa fa-file-pdf-o'></i> SOURCE: {file_info['name']}"
+                        f"  </div>"
+                        f"  <div style='padding: 15px; background: #fff; font-family: \"Courier New\", Courier, monospace; white-space: pre-wrap; font-size: 13px; line-height: 1.5; color: #333;'>"
+                        f"    {safe_text}"
+                        f"  </div>"
+                        f"</div>"
+                    )
 
-                    doc = fitz.open(stream=base64.b64decode(file_info['content']), filetype="pdf")
-                    file_text = []
-                    for page in doc:
-                        file_text.append(page.get_text())
-                    
-                    extracted_text = "\n".join(file_text).strip()
-                    # Fallback for scanned
-                    if len(extracted_text) < 150:
-                        from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini
-                        ocr_prompt = "Transcribe all text from this PDF exactly."
-                        uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                        ocr_res = generate_with_gemini([ocr_prompt, uploaded], model="gemini-2.0-flash-lite", env=self.env)
-                        extracted_text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
-                    
-                    if extracted_text:
-                        total_kb_text.append(f"--- SOURCE: {file_info['name']} ---\n{extracted_text}")
+                # Merge into main display PDF and apply highlights
+                current_file_page_count = doc.page_count
+                merged_doc.insert_pdf(doc)
+                
+                # Highlight logic for this file on the correct global pages
+                for r in results:
+                    page_str = r.get('page')
+                    if page_str and str(page_str).isdigit():
+                        rel_page_idx = int(page_str) - 1
+                        if 0 <= rel_page_idx < current_file_page_count:
+                            # Load page from merged doc using offset
+                            abs_page_idx = global_page_offset + rel_page_idx
+                            page = merged_doc.load_page(abs_page_idx)
+                            val = r.get('value')
+                            if val and len(str(val)) > 1:
+                                search_val = unicodedata.normalize('NFKC', str(val)).strip()
+                                rects = page.search_for(search_val)
+                                if not rects and " " in search_val:
+                                    for word in search_val.split():
+                                        if len(word) > 2: rects.extend(page.search_for(word))
+                                for rect in rects[:20]:
+                                    try: page.add_highlight_annot(rect)
+                                    except Exception: pass
+                
+                global_page_offset += current_file_page_count
 
-                    # Highlighting (Special Case: Highlighted PDF only shows for LAST file or merges?)
-                    # For simplicity, we just highlight the last file uploaded as visual proof
-                    if file_info == files_to_test[-1]:
-                        found_any = False
-                        import unicodedata
-                        for r in results:
-                            page_str = r.get('page')
-                            if page_str and str(page_str).isdigit():
-                                page_idx = int(page_str) - 1
-                                if 0 <= page_idx < doc.page_count:
-                                    page = doc.load_page(page_idx)
-                                    val = r.get('value')
-                                    if val and len(str(val)) > 1:
-                                        search_val = unicodedata.normalize('NFKC', str(val)).strip()
-                                        rects = page.search_for(search_val)
-                                        if not rects and " " in search_val:
-                                            for word in search_val.split():
-                                                if len(word) > 2: rects.extend(page.search_for(word))
-                                        for rect in rects[:20]:
-                                            try: page.add_highlight_annot(rect); found_any = True
-                                            except Exception: pass
-                        
-                        if found_any:
-                            self.test_pdf_highlighted = base64.b64encode(doc.tobytes(garbage=4, deflate=True))
-                        else:
-                            self.test_pdf_highlighted = file_info['content']
-
-                except Exception as e:
-                    import logging
-                    logging.getLogger(__name__).warning("Processing test file failed: %s", str(e))
-
+            except Exception as e:
+                _logger.warning("Processing test file failed: %s", str(e))
             finally:
                 if os.path.exists(tmp_path):
                     os.remove(tmp_path)
 
-        # Write final results
-        self.write({
+        # Finalize results
+        write_vals = {
             'test_result_ids': all_results,
-            'kb_text': "\n\n".join(total_kb_text),
-            'kb_state': 'indexed' if total_kb_text else 'empty'
-        })
+            'kb_text': "".join(total_kb_html),
+            'kb_state': 'indexed' if total_kb_html else 'empty'
+        }
+        if merged_doc.page_count > 0:
+            write_vals['test_pdf_highlighted'] = base64.b64encode(merged_doc.tobytes(garbage=4, deflate=True))
+        
+        self.write(write_vals)
 
     def action_doc_chat(self):
         self.ensure_one()
@@ -173,7 +187,7 @@ class ExtractionMaster(models.Model):
             self.chat_answer = _("Knowledge Base is empty. Please run a test extraction first to index the document.")
             return
 
-        from ..services.gemini_service import generate_with_gemini
+        from ..services.gemini_service import generate_with_gemini, get_configured_model
         
         # Build history string
         history = []
@@ -181,6 +195,8 @@ class ExtractionMaster(models.Model):
             history.append(f"{msg.role.upper()}: {msg.content}")
         history_text = "\n".join(history) if history else "No history yet."
 
+        from odoo.tools import html2plaintext
+        
         system_prompt = (
             "You are a helpful document assistant. "
             "Below is the FULL TEXT of a tender document stored in Odoo. "
@@ -189,17 +205,21 @@ class ExtractionMaster(models.Model):
             "Maintain a professional and conversational tone."
         )
         
+        # Convert HTML to plaintext for AI
+        plain_kb = html2plaintext(self.kb_text)
+        
         prompt = (
             f"{system_prompt}\n\n"
-            f"DOCUMENT CONTENT (CONTEXT):\n{self.kb_text[:30000]}\n\n"
+            f"DOCUMENT CONTENT (CONTEXT):\n{plain_kb[:30000]}\n\n"
             f"PREVIOUS CHAT HISTORY:\n{history_text}\n\n"
             f"USER FOLLOW-UP QUESTION: {self.chat_question}"
         )
         
         try:
+            model = get_configured_model(self.env)
             res = generate_with_gemini(
                 contents=prompt,
-                model="gemini-2.0-flash-lite",
+                model=model,
                 temperature=0.3,
                 env=self.env
             )

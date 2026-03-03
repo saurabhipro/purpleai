@@ -288,7 +288,7 @@ class TenderBidderCheckLine(models.Model):
         try:
             pages = self._cache_get_pdf_texts(attachment)
         except Exception as e:
-            _logger.warning("Tender AI proof: failed to extract pdf text for attachment %s: %s", attachment.id, str(e))
+            _logger.warning("Purple AI proof: failed to extract pdf text for attachment %s: %s", attachment.id, str(e))
             return (0, "")
         if not pages:
             return (0, "")

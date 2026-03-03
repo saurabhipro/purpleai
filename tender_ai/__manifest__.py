@@ -1,9 +1,9 @@
 {
-    'name': 'Tender AI - Automated Tender Processing',
+    'name': 'Purple AI - Automated Tender Processing',
     'version': '18.0.1.0.0',
     'summary': 'AI-powered tender processing for tender ZIP/PDF documents',
     'description': """
-        Tender AI Module
+        Purple AI Module
         ================
         This module processes tender ZIP files using an AI extraction service to extract:
         - Tender information from tender.pdf
@@ -26,6 +26,7 @@
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
         'data/system_parameter_data.xml',
+        'views/res_config_settings_views.xml',
         'wizard/tender_ai_chat_wizard.xml',
         'wizard/extraction_test_wizard.xml',
         'views/menu_root.xml',                      # Root menu only (no actions) — must load first

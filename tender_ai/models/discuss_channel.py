@@ -65,7 +65,7 @@ class DiscussChannel(models.Model):
             
             # Fallback for scanned/complex fonts
             if len(text) < 200:
-                from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini
+                from ..services.gemini_service import generate_with_gemini, upload_file_to_gemini, get_configured_model
                 import tempfile
                 import os
                 
@@ -74,7 +74,8 @@ class DiscussChannel(models.Model):
                     tmp_path = tmp.name
                 try:
                     uploaded = upload_file_to_gemini(tmp_path, env=self.env)
-                    ocr_res = generate_with_gemini(["Transcribe this document exactly."], model="gemini-2.0-flash-lite", env=self.env)
+                    model = get_configured_model(self.env)
+                    ocr_res = generate_with_gemini(["Transcribe this document exactly."], model=model, env=self.env)
                     text = (ocr_res.get('text') if isinstance(ocr_res, dict) else str(ocr_res)).strip()
                 finally:
                     if os.path.exists(tmp_path): os.remove(tmp_path)
@@ -99,7 +100,7 @@ class DiscussChannel(models.Model):
         if not self.kb_text:
             return
 
-        from ..services.gemini_service import generate_with_gemini
+        from ..services.gemini_service import generate_with_gemini, get_configured_model
         
         # Clean the message body
         clean_question = re.sub('<[^<]+?>', '', message.body or '').strip()
@@ -118,7 +119,8 @@ class DiscussChannel(models.Model):
         )
 
         try:
-            res = generate_with_gemini(prompt, model="gemini-2.0-flash-lite", temperature=0.3, env=self.env)
+            model = get_configured_model(self.env)
+            res = generate_with_gemini(prompt, model=model, temperature=0.3, env=self.env)
             answer = (res.get('text') if isinstance(res, dict) else str(res)).strip()
             
             if answer:

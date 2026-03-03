@@ -10,7 +10,7 @@ class Tender(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
-    # Optional: tenders can be created manually (without a job) or generated from a Tender AI Job
+    # Optional: tenders can be created manually (without a job) or generated from a Purple AI Job
     job_id = fields.Many2one('tende_ai.job', string='Job', required=False, ondelete='set null', readonly=True)
 
     state = fields.Selection([

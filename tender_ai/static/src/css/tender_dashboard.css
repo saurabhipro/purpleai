@@ -2,7 +2,7 @@
 .dashboard-kpi-card {
     border-radius: 6px;
     padding: 6px 8px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
     border: none;
     position: relative;
@@ -21,7 +21,7 @@
 
 .dashboard-kpi-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-kpi-card:focus {
@@ -30,37 +30,37 @@
 
 /* Green Cards */
 .kpi-card-green {
-    background-image: url('/bhuarjan/static/img/green_pattern.jpg');
+    background-image: url('/tender_ai/static/img/green_pattern.jpg');
 }
 
 /* Brown/Orange Cards */
 .kpi-card-brown,
 .kpi-card-orange {
-    background-image: url('/bhuarjan/static/img/orange_pattern.jpg');
+    background-image: url('/tender_ai/static/img/orange_pattern.jpg');
 }
 
 /* Blue Cards */
 .kpi-card-blue {
-    background-image: url('/bhuarjan/static/img/blue_pattern.jpg');
+    background-image: url('/tender_ai/static/img/blue_pattern.jpg');
 }
 
 /* Purple Cards */
 .kpi-card-purple {
-    background-image: url('/bhuarjan/static/img/purple_pattern.jpg');
+    background-image: url('/tender_ai/static/img/purple_pattern.jpg');
 }
 
 /* Pink Cards */
 .kpi-card-pink {
-    background-image: url('/bhuarjan/static/img/pink_pattern.jpg');
+    background-image: url('/tender_ai/static/img/pink_pattern.jpg');
 }
 
 /* Yellow Cards */
 .kpi-card-yellow {
-    background-image: url('/bhuarjan/static/img/yellow_pattern.jpg');
+    background-image: url('/tender_ai/static/img/yellow_pattern.jpg');
 }
 
 /* Content positioning - all content above background */
-.dashboard-kpi-card > * {
+.dashboard-kpi-card>* {
     position: relative;
     z-index: 1;
 }
@@ -179,4 +179,3 @@
 .kpi-card-orange .kpi-value {
     color: #2c3e50;
 }
-

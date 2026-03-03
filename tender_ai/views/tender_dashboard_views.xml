@@ -4,7 +4,7 @@
         <field name="name">tende_ai.dashboard.form</field>
         <field name="model">tende_ai.dashboard</field>
         <field name="arch" type="xml">
-            <form string="Tender AI Dashboard" create="0" delete="0" class="tender_ai_form">
+            <form string="Purple AI Dashboard" create="0" delete="0" class="tender_ai_form">
                 <sheet>
                     <div class="oe_dashboard" style="padding: 20px;">
                         <div class="dashboard-section-title">
@@ -203,7 +203,7 @@
     </record>
 
     <record id="action_tende_ai_dashboard" model="ir.actions.act_window">
-        <field name="name">Tender AI Dashboard</field>
+        <field name="name">Purple AI Dashboard</field>
         <field name="res_model">tende_ai.dashboard</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>

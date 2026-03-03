@@ -1,5 +1,6 @@
 .tender_ai_criteria_results .o_data_row.text-danger td {
-  background-color: #fde2e7 !important; /* light pink */
+  background-color: #fde2e7 !important;
+  /* light pink */
 }
 
 .tender_ai_criteria_results .o_data_row.text-danger {
@@ -7,11 +8,13 @@
 }
 
 .tender_ai_eval_summary .o_data_row.text-success td {
-  background-color: #dff7e6 !important; /* light green */
+  background-color: #dff7e6 !important;
+  /* light green */
 }
 
 .tender_ai_eval_summary .o_data_row.text-danger td {
-  background-color: #fde2e7 !important; /* light pink */
+  background-color: #fde2e7 !important;
+  /* light pink */
 }
 
 .tender_ai_eval_summary .o_data_row.text-success,
@@ -32,13 +35,13 @@
 }
 
 .tender_ai_form .o_horizontal_separator,
-.tender_ai_form .o_group .o_inner_group > tbody > tr > td > label {
+.tender_ai_form .o_group .o_inner_group>tbody>tr>td>label {
   font-weight: 700 !important;
 }
 
-/* Tender Job banner (shows which tender you're working on) */
+/* Purple AI Job banner (shows which document you're working on) */
 .tender_ai_tender_banner {
-  background: linear-gradient(135deg, #7b4b3a, #a36b54);
+  background: linear-gradient(135deg, #6B4C9A, #8A6DB1);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   padding: 12px 14px;
@@ -104,7 +107,7 @@
 /* List/table header styling (global across backend) */
 .o_list_view thead th,
 .o_list_renderer thead th {
-  background-color: #7b4b3a !important;
+  background-color: #6B4C9A !important;
   color: #ffffff !important;
   font-weight: 800 !important;
   border-bottom: 2px solid rgba(255, 255, 255, 0.25) !important;
@@ -122,25 +125,38 @@
 
 /* Icons next to key labels (Tender AI Job header fields) */
 .tender_ai_form label.o_form_label[for="name"]::before {
-  content: "\f02b"; /* fa-tag */
+  content: "\f02b";
+  /* fa-tag */
 }
+
 .tender_ai_form label.o_form_label[for="tender_reference"]::before {
-  content: "\f02e"; /* fa-bookmark */
+  content: "\f02e";
+  /* fa-bookmark */
 }
+
 .tender_ai_form label.o_form_label[for="companies_detected"]::before {
-  content: "\f1ad"; /* fa-building */
+  content: "\f1ad";
+  /* fa-building */
 }
+
 .tender_ai_form label.o_form_label[for="detected_company_ids"]::before {
-  content: "\f0c0"; /* fa-users */
+  content: "\f0c0";
+  /* fa-users */
 }
+
 .tender_ai_form label.o_form_label[for="create_uid"]::before {
-  content: "\f007"; /* fa-user */
+  content: "\f007";
+  /* fa-user */
 }
+
 .tender_ai_form label.o_form_label[for="zip_filename"]::before {
-  content: "\f1c6"; /* fa-file-archive-o */
+  content: "\f1c6";
+  /* fa-file-archive-o */
 }
+
 .tender_ai_form label.o_form_label[for="zip_file"]::before {
-  content: "\f0c6"; /* fa-paperclip */
+  content: "\f0c6";
+  /* fa-paperclip */
 }
 
 .tender_ai_form label.o_form_label[for="name"]::before,
@@ -155,5 +171,3 @@
   margin-right: 8px;
   opacity: 0.9;
 }
-
-

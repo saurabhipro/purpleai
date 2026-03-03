@@ -4,7 +4,7 @@ import json
 import re
 from typing import Any, Dict, List
 
-from .gemini_service import upload_file_to_gemini, generate_with_gemini
+from .gemini_service import upload_file_to_gemini, generate_with_gemini, get_configured_model
 
 
 TENDER_PROMPT = """
@@ -143,7 +143,7 @@ def _normalize_criteria(arr: Any) -> List[Dict[str, str]]:
     return out
 
 
-def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-2.0-flash-lite", env=None, custom_fields_prompt: str = "") -> dict:
+def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = None, env=None, custom_fields_prompt: str = "") -> dict:
     """
     Uploads tender.pdf to the AI service, extracts structured tender data + eligibility criteria,
     and returns a dictionary with analytics.
@@ -159,6 +159,7 @@ def extract_tender_from_pdf_with_gemini(pdf_path: str, model: str = "gemini-2.0-
         env: Optional Odoo environment (api.Environment). Used to get API key from system parameters.
         custom_fields_prompt: Optional prompt snippet for custom fields
     """
+    model = model or get_configured_model(env)
     uploaded_file = upload_file_to_gemini(pdf_path, env=env)
 
     # generate_with_gemini now returns dict: {text, usage, model, durationMs}

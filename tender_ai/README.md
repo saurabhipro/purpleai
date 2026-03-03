@@ -1,4 +1,4 @@
-# Tender AI Module
+# Purple AI Module
 
 Odoo module for processing tender ZIP files using an AI extraction service.
 
@@ -19,7 +19,7 @@ Odoo module for processing tender ZIP files using an AI extraction service.
 1. **Install the module in Odoo first:**
    - Go to Apps menu
    - Remove "Apps" filter
-   - Search for "Tender AI"
+   - Search for "Purple AI"
    - Click Install
 
 2. **Install Python dependencies** (after module installation):
@@ -62,7 +62,7 @@ Set Odoo system parameter (optional):
 
 ### Via Odoo UI
 
-1. Go to **Tender AI > Tender Processing**
+1. Go to **Purple AI > Tender Processing**
 2. Click **Create**
 3. Upload a ZIP file containing:
    - `tender.pdf` at the root level

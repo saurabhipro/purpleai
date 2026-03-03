@@ -55,7 +55,7 @@ export class TenderAIDashboard extends Component {
     }
 
     openJobs(domain = []) {
-        this._openActWindow({ title: _t("Tender Jobs"), resModel: "tende_ai.job", domain });
+        this._openActWindow({ title: _t("Purple Processing Jobs"), resModel: "tende_ai.job", domain });
     }
 
     openBidders() {

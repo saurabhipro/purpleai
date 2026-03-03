@@ -14,6 +14,16 @@ import io
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from psycopg2.errors import SerializationFailure
 import re
+import warnings
+
+# Silence harmless Swig deprecation warnings from PyMuPDF (fitz) on Python 3.12+
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*SwigPy.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*swigvarlink.*")
+
+try:
+    import fitz
+except ImportError:
+    fitz = None
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -23,13 +33,14 @@ from ..services.zip_utils import safe_extract_zip, ZipSecurityError
 from ..services.tender_parser import extract_tender_from_pdf_with_gemini
 from ..services.company_parser import extract_company_bidder_and_payments
 from ..services.eligibility_service import evaluate_bidder_against_criteria
+from ..services.gemini_service import get_configured_model
 
 _logger = logging.getLogger(__name__)
 
 
 class TenderJob(models.Model):
     _name = 'tende_ai.job'
-    _description = 'Tender Processing Job'
+    _description = 'Purple Processing Job'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
@@ -86,6 +97,7 @@ class TenderJob(models.Model):
 
     # Processing Information
     companies_detected = fields.Integer(string='Companies Detected', default=0, readonly=True)
+    total_pages_processed = fields.Integer(string='Total Pages Processed', default=0, readonly=True)
     error_message = fields.Text(string='Error Message', readonly=True)
 
     # Analytics
@@ -241,6 +253,17 @@ class TenderJob(models.Model):
             "mimetype": "application/pdf",
             "datas": base64.b64encode(content),
         })
+
+    def _count_pdf_pages(self, pdf_path):
+        """Returns the number of pages in a PDF file using fitz."""
+        if not fitz or not pdf_path or not os.path.isfile(pdf_path):
+            return 0
+        try:
+            with fitz.open(pdf_path) as doc:
+                return len(doc)
+        except Exception as e:
+            _logger.warning("PURPLE AI [Job %s]: Failed to count pages for %s: %s", self.name, pdf_path, str(e))
+            return 0
 
     def action_download_tender_pdf(self):
         self.ensure_one()
@@ -604,7 +627,7 @@ class TenderJob(models.Model):
             raise ValidationError(_('Only draft jobs can be extracted'))
 
         _logger.info("=" * 80)
-        _logger.info("TENDER AI: Starting extraction for Job ID: %s (ID: %s)", self.name, self.id)
+        _logger.info("PURPLE AI: Starting extraction for Job ID: %s (ID: %s)", self.name, self.id)
         _logger.info("=" * 80)
 
         # IMPORTANT: commit before starting background thread to avoid concurrent
@@ -657,18 +680,18 @@ class TenderJob(models.Model):
                     if cr:
                         try:
                             cr.rollback()
-                            _logger.debug("TENDER AI [Job %s]: Rolled back transaction after error", job_id)
+                            _logger.debug("PURPLE AI [Job %s]: Rolled back transaction after error", job_id)
                         except Exception as rollback_err:
-                            _logger.warning("TENDER AI [Job %s]: Failed to rollback: %s", job_id, str(rollback_err))
+                            _logger.warning("PURPLE AI [Job %s]: Failed to rollback: %s", job_id, str(rollback_err))
                     
                     if is_serialization_error and attempt < max_retries - 1:
                         wait_time = (attempt + 1) * 1.0  # Longer backoff for serialization errors
-                        _logger.warning("TENDER AI [Job %s]: Database serialization error, retrying in %.2f seconds (attempt %d/%d)", 
+                        _logger.warning("PURPLE AI [Job %s]: Database serialization error, retrying in %.2f seconds (attempt %d/%d)", 
                                       job_id, wait_time, attempt + 1, max_retries)
                         time.sleep(wait_time)
                         continue
                     
-                    _logger.error("TENDER AI [Job %s]: Error in background process: %s", job_id, str(e), exc_info=True)
+                    _logger.error("PURPLE AI [Job %s]: Error in background process: %s", job_id, str(e), exc_info=True)
                     # Try to update state to failed
                     try:
                         with env.registry.cursor() as cr2:
@@ -681,7 +704,7 @@ class TenderJob(models.Model):
                             })
                             try:
                                 job2.message_post(
-                                    body=f"<b>Tender AI extraction failed</b><br/><pre>{reason}</pre>",
+                                    body=f"<b>Purple AI extraction failed</b><br/><pre>{reason}</pre>",
                                     subtype_xmlid='mail.mt_note',
                                 )
                             except Exception:
@@ -699,7 +722,7 @@ class TenderJob(models.Model):
 
         thread = threading.Thread(target=_background_extract_with_env, daemon=True)
         thread.start()
-        _logger.info("TENDER AI [Job %s]: Background extraction thread started", self.name)
+        _logger.info("PURPLE AI [Job %s]: Background extraction thread started", self.name)
 
         return True
 
@@ -719,7 +742,7 @@ class TenderJob(models.Model):
             raise ValidationError(_('First run Extraction. Only extracted jobs can be evaluated.'))
 
         _logger.info("=" * 80)
-        _logger.info("TENDER AI: Starting eligibility evaluation for Job ID: %s (ID: %s)", self.name, self.id)
+        _logger.info("PURPLE AI: Starting eligibility evaluation for Job ID: %s (ID: %s)", self.name, self.id)
         _logger.info("=" * 80)
 
         self.write({
@@ -777,7 +800,7 @@ class TenderJob(models.Model):
                             })
                             try:
                                 job2.message_post(
-                                    body=f"<b>Tender AI processing failed</b><br/><pre>{reason}</pre>",
+                                    body=f"<b>Purple AI processing failed</b><br/><pre>{reason}</pre>",
                                     subtype_xmlid='mail.mt_note',
                                 )
                             except Exception:
@@ -795,7 +818,7 @@ class TenderJob(models.Model):
 
         thread = threading.Thread(target=_background_eval_with_env, daemon=True)
         thread.start()
-        _logger.info("TENDER AI [Job %s]: Background evaluation thread started", self.name)
+        _logger.info("PURPLE AI [Job %s]: Background evaluation thread started", self.name)
         return True
 
     def action_stop_processing(self):
@@ -805,7 +828,7 @@ class TenderJob(models.Model):
             raise ValidationError(_('Only extracting/processing jobs can be stopped'))
 
         _logger.info("=" * 80)
-        _logger.info("TENDER AI: Stopping current work for Job ID: %s (ID: %s)", self.name, self.id)
+        _logger.info("PURPLE AI: Stopping current work for Job ID: %s (ID: %s)", self.name, self.id)
         _logger.info("=" * 80)
 
         # Update state to cancelled
@@ -814,8 +837,8 @@ class TenderJob(models.Model):
             'error_message': 'Processing stopped by user',
         })
         
-        _logger.info("TENDER AI [Job %s]: Processing stop signal sent", self.name)
-        _logger.info("TENDER AI [Job %s]: Job state updated to 'cancelled'", self.name)
+        _logger.info("PURPLE AI [Job %s]: Processing stop signal sent", self.name)
+        _logger.info("PURPLE AI [Job %s]: Job state updated to 'cancelled'", self.name)
         _logger.info("=" * 80)
 
         return True
@@ -843,7 +866,7 @@ class TenderJob(models.Model):
             'analytics': '',
         })
 
-        _logger.info("TENDER AI [Job %s]: Job reset to draft - ready for reprocessing", self.name)
+        _logger.info("PURPLE AI [Job %s]: Job reset to draft - ready for reprocessing", self.name)
         return True
 
     def action_open_ai_chat_wizard(self):
@@ -1088,12 +1111,12 @@ class TenderJob(models.Model):
     def _background_extract(self):
         """Background extraction: unzip + extract tender + criteria + populate extracted bidder data (no eligibility eval)."""
         overall_t0 = time.time()
-        _logger.info("TENDER AI [Job %s]: Background extraction started", self.name)
+        _logger.info("PURPLE AI [Job %s]: Background extraction started", self.name)
 
         try:
             # Check if processing was stopped before starting
             if self._should_stop():
-                _logger.info("TENDER AI [Job %s]: Processing cancelled before start", self.name)
+                _logger.info("PURPLE AI [Job %s]: Processing cancelled before start", self.name)
                 self.sudo().write({
                     'state': 'cancelled',
                     'error_message': 'Processing cancelled by user',
@@ -1102,25 +1125,25 @@ class TenderJob(models.Model):
             # Save ZIP file to temporary location
             tmp_dir = os.path.join(self.env['ir.config_parameter'].sudo().get_param('tende_ai.tmp_dir', '/tmp/tende_ai'))
             os.makedirs(tmp_dir, exist_ok=True)
-            _logger.info("TENDER AI [Job %s]: Using temp directory: %s", self.name, tmp_dir)
+            _logger.info("PURPLE AI [Job %s]: Using temp directory: %s", self.name, tmp_dir)
 
             run_id = uuid.uuid4().hex[:10]
             extract_dir = os.path.join(tmp_dir, f"extracted_{run_id}")
             os.makedirs(extract_dir, exist_ok=True)
-            _logger.info("TENDER AI [Job %s]: Created extraction directory: %s", self.name, extract_dir)
+            _logger.info("PURPLE AI [Job %s]: Created extraction directory: %s", self.name, extract_dir)
 
             zip_path = os.path.join(tmp_dir, f"{run_id}_{self.zip_filename or 'tender.zip'}")
 
             # Write ZIP file - Binary fields in Odoo are stored as base64 strings in ir.attachment
-            _logger.info("TENDER AI [Job %s]: Writing ZIP file to: %s", self.name, zip_path)
-            _logger.info("TENDER AI [Job %s]: ZIP file data type: %s", self.name, type(self.zip_file))
+            _logger.info("PURPLE AI [Job %s]: Writing ZIP file to: %s", self.name, zip_path)
+            _logger.info("PURPLE AI [Job %s]: ZIP file data type: %s", self.name, type(self.zip_file))
             
             # Get the actual binary data from the attachment
             # Odoo Binary fields stored in ir.attachment are always base64 encoded strings
             zip_data = None
             if self.zip_file:
                 raw_data = self.zip_file
-                _logger.info("TENDER AI [Job %s]: Raw ZIP data type: %s, length: %s", 
+                _logger.info("PURPLE AI [Job %s]: Raw ZIP data type: %s, length: %s", 
                            self.name, type(raw_data), 
                            len(raw_data) if hasattr(raw_data, '__len__') else 'N/A')
                 
@@ -1129,20 +1152,20 @@ class TenderJob(models.Model):
                     try:
                         # Try to decode as UTF-8 first (base64 is ASCII-compatible)
                         raw_data = raw_data.decode('utf-8')
-                        _logger.info("TENDER AI [Job %s]: Converted bytes to string", self.name)
+                        _logger.info("PURPLE AI [Job %s]: Converted bytes to string", self.name)
                     except UnicodeDecodeError:
                         # If it's not valid UTF-8, check if it's already binary ZIP data
                         # Check for ZIP signature (PK\x03\x04)
                         if raw_data[:2] == b'PK':
-                            _logger.info("TENDER AI [Job %s]: Data is already binary ZIP (starts with PK)", self.name)
+                            _logger.info("PURPLE AI [Job %s]: Data is already binary ZIP (starts with PK)", self.name)
                             zip_data = raw_data
                         else:
                             # Try to decode as base64 anyway
                             try:
                                 raw_data = raw_data.decode('latin-1')
-                                _logger.info("TENDER AI [Job %s]: Converted bytes to string using latin-1", self.name)
+                                _logger.info("PURPLE AI [Job %s]: Converted bytes to string using latin-1", self.name)
                             except:
-                                _logger.error("TENDER AI [Job %s]: Cannot decode bytes data", self.name)
+                                _logger.error("PURPLE AI [Job %s]: Cannot decode bytes data", self.name)
                                 self.sudo().write({
                                     'state': 'failed',
                                     'error_message': 'Cannot decode ZIP file data',
@@ -1156,10 +1179,10 @@ class TenderJob(models.Model):
                         try:
                             # Decode base64 string
                             zip_data = base64.b64decode(raw_data)
-                            _logger.info("TENDER AI [Job %s]: Decoded base64 ZIP data (decoded size: %d bytes)", 
+                            _logger.info("PURPLE AI [Job %s]: Decoded base64 ZIP data (decoded size: %d bytes)", 
                                         self.name, len(zip_data))
                         except Exception as e:
-                            _logger.error("TENDER AI [Job %s]: Failed to decode base64: %s", self.name, str(e))
+                            _logger.error("PURPLE AI [Job %s]: Failed to decode base64: %s", self.name, str(e))
                             self.sudo().write({
                                 'state': 'failed',
                                 'error_message': f'Failed to decode ZIP file data: {str(e)}',
@@ -1167,14 +1190,14 @@ class TenderJob(models.Model):
                             return
                     else:
                         # Doesn't look like base64, might be binary data as string
-                        _logger.warning("TENDER AI [Job %s]: String data doesn't look like base64, treating as binary", self.name)
+                        _logger.warning("PURPLE AI [Job %s]: String data doesn't look like base64, treating as binary", self.name)
                         zip_data = raw_data.encode('latin-1')
                 elif zip_data is None:
                     # Already set to binary data above
                     pass
             
             if not zip_data:
-                _logger.error("TENDER AI [Job %s]: ZIP file data is empty or None", self.name)
+                _logger.error("PURPLE AI [Job %s]: ZIP file data is empty or None", self.name)
                 self.sudo().write({
                     'state': 'failed',
                     'error_message': 'ZIP file data is empty',
@@ -1186,12 +1209,12 @@ class TenderJob(models.Model):
                 f.write(zip_data)
             
             zip_size = os.path.getsize(zip_path)
-            _logger.info("TENDER AI [Job %s]: ZIP file written successfully (Size: %.2f MB, %d bytes)", 
+            _logger.info("PURPLE AI [Job %s]: ZIP file written successfully (Size: %.2f MB, %d bytes)", 
                         self.name, zip_size / (1024 * 1024), zip_size)
 
             # Validate ZIP file
             if zip_size == 0:
-                _logger.error("TENDER AI [Job %s]: Written ZIP file is empty", self.name)
+                _logger.error("PURPLE AI [Job %s]: Written ZIP file is empty", self.name)
                 self.sudo().write({
                     'state': 'failed',
                     'error_message': 'ZIP file is empty after writing',
@@ -1204,17 +1227,17 @@ class TenderJob(models.Model):
             
             # Check for ZIP signature (PK\x03\x04)
             if first_bytes[:2] != b'PK':
-                _logger.error("TENDER AI [Job %s]: File does not have ZIP signature", self.name)
-                _logger.error("TENDER AI [Job %s]: File size: %d bytes, First 10 bytes (hex): %s", 
+                _logger.error("PURPLE AI [Job %s]: File does not have ZIP signature", self.name)
+                _logger.error("PURPLE AI [Job %s]: File size: %d bytes, First 10 bytes (hex): %s", 
                             self.name, zip_size, first_bytes.hex())
-                _logger.error("TENDER AI [Job %s]: First 10 bytes (repr): %s", self.name, repr(first_bytes))
-                _logger.error("TENDER AI [Job %s]: Expected ZIP signature: PK (0x504B), got: %s", 
+                _logger.error("PURPLE AI [Job %s]: First 10 bytes (repr): %s", self.name, repr(first_bytes))
+                _logger.error("PURPLE AI [Job %s]: Expected ZIP signature: PK (0x504B), got: %s", 
                             self.name, first_bytes[:2].hex())
                 
                 # If it looks like base64, suggest the issue
                 if first_bytes.startswith(b'UEs'):
-                    _logger.error("TENDER AI [Job %s]: File appears to be base64 encoded (starts with UEs)", self.name)
-                    _logger.error("TENDER AI [Job %s]: This suggests the base64 decoding failed", self.name)
+                    _logger.error("PURPLE AI [Job %s]: File appears to be base64 encoded (starts with UEs)", self.name)
+                    _logger.error("PURPLE AI [Job %s]: This suggests the base64 decoding failed", self.name)
                 
                 self.sudo().write({
                     'state': 'failed',
@@ -1223,8 +1246,8 @@ class TenderJob(models.Model):
                 return
                 
             if not zipfile.is_zipfile(zip_path):
-                _logger.error("TENDER AI [Job %s]: zipfile.is_zipfile() returned False", self.name)
-                _logger.error("TENDER AI [Job %s]: File size: %d bytes, First 10 bytes (hex): %s", 
+                _logger.error("PURPLE AI [Job %s]: zipfile.is_zipfile() returned False", self.name)
+                _logger.error("PURPLE AI [Job %s]: File size: %d bytes, First 10 bytes (hex): %s", 
                             self.name, zip_size, first_bytes.hex())
                 self.sudo().write({
                     'state': 'failed',
@@ -1239,12 +1262,12 @@ class TenderJob(models.Model):
             })
 
             # Safe ZIP extract
-            _logger.info("TENDER AI [Job %s]: Extracting ZIP file to: %s", self.name, extract_dir)
+            _logger.info("PURPLE AI [Job %s]: Extracting ZIP file to: %s", self.name, extract_dir)
             try:
                 safe_extract_zip(zip_path, extract_dir)
-                _logger.info("TENDER AI [Job %s]: ZIP file extracted successfully", self.name)
+                _logger.info("PURPLE AI [Job %s]: ZIP file extracted successfully", self.name)
             except ZipSecurityError as e:
-                _logger.error("TENDER AI [Job %s]: ZIP security error: %s", self.name, str(e))
+                _logger.error("PURPLE AI [Job %s]: ZIP security error: %s", self.name, str(e))
                 self.write({
                     'state': 'failed',
                     'error_message': f'Unsafe ZIP: {str(e)}',
@@ -1252,7 +1275,7 @@ class TenderJob(models.Model):
                 return
 
             # Locate tender.pdf
-            _logger.info("TENDER AI [Job %s]: Searching for tender.pdf in extracted files", self.name)
+            _logger.info("PURPLE AI [Job %s]: Searching for tender.pdf in extracted files", self.name)
             tender_pdf_path = None
             for root, _, files in os.walk(extract_dir):
                 for fn in files:
@@ -1263,25 +1286,29 @@ class TenderJob(models.Model):
                     break
 
             if not tender_pdf_path:
-                _logger.error("TENDER AI [Job %s]: tender.pdf not found inside zip", self.name)
+                _logger.error("PURPLE AI [Job %s]: tender.pdf not found inside zip", self.name)
                 self.sudo().write({
                     'state': 'failed',
                     'error_message': 'tender.pdf not found inside zip',
                 })
                 return
             
-            _logger.info("TENDER AI [Job %s]: Found tender.pdf at: %s", self.name, tender_pdf_path)
+            _logger.info("PURPLE AI [Job %s]: Found tender.pdf at: %s", self.name, tender_pdf_path)
+
+            # Count tender pages
+            tender_pages = self._count_pdf_pages(tender_pdf_path)
+            self._safe_job_write({'total_pages_processed': tender_pages})
 
             # Attach tender.pdf to the job so it appears in chatter and can be previewed/downloaded.
             try:
                 self._ensure_tender_pdf_attachment(tender_pdf_path, extract_dir=extract_dir)
             except Exception:
                 # Never fail extraction because of attachment UI.
-                _logger.debug("TENDER AI [Job %s]: Failed to attach tender.pdf to job", self.name, exc_info=True)
+                _logger.debug("PURPLE AI [Job %s]: Failed to attach tender.pdf to job", self.name, exc_info=True)
 
             # Check if processing was stopped
             if self._should_stop():
-                _logger.info("TENDER AI [Job %s]: Processing cancelled before tender extraction", self.name)
+                _logger.info("PURPLE AI [Job %s]: Processing cancelled before tender extraction", self.name)
                 self.sudo().write({
                     'state': 'cancelled',
                     'error_message': 'Processing cancelled by user',
@@ -1289,7 +1316,7 @@ class TenderJob(models.Model):
                 return
 
             # 1️⃣ Tender extraction
-            model = os.getenv("AI_TENDER_MODEL") or os.getenv("GEMINI_TENDER_MODEL") or "gemini-2.0-flash-lite"
+            model = get_configured_model(self.env)
             self._safe_job_write({'extraction_model': model})
 
             # Fetch custom fields for tender
@@ -1305,8 +1332,8 @@ class TenderJob(models.Model):
                     prompt_lines.append(f"- key: {f.field_key}, label: {f.name}, instruction: {f.instruction}")
                 tender_custom_prompt = "\n".join(prompt_lines)
 
-            _logger.info("TENDER AI [Job %s]: Starting tender extraction with AI service", self.name)
-            _logger.info("TENDER AI [Job %s]: Calling AI service: tender extraction", self.name)
+            _logger.info("PURPLE AI [Job %s]: Starting tender extraction with AI service", self.name)
+            _logger.info("PURPLE AI [Job %s]: Calling AI service: tender extraction", self.name)
             tender_start_time = time.time()
             tender_data = extract_tender_from_pdf_with_gemini(
                 tender_pdf_path, 
@@ -1315,18 +1342,18 @@ class TenderJob(models.Model):
                 custom_fields_prompt=tender_custom_prompt
             ) or {}
             tender_duration = time.time() - tender_start_time
-            _logger.info("TENDER AI [Job %s]: ✓ AI call completed for tender extraction", self.name)
-            _logger.info("TENDER AI [Job %s]:   - Duration: %.2f seconds", self.name, tender_duration)
+            _logger.info("PURPLE AI [Job %s]: ✓ AI call completed for tender extraction", self.name)
+            _logger.info("PURPLE AI [Job %s]:   - Duration: %.2f seconds", self.name, tender_duration)
             
             # Log tender analytics if available
             tender_analytics = tender_data.get("tenderAnalytics") or {}
             if isinstance(tender_analytics, dict):
                 tokens = tender_analytics.get("tokens") or {}
-                _logger.info("TENDER AI [Job %s]:   - Tokens used: %s", self.name, tokens)
+                _logger.info("PURPLE AI [Job %s]:   - Tokens used: %s", self.name, tokens)
 
             # Check if processing was stopped after tender extraction
             if self._should_stop():
-                _logger.info("TENDER AI [Job %s]: Processing cancelled after tender extraction", self.name)
+                _logger.info("PURPLE AI [Job %s]: Processing cancelled after tender extraction", self.name)
                 self.sudo().write({
                     'state': 'cancelled',
                     'error_message': 'Processing cancelled by user',
@@ -1402,10 +1429,10 @@ class TenderJob(models.Model):
             # Try to commit so tender info appears immediately in UI (but don't fail if it conflicts)
             try:
                 self.env.cr.commit()
-                _logger.info("TENDER AI [Job %s]: ✓ Tender information saved and committed - visible in UI", self.name)
+                _logger.info("PURPLE AI [Job %s]: ✓ Tender information saved and committed - visible in UI", self.name)
             except Exception as commit_err:
                 # If commit fails due to serialization, continue - data will be visible on next commit
-                _logger.debug("TENDER AI [Job %s]: Commit skipped (will commit later): %s", self.name, str(commit_err))
+                _logger.debug("PURPLE AI [Job %s]: Commit skipped (will commit later): %s", self.name, str(commit_err))
                 self.env.cr.rollback()
 
             # Precompute company count now (visible before processing)
@@ -1425,14 +1452,23 @@ class TenderJob(models.Model):
 
             # Store extraction analytics (parsing only). Evaluation will append/override later.
             try:
-                ext_tokens = parse_metrics.get("tokensTotal") or {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0}
+                # Merge tender extraction tokens with company parsing tokens
+                tender_analytics = tender_data.get("tenderAnalytics") or {}
+                tender_tokens = (tender_analytics.get("tokens") or {}) if isinstance(tender_analytics, dict) else {}
+                
+                # bidder parsing tokens
+                bidder_tokens = parse_metrics.get("tokensTotal") or {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0}
+                
+                # Merge them
+                ext_tokens = self._merge_tokens_total(dict(tender_tokens), bidder_tokens)
+                
                 analytics = {
                     "jobId": self.name,
                     "stage": "extracted",
                     "companiesDetected": int(parse_metrics.get("companiesDetected") or self.companies_detected or 0),
                     "totalPdfReceived": int(parse_metrics.get("totalPdfReceived") or 0),
                     "totalValidPdfProcessed": int(parse_metrics.get("totalValidPdfProcessed") or 0),
-                    "apiCallsTotal": int(parse_metrics.get("apiCallsTotal") or 0),
+                    "apiCallsTotal": int(parse_metrics.get("apiCallsTotal") or 0) + 1, # +1 for tender extraction
                     "tokensTotal": ext_tokens,
                     "perCompany": parse_metrics.get("perCompany") or [],
                 }
@@ -1456,14 +1492,14 @@ class TenderJob(models.Model):
             except Exception:
                 self.env.cr.rollback()
 
-            _logger.info("TENDER AI [Job %s]: ✓ Extraction completed (tender + criteria + bidders saved)", self.name)
+            _logger.info("PURPLE AI [Job %s]: ✓ Extraction completed (tender + criteria + bidders saved)", self.name)
             return
 
         except Exception as e:
             reason = self._format_failure_reason(e)
             self.sudo().write({'state': 'failed', 'error_message': reason})
             try:
-                self.message_post(body=f"<b>Tender AI extraction failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
+                self.message_post(body=f"<b>Purple AI extraction failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
             except Exception:
                 pass
             raise
@@ -1478,7 +1514,7 @@ class TenderJob(models.Model):
 
         company_workers = int(os.getenv("COMPANY_WORKERS", "4"))
         pdf_workers = int(os.getenv("PDF_WORKERS_PER_COMPANY", "5"))
-        model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-2.0-flash-lite"
+        model = get_configured_model(self.env)
 
         total_pdfs_received = 0
         total_valid_pdfs = 0
@@ -1634,6 +1670,10 @@ class TenderJob(models.Model):
 
                     # Aggregate analytics
                     c_an = result.get("analytics") or {}
+                    c_pages = int(result.get("total_pages") or 0)
+                    if c_pages > 0:
+                        self._safe_job_write({'total_pages_processed': self.total_pages_processed + c_pages})
+
                     if isinstance(c_an, dict):
                         per_company_analytics.append(c_an)
                         total_valid_pdfs += int(c_an.get("validPdfCount") or 0)
@@ -1654,7 +1694,7 @@ class TenderJob(models.Model):
     def _background_evaluate_tender(self):
         """Evaluate eligibility criteria for already-extracted bidders (no bidder re-parsing)."""
         overall_t0 = time.time()
-        _logger.info("TENDER AI [Job %s]: Background eligibility evaluation started", self.name)
+        _logger.info("PURPLE AI [Job %s]: Background eligibility evaluation started", self.name)
 
         try:
             if self._should_stop():
@@ -1680,6 +1720,7 @@ class TenderJob(models.Model):
             # Clear old checks for this run
             Check.search([('job_id', '=', self.id)]).unlink()
 
+            eval_tokens = {"promptTokens": 0, "outputTokens": 0, "totalTokens": 0}
             bidders = self.env['tende_ai.bidder'].sudo().search([('job_id', '=', self.id)])
             for bidder in bidders:
                 if self._should_stop():
@@ -1770,6 +1811,8 @@ class TenderJob(models.Model):
                         env=self.env,
                     )
                     res = (eval_out or {}).get("result") or {}
+                    usage = (eval_out or {}).get("usage") or {}
+                    eval_tokens = self._merge_tokens_total(eval_tokens, usage)
                     lines = res.get("lines") or []
 
                     passed = failed = unknown = 0
@@ -1861,6 +1904,9 @@ class TenderJob(models.Model):
                 'analytics': analytics_json,
                 'state': 'completed',
                 'evaluation_finished_on': fields.Datetime.now(),
+                'evaluation_prompt_tokens': int(eval_tokens.get('promptTokens') or 0),
+                'evaluation_output_tokens': int(eval_tokens.get('outputTokens') or 0),
+                'evaluation_total_tokens':  int(eval_tokens.get('totalTokens')  or 0),
             })
             try:
                 self.env.cr.commit()
@@ -1871,7 +1917,7 @@ class TenderJob(models.Model):
             reason = self._format_failure_reason(e)
             self.sudo().write({'state': 'failed', 'error_message': reason})
             try:
-                self.message_post(body=f"<b>Tender AI evaluation failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
+                self.message_post(body=f"<b>Purple AI evaluation failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
             except Exception:
                 pass
             raise
@@ -1879,7 +1925,7 @@ class TenderJob(models.Model):
     def _background_process_bidders(self):
         """Backward-compatible combined flow: parse bidders + evaluate eligibility."""
         overall_t0 = time.time()
-        _logger.info("TENDER AI [Job %s]: Background combined processing started", self.name)
+        _logger.info("PURPLE AI [Job %s]: Background combined processing started", self.name)
 
         try:
             if self._should_stop():
@@ -1903,16 +1949,16 @@ class TenderJob(models.Model):
             reason = self._format_failure_reason(e)
             self.sudo().write({'state': 'failed', 'error_message': reason})
             try:
-                self.message_post(body=f"<b>Tender AI processing failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
+                self.message_post(body=f"<b>Purple AI processing failed</b><br/><pre>{reason}</pre>", subtype_xmlid='mail.mt_note')
             except Exception:
                 pass
             raise
 
             company_workers = int(os.getenv("COMPANY_WORKERS", "4"))
             pdf_workers = int(os.getenv("PDF_WORKERS_PER_COMPANY", "5"))
-            model = os.getenv("AI_COMPANY_MODEL") or os.getenv("GEMINI_COMPANY_MODEL") or "gemini-2.0-flash-lite"
+            model = get_configured_model(self.env)
             self._safe_job_write({'evaluation_model': model})
-            _logger.info("TENDER AI [Job %s]: Processing configuration - Company Workers: %d, PDF Workers: %d, Model: configured", 
+            _logger.info("PURPLE AI [Job %s]: Processing configuration - Company Workers: %d, PDF Workers: %d, Model: configured", 
                         self.name, company_workers, pdf_workers)
 
             bidders = []
@@ -1935,18 +1981,18 @@ class TenderJob(models.Model):
             if jobs:
                 for j in jobs:
                     total_pdfs_received += len(j.get("pdf_paths") or [])
-                _logger.info("TENDER AI [Job %s]: Total PDFs to process across all companies: %d", 
+                _logger.info("PURPLE AI [Job %s]: Total PDFs to process across all companies: %d", 
                             self.name, total_pdfs_received)
 
-                _logger.info("TENDER AI [Job %s]: Starting parallel company processing", self.name)
-                _logger.info("TENDER AI [Job %s]:   - Companies: %d", self.name, len(jobs))
-                _logger.info("TENDER AI [Job %s]:   - Company Workers: %d", self.name, company_workers)
-                _logger.info("TENDER AI [Job %s]:   - PDF Workers per Company: %d", self.name, pdf_workers)
-                _logger.info("TENDER AI [Job %s]:   - Model: configured", self.name)
+                _logger.info("PURPLE AI [Job %s]: Starting parallel company processing", self.name)
+                _logger.info("PURPLE AI [Job %s]:   - Companies: %d", self.name, len(jobs))
+                _logger.info("PURPLE AI [Job %s]:   - Company Workers: %d", self.name, company_workers)
+                _logger.info("PURPLE AI [Job %s]:   - PDF Workers per Company: %d", self.name, pdf_workers)
+                _logger.info("PURPLE AI [Job %s]:   - Model: configured", self.name)
                 
                 # Check if processing was stopped before company processing
                 if self._should_stop():
-                    _logger.info("TENDER AI [Job %s]: Processing cancelled before company processing", self.name)
+                    _logger.info("PURPLE AI [Job %s]: Processing cancelled before company processing", self.name)
                     self.sudo().write({
                         'state': 'cancelled',
                         'error_message': 'Processing cancelled by user',
@@ -1963,8 +2009,8 @@ class TenderJob(models.Model):
                     for fut in as_completed(futures):
                         # Check if processing was stopped
                         if self._should_stop():
-                            _logger.info("TENDER AI [Job %s]: Processing cancelled during company processing", self.name)
-                            _logger.info("TENDER AI [Job %s]: Cancelling remaining company processing tasks", self.name)
+                            _logger.info("PURPLE AI [Job %s]: Processing cancelled during company processing", self.name)
+                            _logger.info("PURPLE AI [Job %s]: Cancelling remaining company processing tasks", self.name)
                             # Cancel remaining futures
                             for remaining_fut in futures:
                                 if not remaining_fut.done():
@@ -1979,7 +2025,7 @@ class TenderJob(models.Model):
                             completed += 1
                             result = fut.result() or {}
                             company_name = result.get("companyName", "Unknown")
-                            _logger.info("TENDER AI [Job %s]: ✓ Completed processing company %d/%d: %s", 
+                            _logger.info("PURPLE AI [Job %s]: ✓ Completed processing company %d/%d: %s", 
                                         self.name, completed, len(jobs), company_name)
 
                             # Prepare batch records for efficient database writes
@@ -1997,7 +2043,7 @@ class TenderJob(models.Model):
                             
                             if existing_bidder:
                                 # Update existing bidder
-                                _logger.debug("TENDER AI [Job %s]: Updating existing bidder: %s", 
+                                _logger.debug("PURPLE AI [Job %s]: Updating existing bidder: %s", 
                                             self.name, vendor_company_name)
                                 existing_bidder.write({
                                     'company_address': bidder_data.get('companyAddress', '') or existing_bidder.company_address,
@@ -2024,7 +2070,7 @@ class TenderJob(models.Model):
                                     'place_of_registration': bidder_data.get('placeOfRegistration', ''),
                                     'offer_validity_days': bidder_data.get('offerValidityDays', ''),
                                 })
-                                _logger.info("TENDER AI [Job %s]: ✓ Created bidder record: %s", self.name, vendor_company_name)
+                                _logger.info("PURPLE AI [Job %s]: ✓ Created bidder record: %s", self.name, vendor_company_name)
 
                             # Attach all extracted bidder PDFs (so user can preview/download on bidder form)
                             attached_count = 0
@@ -2036,7 +2082,7 @@ class TenderJob(models.Model):
                                 attached_count = 0
                             if attached_count:
                                 _logger.info(
-                                    "TENDER AI [Job %s]: ✓ Attached %d PDF(s) to bidder: %s",
+                                    "PURPLE AI [Job %s]: ✓ Attached %d PDF(s) to bidder: %s",
                                     self.name, attached_count, vendor_company_name
                                 )
 
@@ -2067,7 +2113,7 @@ class TenderJob(models.Model):
                                     })
                                 if payment_records:
                                     self.env['tende_ai.payment'].sudo().create(payment_records)
-                                    _logger.info("TENDER AI [Job %s]: ✓ Created %d payment record(s) for bidder: %s", 
+                                    _logger.info("PURPLE AI [Job %s]: ✓ Created %d payment record(s) for bidder: %s", 
                                                 self.name, len(payment_records), vendor_company_name)
 
                             # Batch create work experience records (check for duplicates)
@@ -2113,23 +2159,23 @@ class TenderJob(models.Model):
                                     })
                                 if work_records:
                                     self.env['tende_ai.work_experience'].sudo().create(work_records)
-                                    _logger.info("TENDER AI [Job %s]: ✓ Created %d work experience record(s) for bidder: %s", 
+                                    _logger.info("PURPLE AI [Job %s]: ✓ Created %d work experience record(s) for bidder: %s", 
                                                 self.name, len(work_records), vendor_company_name)
                             
                             # Log completion of bidder processing
                             payment_count = len(payments) if payments else 0
                             work_exp_count = len(work_exp) if work_exp else 0
-                            _logger.info("TENDER AI [Job %s]: ✓ Bidder data processed - Company: %s, Payments: %d, Work Experience: %d", 
+                            _logger.info("PURPLE AI [Job %s]: ✓ Bidder data processed - Company: %s, Payments: %d, Work Experience: %d", 
                                         self.name, vendor_company_name, payment_count, work_exp_count)
                             
                             # Try to commit after each company (but don't fail if it conflicts)
                             # Commit after each bidder to show data immediately
                             try:
                                 self.env.cr.commit()
-                                _logger.info("TENDER AI [Job %s]: ✓ Committed bidder data - %s is now visible in UI", self.name, vendor_company_name)
+                                _logger.info("PURPLE AI [Job %s]: ✓ Committed bidder data - %s is now visible in UI", self.name, vendor_company_name)
                             except Exception as commit_err:
                                 # If commit fails, continue - data will be visible on next commit
-                                _logger.debug("TENDER AI [Job %s]: Commit skipped (will commit later): %s", self.name, str(commit_err))
+                                _logger.debug("PURPLE AI [Job %s]: Commit skipped (will commit later): %s", self.name, str(commit_err))
                                 self.env.cr.rollback()
 
                             c_an = result.get("analytics") or {}
@@ -2161,20 +2207,20 @@ class TenderJob(models.Model):
 
             # ✅ Completed
             overall_duration = time.time() - overall_t0
-            _logger.info("TENDER AI [Job %s]: ✓ Processing completed successfully", self.name)
-            _logger.info("TENDER AI [Job %s]:   - Total Duration: %.2f seconds (%.2f minutes)", 
+            _logger.info("PURPLE AI [Job %s]: ✓ Processing completed successfully", self.name)
+            _logger.info("PURPLE AI [Job %s]:   - Total Duration: %.2f seconds (%.2f minutes)", 
                         self.name, overall_duration, overall_duration / 60)
-            _logger.info("TENDER AI [Job %s]:   - Companies Processed: %d", self.name, len(jobs))
-            _logger.info("TENDER AI [Job %s]:   - Total PDFs Processed: %d", self.name, total_valid_pdfs)
-            _logger.info("TENDER AI [Job %s]:   - Total AI API Calls: %d", self.name, total_gemini_calls)
-            _logger.info("TENDER AI [Job %s]:   - Total Tokens Used: %s", self.name, total_tokens)
+            _logger.info("PURPLE AI [Job %s]:   - Companies Processed: %d", self.name, len(jobs))
+            _logger.info("PURPLE AI [Job %s]:   - Total PDFs Processed: %d", self.name, total_valid_pdfs)
+            _logger.info("PURPLE AI [Job %s]:   - Total AI API Calls: %d", self.name, total_gemini_calls)
+            _logger.info("PURPLE AI [Job %s]:   - Total Tokens Used: %s", self.name, total_tokens)
             _logger.info("=" * 80)
             
             # Serialize analytics to JSON string properly
             try:
                 analytics_json = json.dumps(analytics, ensure_ascii=False)
             except Exception as e:
-                _logger.warning("TENDER AI [Job %s]: Failed to serialize analytics to JSON, using str(): %s", 
+                _logger.warning("PURPLE AI [Job %s]: Failed to serialize analytics to JSON, using str(): %s", 
                               self.name, str(e))
                 analytics_json = str(analytics)
             
@@ -2204,9 +2250,9 @@ class TenderJob(models.Model):
         except Exception as e:
             reason = self._format_failure_reason(e)
             error_msg = f"{reason}\n\n{traceback.format_exc()[:4000]}"
-            _logger.error("TENDER AI [Job %s]: ✗ Processing failed with error", self.name)
-            _logger.error("TENDER AI [Job %s]:   - Error: %s", self.name, str(e))
-            _logger.error("TENDER AI [Job %s]:   - Traceback: %s", self.name, traceback.format_exc())
+            _logger.error("PURPLE AI [Job %s]: ✗ Processing failed with error", self.name)
+            _logger.error("PURPLE AI [Job %s]:   - Error: %s", self.name, str(e))
+            _logger.error("PURPLE AI [Job %s]:   - Traceback: %s", self.name, traceback.format_exc())
             _logger.info("=" * 80)
             
             self._safe_job_write({
@@ -2215,7 +2261,7 @@ class TenderJob(models.Model):
             })
             try:
                 self.message_post(
-                    body=f"<b>Tender AI failed</b><br/><pre>{reason}</pre>",
+                    body=f"<b>Purple AI failed</b><br/><pre>{reason}</pre>",
                     subtype_xmlid='mail.mt_note',
                 )
             except Exception:
@@ -2273,14 +2319,14 @@ class TenderJob(models.Model):
         company_name = job.get("company_name", "")
         pdf_paths = job.get("pdf_paths", [])
         
-        _logger.info("TENDER AI [Job %s]: Processing company: %s (%d PDFs)", 
+        _logger.info("PURPLE AI [Job %s]: Processing company: %s (%d PDFs)", 
                     self.name, company_name, len(pdf_paths))
-        _logger.info("TENDER AI [Job %s]:   - Calling AI service: extract_company_bidder_and_payments()", 
+        _logger.info("PURPLE AI [Job %s]:   - Calling AI service: extract_company_bidder_and_payments()", 
                     self.name)
-        _logger.info("TENDER AI [Job %s]:   - Company: %s", self.name, company_name)
-        _logger.info("TENDER AI [Job %s]:   - PDFs: %d", self.name, len(pdf_paths))
-        _logger.info("TENDER AI [Job %s]:   - Model: configured", self.name)
-        _logger.info("TENDER AI [Job %s]:   - Workers: %d", self.name, pdf_workers)
+        _logger.info("PURPLE AI [Job %s]:   - Company: %s", self.name, company_name)
+        _logger.info("PURPLE AI [Job %s]:   - PDFs: %d", self.name, len(pdf_paths))
+        _logger.info("PURPLE AI [Job %s]:   - Model: configured", self.name)
+        _logger.info("PURPLE AI [Job %s]:   - Workers: %d", self.name, pdf_workers)
         
         company_start_time = time.time()
         result = extract_company_bidder_and_payments(
@@ -2297,16 +2343,23 @@ class TenderJob(models.Model):
         
         # Log company analytics
         analytics = result.get("analytics") or {}
+        
+        # Count total bidder pages
+        total_pages = 0
+        for p_path in pdf_paths:
+            total_pages += self._count_pdf_pages(p_path)
+
         if isinstance(analytics, dict):
             gemini_calls = analytics.get("geminiCalls", 0)
             valid_pdfs = analytics.get("validPdfCount", 0)
             tokens = analytics.get("tokens") or {}
-            _logger.info("TENDER AI [Job %s]: ✓ Company processing completed: %s", 
+            _logger.info("PURPLE AI [Job %s]: ✓ Company processing completed: %s", 
                         self.name, company_name)
-            _logger.info("TENDER AI [Job %s]:   - Duration: %.2f seconds", self.name, company_duration)
-            _logger.info("TENDER AI [Job %s]:   - AI API Calls: %d", self.name, gemini_calls)
-            _logger.info("TENDER AI [Job %s]:   - Valid PDFs Processed: %d", self.name, valid_pdfs)
-            _logger.info("TENDER AI [Job %s]:   - Tokens Used: %s", self.name, tokens)
+            _logger.info("PURPLE AI [Job %s]:   - Duration: %.2f seconds", self.name, company_duration)
+            _logger.info("PURPLE AI [Job %s]:   - AI API Calls: %d", self.name, gemini_calls)
+            _logger.info("PURPLE AI [Job %s]:   - Valid PDFs Processed: %d", self.name, valid_pdfs)
+            _logger.info("PURPLE AI [Job %s]:   - Pages Processed: %d", self.name, total_pages)
+            _logger.info("PURPLE AI [Job %s]:   - Tokens Used: %s", self.name, tokens)
 
         return {
             "companyName": company_name,
@@ -2315,6 +2368,7 @@ class TenderJob(models.Model):
             "work_experience": result.get("work_experience") or [],
             "custom_extractions": result.get("custom_extractions") or [],
             "analytics": result.get("analytics") or {},
+            "total_pages": total_pages,
             # Critical: used by _attach_company_pdfs_to_bidder() to auto-create bidder attachments
             "_pdf_paths": pdf_paths,
         }
@@ -2327,7 +2381,7 @@ class TenderJob(models.Model):
             self.sudo().write(vals)
         except Exception as e:
             # Log but don't retry - let job-level retry handle it
-            _logger.warning("TENDER AI [Job %s]: Write failed: %s", self.name, str(e))
+            _logger.warning("PURPLE AI [Job %s]: Write failed: %s", self.name, str(e))
             raise
 
     def _merge_tokens_total(self, total: dict, incoming: dict) -> dict:

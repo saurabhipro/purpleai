@@ -4,7 +4,7 @@
         <field name="name">tende_ai.job.list</field>
         <field name="model">tende_ai.job</field>
         <field name="arch" type="xml">
-            <list string="Tender Processing Jobs">
+            <list string="Purple Processing Jobs">
                 <field name="name"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'completed'"
@@ -18,6 +18,7 @@
                 <field name="processing_time_minutes" string="Total (min)"/>
                 <field name="total_tokens_all" string="Tokens" optional="show"/>
                 <field name="total_cost_inr" string="Cost (₹)" optional="show"/>
+                <field name="total_pages_processed" string="Pages" optional="show"/>
                 <field name="companies_detected"/>
                 <field name="create_uid" string="Created By"/>
                 <field name="create_date"/>
@@ -29,7 +30,7 @@
         <field name="name">tende_ai.job.form</field>
         <field name="model">tende_ai.job</field>
         <field name="arch" type="xml">
-            <form string="Tender Processing Job" class="tender_ai_form">
+            <form string="Purple Processing Job" class="tender_ai_form">
                 <header>
                     <button name="action_extract_zip" string="Extract" type="object" class="btn-primary"
                             invisible="state != 'draft'"/>
@@ -75,6 +76,7 @@
                             <field name="name" readonly="1"/>
                             <field name="tender_reference"/>
                             <field name="companies_detected"/>
+                            <field name="total_pages_processed" string="Total Pages"/>
                             <field name="detected_company_ids" widget="many2many_tags"
                                    options="{'no_create': True, 'no_create_edit': True}"
                                    placeholder="Detected companies..."/>
@@ -227,7 +229,7 @@
         <field name="name">tende_ai.job.search</field>
         <field name="model">tende_ai.job</field>
         <field name="arch" type="xml">
-            <search string="Tender Processing Jobs">
+            <search string="Purple Processing Jobs">
                 <field name="name"/>
                 <field name="tender_reference"/>
                 <field name="state"/>
@@ -241,12 +243,12 @@
     </record>
 
     <record id="action_tende_ai_job" model="ir.actions.act_window">
-        <field name="name">Tender Processing Jobs</field>
+        <field name="name">Purple Processing Jobs</field>
         <field name="res_model">tende_ai.job</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create a new tender processing job
+                Create a new Purple processing job
             </p>
             <p>
                 Upload a ZIP file containing tender.pdf and company folders with PDFs.

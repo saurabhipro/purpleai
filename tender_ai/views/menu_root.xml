@@ -2,7 +2,7 @@
 <odoo>
     <!-- Root menu: loads first so all child menuitems can reference it as parent -->
     <menuitem id="menu_tende_ai_root"
-              name="Tender AI"
+              name="Purple AI"
               sequence="100"/>
 
     <!-- Configuration group: no action, just a container — loads first -->

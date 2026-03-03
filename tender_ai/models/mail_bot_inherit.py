@@ -9,7 +9,7 @@ from odoo.tools import html_escape
 
 class MailBot(models.AbstractModel):
     """
-    Extends the built-in System/OdooBot (addon `mail_bot`) to answer Tender AI questions
+    Extends the built-in System/OdooBot (addon `mail_bot`) to answer Purple AI questions
     inside the same chat widget, using Gemini behind the scenes.
     """
 
@@ -131,7 +131,7 @@ class MailBot(models.AbstractModel):
         # Natural language shortcuts (so it works like ChatGPT without needing /commands),
         # even when OdooBot is in onboarding "ping me" mode.
         # We only trigger when message is clearly about tenders.
-        # Trigger for any of the Tender AI tabs/models, so user can ask like:
+        # Trigger for any of the Purple AI tabs/models, so user can ask like:
         # "bidder names", "qualification criteria", "payments", "work experience", etc.
         if re.search(r"\b(tender|bidder|bidders|eligibility|criteria|qualification|qualifications|payment|payments|work experience|evaluation|attachment|attachments|document|documents|pdf|file|files)\b", low):
             # Count intent (handle typos like "who many")

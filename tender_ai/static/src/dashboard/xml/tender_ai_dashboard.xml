@@ -5,7 +5,7 @@
             <div class="tad_header">
                 <div class="tad_title">
                     <span class="tad_title_icon"><i class="fa fa-briefcase"/></span>
-                    <span class="tad_title_text">Tender AI Dashboard</span>
+                    <span class="tad_title_text">Purple AI Dashboard</span>
                 </div>
                 <div class="tad_header_right">
                     <span class="tad_updated" t-if="state.lastUpdate">Last updated: <t t-esc="state.lastUpdate"/></span>
@@ -85,6 +85,10 @@
                         <div class="tad_card tad_pink">
                             <div class="tad_card_label">Total Tokens</div>
                             <div class="tad_card_value"><t t-esc="state.stats.total_tokens || 0"/></div>
+                        </div>
+                        <div class="tad_card tad_orange">
+                            <div class="tad_card_label">Total Cost Incurred</div>
+                            <div class="tad_card_value">₹<t t-esc="state.stats.total_cost_incurred || 0"/></div>
                         </div>
                         <div class="tad_card tad_blue">
                             <div class="tad_card_label">Avg Time (min)</div>

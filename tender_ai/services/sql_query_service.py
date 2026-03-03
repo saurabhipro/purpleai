@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-from .gemini_service import generate_with_gemini
+from .gemini_service import generate_with_gemini, get_configured_model
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +46,8 @@ USER QUESTION: {question}
 SQL QUERY:"""
 
     try:
-        res = generate_with_gemini(prompt, model="gemini-2.0-flash-lite", temperature=0.0, env=env)
+        model = get_configured_model(env)
+        res = generate_with_gemini(prompt, model=model, temperature=0.0, env=env)
         sql = (res.get('text') if isinstance(res, dict) else str(res)).strip()
         sql = re.sub(r'```sql|```', '', sql).strip()
         

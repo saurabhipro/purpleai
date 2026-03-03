@@ -1,3 +1,4 @@
+from . import res_config_settings
 from . import ir_attachment
 from . import tender_job
 from . import tender

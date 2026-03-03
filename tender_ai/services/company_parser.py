@@ -6,7 +6,7 @@ import re
 import time
 from typing import Any, Dict, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from .gemini_service import upload_file_to_gemini, generate_with_gemini
+from .gemini_service import upload_file_to_gemini, generate_with_gemini, get_configured_model
 
 
 # ----------------------------
@@ -421,7 +421,7 @@ def _extract_from_single_pdf(company_name: str, pdf_path: str, model: str, env=N
 def extract_company_bidder_and_payments(
     company_name: str,
     pdf_paths: List[str],
-    model: str = "gemini-2.0-flash-lite",
+    model: str = "gemini-2.5-flash-preview-04-17",
     max_workers: int = 6,
     env=None,
 ) -> Dict[str, Any]:

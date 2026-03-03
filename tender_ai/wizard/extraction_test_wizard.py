@@ -6,6 +6,7 @@ import tempfile
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ..services.company_parser import _extract_from_single_pdf
+from ..services.gemini_service import get_configured_model
 
 class ExtractionTestWizard(models.TransientModel):
     _name = 'tende_ai.extraction_test_wizard'
@@ -33,7 +34,7 @@ class ExtractionTestWizard(models.TransientModel):
 
         try:
             custom_fields_prompt = f"- key: {self.field_id.field_key}, label: {self.field_id.name}, instruction: {self.field_id.instruction}"
-            model = "gemini-3-flash-preview" # Default model
+            model = get_configured_model(self.env)
             
             # Call extraction service
             res = _extract_from_single_pdf(

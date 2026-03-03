@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models, _
+from odoo import fields, models, api, _
+from ..services.gemini_service import get_configured_model
 
 
 class TenderAiJobChatWizard(models.TransientModel):
     _name = "tende_ai.job.chat.wizard"
-    _description = "Tender AI Job Chat"
+    _description = "Purple AI Job Chat"
 
     job_id = fields.Many2one("tende_ai.job", required=True, readonly=True)
     question = fields.Text(string="Question", required=True)
     answer = fields.Text(string="Answer", readonly=True)
-    model = fields.Char(string="Model", default="gemini-3-flash-preview")
+    @api.model
+    def _default_model(self):
+        return get_configured_model(self.env)
+
+    model = fields.Char(string="Model", default=_default_model)
     post_to_chatter = fields.Boolean(string="Post answer to chatter", default=True)
 
     def action_ask(self):
