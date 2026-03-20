@@ -43,7 +43,8 @@ class ClientMaster(models.Model):
             _logger.warning("Folder path %s not found for client %s", folder_path, self.name)
             return
 
-        files = [f for f in os.listdir(folder_path) if f.lower().endswith('.pdf')]
+        extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.webp')
+        files = [f for f in os.listdir(folder_path) if f.lower().endswith(extensions)]
 
         Result = self.env['purple_ai.extraction_result']
         files_to_process = []

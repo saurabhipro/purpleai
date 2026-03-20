@@ -206,9 +206,18 @@ export class FolderExplorer extends Component {
         this.loadFolder(path);
     }
 
+    isImage(item) {
+        if (!item || item.is_dir) return false;
+        const extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'];
+        return extensions.some(ext => item.name.toLowerCase().endsWith(ext));
+    }
+
     getPreviewSrc(item) {
         if (!item) return "";
         const fileUrl = `/purple_ai/download_file?file_path=${encodeURIComponent(item.path)}`;
+        if (this.isImage(item)) {
+            return fileUrl;
+        }
         return `/web/static/lib/pdfjs/web/viewer.html?file=${encodeURIComponent(fileUrl)}`;
     }
 

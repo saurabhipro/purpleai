@@ -10,24 +10,11 @@ _logger = logging.getLogger(__name__)
 class FolderExplorerController(http.Controller):
 
     def _get_root_path(self, active_company_ids=None):
-        """Resolve the watch folder for the currently active company session."""
-        try:
-            client = self._get_active_client(active_company_ids=active_company_ids)
-            if client and client.folder_path:
-                # Try to ensure path exists, but ignore errors (permission etc)
-                try:
-                    if not os.path.exists(client.folder_path):
-                        os.makedirs(client.folder_path, exist_ok=True)
-                except Exception as ex:
-                    _logger.warning("Could not create client folder %s: %s", client.folder_path, str(ex))
-
-                if os.path.exists(client.folder_path):
-                    return client.folder_path
-        except Exception as e:
-            _logger.error("Error resolving root path: %s", str(e))
-
-        # Fallback: system-wide root from config parameters
-        return request.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
+        """Returns the base configured root path from system settings."""
+        root = request.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
+        if not root:
+             return "/tmp" # Safe fallback if not set yet
+        return root
 
     def _get_active_client(self, active_company_ids=None):
         """Return the single client for the current active companies."""
@@ -74,9 +61,19 @@ class FolderExplorerController(http.Controller):
 
     @http.route('/purple_ai/list_folder', type='json', auth='user', methods=['POST'], csrf=False)
     def list_folder(self, folder_path='', active_company_ids=None):
+        # 1. Resolve Global Base
+        root = self._get_root_path()
+        
+        # 2. Intelligent Auto-Jump: if path is empty, find the preferred company folder
+        if not folder_path:
+             client = self._get_active_client(active_company_ids=active_company_ids)
+             if client and client.folder_path and client.folder_path.startswith(root):
+                  # Extract the relative portion to jump to (e.g. invoice_extraction/hpcl)
+                  folder_path = client.folder_path[len(root):].lstrip('/')
+
         full_path = self._validate_path(folder_path, active_company_ids=active_company_ids)
         if not full_path or not os.path.exists(full_path):
-             return {'status': 'error', 'message': _('Invalid path or folder not found.')}
+             return {'status': 'error', 'message': _('Invalid path or folder not found: %s') % folder_path}
         
         if not os.path.isdir(full_path):
              return {'status': 'error', 'message': _('Path is not a directory.')}

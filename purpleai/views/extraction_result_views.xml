@@ -56,8 +56,21 @@
                                     <i class="fa fa-eye me-2"/> DOCUMENT PREVIEW
                                 </h6>
                             </div>
-                            <div style="height: calc(100vh - 120px); min-height: 800px; overflow: hidden; position: relative;" class="shadow-sm border o_audit_viewport_container">
-                                <field name="pdf_file" widget="pdf_viewer" nolabel="1" filename="pdf_filename" class="h-100 w-100 p-0 m-0"/>
+                            <div style="height: calc(100vh - 120px); min-height: 800px; overflow: hidden; position: relative;" class="shadow-sm border o_audit_viewport_container bg-secondary">
+                                <field name="is_pdf" invisible="1"/>
+                                <field name="is_image" invisible="1"/>
+                                <!-- PDF Viewer -->
+                                <field name="pdf_file" widget="pdf_viewer" nolabel="1" filename="pdf_filename" class="h-100 w-100 p-0 m-0" invisible="not is_pdf"/>
+                                <!-- Image Viewer -->
+                                <field name="pdf_file" widget="image" nolabel="1" class="h-100 w-100 p-0 m-0" style="object-fit: contain; background: #333;" invisible="not is_image"/>
+                                <!-- Fallback -->
+                                <div invisible="is_pdf or is_image" class="d-flex align-items-center justify-content-center h-100 text-white p-5 text-center">
+                                    <div>
+                                        <i class="fa fa-file-o fa-5x mb-3 opacity-50"/>
+                                        <h5>Preview unavailable for this format</h5>
+                                        <p class="opacity-75">Filename: <field name="filename"/></p>
+                                    </div>
+                                </div>
                             </div>
                             <field name="pdf_filename" invisible="1"/>
                         </div>

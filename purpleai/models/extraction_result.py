@@ -23,9 +23,19 @@ class ExtractionResult(models.Model):
     error_log = fields.Text(string='Error Details', readonly=True)
 
     # Document preview fields
-    pdf_file = fields.Binary(string='PDF Document', attachment=True)
-    pdf_filename = fields.Char(string='PDF Filename')
+    pdf_file = fields.Binary(string='Document File', attachment=True)
+    pdf_filename = fields.Char(string='Filename')
     total_pages = fields.Integer(string='Total Pages')
+    
+    is_pdf = fields.Boolean(compute='_compute_file_type', string='Is PDF')
+    is_image = fields.Boolean(compute='_compute_file_type', string='Is Image')
+
+    @api.depends('filename')
+    def _compute_file_type(self):
+        for rec in self:
+            fn = (rec.filename or '').lower()
+            rec.is_pdf = fn.endswith('.pdf')
+            rec.is_image = any(fn.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif'])
 
     # Analytics Fields
     provider = fields.Char(string='AI Provider')
