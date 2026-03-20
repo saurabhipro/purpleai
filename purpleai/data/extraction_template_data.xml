@@ -150,5 +150,58 @@
             <field name="description">Ensure the TDS rate applied is correct for the extracted Service Type (e.g. 10% for Prof. Services).</field>
             <field name="eval_type">ai</field>
         </record>
+
+        <!-- OMR Ranchi Template -->
+        <record id="extraction_master_omr_ranchi" model="purple_ai.extraction_master">
+            <field name="name">OMR Ranchi</field>
+        </record>
+
+        <record id="field_omr_registration" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">10</field>
+            <field name="name">Registration Number</field>
+            <field name="field_key">registration_number</field>
+            <field name="instruction">Look for the 'REGISTRATION NUMBER' block. This is a multi-digit bubbled value (OMR). Extract and return the sequence of filled/bubbled digits as a string.</field>
+        </record>
+
+        <record id="field_omr_exam_code" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">20</field>
+            <field name="name">Examination Code</field>
+            <field name="field_key">examination_code</field>
+            <field name="instruction">Look for the 'Examination Code' block. Extract the sequence of bubbled digits on the OMR sheet.</field>
+        </record>
+
+        <record id="field_omr_centre_code" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">30</field>
+            <field name="name">Centre Code</field>
+            <field name="field_key">centre_code</field>
+            <field name="instruction">Look for the 'Centre Code' block. Extract the sequence of bubbled digits.</field>
+        </record>
+
+        <record id="field_omr_subject_code" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">40</field>
+            <field name="name">Subject Code</field>
+            <field name="field_key">subject_code</field>
+            <field name="instruction">Look for the 'Subject Code' block at the top and bottom. Extract the bubbled value.</field>
+        </record>
+
+        <record id="field_omr_total_marks" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">50</field>
+            <field name="name">Total Marks</field>
+            <field name="field_key">total_marks</field>
+            <field name="instruction">From PART-II (Examiner Sheet), locate the 'Total Marks' bubbles. Extract the resulting number.</field>
+        </record>
+
+        <record id="field_omr_answers" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_omr_ranchi"/>
+            <field name="sequence">60</field>
+            <field name="name">Evaluation Answers</field>
+            <field name="field_key">answers</field>
+            <field name="instruction">Extract the handwritten evaluation table at the bottom. Return a JSON array of objects, each containing: 'q_no', 'sub_a', 'sub_b', 'sub_c', 'sub_d', and 'total'.</field>
+        </record>
     </data>
 </odoo>
