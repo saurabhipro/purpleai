@@ -54,8 +54,8 @@ export class AIEvidenceViewer extends Component {
 
         this.state.selectedKey = key;
         const val_data = this.state.data[key];
-        const val = typeof val_data === 'object' ? val_data.value : val_data;
-        const page = typeof val_data === 'object' ? val_data.page_number : null;
+        const val = (val_data && typeof val_data === 'object') ? val_data.value : val_data;
+        const page = (val_data && typeof val_data === 'object') ? val_data.page_number : null;
 
         this.onVerify(val, page);
         this._applyMultiHighlights();
@@ -90,7 +90,7 @@ export class AIEvidenceViewer extends Component {
         );
 
         if (success) {
-            if (typeof this.state.data[key] === 'object') {
+            if (this.state.data[key] && typeof this.state.data[key] === 'object') {
                 this.state.data[key].comment = comment;
             } else {
                 this.state.data[key] = { value: this.state.data[key], comment: comment, page_number: 1 };
@@ -119,7 +119,7 @@ export class AIEvidenceViewer extends Component {
 
         if (success) {
             // Update local state for immediate feedback
-            if (typeof this.state.data[key] === 'object') {
+            if (this.state.data[key] && typeof this.state.data[key] === 'object') {
                 this.state.data[key].value = newValue;
             } else {
                 this.state.data[key] = newValue;
@@ -154,7 +154,7 @@ export class AIEvidenceViewer extends Component {
         this.state.hoveredKey = key;
 
         const val_data = this.state.data[key];
-        const page = typeof val_data === 'object' ? val_data.page_number : null;
+        const page = (val_data && typeof val_data === 'object') ? val_data.page_number : null;
 
         // Instant Hover Navigation
         const pdfIframe = document.querySelector('.o_field_pdf_viewer iframe, iframe.o_pdfview_iframe');
@@ -237,7 +237,7 @@ export class AIEvidenceViewer extends Component {
             Object.entries(this.state.data).forEach(([key, val_data]) => {
                 if (key === 'validations') return;
 
-                const valObj = typeof val_data === 'object';
+                const valObj = (val_data && typeof val_data === 'object');
                 // Try preferred 'raw' text if available, fallback to normalized 'value'
                 const textToFind = valObj ? (val_data.raw || val_data.value) : val_data;
                 const targetPage = valObj ? val_data.page_number : null;
