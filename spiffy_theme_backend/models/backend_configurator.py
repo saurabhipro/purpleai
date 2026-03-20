@@ -64,7 +64,7 @@ class BackendConfig(models.Model):
 		('pallet_16', 'Color Pallet 16'),
 		('pallet_17', 'Color Pallet 17'),
 		('pallet_18', 'Color Pallet 18'),
-		('pallet_19', 'Color Pallet 19'),
+		('pallet_19', 'Color Pallet 19 (GT)'),
 	],default="pallet_19", string="Color Pallets")
 
 	drawer_color_pallet = fields.Selection([
@@ -86,10 +86,10 @@ class BackendConfig(models.Model):
         ('drawer_pallet_16', 'Color Pallet 16'),
         ('drawer_pallet_17', 'Color Pallet 17'),
         ('drawer_pallet_18', 'Color Pallet 18'),
-        ('drawer_pallet_19', 'Color Pallet 19'),
+        ('drawer_pallet_19', 'Color Pallet 19 (GT)'),
     ], default="drawer_pallet_19", string="Drawer Color Pallets")
 
-	appdrawer_custom_bg_color = fields.Char(string="App Drawer Custom Background Color",default="#0097a7")
+	appdrawer_custom_bg_color = fields.Char(string="App Drawer Custom Background Color",default="#583885")
 	appdrawer_custom_text_color = fields.Char(string="App Drawer Custom Text Color",default="#ffffff")
 	
 	header_vertical_mini_text_color = fields.Char(string="App Header Custom Text Color",default="#2d678b")
@@ -98,7 +98,7 @@ class BackendConfig(models.Model):
 	menu_shape_bg_color = fields.Char(string="Enterprise Menu BG Color",default="#000000")
 	menu_shape_bg_color_opacity = fields.Float(string="Menu Shape BG Color Opacity",default="1")
 
-	light_primary_bg_color = fields.Char(string="Primary Background Color for light",default="#0097a7")
+	light_primary_bg_color = fields.Char(string="Primary Background Color for light",default="#583885")
 	light_primary_text_color = fields.Char(string="Primary Text Color for light",default="#ffffff")
 
 	apply_light_bg_img = fields.Boolean(string="Apply light bg image")
@@ -134,7 +134,7 @@ class BackendConfig(models.Model):
 
 	menu_bg_image = fields.Binary(string="Background Image For menu", default=_default_menu_bg_image, readonly=False)
 	
-	dark_primary_bg_color = fields.Char(string="Primary Background Color for dark",default="#0097a7")
+	dark_primary_bg_color = fields.Char(string="Primary Background Color for dark",default="#583885")
 	dark_primary_text_color = fields.Char(string="Primary Text Color for dark",default="#ffffff")
 
 	dark_secondry_bg_color = fields.Char(string="Secondry Background Color for dark",default="#242424")

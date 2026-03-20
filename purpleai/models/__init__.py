@@ -1,0 +1,7 @@
+from . import res_config_settings
+from . import ir_attachment
+from . import extraction_master
+from . import client_master
+from . import extraction_result
+from . import property_ai_query
+from . import invoice_processor

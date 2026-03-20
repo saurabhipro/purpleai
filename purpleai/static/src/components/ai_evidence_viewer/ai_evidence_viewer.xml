@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="purpleai.AIEvidenceViewer">
+        <div class="ai-evidence-container">
+            <div t-if="!state.data" class="alert alert-warning py-2 small">
+                <i class="fa fa-exclamation-triangle me-1"/> No AI evidence data available for this document.
+            </div>
+            <div t-else="" class="evidence-list shadow-sm">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="bg-light sticky-top">
+                        <tr>
+                            <th class="ps-3 py-2 text-uppercase text-muted text-center" style="font-size: 0.65rem; width: 40px;">#</th>
+                            <th class="ps-3 py-2 text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 0.05rem; width: 30%;">Field Name</th>
+                            <th class="ps-3 py-2 text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 0.05rem;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Extracted Evidence &amp; Corrections</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="count" t-value="1"/>
+                        <t t-foreach="Object.entries(state.data)" t-as="item" t-key="item[0]">
+                            <t t-set="key" t-value="item[0]"/>
+                            <t t-set="val_data" t-value="item[1]"/>
+                            <t t-if="key !== 'validations'">
+                                <t t-set="val" t-value="typeof val_data === 'object' ? val_data.value : val_data"/>
+                                <t t-set="page" t-value="typeof val_data === 'object' ? val_data.page_number : null"/>
+                                
+                                <tr t-att-class="{'evidence-row': true, 'border-bottom': true, 'active-audit-row': state.selectedKey === key}" 
+                                    t-on-click="(ev) => this.selectRow(key, ev)"
+                                    t-on-mouseenter="() => this.onMouseEnterRow(key)"
+                                    t-on-mouseleave="() => this.onMouseLeaveRow()"
+                                    style="cursor: pointer; transition: all 0.2s;">
+                                    <td class="text-center align-middle text-muted small ps-3">
+                                        <t t-esc="count"/>
+                                    </td>
+                                    <th class="ps-3 align-middle text-muted text-nowrap" style="font-weight: 600; font-size: 0.75rem; border-left: 2px solid transparent;">
+                                        <div class="d-flex align-items-center">
+                                            <span class="field-icon me-2">
+                                                <i t-attf-class="fa #{this.getFieldIcon(key)}"/>
+                                            </span>
+                                            <t t-esc="key.replace('_', ' ').toUpperCase()"/>
+                                        </div>
+                                    </th>
+                                    <t t-set="count" t-value="count + 1"/>
+                                    <td class="ps-3 align-middle">
+                                        <div class="d-flex align-items-center justify-content-between w-100 py-1">
+                                            <!-- Edit Mode -->
+                                            <div t-if="state.editingKey === key" class="input-group input-group-sm" t-on-click="(ev) => ev.stopPropagation()">
+                                                <input type="text" class="form-control form-control-sm border-primary" 
+                                                       t-model="state.editValue"
+                                                       t-on-keydown="(ev) => ev.key === 'Enter' ? this.saveEdit() : (ev.key === 'Escape' ? this.cancelEdit() : null)"
+                                                       autoFocus="true"/>
+                                                <button class="btn btn-success" t-on-click="() => this.saveEdit()"><i class="fa fa-check"/></button>
+                                                <button class="btn btn-danger" t-on-click="() => this.cancelEdit()"><i class="fa fa-times"/></button>
+                                            </div>
+                                            
+                                            <!-- Comment Mode -->
+                                            <div t-if="state.commentingKey === key" class="input-group input-group-sm mt-1" t-on-click="(ev) => ev.stopPropagation()">
+                                                <input type="text" class="form-control form-control-sm border-info" 
+                                                       placeholder="Add a note..."
+                                                       t-model="state.commentValue"
+                                                       t-on-keydown="(ev) => ev.key === 'Enter' ? this.saveComment() : (ev.key === 'Escape' ? this.cancelComment() : null)"
+                                                       autoFocus="true"/>
+                                                <button class="btn btn-info text-white" t-on-click="() => this.saveComment()"><i class="fa fa-pencil"/></button>
+                                                <button class="btn btn-outline-secondary btn-sm" t-on-click="() => this.cancelComment()"><i class="fa fa-times"/></button>
+                                            </div>
+
+                                            <!-- View Mode -->
+                                            <t t-else="">
+                                                <div class="d-flex flex-column overflow-hidden me-2">
+                                                    <span t-attf-class="evidence-value fw-bold #{state.selectedKey === key ? 'text-danger' : 'text-primary'}" 
+                                                          style="font-size: 0.9rem;" t-esc="val || '---'"/>
+                                                    <div t-if="typeof val_data === 'object' &amp;&amp; val_data.comment" 
+                                                         class="text-muted small italic opacity-75 mt-1" 
+                                                         style="font-size: 0.75rem; border-left: 2px solid #2563eb; padding-left: 6px;">
+                                                        <i class="fa fa-commenting-o me-1"/> <t t-esc="val_data.comment"/>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="d-flex align-items-center audit-actions">
+                                                    <span t-if="page" class="badge rounded-pill text-bg-info me-2 shadow-sm" style="font-size: 0.65rem; padding: 0.35em 0.65em;">
+                                                        <i class="fa fa-file-text-o me-1"/>PG <t t-esc="page"/>
+                                                    </span>
+                                                    <button class="btn btn-link btn-sm p-0 text-info opacity-50 hover-opacity-100 me-2" 
+                                                            title="Add Note"
+                                                            t-on-click="(ev) => this.startComment(key, typeof val_data === 'object' ? val_data.comment : '', ev)">
+                                                        <i class="fa fa-commenting-o"/>
+                                                    </button>
+                                                    <button class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100" 
+                                                            title="Edit Value"
+                                                            t-on-click="(ev) => this.startEdit(key, val, ev)">
+                                                        <i class="fa fa-pencil"/>
+                                                    </button>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <div t-if="state.data" class="text-center mt-2 text-muted small">
+                <i class="fa fa-info-circle me-1"/> Click any row to highlight evidence in the PDF viewer
+            </div>
+        </div>
+    </t>
+</templates>

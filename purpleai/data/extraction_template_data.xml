@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Extraction Template for Invoices -->
+        <record id="extraction_master_invoice" model="purple_ai.extraction_master">
+            <field name="name">Invoice Extraction</field>
+        </record>
+
+        <!-- Fields for Invoice Extraction -->
+        <record id="field_vendor_name" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">10</field>
+            <field name="name">Vendor Name</field>
+            <field name="field_key">vendor_name</field>
+            <field name="instruction">Extract the legal name of the supplier or vendor who issued the invoice.</field>
+        </record>
+
+        <record id="field_invoice_number" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">20</field>
+            <field name="name">Invoice Number</field>
+            <field name="field_key">invoice_number</field>
+            <field name="instruction">Extract the unique invoice reference number or bill number.</field>
+        </record>
+
+        <record id="field_invoice_date" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">30</field>
+            <field name="name">Invoice Date</field>
+            <field name="field_key">invoice_date</field>
+            <field name="instruction">Extract the date the invoice was issued. Preferred format: YYYY-MM-DD.</field>
+        </record>
+
+        <record id="field_untaxed_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">40</field>
+            <field name="name">Untaxed Amount</field>
+            <field name="field_key">untaxed_amount</field>
+            <field name="instruction">Extract the subtotal or base amount before ANY taxes (GST/VAT) are applied. Return a naked number.</field>
+        </record>
+
+        <record id="field_gst_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">50</field>
+            <field name="name">GST Amount</field>
+            <field name="field_key">gst_amount</field>
+            <field name="instruction">Extract the total GST (SGST+CGST or IGST) amount shown on the invoice.</field>
+        </record>
+
+        <record id="field_total_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">60</field>
+            <field name="name">Total Amount</field>
+            <field name="field_key">total_amount</field>
+            <field name="instruction">Extract the final grand total amount including all taxes.</field>
+        </record>
+
+        <record id="field_supplier_gstin" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">70</field>
+            <field name="name">Supplier GSTIN</field>
+            <field name="field_key">supplier_gstin</field>
+            <field name="instruction">Extract the GST identification number of the supplier.</field>
+        </record>
+
+        <record id="field_vendor_bank_account" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">80</field>
+            <field name="name">Vendor Bank Account</field>
+            <field name="field_key">vendor_bank_account</field>
+            <field name="instruction">Extract the bank account number or IBAN of the vendor mentioned on the invoice.</field>
+        </record>
+
+        <record id="field_po_number" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">90</field>
+            <field name="name">PO Number</field>
+            <field name="field_key">po_number</field>
+            <field name="instruction">Extract the Purchase Order (PO) number reference mentioned on the invoice.</field>
+        </record>
+
+        <record id="field_service_type" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">100</field>
+            <field name="name">Service Type</field>
+            <field name="field_key">service_type</field>
+            <field name="instruction">Extract the nature of service or goods provided (e.g. Professional Services, Rent, Technical Services).</field>
+        </record>
+
+        <!-- Rules for Invoice Extraction -->
+        <record id="rule_unique_invoice" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">10</field>
+            <field name="rule_code">RULE_1</field>
+            <field name="name">Unique Invoice Check</field>
+            <field name="description">Verify if this invoice number already exists for this vendor in Odoo.</field>
+            <field name="eval_type">python</field>
+        </record>
+
+        <record id="rule_gst_format" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">20</field>
+            <field name="rule_code">RULE_2</field>
+            <field name="name">Valid GSTIN Format</field>
+            <field name="description">Check if the extracted GSTIN followed the standard 15-character format.</field>
+            <field name="eval_type">python</field>
+        </record>
+
+        <record id="rule_tax_match" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">30</field>
+            <field name="rule_code">RULE_3</field>
+            <field name="name">Tax Calculation Math</field>
+            <field name="description">Taxable Value * GST Rate must equal the GST Amount shown on invoice.</field>
+            <field name="eval_type">ai</field>
+        </record>
+
+        <record id="rule_po_amount" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">40</field>
+            <field name="rule_code">RULE_4</field>
+            <field name="name">Invoice Amount vs PO</field>
+            <field name="description">Ensure the total invoice amount does not exceed the Purchase Order (PO) limit.</field>
+            <field name="eval_type">python</field>
+        </record>
+
+        <record id="rule_bank_match" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">50</field>
+            <field name="rule_code">RULE_5</field>
+            <field name="name">Bank Account Master Match</field>
+            <field name="description">Extracted bank account must belong to the selected vendor in Master data.</field>
+            <field name="eval_type">python</field>
+        </record>
+
+        <record id="rule_po_date" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">60</field>
+            <field name="rule_code">RULE_6</field>
+            <field name="name">PO Date Check</field>
+            <field name="description">Invoice date cannot be earlier than the PO issuance date.</field>
+            <field name="eval_type">python</field>
+        </record>
+
+        <record id="rule_tds_accuracy" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">70</field>
+            <field name="rule_code">RULE_7</field>
+            <field name="name">TDS Rate Compliance</field>
+            <field name="description">Ensure the TDS rate applied is correct for the extracted Service Type (e.g. 10% for Prof. Services).</field>
+            <field name="eval_type">ai</field>
+        </record>
+    </data>
+</odoo>

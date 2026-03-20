@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client Action for dashboard -->
+    <record id="action_purpleai_dashboard" model="ir.actions.client">
+        <field name="name">AI Analytics Dashboard</field>
+        <field name="tag">purpleai.dashboard</field>
+    </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_purpleai_dashboard"
+              name="Dashboard"
+              parent="menu_tende_ai_root"
+              action="action_purpleai_dashboard"
+              sequence="0"/>
+</odoo>

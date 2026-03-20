@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_jigsaw_root"
+              name="PurpleMaps"
+              web_icon="jigsaw,static/description/icon.png"
+              sequence="110"/>
+
+    <menuitem id="menu_jigsaw_dashboard"
+              name="Dashboard"
+              parent="menu_jigsaw_root"
+              action="action_jigsaw_diagram"
+              sequence="10"/>
+
+    <menuitem id="menu_jigsaw_operations"
+              name="Operations"
+              parent="menu_jigsaw_root"
+              sequence="20"/>
+
+    <menuitem id="menu_jigsaw_entities"
+              name="Entities"
+              parent="menu_jigsaw_operations"
+              action="action_jigsaw_entity"
+              sequence="10"/>
+
+    <menuitem id="menu_jigsaw_relations"
+              name="Relationships"
+              parent="menu_jigsaw_operations"
+              action="action_jigsaw_relation"
+              sequence="20"/>
+
+    <menuitem id="menu_jigsaw_activities"
+              name="Activities"
+              parent="menu_jigsaw_root"
+              sequence="30"/>
+
+    <menuitem id="menu_jigsaw_events"
+              name="Events"
+              parent="menu_jigsaw_activities"
+              action="action_jigsaw_event"
+              sequence="10"/>
+
+    <menuitem id="menu_jigsaw_transactions"
+              name="Transactions"
+              parent="menu_jigsaw_activities"
+              action="action_jigsaw_transaction"
+              sequence="20"/>
+
+    <menuitem id="menu_jigsaw_diagrams"
+              name="Visualizer"
+              parent="menu_jigsaw_root"
+              action="action_jigsaw_diagram"
+              sequence="40"/>
+
+    <menuitem id="menu_jigsaw_reports_root"
+              name="Reports"
+              parent="menu_jigsaw_root"
+              sequence="70"/>
+
+    <menuitem id="menu_jigsaw_config_root"
+              name="Configuration"
+              parent="menu_jigsaw_root"
+              sequence="100"/>
+</odoo>
+

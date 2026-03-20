@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Client: allow create always; restrict read/write/delete by company -->
+        <record id="purple_ai_client_comp_rule" model="ir.rule">
+            <field name="name">Purple AI Client Multi-Company</field>
+            <field name="model_id" ref="model_purple_ai_client"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+        <record id="purple_ai_extraction_result_comp_rule" model="ir.rule">
+            <field name="name">Purple AI Extraction Result Multi-Company</field>
+            <field name="model_id" ref="model_purple_ai_extraction_result"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+        <record id="purple_ai_invoice_processor_comp_rule" model="ir.rule">
+            <field name="name">Purple AI Invoice Processor Multi-Company</field>
+            <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+    </data>
+</odoo>

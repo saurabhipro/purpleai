@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purple_ai_client_user,purple_ai.client.user,model_purple_ai_client,base.group_user,1,1,1,1
+access_purple_ai_extraction_master_user,purple_ai.extraction_master.user,model_purple_ai_extraction_master,base.group_user,1,1,1,1
+access_purple_ai_extraction_field_user,purple_ai.extraction_field.user,model_purple_ai_extraction_field,base.group_user,1,1,1,1
+access_purple_ai_extraction_result_user,purple_ai.extraction_result.user,model_purple_ai_extraction_result,base.group_user,1,1,1,1
+access_purple_ai_property_query_user,purple_ai.property_query.user,model_purple_ai_property_query,base.group_user,1,1,1,1
+access_purple_ai_res_config_settings_user,purple_ai.res_config_settings.user,model_res_config_settings,base.group_user,1,1,1,1
+access_purple_ai_invoice_processor_user,purple_ai.invoice_processor.user,model_purple_ai_invoice_processor,base.group_user,1,1,1,1
+access_purple_ai_upload_invoice_wizard,purple_ai.upload_invoice_wizard.user,model_purple_ai_upload_invoice_wizard,base.group_user,1,1,1,1
+access_purple_ai_upload_invoice_file,purple_ai.upload_invoice_file.user,model_purple_ai_upload_invoice_file,base.group_user,1,1,1,1
+access_purple_ai_validation_rule_user,purple_ai.validation_rule.user,model_purple_ai_validation_rule,base.group_user,1,1,1,1

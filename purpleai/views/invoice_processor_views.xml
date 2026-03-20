@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_invoice_processor_tree" model="ir.ui.view">
+        <field name="name">purple_ai.invoice_processor.tree</field>
+        <field name="model">purple_ai.invoice_processor</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'failed'" decoration-info="state == 'posted'" decoration-warning="state == 'validation_failed'">
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="invoice_date"/>
+                <field name="invoice_number" decoration-bf="1"/>
+                <field name="vendor_name"/>
+                <field name="untaxed_amount"/>
+                <field name="gst_amount" string="GST"/>
+                <field name="tds_amount" string="TDS (10%)"/>
+                <field name="net_payable"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'posted'" 
+                       decoration-danger="state == 'failed'"
+                       decoration-info="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_invoice_processor_form" model="ir.ui.view">
+        <field name="name">purple_ai.invoice_processor.form</field>
+        <field name="model">purple_ai.invoice_processor</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_post" string="Post Journal Entry" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_push_to_tally" string="Push to Tally" type="object" class="btn-warning" icon="fa-exchange" invisible="state == 'cancel'"/>
+                    <button name="action_validate" string="Re-Run Validations" type="object" class="btn-secondary" invisible="state == 'posted'"/>
+                    <button name="action_export_validation_excel" string="Export Validation Report" type="object" class="btn-info" invisible="state not in ('draft', 'failed')"/>
+                    <button name="action_export_tally_excel" string="Export Tally Excel" type="object" class="btn-success" icon="fa-file-excel-o" invisible="state == 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,failed,posted"/>
+                </header>
+                <sheet>
+                    <div class="row g-0 o_audit_container">
+                        <!-- Left column: Data Tabs (40% Width) -->
+                        <div class="col-lg-5 border-end bg-light p-2 o_audit_left_panel" style="height: calc(100vh - 160px); overflow-y: auto;">
+                            <notebook>
+                                <page string="AI Extracted Data" name="ai_data" class="p-0">
+                                    <field name="extracted_data" widget="ai_evidence_viewer" nolabel="1"/>
+                                </page>
+                                
+                                <page string="Financial Details" name="financials">
+                                    <group>
+                                        <field name="untaxed_amount"/>
+                                        <field name="gst_rate"/>
+                                        <field name="gst_amount"/>
+                                        <field name="total_amount" class="fw-bold"/>
+                                        <field name="tds_rate"/>
+                                        <field name="tds_amount" string="TDS Deductible (10%)"/>
+                                        <field name="net_payable" class="fw-bold text-success"/>
+                                    </group>
+                                    <group string="System Links" invisible="not extraction_result_id">
+                                        <field name="extraction_result_id" readonly="1" options="{'no_open': True}"/>
+                                        <field name="move_id" readonly="1" invisible="not move_id"/>
+                                    </group>
+                                </page>
+                                <page string="Validations" name="validations">
+                                    <div class="o_horizontal_separator text-primary fw-bold mb-3" style="font-size: 1.1rem; border-bottom: 2px solid #007bff;">
+                                        Rule-Based Compliance Report
+                                    </div>
+                                    <field name="validation_log" nolabel="1"/>
+                                    <div class="alert alert-warning mt-3" invisible="state != 'failed'">
+                                        <i class="fa fa-warning me-2"/> Some rules have failed. Please review the <b>RED</b> sections on the PDF document to understand the issues.
+                                    </div>
+                                </page>
+                            </notebook>
+                        </div>
+
+                        <!-- Draggable Resizer Handle -->
+                        <div class="o_audit_resizer d-none d-lg-block"/>
+
+                        <!-- Right column: PDF Preview (60% Width) -->
+                        <div class="col-lg-7 bg-dark-subtle p-0 o_audit_right_panel">
+                            <div class="d-flex justify-content-between align-items-center bg-white border-bottom px-3 py-1">
+                                <h6 class="m-0 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05rem;">
+                                    <i class="fa fa-eye me-2"/> AUDITOR VIEWPORT
+                                </h6>
+                                <div class="badge rounded-pill text-bg-light border text-muted" style="font-size: 0.7rem;">
+                                    <field name="filename" readonly="1"/>
+                                </div>
+                            </div>
+                            <div style="height: calc(100vh - 160px); overflow: hidden; position: relative;" class="shadow-sm border o_audit_viewport_container bg-white">
+                                <field name="pdf_file" widget="pdf_viewer" nolabel="1" readonly="1" class="h-100 w-100 p-0 m-0"/>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_invoice_processor" model="ir.actions.act_window">
+        <field name="name">Invoice Processing Queue</field>
+        <field name="res_model">purple_ai.invoice_processor</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Process extracted invoices for accounting.
+          </p>
+          <p>
+            Invoices extracted by AI will appear here for verification and journal posting.
+          </p>
+        </field>
+    </record>
+    
+    <!-- Result form enhancement to add a process button -->
+    <record id="view_extraction_result_form_inherit" model="ir.ui.view">
+        <field name="name">purple_ai.extraction_result.form.inherit</field>
+        <field name="model">purple_ai.extraction_result</field>
+        <field name="inherit_id" ref="purpleai.view_extraction_result_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_process_invoice" string="Process for Accounting" type="object" class="btn-primary" invisible="state != 'done'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Bulk Export Action for List View -->
+    <record id="action_bulk_export_tally_excel" model="ir.actions.server">
+        <field name="name">Export Tally Excel (Bulk)</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.action_export_tally_excel()
+        </field>
+    </record>
+
+</odoo>

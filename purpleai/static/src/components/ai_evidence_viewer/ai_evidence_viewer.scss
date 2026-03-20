@@ -1,0 +1,224 @@
+.ai-evidence-container {
+    .evidence-list {
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+
+        .table {
+            margin-bottom: 0;
+
+            thead {
+                background: #f8fafc;
+                tr th {
+                    text-transform: uppercase;
+                    letter-spacing: 0.05rem;
+                    font-size: 0.7rem;
+                    color: #64748b;
+                    padding: 12px 16px;
+                    border-bottom: 2px solid #f1f5f9;
+                }
+            }
+
+            tr.evidence-row {
+                cursor: pointer;
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                border-left: 3px solid transparent;
+
+                &:hover {
+                    background-color: #f1f5f9 !important;
+                    border-left-color: #6366f1;
+                    transform: translateX(4px);
+
+                    .evidence-value {
+                        color: #4f46e5 !important;
+                    }
+
+                    .field-icon {
+                        background: #e0e7ff;
+                        color: #4f46e5;
+                        transform: scale(1.1);
+                    }
+                }
+
+                &.active-audit-row {
+                    background-color: #fff1f2 !important;
+                    border-left-color: #db2777;
+                    box-shadow: inset 4px 0 0 -1px #db2777;
+
+                    .evidence-value {
+                        color: #db2777 !important;
+                        font-weight: 700 !important;
+                    }
+
+                    .audit-actions {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+
+                td, th {
+                    padding: 14px 16px;
+                    vertical-align: middle;
+                }
+
+                .field-icon {
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 6px;
+                    background: #f1f5f9;
+                    color: #64748b;
+                    margin-right: 12px;
+                    font-size: 0.8rem;
+                    transition: all 0.2s;
+                }
+
+                .audit-actions {
+                    opacity: 0;
+                    transform: translateX(10px);
+                    transition: all 0.2s ease-out;
+                    display: flex;
+                    gap: 8px;
+                }
+
+                &:hover .audit-actions {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+        }
+    }
+
+    .input-group {
+        border-radius: 4px;
+        overflow: hidden;
+
+        input:focus {
+            box-shadow: none;
+            border-color: #db2777;
+        }
+
+        .btn {
+            border: none;
+
+            &:hover {
+                filter: brightness(0.9);
+            }
+        }
+    }
+
+    .evidence-value {
+        font-family: 'Inter', ui-monospace, monospace;
+        letter-spacing: -0.01em;
+        font-size: 0.85rem;
+    }
+}
+
+.highlight-viewer {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25) !important;
+    border-radius: 4px;
+}
+
+.o_audit_container {
+    display: flex;
+    flex-wrap: nowrap !important;
+    position: relative;
+
+    .o_audit_left_panel {
+        flex: 0 0 40%;
+        width: 40%;
+        overflow-y: auto;
+    }
+
+    .o_audit_resizer {
+        width: 6px;
+        background: #dee2e6;
+        cursor: col-resize;
+        z-index: 10;
+        position: relative;
+        left: -3px;
+
+        &:hover,
+        &.active {
+            background: #0d6efd;
+            width: 8px;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 30px;
+            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .o_audit_right_panel {
+        flex: 1 1 auto;
+        min-width: 0;
+        background-color: #ffffff;
+    }
+
+    .o_audit_viewport_container {
+        background-color: #ffffff !important;
+
+        // Target Odoo's internal PDF viewer backgrounds
+        .o_field_pdf_viewer {
+            background-color: #ffffff !important;
+
+            iframe {
+                background: #ffffff !important;
+            }
+        }
+    }
+
+    // PREMIUM PILL TABS
+    .o_notebook_headers {
+        padding: 10px 15px;
+        background: #fff;
+        border-bottom: 2px solid #f1f3f5;
+
+        .nav-tabs {
+            border-bottom: none !important;
+            gap: 12px;
+
+            .nav-item {
+                .nav-link {
+                    border: 1px solid #1e293b;
+                    border-radius: 25px !important;
+                    padding: 8px 24px !important;
+                    font-size: 0.85rem;
+                    font-weight: 500;
+                    color: #1e293b;
+                    background: transparent;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    margin-bottom: 0 !important;
+
+                    &:hover {
+                        background: #f1f5f9;
+                        transform: translateY(-1px);
+                    }
+
+                    &.active {
+                        background: #1e293b !important;
+                        color: #ffffff !important;
+                        border-color: #1e293b !important;
+                        box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+                    }
+                }
+            }
+        }
+    }
+
+    .o_notebook_content {
+        background: #fff;
+    }
+}

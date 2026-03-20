@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Demo Project: Demo Capital Structure -->
+    <record id="entity_cap_llc" model="jigsaw.entity">
+        <field name="name">Demo Capital LLC</field>
+        <field name="type">company</field>
+        <field name="subtype">llc</field>
+        <field name="country_id" ref="base.ca"/>
+        <field name="jurisdiction">British Columbia</field>
+    </record>
+
+    <record id="entity_master_fund" model="jigsaw.entity">
+        <field name="name">Demo Capital Master Fund LP</field>
+        <field name="type">fund</field>
+        <field name="country_id" ref="base.us"/>
+        <field name="jurisdiction">Delaware</field>
+    </record>
+
+    <record id="entity_jonah" model="jigsaw.entity">
+        <field name="name">Jonah Smith</field>
+        <field name="type">individual</field>
+        <field name="country_id" ref="base.ca"/>
+        <field name="jurisdiction">British Columbia</field>
+    </record>
+
+    <record id="entity_rachel" model="jigsaw.entity">
+        <field name="name">Rachel Lee</field>
+        <field name="type">individual</field>
+        <field name="country_id" ref="base.us"/>
+        <field name="jurisdiction">Delaware</field>
+    </record>
+
+    <record id="entity_sarah" model="jigsaw.entity">
+        <field name="name">Sarah Jones</field>
+        <field name="type">individual</field>
+        <field name="country_id" ref="base.uk"/>
+        <field name="jurisdiction">United Kingdom</field>
+    </record>
+
+    <record id="entity_cap_lp" model="jigsaw.entity">
+        <field name="name">Demo Capital LP</field>
+        <field name="type">fund</field>
+        <field name="subtype">partnership</field>
+        <field name="country_id" ref="base.us"/>
+        <field name="jurisdiction">Delaware</field>
+    </record>
+
+    <record id="entity_cap_ii_lp" model="jigsaw.entity">
+        <field name="name">Demo Capital II LP</field>
+        <field name="type">fund</field>
+        <field name="subtype">partnership</field>
+        <field name="country_id" ref="base.us"/>
+        <field name="jurisdiction">Delaware</field>
+    </record>
+
+    <record id="entity_external" model="jigsaw.entity">
+        <field name="name">External Investors</field>
+        <field name="type">individual</field>
+        <field name="jurisdiction">European Union</field>
+    </record>
+
+    <record id="entity_topco" model="jigsaw.entity">
+        <field name="name">TopCo</field>
+        <field name="type">company</field>
+        <field name="jurisdiction">Cayman Islands</field>
+    </record>
+
+    <record id="entity_holdings" model="jigsaw.entity">
+        <field name="name">Demo Holdings LLC</field>
+        <field name="type">company</field>
+        <field name="subtype">llc</field>
+        <field name="country_id" ref="base.uk"/>
+        <field name="jurisdiction">United Kingdom</field>
+    </record>
+
+    <!-- Demo Relations -->
+    <record id="rel_llc_lp" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_cap_llc"/>
+        <field name="target_entity_id" ref="entity_cap_lp"/>
+        <field name="ownership_pct">5.0</field>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_mf_lp" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_master_fund"/>
+        <field name="target_entity_id" ref="entity_cap_lp"/>
+        <field name="ownership_pct">95.0</field>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_jonah_ii" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_jonah"/>
+        <field name="target_entity_id" ref="entity_cap_ii_lp"/>
+        <field name="ownership_pct">92.0</field>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_rachel_ii" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_rachel"/>
+        <field name="target_entity_id" ref="entity_cap_ii_lp"/>
+        <field name="ownership_pct">8.0</field>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_lp_top" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_cap_lp"/>
+        <field name="target_entity_id" ref="entity_topco"/>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_ii_top" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_cap_ii_lp"/>
+        <field name="target_entity_id" ref="entity_topco"/>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <record id="rel_ext_hold" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_external"/>
+        <field name="target_entity_id" ref="entity_holdings"/>
+        <field name="relationship_type">owns</field>
+    </record>
+    
+    <record id="rel_sarah_hold" model="jigsaw.relation">
+        <field name="source_entity_id" ref="entity_sarah"/>
+        <field name="target_entity_id" ref="entity_holdings"/>
+        <field name="relationship_type">owns</field>
+    </record>
+
+    <!-- Demo Diagram -->
+    <record id="diagram_main" model="jigsaw.diagram">
+        <field name="name">Demo Capital Master Structure</field>
+        <field name="entity_ids" eval="[(6, 0, [ref('entity_cap_llc'), ref('entity_master_fund'), ref('entity_jonah'), ref('entity_rachel'), ref('entity_sarah')])]"/>
+    </record>
+</odoo>
+

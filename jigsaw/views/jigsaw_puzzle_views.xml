@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Actions -->
+    <record id="action_jigsaw_entity" model="ir.actions.act_window">
+        <field name="name">Entities</field>
+        <field name="res_model">jigsaw.entity</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+
+    <record id="action_jigsaw_relation" model="ir.actions.act_window">
+        <field name="name">Relationships</field>
+        <field name="res_model">jigsaw.relation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_jigsaw_relation_incoming" model="ir.actions.act_window">
+        <field name="name">Incoming Relationships</field>
+        <field name="res_model">jigsaw.relation</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('target_entity_id', '=', active_id)]</field>
+    </record>
+
+    <record id="action_jigsaw_relation_outgoing" model="ir.actions.act_window">
+        <field name="name">Outgoing Relationships</field>
+        <field name="res_model">jigsaw.relation</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('source_entity_id', '=', active_id)]</field>
+    </record>
+
+    <record id="action_jigsaw_diagram" model="ir.actions.act_window">
+        <field name="name">Diagrams</field>
+        <field name="res_model">jigsaw.diagram</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_jigsaw_event" model="ir.actions.act_window">
+        <field name="name">Events</field>
+        <field name="res_model">jigsaw.event</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_jigsaw_transaction" model="ir.actions.act_window">
+        <field name="name">Transactions</field>
+        <field name="res_model">jigsaw.transaction</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_jigsaw_workshop" model="ir.actions.client">
+        <field name="name">PurpleMaps</field>
+        <field name="tag">jigsaw.workshop</field>
+    </record>
+
+    <!-- Entity Tree View -->
+    <record id="view_jigsaw_entity_tree" model="ir.ui.view">
+        <field name="name">jigsaw.entity.tree</field>
+        <field name="model">jigsaw.entity</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="subtype"/>
+                <field name="jurisdiction"/>
+                <field name="country_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Entity Form View -->
+    <record id="view_jigsaw_entity_form" model="ir.ui.view">
+        <field name="name">jigsaw.entity.form</field>
+        <field name="model">jigsaw.entity</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_jigsaw_relation_incoming)d" type="action" class="oe_stat_button" icon="fa-arrow-left" context="{'search_default_target_entity_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Incoming</span>
+                            </div>
+                        </button>
+                        <button name="%(action_jigsaw_relation_outgoing)d" type="action" class="oe_stat_button" icon="fa-arrow-right" context="{'search_default_source_entity_id': id}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Outgoing</span>
+                            </div>
+                        </button>
+                    </div>
+                    <field name="avatar" widget="image" class="oe_avatar" options="{'preview_image': 'avatar'}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="Entity Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type"/>
+                            <field name="subtype"/>
+                            <field name="jurisdiction"/>
+                            <field name="registration_no"/>
+                        </group>
+                        <group>
+                            <field name="country_id" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="partner_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="entity_id_external"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Relationships" name="relationships">
+                            <group>
+                                <separator string="Outgoing Relationships"/>
+                                <field name="relation_ids" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="target_entity_id"/>
+                                        <field name="relationship_type"/>
+                                        <field name="ownership_pct"/>
+                                        <field name="control_pct"/>
+                                        <field name="effective_from"/>
+                                        <field name="effective_to"/>
+                                    </list>
+                                </field>
+                                <separator string="Incoming Relationships"/>
+                                <field name="target_relation_ids" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="source_entity_id"/>
+                                        <field name="relationship_type"/>
+                                        <field name="ownership_pct"/>
+                                        <field name="control_pct"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Timeline" name="timeline">
+                            <field name="event_ids">
+                                <list editable="bottom">
+                                    <field name="date"/>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Transactions" name="transactions">
+                            <field name="transaction_ids"/>
+                        </page>
+                        <page string="Metadata" name="metadata">
+                            <field name="metadata_json" widget="ace" options="{'mode': 'json'}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Event Views -->
+    <record id="view_jigsaw_event_tree" model="ir.ui.view">
+        <field name="name">jigsaw.event.tree</field>
+        <field name="model">jigsaw.event</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="name"/>
+                <field name="entity_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Transaction Views -->
+    <record id="view_jigsaw_transaction_tree" model="ir.ui.view">
+        <field name="name">jigsaw.transaction.tree</field>
+        <field name="model">jigsaw.transaction</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="name"/>
+                <field name="source_entity_id"/>
+                <field name="target_entity_id"/>
+                <field name="amount"/>
+                <field name="currency_id" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Relation Views -->
+    <record id="view_jigsaw_relation_form" model="ir.ui.view">
+        <field name="name">jigsaw.relation.form</field>
+        <field name="model">jigsaw.relation</field>
+        <field name="arch" type="xml">
+            <form string="Relationship">
+                <sheet>
+                    <group>
+                        <group string="Entities">
+                            <field name="source_entity_id" readonly="context.get('default_source_entity_id')"/>
+                            <field name="target_entity_id" readonly="context.get('default_target_entity_id')"/>
+                        </group>
+                        <group string="Investment &amp; Type">
+                            <field name="relationship_type"/>
+                            <label for="ownership_pct" string="Investment %"/>
+                            <div class="o_row">
+                                <field name="ownership_pct" class="oe_inline"/> %
+                            </div>
+                            <label for="control_pct" string="Control %"/>
+                            <div class="o_row">
+                                <field name="control_pct" class="oe_inline"/> %
+                            </div>
+                        </group>
+                    </group>
+                    <group string="Period &amp; Details">
+                        <group>
+                            <field name="effective_from"/>
+                            <field name="effective_to"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_jigsaw_relation_tree" model="ir.ui.view">
+        <field name="name">jigsaw.relation.tree</field>
+        <field name="model">jigsaw.relation</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="source_entity_id"/>
+                <field name="target_entity_id"/>
+                <field name="relationship_type"/>
+                <field name="ownership_pct"/>
+                <field name="control_pct"/>
+                <field name="effective_from"/>
+                <field name="effective_to"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Diagram Tree View -->
+    <record id="view_jigsaw_diagram_tree" model="ir.ui.view">
+        <field name="name">jigsaw.diagram.tree</field>
+        <field name="model">jigsaw.diagram</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Diagram Form View -->
+    <record id="view_jigsaw_diagram_form" model="ir.ui.view">
+        <field name="name">jigsaw.diagram.form</field>
+        <field name="model">jigsaw.diagram</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open_workshop" type="object" string="Open PurpleMaps" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="Structure Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="entity_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

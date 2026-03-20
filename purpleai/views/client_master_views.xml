@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purple_ai_client_tree" model="ir.ui.view">
+        <field name="name">purple_ai.client.tree</field>
+        <field name="model">purple_ai.client</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="folder_path"/>
+                <field name="extraction_master_id"/>
+                <field name="last_scan"/>
+                <field name="processed_count" string="Files Processed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_purple_ai_client_form" model="ir.ui.view">
+        <field name="name">purple_ai.client.form</field>
+        <field name="model">purple_ai.client</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_scan_folder" string="Scan Now" type="object" class="btn-primary" icon="fa-refresh" invisible="scan_status == 'scanning'"/>
+                    <button string="Scanning..." class="btn-secondary" disabled="1" icon="fa-spinner fa-spin" invisible="scan_status != 'scanning'"/>
+                    <button name="action_view_results" string="View Results" type="object" icon="fa-list"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="Client Name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Basic Information">
+                            <field name="name" placeholder="e.g. GT"/>
+                            <field name="extraction_master_id" placeholder="e.g. Invoice Template"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="System Configuration">
+                            <field name="folder_path" readonly="1" force_save="1"/>
+                            <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                            <field name="last_scan"/>
+                        </group>
+                    </group>
+                    
+                    <!-- <group string="Scan Progress" invisible="scan_status == 'idle' and scan_progress == 0">
+                        <label for="scan_progress" string="Processing Status"/>
+                        <div class="o_row">
+                            <field name="scan_progress" widget="progressbar" class="oe_inline"/>
+                            <span invisible="scan_status == 'idle'">
+                                <i class="fa fa-spinner fa-spin"/> <field name="scan_current_file" class="oe_inline"/>
+                            </span>
+                            <span invisible="scan_status == 'scanning'">
+                                <field name="scan_current_file" class="oe_inline"/>
+                            </span>
+                        </div>
+                        <field name="scan_status" invisible="1"/>
+                    </group> -->
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle"/> PDFs placed in the <b>Watch Folder</b> will be automatically processed using the selected template.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_purple_ai_client" model="ir.actions.act_window">
+        <field name="name">Clients &amp; Folders</field>
+        <field name="res_model">purple_ai.client</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

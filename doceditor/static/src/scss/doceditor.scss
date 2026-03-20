@@ -1,0 +1,96 @@
+/**
+ * DocEditor 18: CKEditor 5 Premium Integration
+ */
+
+.o_doceditor_container {
+    height: 100%;
+    background-color: #f3f3f3;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+    /* CKEditor 5 Content Area Styling */
+    .ck-editor__editable {
+        min-height: 11in !important;
+        width: 100% !important;
+        padding: 0.5in 1in !important;
+        box-shadow: none !important;
+        border: none !important;
+        font-family: 'Times New Roman', serif;
+        font-size: 11pt;
+        line-height: 1.5;
+    }
+
+    .ck-editor__main {
+        background: white;
+    }
+
+    /* Fixed width for the editor wrapper to simulate a page */
+    .o_ckeditor5_wrapper {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+        background: white;
+        overflow: hidden;
+        border-radius: 4px;
+
+        .ck-editor__top {
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .ck-toolbar {
+            display: flex !important;
+            border: none !important;
+            border-bottom: 1px solid #ced4da !important;
+            background-color: #f8f9fa !important;
+            padding: 8px !important;
+        }
+    }
+
+    /* Track Changes Review Sidebar */
+    .o_doceditor_review_sidebar {
+        background-color: #f8f9fa;
+        border-left: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+
+        .o_sidebar_cards {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .o_sidebar_card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            border-left: 4px solid #ced4da;
+
+            &:hover {
+                transform: scale(1.01);
+            }
+
+            &.o_card_remove {
+                border-left-color: #ef4444;
+            }
+
+            &.o_card_replace {
+                border-left-color: #10b981;
+            }
+
+            &.o_card_comment {
+                border-left-color: #f59e0b;
+            }
+
+            .smaller {
+                font-size: 9px;
+                color: #6b7280;
+            }
+
+            .smallest {
+                font-size: 10px;
+            }
+
+            .fw-bold {
+                color: #111827;
+            }
+        }
+    }
+}

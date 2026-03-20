@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jigsaw_puzzle,access_jigsaw_puzzle,model_jigsaw_puzzle,base.group_user,1,1,1,1
+access_jigsaw_entity,access_jigsaw_entity,model_jigsaw_entity,base.group_user,1,1,1,1
+access_jigsaw_relation,access_jigsaw_relation,model_jigsaw_relation,base.group_user,1,1,1,1
+access_jigsaw_diagram,access_jigsaw_diagram,model_jigsaw_diagram,base.group_user,1,1,1,1
+access_jigsaw_event,access_jigsaw_event,model_jigsaw_event,base.group_user,1,1,1,1
+access_jigsaw_transaction,access_jigsaw_transaction,model_jigsaw_transaction,base.group_user,1,1,1,1

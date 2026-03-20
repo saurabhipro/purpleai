@@ -1045,7 +1045,7 @@
 												t-att-checked="config_vals.drawer_color_pallet == 'drawer_pallet_19'" />
 											<label class="custom-control-label" for="drawer_color_pallet_19">
 												<img style="" class="img img-fluid"
-													src="/spiffy_theme_backend/static/src/image/pallet_19.png" />
+													src="/spiffy_theme_backend/static/src/image/pallet_gt.png" />
 											</label>
 										</div>
 									</div>
@@ -1299,18 +1299,6 @@
 										</div>
 									</div>
 								</div>
-								<div class="col-md-6 mb-3">
-									<div class="form_check_content">
-										<div class="form-check">
-											<input type="radio" class="form-check-input" id="font_family_16"
-												name="font_family" value="cairo"
-												t-att-checked="config_vals.font_family == 'cairo'" />
-											<label class="font_family_cairo custom-control-label" for="font_family_16">
-												<span class="text-style-design">Cairo</span>
-											</label>
-										</div>
-									</div>
-								</div>
 								<div class="col-md-6 mb-3 ps-md-0">
 									<div class="form_check_content">
 										<div class="form-check">
@@ -1319,6 +1307,19 @@
 												t-att-checked="config_vals.font_family == 'almarai'" />
 											<label class="font_family_almarai custom-control-label" for="font_family_15">
 												<span class="text-style-design">Almarai</span>
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-md-6 mb-3">
+									<div class="form_check_content">
+										<div class="form-check">
+											<input type="radio" class="form-check-input" id="font_family_16"
+												name="font_family" value="cairo"
+												t-att-checked="config_vals.font_family == 'cairo'" />
+											<label class="font_family_arial custom-control-label" for="font_family_16">
+												<span class="text-style-design">Arial</span>
 											</label>
 										</div>
 									</div>
@@ -1633,19 +1634,19 @@
 									</div>
 									
 								</div>
-								<div class="col-md-6 mb-3">
+
+								<div class="col-md-6 mb-3 ps-md-0">
 									<div class="form_check_content">
 									<div class="form-check">
-										<input type="radio" class="form-check-input" id="color_pallet_19"
+										<input type="radio" class="form-check-input" id="color_pallet_gt"
 											name="color_pallets" value="pallet_19"
 											t-att-checked="config_vals.color_pallet == 'pallet_19'" />
-										<label class="custom-control-label" for="color_pallet_19">
+										<label class="custom-control-label" for="color_pallet_gt">
 											<img style="" class="img img-fluid"
-												src="/spiffy_theme_backend/static/src/image/pallet_19.png" />
+												src="/spiffy_theme_backend/static/src/image/pallet_gt.png" />
 										</label>
 									</div>
 									</div>
-									
 								</div>
 							</div>
 						</div>

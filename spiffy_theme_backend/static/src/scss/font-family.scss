@@ -17,39 +17,55 @@ $spiffy_fonts: (
     Nunito_Sans: 'NunitoSans',
     almarai: 'Almarai',
     tajawal: 'Tajawal',
-    cairo: 'Cairo'
+    cairo: 'Arial, sans-serif'
 ) !default;
 
 $spiffy-fonts-path: '../../lib';
 
 @each $font, $name in $spiffy_fonts {
-    @font-face{
-        font-family: "#{$name}";
-        src: url("#{$spiffy-fonts-path}/#{$name}/#{$name}-Regular.ttf") format("truetype");
+    @if $font != 'cairo' {
+        @font-face {
+            font-family: "#{$name}";
+            src: url("#{$spiffy-fonts-path}/#{$name}/#{$name}-Regular.ttf") format("truetype");
+        }
     }
 }
 
-body{
+body {
     @each $font, $name in $spiffy_fonts {
         &.font_family_#{$font} {
             font-family: #{$name};
         }
     }
-    .dynamic_data{
-        #font_family{
-            .text-style-design{
+
+    .dynamic_data {
+        #font_family {
+            .text-style-design {
                 font-size: 16px;
             }
+
             @each $font, $name in $spiffy_fonts {
                 .font_family_#{$font} {
-                    .text-style-design{
+                    .text-style-design {
                         font-family: #{$name};
                     }
                 }
             }
         }
     }
-    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .h1,
+    .h2,
+    .h3,
+    .h4,
+    .h5,
+    .h6 {
         font-family: inherit;
     }
 }

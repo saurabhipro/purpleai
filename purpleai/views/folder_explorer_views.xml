@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_folder_explorer" model="ir.actions.client">
+        <field name="name">Folder Explorer</field>
+        <field name="tag">purpleai.action_folder_explorer</field>
+    </record>
+</odoo>

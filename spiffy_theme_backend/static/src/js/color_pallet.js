@@ -138,16 +138,16 @@ class ColorPallet extends Widget {
     }
     pallet_19() {
         $(':root').css({
-            "--light-theme-primary-color": "#0097a7",
+            "--light-theme-primary-color": "#583885",
             "--light-theme-primary-text-color": "#ffffff",
-            "--primary-rgba": '#0097a7b3',
+            "--primary-rgba": '#583885b3',
         });
     }
     custom_color_pallet(record_dict) {
         $(':root').css({
             "--light-theme-primary-color": record_dict.light_primary_bg_color,
             "--light-theme-primary-text-color": record_dict.light_primary_text_color,
-            "--primary-rgba": record_dict.light_primary_bg_color+'b3',
+            "--primary-rgba": record_dict.light_primary_bg_color + 'b3',
         });
     }
     header_color_pallet(record_dict) {
@@ -161,7 +161,7 @@ class ColorPallet extends Widget {
         if (converthex.length === 1) {
             var hex = "0" + converthex;
         }
-        else{
+        else {
             var hex = converthex
         }
         $(':root').css({
@@ -174,6 +174,6 @@ class ColorPallet extends Widget {
             "--app-drawer-custom-text-color": record_dict.appdrawer_custom_text_color,
         });
     }
-    
+
 };
 export { ColorPallet }; 

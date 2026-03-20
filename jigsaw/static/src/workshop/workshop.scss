@@ -1,0 +1,374 @@
+// ============================================================
+//  Jigsaw Workshop — Clean Corporate Diagram Styles
+//  Inspired by the reference image: white bg, SVG shapes,
+//  thin borders, minimal decoration.
+// ============================================================
+
+.jigsaw-workshop {
+    // ── Design Tokens ──────────────────────────────────────
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --indigo-50: #eef2ff;
+    --indigo-100: #e0e7ff;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --indigo-700: #4338ca;
+
+    --node-width: 180px;
+    --node-min-height: 72px;
+
+    height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    user-select: none;
+
+    // Hide Odoo shell UI so workshop is full-screen
+    :global(.o_main_navbar),
+    :global(.o_navbar),
+    :global(.o_app_sidebar),
+    :global(.o_apps_sidebar) {
+        display: none !important;
+    }
+
+    :global(.o_action_manager) {
+        top: 0 !important;
+        height: 100vh !important;
+        width: 100vw !important;
+    }
+
+    // ── Header / Ribbon ────────────────────────────────────
+    .jigsaw-header {
+        height: 80px;
+        background: white !important;
+        border-bottom: 1px solid var(--slate-200) !important;
+
+        .header-logo {
+            border-right: 1px solid var(--slate-200);
+            background: white;
+        }
+
+        .nav-btn {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--slate-600);
+            padding: 10px 0;
+            width: 96px;
+            border-right: 1px solid var(--slate-200);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+
+            &:hover {
+                background: var(--slate-50);
+                color: var(--indigo-600);
+
+                i {
+                    color: var(--indigo-600);
+                }
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &.active {
+                background: var(--indigo-50) !important;
+                color: var(--indigo-700) !important;
+
+                i {
+                    color: var(--indigo-700) !important;
+                }
+            }
+
+            i {
+                font-size: 1.1rem;
+                margin-bottom: 4px;
+                color: var(--slate-400);
+                transition: color 0.15s ease;
+            }
+        }
+    }
+
+    // ── Tags bar ───────────────────────────────────────────
+    .jigsaw-tags-bar {
+        background: white !important;
+        border-bottom: 1px solid var(--slate-200) !important;
+
+        .tag-item {
+            font-size: 0.7rem;
+            color: var(--slate-600);
+
+            &.active {
+                border-color: #3b82f6;
+                color: #2563eb;
+                background: #eff6ff;
+            }
+        }
+    }
+
+    // ── Canvas wrapper ─────────────────────────────────────
+    .canvas-wrapper {
+        background: #ffffff;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    // ── Zoom/pan viewport div (carries the CSS transform) ───
+    .jigsaw-workshop-canvas {
+        width: 10000px;
+        height: 10000px;
+        position: relative; // SVG is absolute inside this
+    }
+
+    // ── SVG fills the viewport div ─────────────────────────
+    .jigsaw-svg-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible; // links/toolbar may extend outside
+    }
+
+    // ── Link paths ─────────────────────────────────────────
+    .svg-link {
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: square;
+        stroke-linejoin: miter;
+        transition: stroke-width 0.15s ease;
+        pointer-events: visibleStroke;
+        cursor: pointer;
+
+        &:hover {
+            stroke-width: 2.5;
+        }
+    }
+
+    .svg-link-pct {
+        font-size: 12px;
+        font-weight: 700;
+        fill: #1e293b;
+        // Halo so it reads over lines
+        paint-order: stroke;
+        stroke: white;
+        stroke-width: 4px;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .svg-link-type {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        paint-order: stroke;
+        stroke: white;
+        stroke-width: 3px;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    // ── SVG Node group ─────────────────────────────────────
+    .jigsaw-node {
+        cursor: move;
+        transition: opacity 0.25s ease;
+
+        &.filtered-out {
+            opacity: 0.12;
+            pointer-events: none;
+        }
+
+        // node-selected: stroke changes handled via SVG attributes directly
+
+        &.node-linking-target {
+            cursor: cell;
+            opacity: 0.8;
+        }
+
+        // node-linking-source: pulsing handled via JS opacity
+    }
+
+    // Text inside SVG nodes
+    .node-text-name {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        fill: #0f172a;
+        pointer-events: none;
+    }
+
+    .node-text-jurisdiction {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        fill: #64748b;
+        pointer-events: none;
+    }
+
+    // SVG toolbar buttons
+    .node-toolbar {
+        pointer-events: auto;
+
+        .toolbar-btn {
+            cursor: pointer;
+
+            &:hover rect {
+                fill: #e0e7ff;
+            }
+        }
+    }
+
+    // ── Sidebar ────────────────────────────────────────────
+    .left-sidebar,
+    .right-sidebar {
+        z-index: 90;
+        transition: transform 0.3s ease;
+    }
+
+    .tool-item {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        color: var(--slate-400);
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: var(--slate-100);
+            color: var(--slate-800);
+        }
+
+        &.active {
+            background: var(--indigo-50);
+            color: var(--indigo-600);
+        }
+    }
+
+    .workshop-body {
+        position: relative;
+    }
+}
+
+// ── Bottom toolbar ─────────────────────────────────────────
+.bottom-toolbar {
+    z-index: 100;
+
+    .control-item {
+        color: var(--slate-400, #94a3b8);
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #4f46e5;
+        }
+    }
+}
+
+// ── Context Menu ───────────────────────────────────────────
+.jigsaw-context-menu {
+    font-size: 0.8rem;
+}
+
+// ── Filter / visibility ────────────────────────────────────
+.filtered-out {
+    opacity: 0.12;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+// ── Modals ─────────────────────────────────────────────────
+.jigsaw-modal-overlay {
+    animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.jigsaw-modal {
+
+    .form-control,
+    .form-select {
+        border-color: var(--slate-200, #e2e8f0);
+
+        &:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+    }
+}
+
+// ── Entity list (sidebar) ──────────────────────────────────
+.entity-list-item {
+    transition: background 0.15s;
+
+    &:hover {
+        background: var(--slate-50, #f8fafc);
+    }
+}
+
+// ── Animations ─────────────────────────────────────────────
+@keyframes pulse-border {
+    0% {
+        outline: 0px solid rgba(79, 70, 229, 0);
+    }
+
+    50% {
+        outline: 10px solid rgba(79, 70, 229, 0.3);
+    }
+
+    100% {
+        outline: 0px solid rgba(79, 70, 229, 0);
+    }
+}
+
+.bg-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+// ── Floating toolbar (HTML, for context menu) ──────────────
+.floating-toolbar {
+    .tool-btn {
+        transition: all 0.15s ease;
+
+        &:hover {
+            color: var(--indigo-600, #4f46e5) !important;
+
+            i {
+                color: var(--indigo-600, #4f46e5);
+            }
+        }
+
+        &.text-danger:hover {
+            background: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
+    }
+}

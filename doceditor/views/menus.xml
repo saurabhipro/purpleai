@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_doceditor_root" name="DocEditor" web_icon="doceditor,static/description/icon.png" groups="base.group_user"/>
+    <menuitem id="menu_doc_document" name="Word Documents" parent="menu_doceditor_root" action="action_doc_document" sequence="10"/>
+</odoo>

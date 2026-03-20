@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <template id="portal_record_sidebar_inherit" inherit_id="portal.portal_record_sidebar">
-        <xpath expr="//div[hasclass('text-muted')]" position="replace">
-            <div class="d-none d-lg-block mt-5 small text-center text-muted">
-            </div>
-        </xpath>
-    </template>
-</odoo>

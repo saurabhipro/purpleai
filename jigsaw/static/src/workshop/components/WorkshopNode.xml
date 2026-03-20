@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="jigsaw.WorkshopNode" owl="1">
+        <div class="jigsaw-node"
+             t-att-class="{ 
+                'selected': props.state.selectedNodeIds.includes(props.node.id), 
+                'filtered-out': props.isFiltered,
+                'linking-target': props.state.linkingNodeId and props.state.linkingNodeId !== props.node.id,
+                'linking-source': props.state.linkingNodeId === props.node.id,
+                'type-company': props.node.type === 'company',
+                'type-individual': props.node.type === 'individual',
+                'type-trust': props.node.type === 'trust',
+                'type-fund': props.node.type === 'fund',
+                'type-gov': props.node.type === 'gov',
+                'type-asset': props.node.type === 'asset'
+             }"
+             t-att-style="style"
+             t-att-data-id="props.node.id"
+             t-on-dblclick="() => props.onEdit(props.node.id)">
+            
+            <div class="flag-icon" t-if="props.node.country">
+                <img t-att-src="'/base/static/img/country_flags/' + props.node.country.toLowerCase() + '.png'" 
+                     t-att-title="props.node.country.toUpperCase()"/>
+            </div>
+            
+            <div class="node-inner shadow-sm">
+                <div class="node-content-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center position-relative">
+                    <div class="node-name" t-att-title="props.node.name">
+                        <t t-esc="props.node.name"/>
+                    </div>
+                    <div class="node-jurisdiction" t-if="props.node.jurisdiction">
+                        (<t t-esc="props.node.jurisdiction"/>)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Toolbar (Visible only on single selection) -->
+            <t t-if="props.state.selectedNodeIds.length === 1 and props.state.selectedNodeIds[0] === props.node.id and !props.state.linkingNodeId">
+                <div class="floating-toolbar position-absolute shadow bg-white border border-slate-200 rounded d-flex align-items-center px-1" 
+                     style="top: -45px; left: 50%; transform: translateX(-50%); z-index: 50; gap: 4px; pointer-events: auto;">
+                    <div class="tool-btn btn btn-sm btn-light border-0 py-1 text-slate-600 bg-white hover-bg-slate-50" 
+                         style="font-size: 0.75rem;"
+                         t-on-click.stop="() => props.onLine(props.node.id)">
+                         <i class="fa fa-code-fork me-1"></i> Line
+                    </div>
+                    <div class="tool-btn btn btn-sm btn-light border-0 border-start py-1 text-slate-600 bg-white hover-bg-slate-50 rounded-0" 
+                         t-on-click.stop="() => props.onEdit(props.node.id)"
+                         style="font-size: 0.75rem;"><i class="fa fa-pencil me-1"></i> Edit</div>
+                    <div class="tool-btn btn btn-sm btn-light border-0 border-start py-1 text-danger bg-white hover-bg-red-50 rounded-0" 
+                         t-on-click.stop="() => props.onDelete(props.node.id)"
+                         style="font-size: 0.75rem;"><i class="fa fa-trash me-1"></i> Delete</div>
+                    <div class="tool-btn btn btn-sm btn-light border-0 border-start py-1 text-slate-600 bg-white hover-bg-slate-50 rounded-0" 
+                         t-on-click.stop="() => props.onComment(props.node.id)" style="font-size: 0.75rem;">
+                         <i class="fa fa-comment-o me-1"></i> Comment
+                    </div>
+                </div>
+            </t>
+
+            <!-- Comment Badge -->
+            <t t-if="props.hasComments and props.state.showCommentInputForNode !== props.node.id">
+                <div class="position-absolute bg-white rounded-circle shadow-sm border border-slate-200 d-flex justify-content-center align-items-center cursor-pointer" 
+                     style="width: 24px; height: 24px; top: -10px; right: -15px; z-index: 12;"
+                    t-on-click.stop="() => props.state.activeSidebar = 'comments'">
+                    <div class="bg-indigo-500 rounded-circle text-white fw-bold d-flex justify-content-center align-items-center" style="width: 20px; height: 20px; font-size: 9px;">BM</div>
+                </div>
+            </t>
+
+            <!-- Comment Input Popover -->
+            <t t-if="props.state.showCommentInputForNode === props.node.id">
+                <div class="position-absolute bg-white shadow-lg border border-slate-300 rounded p-1 d-flex align-items-center" 
+                     style="width: 240px; top: 0px; right: -250px; z-index: 60; pointer-events: auto;"
+                     t-on-mousedown.stop="">
+                    <div class="bg-indigo-500 rounded-circle text-white fw-bold d-flex justify-content-center align-items-center me-2 ms-1" style="width: 24px; height: 24px; font-size: 10px; flex-shrink: 0;">BM</div>
+                    <input type="text" class="form-control form-control-sm border-0 shadow-none px-1 h-100" 
+                           placeholder="Add comment" t-model="props.state.newCommentText" t-on-keydown="props.onCommentKeydown" style="font-size: 0.8rem;" />
+                    <div class="cursor-pointer text-slate-400 p-2" t-on-click.stop="props.submitComment">
+                        <i class="fa fa-paper-plane-o"></i>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

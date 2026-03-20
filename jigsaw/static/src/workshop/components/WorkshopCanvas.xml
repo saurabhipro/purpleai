@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="jigsaw.WorkshopCanvas" owl="1">
+        <div class="canvas-wrapper flex-grow-1 position-relative overflow-hidden h-100">
+
+            <!--
+                Zoom / Pan layer — a large fixed-size div that carries the CSS transform.
+                Nodes and links are SVG primitives drawn inside a single <svg> that fills this div.
+            -->
+            <div class="jigsaw-workshop-canvas"
+                 t-att-style="'transform: scale(' + props.state.zoom + ') translate(' + props.state.offsetX + 'px, ' + props.state.offsetY + 'px); transform-origin: 0 0;'">
+
+                <svg class="jigsaw-svg-canvas" xmlns="http://www.w3.org/2000/svg">
+
+                    <defs>
+                        <!-- Per-color arrowheads so lines end with the right colour -->
+                        <marker id="arrow-blue"   markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#2563eb"/></marker>
+                        <marker id="arrow-green"  markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#059669"/></marker>
+                        <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#7c3aed"/></marker>
+                        <marker id="arrow-amber"  markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#d97706"/></marker>
+                        <marker id="arrow-indigo" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#4f46e5"/></marker>
+                        <marker id="arrow-slate"  markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#475569"/></marker>
+                        <marker id="arrow-red"    markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#dc2626"/></marker>
+                        <marker id="arrow-pink"   markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#db2777"/></marker>
+                        <marker id="arrow-teal"   markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 3.5,0 7" fill="#0d9488"/></marker>
+                    </defs>
+
+                    <!-- ────────────────────────────────────────────────
+                         LINKS  (drawn first so nodes appear on top)
+                    ──────────────────────────────────────────────────── -->
+                    <g class="links-group">
+                        <t t-foreach="props.state.links" t-as="link" t-key="link.id || (link.source + '-' + link.target)">
+                            <t t-set="pathInfo" t-value="props.getLinkInfo(link)"/>
+                            <t t-set="isFiltered" t-value="props.isLinkFilteredOut(link)"/>
+                            <t t-if="pathInfo">
+                                <path t-att-d="pathInfo.d"
+                                      t-att-class="'svg-link ' + (isFiltered ? 'filtered-out' : '')"
+                                      t-att-stroke="pathInfo.color"
+                                      t-att-marker-end="'url(#arrow-' + pathInfo.markerId + ')'"
+                                      fill="none"
+                                      stroke-width="1.5"/>
+
+                                <!-- Ownership percentage -->
+                                <t t-if="pathInfo.percent">
+                                    <text t-att-class="'svg-link-pct ' + (isFiltered ? 'filtered-out' : '')"
+                                          t-att-x="pathInfo.lx" t-att-y="pathInfo.ly"
+                                          text-anchor="middle"
+                                          t-att-data-link-id="link.id || (link.source + '-' + link.target)">
+                                        <t t-esc="pathInfo.percent"/>%
+                                    </text>
+                                </t>
+
+                                <!-- Relationship type badge -->
+                                <t t-if="pathInfo.label and pathInfo.label !== 'LINK'">
+                                    <text t-att-class="'svg-link-type ' + (isFiltered ? 'filtered-out' : '')"
+                                          t-att-x="pathInfo.rx" t-att-y="pathInfo.ry"
+                                          text-anchor="middle"
+                                          t-att-fill="pathInfo.color"
+                                          t-att-data-link-id="link.id || (link.source + '-' + link.target)">
+                                        <t t-esc="pathInfo.label"/>
+                                    </text>
+                                </t>
+                            </t>
+                        </t>
+                    </g>
+
+                    <!-- ────────────────────────────────────────────────
+                         NODES  (SVG shapes per entity type)
+                    ──────────────────────────────────────────────────── -->
+                    <g class="nodes-group">
+                        <t t-foreach="props.state.nodes" t-as="node" t-key="node.id">
+                            <t t-set="pos"            t-value="props.state.layout[node.id.toString()] || {x:0,y:0}"/>
+                            <t t-set="isFiltered"     t-value="props.isNodeFilteredOut(node)"/>
+                            <t t-set="isSelected"     t-value="props.state.selectedNodeIds.includes(node.id)"/>
+                            <t t-set="isLinkingSrc"   t-value="props.state.linkingNodeId === node.id"/>
+                            <t t-set="isLinkingTgt"   t-value="props.state.linkingNodeId and props.state.linkingNodeId !== node.id"/>
+
+                            <g t-att-class="'jigsaw-node'
+                                            + (isFiltered   ? ' filtered-out'       : '')
+                                            + (isSelected   ? ' node-selected'      : '')
+                                            + (isLinkingSrc ? ' node-linking-source': '')
+                                            + (isLinkingTgt ? ' node-linking-target': '')"
+                               t-att-data-id="node.id"
+                               t-att-transform="'translate(' + pos.x + ',' + pos.y + ')'">
+
+                                <!-- ── COMPANY / GOV : Rectangle ── -->
+                                <t t-if="node.type === 'company' or node.type === 'gov'">
+                                    <rect x="0" y="0" width="180" height="72" rx="2"
+                                          fill="white"
+                                          t-att-stroke="isSelected ? '#1d4ed8' : '#2563eb'"
+                                          t-att-stroke-width="isSelected ? '2.5' : '1.5'"/>
+                                    <text x="90" y="33" text-anchor="middle" dominant-baseline="middle" class="node-text-name">
+                                        <t t-esc="node.name"/>
+                                    </text>
+                                    <text x="90" y="52" text-anchor="middle" dominant-baseline="middle" class="node-text-jur" t-if="node.jurisdiction">
+                                        (<t t-esc="node.jurisdiction"/>)
+                                    </text>
+                                    <image t-if="node.country" x="156" y="4" width="20" height="14"
+                                           t-att-href="'/base/static/img/country_flags/' + node.country.toLowerCase() + '.png'"/>
+                                </t>
+
+                                <!-- ── INDIVIDUAL / PERSON : Ellipse ── -->
+                                <t t-if="node.type === 'individual'">
+                                    <ellipse cx="100" cy="46" rx="100" ry="46"
+                                             fill="white"
+                                             t-att-stroke="isSelected ? '#0e7490' : '#0891b2'"
+                                             t-att-stroke-width="isSelected ? '2.5' : '1.5'"/>
+                                    <text x="100" y="38" text-anchor="middle" dominant-baseline="middle" class="node-text-name">
+                                        <t t-esc="node.name"/>
+                                    </text>
+                                    <text x="100" y="58" text-anchor="middle" dominant-baseline="middle" class="node-text-jur" t-if="node.jurisdiction">
+                                        (<t t-esc="node.jurisdiction"/>)
+                                    </text>
+                                    <image t-if="node.country" x="158" y="8" width="20" height="14"
+                                           t-att-href="'/base/static/img/country_flags/' + node.country.toLowerCase() + '.png'"/>
+                                </t>
+
+                                <!-- ── FUND / LP : Triangle (apex top, base bottom) ── -->
+                                <t t-if="node.type === 'fund'">
+                                    <polygon points="110,4 220,140 0,140"
+                                             fill="white"
+                                             t-att-stroke="isSelected ? '#047857' : '#059669'"
+                                             t-att-stroke-width="isSelected ? '2.5' : '1.5'"/>
+                                    <text x="110" y="94" text-anchor="middle" dominant-baseline="middle" class="node-text-name">
+                                        <t t-esc="node.name"/>
+                                    </text>
+                                    <text x="110" y="114" text-anchor="middle" dominant-baseline="middle" class="node-text-jur" t-if="node.jurisdiction">
+                                        (<t t-esc="node.jurisdiction"/>)
+                                    </text>
+                                    <image t-if="node.country" x="155" y="58" width="20" height="14"
+                                           t-att-href="'/base/static/img/country_flags/' + node.country.toLowerCase() + '.png'"/>
+                                </t>
+
+                                <!-- ── TRUST : Shield (rect + round bottom) ── -->
+                                <t t-if="node.type === 'trust'">
+                                    <path d="M 0,0 H 180 V 52 Q 90,90 0,52 Z"
+                                          fill="white"
+                                          t-att-stroke="isSelected ? '#6d28d9' : '#7c3aed'"
+                                          t-att-stroke-width="isSelected ? '2.5' : '1.5'"/>
+                                    <text x="90" y="32" text-anchor="middle" dominant-baseline="middle" class="node-text-name">
+                                        <t t-esc="node.name"/>
+                                    </text>
+                                    <text x="90" y="50" text-anchor="middle" dominant-baseline="middle" class="node-text-jur" t-if="node.jurisdiction">
+                                        (<t t-esc="node.jurisdiction"/>)
+                                    </text>
+                                    <image t-if="node.country" x="156" y="4" width="20" height="14"
+                                           t-att-href="'/base/static/img/country_flags/' + node.country.toLowerCase() + '.png'"/>
+                                </t>
+
+                                <!-- ── ASSET : Diamond ── -->
+                                <t t-if="node.type === 'asset'">
+                                    <polygon points="110,0 220,60 110,120 0,60"
+                                             fill="white"
+                                             t-att-stroke="isSelected ? '#c2410c' : '#ea580c'"
+                                             t-att-stroke-width="isSelected ? '2.5' : '1.5'"/>
+                                    <text x="110" y="50" text-anchor="middle" dominant-baseline="middle" class="node-text-name">
+                                        <t t-esc="node.name"/>
+                                    </text>
+                                    <text x="110" y="68" text-anchor="middle" dominant-baseline="middle" class="node-text-jur" t-if="node.jurisdiction">
+                                        (<t t-esc="node.jurisdiction"/>)
+                                    </text>
+                                    <image t-if="node.country" x="165" y="22" width="20" height="14"
+                                           t-att-href="'/base/static/img/country_flags/' + node.country.toLowerCase() + '.png'"/>
+                                </t>
+
+                                <!-- Dashed selection outline (drawn last so it renders on top) -->
+                                <t t-if="isSelected and (node.type === 'company' or node.type === 'gov')">
+                                    <rect x="-6" y="-6" width="192" height="84" rx="5"
+                                          fill="none" stroke="#2563eb" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+                                </t>
+
+                                <!-- Floating node toolbar (shown only for single selected node) -->
+                                <t t-if="props.state.selectedNodeIds.length === 1 and props.state.selectedNodeIds[0] === node.id and !props.state.linkingNodeId">
+                                    <g class="node-toolbar" transform="translate(0,-46)">
+                                        <rect x="0" y="0" width="214" height="36" rx="6"
+                                              fill="white" stroke="#e2e8f0" stroke-width="1"/>
+                                        <!-- Line -->
+                                        <g class="toolbar-btn" t-on-click.stop="() => props.onLine(node.id)">
+                                            <rect x="4" y="4" width="44" height="28" rx="4" fill="#f8fafc"/>
+                                            <text x="26" y="18" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#475569" font-family="Inter,sans-serif">↔ Line</text>
+                                        </g>
+                                        <!-- Edit -->
+                                        <g class="toolbar-btn" t-on-click.stop="() => props.onEditEntity(node.id)">
+                                            <rect x="52" y="4" width="44" height="28" rx="4" fill="#f8fafc"/>
+                                            <text x="74" y="18" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#475569" font-family="Inter,sans-serif">✎ Edit</text>
+                                        </g>
+                                        <!-- Comment -->
+                                        <g class="toolbar-btn" t-on-click.stop="() => props.onComment(node.id)">
+                                            <rect x="100" y="4" width="60" height="28" rx="4" fill="#f8fafc"/>
+                                            <text x="130" y="18" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#475569" font-family="Inter,sans-serif">💬 Note</text>
+                                        </g>
+                                        <!-- Delete -->
+                                        <g class="toolbar-btn" t-on-click.stop="() => props.onDeleteEntity(node.id)">
+                                            <rect x="164" y="4" width="46" height="28" rx="4" fill="#fff5f5"/>
+                                            <text x="187" y="18" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#dc2626" font-family="Inter,sans-serif">🗑 Del</text>
+                                        </g>
+                                    </g>
+                                </t>
+
+                            </g>
+                        </t>
+                    </g>
+
+                </svg>
+            </div>
+
+            <!-- Bottom mini-toolbar -->
+            <div class="bottom-toolbar position-absolute bottom-0 start-50 translate-middle-x mb-3 bg-white shadow rounded-pill px-4 py-2 d-flex gap-4">
+                <div class="control-item" title="Fullscreen"><i class="fa fa-expand"/></div>
+                <div class="control-item" title="Center View"><i class="fa fa-crosshairs"/></div>
+                <div class="control-item" title="Minimap"><i class="fa fa-map-o"/></div>
+            </div>
+        </div>
+    </t>
+</templates>

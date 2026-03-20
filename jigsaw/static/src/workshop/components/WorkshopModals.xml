@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="jigsaw.WorkshopModals" owl="1">
+        <t t-if="props.state.editingNode">
+            <div class="jigsaw-modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style="z-index: 2000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
+                <div class="jigsaw-modal bg-white shadow-2xl rounded-xl p-0 overflow-hidden border border-slate-200" style="width: 600px; max-height: 90vh;">
+                    <div class="modal-header bg-slate-50 border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold border-0 text-slate-800" style="font-size: 1rem;">Edit Entity: <t t-esc="props.state.editingNode.name"/></h5>
+                        <i class="fa fa-times text-slate-400 cursor-pointer hover-text-slate-600" t-on-click="props.onCloseEntityModal"></i>
+                    </div>
+
+                    <!-- Modal Navigation Tabs -->
+                    <div class="d-flex border-bottom bg-slate-50">
+                        <div class="px-4 py-2 cursor-pointer fw-bold small text-uppercase" 
+                             t-att-class="{ 'text-indigo-600 border-bottom border-indigo-600': state.activeTab === 'properties', 'text-slate-400': state.activeTab !== 'properties' }"
+                             t-on-click="() => state.activeTab = 'properties'">
+                             General Properties
+                        </div>
+                        <div class="px-4 py-2 cursor-pointer fw-bold small text-uppercase"
+                             t-att-class="{ 'text-indigo-600 border-bottom border-indigo-600': state.activeTab === 'relationships', 'text-slate-400': state.activeTab !== 'relationships' }"
+                             t-on-click="() => state.activeTab = 'relationships'">
+                             Relationships
+                        </div>
+                    </div>
+
+                    <div class="modal-body p-4 overflow-auto" style="max-height: 50vh;">
+                        
+                        <!-- TAB 1: PROPERTIES -->
+                        <div t-if="state.activeTab === 'properties'">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-slate-500 text-uppercase">Entity Name</label>
+                                <input type="text" class="form-control" t-model="props.state.editingNode.name" />
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Type</label>
+                                    <select class="form-select" t-model="props.state.editingNode.type">
+                                        <option value="company">Company</option>
+                                        <option value="individual">Individual</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="fund">Fund</option>
+                                        <option value="gov">Government</option>
+                                        <option value="asset">Asset</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Jurisdiction</label>
+                                    <input type="text" class="form-control" t-model="props.state.editingNode.jurisdiction" />
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Registration No</label>
+                                    <input type="text" class="form-control" t-model="props.state.editingNode.registration_no" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Tax ID</label>
+                                    <input type="text" class="form-control" t-model="props.state.editingNode.tax_id_number" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-slate-500 text-uppercase">Registered Office</label>
+                                <textarea class="form-control" rows="2" t-model="props.state.editingNode.registered_office"></textarea>
+                            </div>
+                            <div class="row g-3 mb-0">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Formation Date</label>
+                                    <input type="date" class="form-control" t-model="props.state.editingNode.formation_date" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-slate-500 text-uppercase">Fund Family / Group</label>
+                                    <input type="text" class="form-control" t-model="props.state.editingNode.fund_family_name" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: RELATIONSHIPS -->
+                        <div t-if="state.activeTab === 'relationships'">
+                            
+                            <!-- Parents (Owned By) -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="small fw-bold text-slate-500 text-uppercase mb-0">Owned By (Parents)</label>
+                                    <button class="btn btn-sm btn-outline-primary py-0" t-on-click="() => props.onAddParent(props.state.editingNode.id)">
+                                        <i class="fa fa-plus-circle"></i> Add
+                                    </button>
+                                </div>
+                                <div class="bg-slate-50 rounded border p-2">
+                                    <t t-if="parents.length > 0">
+                                        <t t-foreach="parents" t-as="p" t-key="p.id">
+                                            <div class="d-flex align-items-center justify-content-between p-2 rounded hover-bg-light border-bottom last-border-0">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fa fa-building text-slate-400"></i>
+                                                    <span class="small fw-bold"><t t-esc="p.node ? p.node.name : 'Unknown'"/></span>
+                                                    <span class="badge bg-indigo-50 text-indigo-700 border border-indigo-100 small"><t t-esc="p.percent || 0"/>%</span>
+                                                </div>
+                                                <i class="fa fa-times-circle text-red-400 cursor-pointer hover-text-red-600" t-on-click="() => props.onDeleteLink(p)"></i>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <div t-else="" class="text-center py-3 text-slate-400 small italic">
+                                        No parents / ownership links.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Children (Owns) -->
+                            <div class="mb-0">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="small fw-bold text-slate-500 text-uppercase mb-0">Owns (Children)</label>
+                                    <button class="btn btn-sm btn-outline-success py-0" t-on-click="() => props.onAddChild(props.state.editingNode.id)">
+                                        <i class="fa fa-plus-circle"></i> Add
+                                    </button>
+                                </div>
+                                <div class="bg-slate-50 rounded border p-2">
+                                    <t t-if="children.length > 0">
+                                        <t t-foreach="children" t-as="c" t-key="c.id">
+                                            <div class="d-flex align-items-center justify-content-between p-2 rounded hover-bg-light border-bottom last-border-0">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fa fa-building text-slate-400"></i>
+                                                    <span class="small fw-bold"><t t-esc="c.node ? c.node.name : 'Unknown'"/></span>
+                                                    <span class="badge bg-green-50 text-green-700 border border-green-100 small"><t t-esc="c.percent || 0"/>%</span>
+                                                </div>
+                                                <i class="fa fa-times-circle text-red-400 cursor-pointer hover-text-red-600" t-on-click="() => props.onDeleteLink(c)"></i>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <div t-else="" class="text-center py-3 text-slate-400 small italic">
+                                        No children / subsidiaries.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-slate-50 border-top px-4 py-3 d-flex justify-content-end gap-2">
+                        <button class="btn btn-light fw-bold px-4" t-on-click="props.onCloseEntityModal">Cancel</button>
+                        <button class="btn btn-primary fw-bold px-4 shadow-sm" t-on-click="props.onSaveEntity">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <t t-if="props.state.editingLink">
+            <div class="jigsaw-modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style="z-index: 2000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);">
+                <div class="jigsaw-modal bg-white shadow-2xl rounded-xl p-0 overflow-hidden border border-slate-200" style="width: 400px;">
+                    <div class="modal-header bg-slate-50 border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold border-0 text-slate-800" style="font-size: 1rem;">Update Relationship</h5>
+                        <i class="fa fa-times text-slate-400 cursor-pointer hover-text-slate-600" t-on-click="props.onCloseLinkModal"></i>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-slate-500 text-uppercase">Relationship Type</label>
+                            <select class="form-select" t-model="props.state.editingLink.type">
+                                <option value="owns">OWNS</option>
+                                <option value="controls">CONTROLS</option>
+                                <option value="director">DIRECTOR</option>
+                                <option value="beneficiary">BENEFICIARY</option>
+                                <option value="trustee">TRUSTEE</option>
+                                <option value="reports">REPORTS</option>
+                                <option value="transferred">TRANSFERRED</option>
+                                <option value="guarantees">GUARANTEES</option>
+                                <option value="partner">PARTNER</option>
+                                <option value="litigates">LITIGATES</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-slate-500 text-uppercase">Ownership Percentage (%)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" t-model="props.state.editingLink.percent" />
+                                <span class="input-group-text bg-white">%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm w-100 mt-2" t-on-click="() => props.onDeleteLink(props.state.editingLink)">
+                            <i class="fa fa-trash me-1"></i> Remove Relationship
+                        </button>
+                    </div>
+                    <div class="modal-footer bg-slate-50 border-top px-4 py-3 d-flex justify-content-end gap-2">
+                        <button class="btn btn-light fw-bold px-4" t-on-click="props.onCloseLinkModal">Cancel</button>
+                        <button class="btn btn-primary fw-bold px-4" t-on-click="props.onSaveLink">Save</button>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+</templates>

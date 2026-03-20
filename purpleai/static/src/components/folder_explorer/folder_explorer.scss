@@ -1,0 +1,127 @@
+/** @odoo-module **/
+
+.o_purple_ai_explorer {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    
+    .bg-primary-soft {
+        background-color: rgba(var(--primary-rgb, 107, 76, 230), 0.1) !important;
+    }
+    
+    .border-primary-soft {
+        border-color: rgba(var(--primary-rgb, 107, 76, 230), 0.2) !important;
+    }
+    
+    .bg-white { background-color: #ffffff !important; }
+    
+    .item-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+    
+    .explorer-table {
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.025em;
+            color: #6c757d;
+        }
+        
+        td {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        .exploration-item:hover {
+            background-color: #f8f9fa;
+            
+            .item-name {
+                color: var(--primary);
+                transition: color 0.2s ease;
+            }
+
+            .btn-group {
+                opacity: 1 !important;
+            }
+        }
+
+        .btn-group {
+            opacity: 0.2;
+            transition: opacity 0.2s ease;
+        }
+    }
+    
+    .o_explorer_breadcrumbs {
+        .btn-link {
+            color: #212529;
+            &:hover {
+                color: var(--primary);
+            }
+        }
+    }
+
+    .list-section {
+        transition: width 0.3s ease;
+    }
+    
+    .preview-section {
+        transition: width 0.3s ease;
+        background-color: #333;
+
+        .bg-secondary {
+            background-color: #555 !important;
+        }
+    }
+
+    .bg-primary-soft-active {
+        background-color: rgba(0, 12, 128, 0.1);
+        border-left: 3px solid #000c80 !important;
+    }
+
+    .form-check-input {
+        cursor: pointer;
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .explorer-table th .form-check {
+        margin-bottom: 0;
+    }
+
+    .btn-danger {
+        transition: all 0.2s ease;
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+        }
+    }
+
+    .drop-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(var(--primary-rgb, 107, 76, 230), 0.2);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        pointer-events: none; // Let events pass to the container
+
+        .rounded-4 {
+            border-radius: 2rem !important;
+        }
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .text-sm {
+        font-size: 0.85rem;
+    }
+
+    .o_explorer_breadcrumbs {
+        .mx-2 { margin: 0 0.5rem; }
+    }
+}

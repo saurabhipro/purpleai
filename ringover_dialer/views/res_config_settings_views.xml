@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.ringover</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="95"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <!-- Data-string provides the label in the settings sidebar -->
+                <app data-string="Ringover" string="Ringover" name="ringover_dialer">
+                    <block title="Ringover Integration" name="ringover_setting_container">
+                        <setting title="Dialer Display" help="Configure how the dialer appears in your interface">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="ringover_size" class="col-lg-3 o_light_label text-nowrap"/>
+                                    <field name="ringover_size" class="w-100"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="ringover_position_bottom" class="col-lg-3 o_light_label text-nowrap"/>
+                                    <field name="ringover_position_bottom" class="w-100" placeholder="e.g. 10px or 5%"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="ringover_position_right" class="col-lg-3 o_light_label text-nowrap"/>
+                                    <field name="ringover_position_right" class="w-100" placeholder="e.g. 10px or 5%"/>
+                                </div>
+                                <div class="mt16">
+                                    <div class="o_setting_left_pane">
+                                        <field name="ringover_show_tray"/>
+                                    </div>
+                                    <div class="o_setting_right_pane">
+                                        <label for="ringover_show_tray" class="o_light_label"/>
+                                        <div class="text-muted">Show a specialized launcher icon on the page.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_ringover_config_settings" model="ir.actions.act_window">
+        <field name="name">Ringover Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'ringover_dialer'}</field>
+    </record>
+
+    <menuitem id="menu_ringover_root" name="Ringover" sequence="90" web_icon="ringover_dialer,static/description/icon.png"/>
+    <menuitem id="menu_ringover_configuration" name="Configuration" parent="menu_ringover_root" sequence="100"/>
+    <menuitem id="menu_ringover_settings" name="Settings" parent="menu_ringover_configuration" action="action_ringover_config_settings" sequence="10"/>
+
+</odoo>
