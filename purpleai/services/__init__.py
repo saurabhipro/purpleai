@@ -6,3 +6,4 @@ from . import ai_service
 from . import zip_utils
 from . import sql_query_service
 from . import tally_service
+from . import document_processing_service

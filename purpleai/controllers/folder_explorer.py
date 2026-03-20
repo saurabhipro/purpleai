@@ -26,10 +26,8 @@ class FolderExplorerController(http.Controller):
         except Exception as e:
             _logger.error("Error resolving root path: %s", str(e))
 
-        # Fallback: system-wide root
-        return request.env['ir.config_parameter'].sudo().get_param(
-            'purple_ai.root_path', '/home/odoo18/invoice_extraction'
-        )
+        # Fallback: system-wide root from config parameters
+        return request.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
 
     def _get_active_client(self, active_company_ids=None):
         """Return the single client for the current active companies."""

@@ -24,8 +24,8 @@
                             <t t-set="key" t-value="item[0]"/>
                             <t t-set="val_data" t-value="item[1]"/>
                             <t t-if="key !== 'validations'">
-                                <t t-set="val" t-value="typeof val_data === 'object' ? val_data.value : val_data"/>
-                                <t t-set="page" t-value="typeof val_data === 'object' ? val_data.page_number : null"/>
+                                <t t-set="val" t-value="(val_data and typeof val_data === 'object') ? val_data.value : val_data"/>
+                                <t t-set="page" t-value="(val_data and typeof val_data === 'object') ? val_data.page_number : null"/>
                                 
                                 <tr t-att-class="{'evidence-row': true, 'border-bottom': true, 'active-audit-row': state.selectedKey === key}" 
                                     t-on-click="(ev) => this.selectRow(key, ev)"
@@ -72,7 +72,7 @@
                                                 <div class="d-flex flex-column overflow-hidden me-2">
                                                     <span t-attf-class="evidence-value fw-bold #{state.selectedKey === key ? 'text-danger' : 'text-primary'}" 
                                                           style="font-size: 0.9rem;" t-esc="val || '---'"/>
-                                                    <div t-if="typeof val_data === 'object' &amp;&amp; val_data.comment" 
+                                                    <div t-if="val_data and typeof val_data === 'object' &amp;&amp; val_data.comment" 
                                                          class="text-muted small italic opacity-75 mt-1" 
                                                          style="font-size: 0.75rem; border-left: 2px solid #2563eb; padding-left: 6px;">
                                                         <i class="fa fa-commenting-o me-1"/> <t t-esc="val_data.comment"/>
@@ -85,7 +85,7 @@
                                                     </span>
                                                     <button class="btn btn-link btn-sm p-0 text-info opacity-50 hover-opacity-100 me-2" 
                                                             title="Add Note"
-                                                            t-on-click="(ev) => this.startComment(key, typeof val_data === 'object' ? val_data.comment : '', ev)">
+                                                            t-on-click="(ev) => this.startComment(key, (val_data and typeof val_data === 'object') ? val_data.comment : '', ev)">
                                                         <i class="fa fa-commenting-o"/>
                                                     </button>
                                                     <button class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100" 

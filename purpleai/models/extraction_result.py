@@ -122,13 +122,13 @@ class ExtractionResult(models.Model):
 
     @api.model
     def get_dashboard_stats(self):
-        """Unified API for the Owl Dashboard to fetch stats with Currency conversion."""
-        # Multi-company filter
-        results = self.search([('company_id', '=', self.env.company.id)])
+        """Unified API for the Owl Dashboard to fetch stats across all selected companies."""
+        # Multi-company filter: include all companies currently active in the user's switcher
+        active_company_ids = self.env.companies.ids
+        results = self.search([('company_id', 'in', active_company_ids)])
         
-        # Get Current Config
+        # Get Current Config (Still system-wide, usually primary company context)
         active_provider = self.env['ir.config_parameter'].sudo().get_param('tender_ai.ai_provider', 'gemini')
-        # Get active model based on provider
         active_model = "Unknown"
         if active_provider == 'gemini':
             active_model = self.env['ir.config_parameter'].sudo().get_param('tender_ai.gemini_model', 'gemini-1.5-flash')
@@ -157,9 +157,9 @@ class ExtractionResult(models.Model):
             'active_info': {
                 'provider': active_provider.upper(),
                 'model': active_model,
-                'company': self.env.company.name,
+                'company': ", ".join(self.env.companies.mapped('name')),
             },
-            'total_clients': self.env['purple_ai.client'].search_count([('company_id', '=', self.env.company.id)]),
+            'total_clients': self.env['purple_ai.client'].search_count([('company_id', 'in', active_company_ids)]),
             'total_requests': len(results),
             'status_breakdown': {
                 'success': len(results.filtered(lambda r: r.state == 'done')),

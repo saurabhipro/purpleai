@@ -77,7 +77,6 @@ class TendeAIResConfigSettings(models.TransientModel):
     purple_ai_root_path = fields.Char(
         string='Root Folder Path',
         config_parameter='purple_ai.root_path',
-        default='/home/odoo18',
         help='The root directory for the Purple AI Folder Explorer.',
     )
 
@@ -253,6 +252,12 @@ class TendeAIResConfigSettings(models.TransientModel):
         config_parameter='tender_ai.mistral_default_model',
         default='mistral-large-latest',
         help='The Mistral model to use for AI operations.',
+    )
+    mistral_ocr_url = fields.Char(
+        string='Mistral OCR URL',
+        config_parameter='tender_ai.mistral_ocr_url',
+        default='https://api.mistral.ai/v1/ocr',
+        help='The URL for the Mistral OCR API. Default is https://api.mistral.ai/v1/ocr',
     )
 
     def action_test_mistral_connection(self):

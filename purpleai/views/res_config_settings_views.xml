@@ -59,6 +59,9 @@
                                 <button name="action_test_mistral_connection" string="Test Connection" type="object" class="btn-link btn-sm" icon="fa-check-circle"/>
                             </div>
                         </setting>
+                        <setting title="Mistral OCR URL" help="The URL for the Mistral OCR API">
+                            <field name="mistral_ocr_url" placeholder="https://api.mistral.ai/v1/ocr"/>
+                        </setting>
                     </block>
 
                     <!-- ══ Microsoft Azure Cloud Foundry Configuration ═══════════════ -->
