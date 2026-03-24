@@ -157,6 +157,7 @@ class ExtractionResult(models.Model):
                 'id': reg.id,
                 'name': reg.filename or f"REQ-{reg.id}",
                 'provider': (reg.provider or 'Unknown').capitalize(),
+                'model': reg.model_used or '—',
                 'status': reg.state,
                 'cost_inr': round(reg.cost * inr_rate, 2),
                 'time': reg.create_date.strftime('%d %b, %H:%M'),

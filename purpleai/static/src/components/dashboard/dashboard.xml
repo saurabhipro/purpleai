@@ -128,6 +128,7 @@
                                         <th style="color: #ffffff !important;">Filename</th>
                                         <th style="color: #ffffff !important;">Client</th>
                                         <th style="color: #ffffff !important;">Provider</th>
+                                        <th style="color: #ffffff !important;">Model</th>
                                         <th style="color: #ffffff !important;">Date &amp; Time</th>
                                         <th class="text-center" style="color: #ffffff !important;">Status</th>
                                         <th class="text-end pe-3" style="color: #ffffff !important;">Cost (INR)</th>
@@ -138,6 +139,7 @@
                                                 <td class="fw-bold text-primary x-small pe-3"><t t-esc="req.name"/></td>
                                                 <td class="text-muted x-small"><t t-esc="req.client_name"/></td>
                                                 <td class="text-capitalize x-small"><t t-esc="req.provider"/></td>
+                                                <td class="text-muted x-small" style="font-size:0.7rem; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><t t-esc="req.model"/></td>
                                                 <td class="text-muted x-small"><t t-esc="req.time"/></td>
                                                 <td class="text-center"><span t-att-class="'badge rounded-pill px-2 ' + (req.status == 'done' ? 'text-bg-success' : 'text-bg-danger')" style="font-size: 0.65rem;"><t t-esc="req.status"/></span></td>
                                                 <td class="text-end text-dark fw-bold x-small pe-3"><t t-esc="this.formatINR(req.cost_inr)"/></td>

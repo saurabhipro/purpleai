@@ -15,6 +15,7 @@ class TendeAIResConfigSettings(models.TransientModel):
             ('gemini', 'Google Gemini'),
             ('mistral', 'Mistral AI'),
             ('azure', 'Microsoft Azure Cloud Foundry'),
+            ('openai', 'OpenAI GPT'),
         ],
         string='AI Provider',
         config_parameter='tender_ai.ai_provider',
@@ -374,6 +375,66 @@ class TendeAIResConfigSettings(models.TransientModel):
                 raise UserError(_('Azure API returned error %s: %s') % (response.status_code, response.text))
         except Exception as e:
             raise UserError(_('Azure connection test failed: %s') % str(e))
+
+    # ── OpenAI GPT ─────────────────────────────────────────────────────────────
+    openai_api_key = fields.Char(
+        string='OpenAI API Key',
+        config_parameter='tender_ai.openai_api_key',
+        help='Your OpenAI API key. Get one at https://platform.openai.com/api-keys',
+    )
+    openai_default_model = fields.Selection(
+        selection=[
+            ('gpt-4o', 'GPT-4o (Most Capable)'),
+            ('gpt-4o-mini', 'GPT-4o Mini (Fast & Affordable)'),
+            ('gpt-4-turbo', 'GPT-4 Turbo'),
+            ('gpt-4', 'GPT-4'),
+            ('gpt-3.5-turbo', 'GPT-3.5 Turbo (Fastest)'),
+        ],
+        string='Default OpenAI Model',
+        config_parameter='tender_ai.openai_default_model',
+        default='gpt-4o-mini',
+        help='The OpenAI GPT model to use for AI operations.',
+    )
+
+    def action_test_openai_connection(self):
+        """Send a test prompt to verify the OpenAI API key and model."""
+        self.ensure_one()
+        api_key = self.openai_api_key
+        if not api_key:
+            raise UserError(_('Please enter your OpenAI API Key first.'))
+        model = self.openai_default_model or 'gpt-4o-mini'
+        try:
+            import requests
+            response = requests.post(
+                'https://api.openai.com/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': model,
+                    'messages': [{'role': 'user', 'content': 'Say "Purple AI connected via OpenAI!" in one sentence.'}],
+                    'max_tokens': 30,
+                },
+                timeout=15,
+            )
+            if response.status_code == 200:
+                data = response.json()
+                text = data['choices'][0]['message']['content'].strip()
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('✅ OpenAI Connection Successful'),
+                        'message': _('Model: %s\nResponse: %s') % (model, text),
+                        'type': 'success',
+                        'sticky': True,
+                    },
+                }
+            else:
+                raise UserError(_('OpenAI API returned error %s: %s') % (response.status_code, response.text))
+        except Exception as e:
+            raise UserError(_('OpenAI connection test failed: %s') % str(e))
 
     # ── Tally Integration ──────────────────────────────────────────────────────
     tally_url = fields.Char(

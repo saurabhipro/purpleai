@@ -20,6 +20,7 @@ Supported providers
     gemini  → GeminiService  (google-genai SDK)
     mistral → MistralService (Mistral REST API)
     azure   → AzureService   (Azure OpenAI REST API)
+    openai  → OpenAIService  (OpenAI GPT REST API)
 
 Adding a new provider
 ---------------------
@@ -36,6 +37,7 @@ from .base_ai_service import BaseAIService
 from .gemini_service   import GeminiService
 from .azure_service    import AzureService
 from .mistral_service  import MistralService
+from .openai_service   import OpenAIService
 
 _logger = logging.getLogger(__name__)
 
@@ -45,6 +47,7 @@ _REGISTRY: Dict[str, Type[BaseAIService]] = {
     "gemini":  GeminiService,
     "mistral": MistralService,
     "azure":   AzureService,
+    "openai":  OpenAIService,
 }
 
 _DEFAULT_PROVIDER = "gemini"

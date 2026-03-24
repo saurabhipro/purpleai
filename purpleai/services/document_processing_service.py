@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
 import logging
 import base64
 import io
-import json
 from odoo import fields, _
 from odoo.addons.purpleai.services import ai_service
 
@@ -15,10 +15,71 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 
+
+def _extract_json(raw_text: str) -> str:
+    """
+    Robustly extract a JSON object from an AI response string.
+
+    Handles all common real-world formats:
+      1. Plain JSON:              {"key": "value"}
+      2. Markdown-fenced JSON:   ```json\n{...}\n```
+      3. Markdown-fenced plain:  ```\n{...}\n```
+      4. JSON buried in prose:   "Here is the data:\n{...}\nLet me know..."
+      5. JSON with trailing text: {"key": "val"} Note: ...
+    
+    Returns the cleaned JSON string, or empty string if nothing found.
+    """
+    if not raw_text:
+        return ''
+
+    text = raw_text.strip()
+
+    # Strategy 1: Markdown code fences  ```json ... ``` or ``` ... ```
+    fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
+    if fence_match:
+        candidate = fence_match.group(1).strip()
+        try:
+            json.loads(candidate)
+            return candidate
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 2: Direct parse — the whole response is JSON
+    try:
+        json.loads(text)
+        return text
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 3: Find the first '{' and last '}' — extract largest JSON block
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end + 1]
+        try:
+            json.loads(candidate)
+            return candidate
+        except json.JSONDecodeError:
+            # Strategy 4: Walk backwards from rfind to find valid JSON
+            # (handles trailing text after the closing brace)
+            for i in range(end, start, -1):
+                if text[i] == '}':
+                    candidate = text[start:i + 1]
+                    try:
+                        json.loads(candidate)
+                        return candidate
+                    except json.JSONDecodeError:
+                        continue
+
+    _logger.warning("_extract_json: no valid JSON found in response: %.200s", raw_text)
+    return ''
+
+
 def process_document(env, client, file_path, filename):
     """
     Orchestrates the AI extraction and record creation for a file.
     Optimized to perform validation and highlighting in a single pass.
+
     """
     # 1. Prepare Prompt
     template = client.extraction_master_id
@@ -55,15 +116,19 @@ def process_document(env, client, file_path, filename):
     
     raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
     usage = res.get('usage', {})
+
     p_tok = usage.get('promptTokens', 0)
     o_tok = usage.get('outputTokens', 0)
     
-    # Clean JSON
-    json_str = raw_text.strip()
-    if json_str.startswith('```json'):
-        json_str = json_str.split('```json')[1].split('```')[0].strip()
-    elif json_str.startswith('```'):
-        json_str = json_str.split('```')[1].split('```')[0].strip()
+    _logger.info(
+        "AI response for %s [%s tokens]: %.300s%s",
+        filename, p_tok + o_tok, raw_text, '...' if len(raw_text) > 300 else ''
+    )
+
+    # ── Robust JSON extraction ────────────────────────────────────────────────
+    json_str = _extract_json(raw_text)
+    if not json_str:
+        _logger.error("Could not extract JSON from AI response for %s. Raw: %s", filename, raw_text[:500])
 
     # 3. Validation and Single-Pass Rendering
     # Create the result record first without the PDF to get an ID for the processor
@@ -74,8 +139,9 @@ def process_document(env, client, file_path, filename):
         'client_id': client.id,
         'filename': filename,
         'raw_response': raw_text,
-        'extracted_data': json_str,
-        'state': 'done',
+        'extracted_data': json_str or '{}',
+        'state': 'done' if json_str else 'error',
+        'error_log': None if json_str else f'Could not parse JSON from AI response:\n{raw_text[:1000]}',
         'provider': res.get('provider'),
         'model_used': res.get('model'),
         'duration_ms': res.get('durationMs', 0),
@@ -84,6 +150,7 @@ def process_document(env, client, file_path, filename):
         'total_tokens': p_tok + o_tok,
         'cost': cost
     })
+
 
     # Create processor and get failures immediately
     proc = env['purple_ai.invoice_processor'].create_from_extraction(result_rec.id)
@@ -128,28 +195,55 @@ def apply_pdf_highlights(file_path, extracted_json, failures=None):
             box = data.get('box_2d')
             p_num = data.get('page_number')
             
-            if box and len(box) == 4 and p_num:
-                page_idx = int(p_num) - 1
-                if 0 <= page_idx < len(doc):
-                    page = doc[page_idx]
-                    w, h = page.rect.width, page.rect.height
-                    
-                    ymin, xmin, ymax, xmax = box
-                    fitz_rect = fitz.Rect(
-                        xmin * w / 1000, 
-                        ymin * h / 1000, 
-                        xmax * w / 1000, 
-                        ymax * h / 1000
-                    )
-                    
-                    is_failed = key in failed_fields
-                    color = (1, 0, 0) if is_failed else (1, 1, 0) # Red if failed, Yellow otherwise
-                    
-                    annot = page.add_highlight_annot(fitz_rect)
-                    annot.set_colors(stroke=color)
-                    if is_failed:
-                        annot.set_info(content=failed_fields[key])
-                    annot.update()
+            if not (box and len(box) == 4 and p_num):
+                continue
+
+            page_idx = int(p_num) - 1
+            if not (0 <= page_idx < len(doc)):
+                continue
+
+            page = doc[page_idx]
+            w, h = page.rect.width, page.rect.height
+
+            ymin, xmin, ymax, xmax = [float(v) for v in box]
+
+            # Validate: coordinates must be in 0–1000 range
+            if not all(0 <= v <= 1000 for v in (ymin, xmin, ymax, xmax)):
+                _logger.debug("Skipping out-of-range box_2d for field '%s': %s", key, box)
+                continue
+
+            # Validate: box must not cover more than 70% of either dimension
+            # (prevents full-page yellow overlay from imprecise AI coordinates)
+            width_frac  = (xmax - xmin) / 1000
+            height_frac = (ymax - ymin) / 1000
+            if width_frac > 0.70 or height_frac > 0.70:
+                _logger.debug(
+                    "Skipping oversized box_2d for field '%s': covers %.0f%% W x %.0f%% H",
+                    key, width_frac * 100, height_frac * 100
+                )
+                continue
+
+            # Clamp to page bounds (safety net)
+            xmin = max(0, min(xmin, 1000))
+            xmax = max(0, min(xmax, 1000))
+            ymin = max(0, min(ymin, 1000))
+            ymax = max(0, min(ymax, 1000))
+
+            fitz_rect = fitz.Rect(
+                xmin * w / 1000,
+                ymin * h / 1000,
+                xmax * w / 1000,
+                ymax * h / 1000,
+            )
+
+            is_failed = key in failed_fields
+            color = (1, 0, 0) if is_failed else (1, 1, 0)  # Red if failed, Yellow otherwise
+
+            annot = page.add_highlight_annot(fitz_rect)
+            annot.set_colors(stroke=color)
+            if is_failed:
+                annot.set_info(content=failed_fields[key])
+            annot.update()
 
         out = io.BytesIO()
         doc.save(out)
@@ -158,3 +252,4 @@ def apply_pdf_highlights(file_path, extracted_json, failures=None):
     except Exception as e:
         _logger.error("Highlight rendering error: %s", str(e))
         return False
+

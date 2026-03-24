@@ -35,8 +35,12 @@ class ClientMaster(models.Model):
         except Exception as e:
             _logger.warning("Could not update scan progress for client %s: %s", self.id, str(e))
 
-    def action_scan_folder(self):
-        """Scans the client folder for new PDF files and processes them."""
+    def action_scan_folder(self, force=False):
+        """Scans the client folder for new PDF files and processes them.
+        
+        Args:
+            force (bool): If True, re-processes ALL files including already-scanned ones.
+        """
         self.ensure_one()
         folder_path = (self.folder_path or '').strip()
         if not folder_path or not os.path.exists(folder_path):
@@ -49,9 +53,18 @@ class ClientMaster(models.Model):
         Result = self.env['purple_ai.extraction_result']
         files_to_process = []
         for filename in files:
-            existing = Result.search([('client_id', '=', self.id), ('filename', '=', filename)], limit=1)
-            if not existing:
+            if force:
+                # Force mode: queue all files regardless of existing results
                 files_to_process.append(filename)
+            else:
+                # Normal mode: skip files that already have a successful result
+                existing = Result.search([
+                    ('client_id', '=', self.id),
+                    ('filename', '=', filename),
+                    ('state', '=', 'done'),
+                ], limit=1)
+                if not existing:
+                    files_to_process.append(filename)
 
         if not files_to_process:
             _logger.info("Nothing to scan for client %s", self.name)
@@ -89,6 +102,12 @@ class ClientMaster(models.Model):
         })
         self.env['purple_ai.client'].invalidate_model(['scan_status', 'scan_count', 'scan_current_file', 'last_scan'])
         self._send_scan_notification()
+
+    def action_force_rescan_folder(self):
+        """Force re-scans ALL files in the folder, including already-processed ones."""
+        self.ensure_one()
+        _logger.info("Force re-scan triggered for client %s", self.name)
+        return self.action_scan_folder(force=True)
 
     def _send_scan_notification(self):
         """Sends a bus notification to update the UI."""

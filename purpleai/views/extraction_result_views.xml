@@ -14,6 +14,8 @@
                 <field name="client_id"/>
                 <field name="filename"/>
                 <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'error'"/>
+                <field name="provider" string="AI Provider"/>
+                <field name="model_used" string="Model"/>
             </list>
         </field>
     </record>

@@ -30,10 +30,79 @@ class ClientMaster(models.Model):
     
     last_scan = fields.Datetime(string='Last Scanned At', readonly=True)
     processed_count = fields.Integer(string='Processed Files', compute='_compute_counts')
+    extraction_result_ids = fields.One2many('purple_ai.extraction_result', 'client_id', string='Extraction Results')
+
+    # Computed HTML listing of files in the watch folder
+    folder_files_html = fields.Html(string='Folder Contents', compute='_compute_folder_files', sanitize=False)
 
     def _compute_counts(self):
         for rec in self:
             rec.processed_count = self.env['purple_ai.extraction_result'].search_count([('client_id', '=', rec.id)])
+
+    def _compute_folder_files(self):
+        """List all PDF/image files inside the client's watch folder."""
+        import datetime
+        SUPPORTED_EXT = {'.pdf', '.jpg', '.jpeg', '.png', '.webp', '.tiff'}
+        for rec in self:
+            path = (rec.folder_path or '').strip()
+            if not path or not os.path.isdir(path):
+                rec.folder_files_html = (
+                    '<div class="alert alert-warning py-2">'
+                    '<i class="fa fa-folder-open me-2"></i>'
+                    'Watch folder not found or not configured.</div>'
+                )
+                continue
+
+            try:
+                entries = []
+                for fname in sorted(os.listdir(path)):
+                    ext = os.path.splitext(fname)[1].lower()
+                    if ext not in SUPPORTED_EXT:
+                        continue
+                    fpath = os.path.join(path, fname)
+                    stat = os.stat(fpath)
+                    size_kb = round(stat.st_size / 1024, 1)
+                    mtime = datetime.datetime.fromtimestamp(stat.st_mtime).strftime('%d %b %Y %H:%M')
+                    entries.append((fname, size_kb, mtime, ext))
+
+                if not entries:
+                    rec.folder_files_html = (
+                        '<div class="alert alert-info py-2">'
+                        '<i class="fa fa-inbox me-2"></i>'
+                        'No PDF or image files found in the watch folder.</div>'
+                    )
+                    continue
+
+                icon_map = {'.pdf': 'fa-file-pdf-o text-danger', '.jpg': 'fa-file-image-o text-info',
+                            '.jpeg': 'fa-file-image-o text-info', '.png': 'fa-file-image-o text-info',
+                            '.webp': 'fa-file-image-o text-info', '.tiff': 'fa-file-image-o text-info'}
+
+                rows = ''.join(
+                    f'<tr>'
+                    f'<td><i class="fa {icon_map.get(ext, "fa-file-o")} me-2"></i>{fname}</td>'
+                    f'<td class="text-muted text-end">{size_kb} KB</td>'
+                    f'<td class="text-muted text-end">{mtime}</td>'
+                    f'</tr>'
+                    for fname, size_kb, mtime, ext in entries
+                )
+                rec.folder_files_html = f'''
+                    <div class="mb-2 text-muted" style="font-size:0.85rem;">
+                        <i class="fa fa-folder-open me-1"></i>
+                        <strong>{len(entries)}</strong> file(s) &nbsp;·&nbsp;
+                        <code style="font-size:0.8rem;">{path}</code>
+                    </div>
+                    <table class="table table-sm table-hover table-bordered mb-0" style="font-size:0.9rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th><i class="fa fa-file me-1"></i> File Name</th>
+                                <th class="text-end">Size</th>
+                                <th class="text-end">Last Modified</th>
+                            </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>'''
+            except Exception as e:
+                rec.folder_files_html = f'<div class="alert alert-danger py-2">Error reading folder: {e}</div>'
 
     @api.depends('scan_count', 'scan_total')
     def _compute_scan_progress(self):

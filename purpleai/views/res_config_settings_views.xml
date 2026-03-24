@@ -89,7 +89,25 @@
                             </div>
                         </setting>
                     </block>
+
+                    <!-- ══ OpenAI GPT Configuration ═════════════════════════════════════ -->
+                    <block title="OpenAI GPT Configuration" name="openai_config"
+                           invisible="ai_provider != 'openai'">
+                        <setting title="OpenAI API Key" help="Your OpenAI secret API key">
+                            <field name="openai_api_key" password="True" placeholder="sk-..."/>
+                            <div class="text-muted">
+                                Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+                            </div>
+                        </setting>
+                        <setting title="Default GPT Model" help="Choose the OpenAI model to use">
+                            <field name="openai_default_model"/>
+                            <div class="mt-2">
+                                <button name="action_test_openai_connection" string="Test Connection" type="object" class="btn-link btn-sm" icon="fa-check-circle"/>
+                            </div>
+                        </setting>
+                    </block>
                     <block title="Folder &amp; File Explorer" name="folder_config">
+
                         <setting title="Root Access" help="Specify the starting path for the file explorer">
                             <div class="content-group">
                                 <label for="purple_ai_root_path"/>
