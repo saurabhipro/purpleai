@@ -158,19 +158,48 @@ class InvoiceProcessor(models.Model):
             try:
                 raw_data = json.loads(extraction.extracted_data)
                 for key, val in raw_data.items():
+                    # Handle both {"value": "..."} and plain string formats
                     data[key] = val.get('value') if isinstance(val, dict) else val
-            except:
+            except Exception:
                 pass
-        
-        # Clean numeric strings
+
+        # ── Helpers ────────────────────────────────────────────────────────────
         def to_float(val):
-            if not val: return 0.0
+            """Parse monetary strings from any locale/format."""
+            if not val:
+                return 0.0
             try:
                 return float(str(val).replace(',', '').replace('$', '').replace('₹', '').strip())
-            except:
+            except Exception:
                 return 0.0
 
-        # Try to find partner
+        def safe_date(val):
+            """Parse date strings in any format GPT/Gemini might return."""
+            if not val:
+                return False
+            from datetime import datetime
+            val = str(val).strip()
+            # Try ISO first (Gemini standard: 2026-03-14)
+            for fmt in (
+                '%Y-%m-%d',       # 2026-03-14
+                '%d/%m/%Y',       # 14/03/2026
+                '%d-%m-%Y',       # 14-03-2026
+                '%m/%d/%Y',       # 03/14/2026
+                '%d %B %Y',       # 14 March 2026
+                '%d %b %Y',       # 14 Mar 2026
+                '%B %d, %Y',      # March 14, 2026
+                '%b %d, %Y',      # Mar 14, 2026
+                '%d.%m.%Y',       # 14.03.2026
+                '%Y/%m/%d',       # 2026/03/14
+            ):
+                try:
+                    return datetime.strptime(val, fmt).date()
+                except ValueError:
+                    continue
+            _logger.warning("safe_date: could not parse date string '%s'", val)
+            return False
+
+        # ── Build record values ─────────────────────────────────────────────────
         vendor = data.get('vendor_name') or data.get('supplier_name')
         partner = False
         if vendor:
@@ -181,7 +210,7 @@ class InvoiceProcessor(models.Model):
             'vendor_name': vendor,
             'partner_id': partner.id if partner else False,
             'invoice_number': data.get('invoice_number') or data.get('bill_no'),
-            'invoice_date': fields.Date.to_date(data.get('invoice_date')) if data.get('invoice_date') else False,
+            'invoice_date': safe_date(data.get('invoice_date')),
             'untaxed_amount': to_float(data.get('untaxed_amount') or data.get('subtotal')),
             'supplier_gstin': data.get('supplier_gstin'),
             'vendor_bank_account': data.get('vendor_bank_account'),

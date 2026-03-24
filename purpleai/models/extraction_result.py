@@ -195,9 +195,8 @@ class ExtractionResult(models.Model):
             }
         
         return stats
-
     def action_retry_extraction(self):
-        """..."""
+        """Re-scan this record using the stored PDF binary. Overwrites the existing record."""
         self.ensure_one()
         import tempfile
         import os
@@ -208,7 +207,7 @@ class ExtractionResult(models.Model):
         if not self.pdf_file:
             raise UserError(_("No PDF file found for this result. Please re-upload."))
 
-        # Create temporary file to pass to ai_service
+        # Write stored binary to a temp file so ai_service can read it
         ext = os.path.splitext(self.filename)[1] or '.pdf'
         with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as temp:
             temp_path = temp.name
@@ -216,65 +215,141 @@ class ExtractionResult(models.Model):
 
         try:
             from odoo.addons.purpleai.services import ai_service
+            from odoo.addons.purpleai.services.document_processing_service import (
+                _extract_json, apply_pdf_highlights
+            )
+
             c = self.client_id
             template = c.extraction_master_id
-            
-            field_list = "\n".join([f"- {f.field_key}: {f.instruction}" for f in template.field_ids if f.active])
-            rule_list = "\n".join([f"- {r.rule_code}: {r.description}" for r in template.rule_ids if r.active and r.eval_type == 'ai'])
-            
-            prompt = "..." # Keep original prompt logic
-            # Replaced with brief version to save space in prompt
-            prompt = (
-                "You are a specialized data extraction AI. Extract fields from document. "
-                "For EACH field, return value, box_2d, page_number as JSON."
-            )
-            if rule_list: prompt += f"\nRules:\n{rule_list}"
-            prompt += f"\nFields:\n{field_list}"
 
-            # 2. Call AI
+            field_list = "\n".join([
+                f"- {f.field_key}: {f.instruction}"
+                for f in template.field_ids if f.active
+            ])
+            rule_list = "\n".join([
+                f"- {r.rule_code}: {r.description}"
+                for r in template.rule_ids if r.active and r.eval_type == 'ai'
+            ])
+
+            # Same prompt as process_document for consistency
+            prompt = (
+                "You are a specialized data extraction AI. "
+                "Extract fields from the document. Return a JSON object with: "
+                "'value', 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
+            )
+            if rule_list:
+                prompt += f"VALIDATION RULES:\n{rule_list}\n\n"
+            prompt += f"FIELDS TO EXTRACT:\n{field_list}"
+
+            # Call AI
             uploaded = ai_service.upload_file(temp_path, env=self.env)
             res = ai_service.generate([prompt, uploaded], env=self.env)
-            
+
             raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
             usage = res.get('usage', {})
             p_tok = usage.get('promptTokens', 0)
             o_tok = usage.get('outputTokens', 0)
 
-            # Clean JSON
-            json_str = raw_text.strip()
-            if json_str.startswith('```json'):
-                json_str = json_str.split('```json')[1].split('```')[0].strip()
-            elif json_str.startswith('```'):
-                json_str = json_str.split('```')[1].split('```')[0].strip()
+            # Robust JSON extraction (handles all OpenAI/Gemini response formats)
+            json_str = _extract_json(raw_text)
+            if not json_str:
+                _logger.error("action_retry_extraction: could not parse JSON. Raw: %.300s", raw_text)
 
-            # 3. Update Record with Stats
+            # Update the record
             self.write({
-                'state': 'done',
+                'state': 'done' if json_str else 'error',
                 'raw_response': raw_text,
-                'extracted_data': json_str,
-                'error_log': False,
+                'extracted_data': json_str or '{}',
+                'error_log': None if json_str else f'Could not parse JSON from AI:\n{raw_text[:1000]}',
                 'provider': res.get('provider'),
                 'model_used': res.get('model'),
                 'duration_ms': res.get('durationMs', 0),
                 'prompt_tokens': p_tok,
                 'output_tokens': o_tok,
                 'total_tokens': p_tok + o_tok,
-                'cost': self._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok)
+                'cost': self._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok),
             })
-            
-            # Re-generate annotations
+
+            # Re-annotate PDF
             try:
-                import json
-                extracted_json = json.loads(json_str)
-                annotated = c._apply_pdf_highlights(temp_path, extracted_json)
-                if annotated: self.write({'pdf_file': annotated})
-            except:
-                pass
+                import json as _json
+                extracted_json = _json.loads(json_str) if json_str else {}
+                annotated = apply_pdf_highlights(temp_path, extracted_json)
+                if annotated:
+                    self.write({'pdf_file': annotated, 'pdf_filename': f"annotated_{self.filename}"})
+            except Exception as annot_err:
+                _logger.warning("Annotation failed during retry for %s: %s", self.filename, annot_err)
 
         except Exception as e:
             self.write({'state': 'error', 'error_log': str(e)})
             raise UserError(_("Retry failed: %s") % str(e))
         finally:
-            if os.path.exists(temp_path): os.remove(temp_path)
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
         
         return True
+
+    def _rescan_from_disk(self, file_path):
+        """Re-extracts data from an on-disk file and UPDATES this record (no new record created).
+        Used by Force Re-Scan All to overwrite existing records cleanly.
+        """
+        import os as _os
+        import base64 as _b64
+        import logging
+        _log = logging.getLogger(__name__)
+
+        from odoo.addons.purpleai.services import ai_service
+        from odoo.addons.purpleai.services.document_processing_service import _extract_json, apply_pdf_highlights
+
+        c = self.client_id
+        template = c.extraction_master_id
+
+        field_list = "\n".join([f"- {f.field_key}: {f.instruction}" for f in template.field_ids if f.active])
+        rule_list = "\n".join([f"- {r.rule_code}: {r.description}" for r in template.rule_ids if r.active and r.eval_type == 'ai'])
+
+        prompt = (
+            "You are a specialized data extraction AI. "
+            "Extract fields from the document. Return a JSON object with: "
+            "'value', 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
+        )
+        if rule_list:
+            prompt += f"VALIDATION RULES:\n{rule_list}\n\n"
+        prompt += f"FIELDS TO EXTRACT:\n{field_list}"
+
+        uploaded = ai_service.upload_file(file_path, env=self.env)
+        res = ai_service.generate([prompt, uploaded], env=self.env)
+
+        raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
+        usage = res.get('usage', {})
+        p_tok = usage.get('promptTokens', 0)
+        o_tok = usage.get('outputTokens', 0)
+
+        json_str = _extract_json(raw_text)
+        if not json_str:
+            _log.error("_rescan_from_disk: could not parse JSON for %s. Raw: %.300s", file_path, raw_text)
+
+        self.write({
+            'state': 'done' if json_str else 'error',
+            'raw_response': raw_text,
+            'extracted_data': json_str or '{}',
+            'error_log': None if json_str else f'Could not parse JSON:\n{raw_text[:1000]}',
+            'provider': res.get('provider'),
+            'model_used': res.get('model'),
+            'duration_ms': res.get('durationMs', 0),
+            'prompt_tokens': p_tok,
+            'output_tokens': o_tok,
+            'total_tokens': p_tok + o_tok,
+            'cost': self._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok),
+        })
+
+        # Re-annotate PDF from disk file
+        try:
+            _json = json.loads(json_str) if json_str else {}
+            annotated = apply_pdf_highlights(file_path, _json)
+            if annotated:
+                self.write({'pdf_file': annotated, 'pdf_filename': f"annotated_{self.filename}"})
+            else:
+                with open(file_path, 'rb') as f:
+                    self.write({'pdf_file': _b64.b64encode(f.read()), 'pdf_filename': self.filename})
+        except Exception as e:
+            _log.warning("PDF highlighting failed during force rescan for %s: %s", file_path, e)

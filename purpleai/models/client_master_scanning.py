@@ -35,11 +35,10 @@ class ClientMaster(models.Model):
         except Exception as e:
             _logger.warning("Could not update scan progress for client %s: %s", self.id, str(e))
 
-    def action_scan_folder(self, force=False):
-        """Scans the client folder for new PDF files and processes them.
-        
-        Args:
-            force (bool): If True, re-processes ALL files including already-scanned ones.
+    def action_scan_folder(self):
+        """Scans the client folder and re-processes ALL files using the latest configured model.
+        - Existing records are updated in-place (no duplicates created).
+        - New files (no record yet) get a fresh record.
         """
         self.ensure_one()
         folder_path = (self.folder_path or '').strip()
@@ -50,64 +49,62 @@ class ClientMaster(models.Model):
         extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.webp')
         files = [f for f in os.listdir(folder_path) if f.lower().endswith(extensions)]
 
-        Result = self.env['purple_ai.extraction_result']
-        files_to_process = []
-        for filename in files:
-            if force:
-                # Force mode: queue all files regardless of existing results
-                files_to_process.append(filename)
-            else:
-                # Normal mode: skip files that already have a successful result
-                existing = Result.search([
-                    ('client_id', '=', self.id),
-                    ('filename', '=', filename),
-                    ('state', '=', 'done'),
-                ], limit=1)
-                if not existing:
-                    files_to_process.append(filename)
-
-        if not files_to_process:
-            _logger.info("Nothing to scan for client %s", self.name)
+        if not files:
+            _logger.info("No files to scan for client %s", self.name)
             return
 
-        _logger.info("Scanning client %s folder [%s]: found %d new PDFs", self.name, folder_path, len(files_to_process))
+        _logger.info("Scan Now: %d file(s) for client %s", len(files), self.name)
 
+        Result = self.env['purple_ai.extraction_result']
         self._update_scan_progress({
             'scan_status': 'scanning',
-            'scan_total': len(files_to_process),
+            'scan_total': len(files),
             'scan_count': 0,
             'scan_current_file': 'Starting...',
         })
         self._send_scan_notification()
 
         from odoo.addons.purpleai.services import document_processing_service
-        for i, filename in enumerate(files_to_process):
+        for i, filename in enumerate(files):
             self._update_scan_progress({
                 'scan_count': i + 1,
                 'scan_current_file': filename,
             })
             self._send_scan_notification()
 
-            file_path = os.path.join(self.folder_path, filename)
+            file_path = os.path.join(folder_path, filename)
+            if not os.path.exists(file_path):
+                _logger.warning("File not on disk, skipping: %s", file_path)
+                continue
+
+            # Find the most recent existing record for this file
+            existing = Result.search([
+                ('client_id', '=', self.id),
+                ('filename', '=', filename),
+            ], limit=1, order='create_date desc')
+
             try:
-                document_processing_service.process_document(self.env, self, file_path, filename)
+                if existing:
+                    # Overwrite existing record from disk — no new record created
+                    existing._rescan_from_disk(file_path)
+                else:
+                    # First time seeing this file — create a fresh record
+                    document_processing_service.process_document(
+                        self.env, self, file_path, filename
+                    )
             except Exception as e:
-                _logger.error("Failed to process file %s for client %s: %s", filename, self.name, str(e))
+                _logger.error("Failed to process %s for client %s: %s", filename, self.name, str(e))
 
         self._update_scan_progress({
             'scan_status': 'idle',
-            'scan_count': len(files_to_process),
-            'scan_current_file': 'Scanning Completed',
+            'scan_count': len(files),
+            'scan_current_file': 'Scan Completed',
             'last_scan': fields.Datetime.now(),
         })
-        self.env['purple_ai.client'].invalidate_model(['scan_status', 'scan_count', 'scan_current_file', 'last_scan'])
+        self.env['purple_ai.client'].invalidate_model(
+            ['scan_status', 'scan_count', 'scan_current_file', 'last_scan']
+        )
         self._send_scan_notification()
-
-    def action_force_rescan_folder(self):
-        """Force re-scans ALL files in the folder, including already-processed ones."""
-        self.ensure_one()
-        _logger.info("Force re-scan triggered for client %s", self.name)
-        return self.action_scan_folder(force=True)
 
     def _send_scan_notification(self):
         """Sends a bus notification to update the UI."""

@@ -21,8 +21,6 @@
             <form>
                 <header>
                     <button name="action_scan_folder" string="Scan Now" type="object" class="btn-primary" icon="fa-refresh" invisible="scan_status == 'scanning'"/>
-                    <button name="action_force_rescan_folder" string="Force Re-Scan All" type="object" class="btn-secondary" icon="fa-repeat" invisible="scan_status == 'scanning'"
-                            confirm="This will re-process ALL files in the folder, including already-scanned ones. Continue?"/>
                     <button string="Scanning..." class="btn-secondary" disabled="1" icon="fa-spinner fa-spin" invisible="scan_status != 'scanning'"/>
                     <button name="action_view_results" string="View Results" type="object" icon="fa-list"/>
                 </header>

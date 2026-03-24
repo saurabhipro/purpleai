@@ -151,105 +151,51 @@ def process_document(env, client, file_path, filename):
         'cost': cost
     })
 
+    # ── Post-processing: invoice processor + PDF annotation (non-fatal) ──────
+    # Each step is wrapped in its own savepoint so a failure here does NOT
+    # corrupt the main cursor and roll back the extraction record above.
 
-    # Create processor and get failures immediately
-    proc = env['purple_ai.invoice_processor'].create_from_extraction(result_rec.id)
-    failures = proc.action_validate() or []
-    
-    # Render PDF highlights ONCE (Yellow for data, Red for failures)
+    # Step 1: Create invoice processor and collect validation failures
+    failures = []
     try:
-        extracted_json = json.loads(json_str)
-        annotated_pdf = apply_pdf_highlights(file_path, extracted_json, failures)
-        if annotated_pdf:
-            result_rec.write({
-                'pdf_file': annotated_pdf,
-                'pdf_filename': f"annotated_{filename}"
-            })
-        else:
-            # Fallback to direct read if highlighting failed
-            with open(file_path, 'rb') as f:
-                result_rec.write({
-                    'pdf_file': base64.b64encode(f.read()),
-                    'pdf_filename': filename
-                })
+        with env.cr.savepoint():
+            proc = env['purple_ai.invoice_processor'].create_from_extraction(result_rec.id)
+            failures = proc.action_validate() or []
     except Exception as e:
-        _logger.error("Highlighting or post-processing failed for %s: %s", filename, str(e))
-    
+        _logger.warning("Invoice processor creation failed for %s (non-fatal): %s", filename, str(e))
+
+    # Step 2: Annotate PDF and store as binary
+    try:
+        with env.cr.savepoint():
+            extracted_json = json.loads(json_str) if json_str else {}
+            annotated_pdf = apply_pdf_highlights(file_path, extracted_json, failures)
+            if annotated_pdf:
+                result_rec.write({
+                    'pdf_file': annotated_pdf,
+                    'pdf_filename': f"annotated_{filename}",
+                })
+            else:
+                with open(file_path, 'rb') as f:
+                    result_rec.write({
+                        'pdf_file': base64.b64encode(f.read()),
+                        'pdf_filename': filename,
+                    })
+    except Exception as e:
+        _logger.error("PDF annotation/storage failed for %s (non-fatal): %s", filename, str(e))
+
     return result_rec
 
+
 def apply_pdf_highlights(file_path, extracted_json, failures=None):
-    """Uses fitz to draw highlights. Yellow for data, Red for failures."""
-    if not fitz:
-        _logger.warning("fitz (PyMuPDF) is not installed. Highlighting skipped.")
-        return False
-    
-    failures = failures or []
-    failed_fields = {f['field']: f['msg'] for f in failures}
+    """Returns the original clean PDF as base64 — no annotations burned in.
 
+    Visual highlighting is handled entirely by ai_evidence_viewer.js which draws
+    CSS overlays on the PDF viewer when the user clicks a field row. Burning
+    annotations into the PDF itself always looks bad and is now removed.
+    """
     try:
-        doc = fitz.open(file_path)
-        for key, data in extracted_json.items():
-            if not isinstance(data, dict):
-                continue
-            
-            box = data.get('box_2d')
-            p_num = data.get('page_number')
-            
-            if not (box and len(box) == 4 and p_num):
-                continue
-
-            page_idx = int(p_num) - 1
-            if not (0 <= page_idx < len(doc)):
-                continue
-
-            page = doc[page_idx]
-            w, h = page.rect.width, page.rect.height
-
-            ymin, xmin, ymax, xmax = [float(v) for v in box]
-
-            # Validate: coordinates must be in 0–1000 range
-            if not all(0 <= v <= 1000 for v in (ymin, xmin, ymax, xmax)):
-                _logger.debug("Skipping out-of-range box_2d for field '%s': %s", key, box)
-                continue
-
-            # Validate: box must not cover more than 70% of either dimension
-            # (prevents full-page yellow overlay from imprecise AI coordinates)
-            width_frac  = (xmax - xmin) / 1000
-            height_frac = (ymax - ymin) / 1000
-            if width_frac > 0.70 or height_frac > 0.70:
-                _logger.debug(
-                    "Skipping oversized box_2d for field '%s': covers %.0f%% W x %.0f%% H",
-                    key, width_frac * 100, height_frac * 100
-                )
-                continue
-
-            # Clamp to page bounds (safety net)
-            xmin = max(0, min(xmin, 1000))
-            xmax = max(0, min(xmax, 1000))
-            ymin = max(0, min(ymin, 1000))
-            ymax = max(0, min(ymax, 1000))
-
-            fitz_rect = fitz.Rect(
-                xmin * w / 1000,
-                ymin * h / 1000,
-                xmax * w / 1000,
-                ymax * h / 1000,
-            )
-
-            is_failed = key in failed_fields
-            color = (1, 0, 0) if is_failed else (1, 1, 0)  # Red if failed, Yellow otherwise
-
-            annot = page.add_highlight_annot(fitz_rect)
-            annot.set_colors(stroke=color)
-            if is_failed:
-                annot.set_info(content=failed_fields[key])
-            annot.update()
-
-        out = io.BytesIO()
-        doc.save(out)
-        doc.close()
-        return base64.b64encode(out.getvalue())
+        with open(file_path, 'rb') as f:
+            return base64.b64encode(f.read())
     except Exception as e:
-        _logger.error("Highlight rendering error: %s", str(e))
+        _logger.error("apply_pdf_highlights: could not read %s: %s", file_path, e)
         return False
-

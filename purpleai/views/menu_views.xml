@@ -18,11 +18,7 @@
               action="action_invoice_processor"
               sequence="10"/>
 
-    <menuitem id="menu_extraction_result"
-              name="Extraction Log (Raw)"
-              parent="menu_extraction_root"
-              action="action_extraction_result"
-              sequence="20"/>
+
 
 
     <!-- Configuration Menu -->
