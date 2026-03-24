@@ -304,11 +304,16 @@ export class AIEvidenceViewer extends Component {
                                 const rect = range.getBoundingClientRect();
                                 const layerRect = layer.getBoundingClientRect();
 
+                                // For numeric values use the full span rect so digits
+                                // like the trailing ".00" are never clipped by the box.
+                                const isNumericMatch = !isNaN(parseFloat(searchStr.replace(/[,\u20b9$\s]/g, '')));
+                                const finalRect = isNumericMatch ? span.getBoundingClientRect() : rect;
+
                                 // Calculate position relative to the text layer
-                                const top = ((rect.top - layerRect.top) / layerRect.height) * 100;
-                                const left = ((rect.left - layerRect.left) / layerRect.width) * 100;
-                                const width = (rect.width / layerRect.width) * 100;
-                                const height = (rect.height / layerRect.height) * 100;
+                                const top = ((finalRect.top - layerRect.top) / layerRect.height) * 100;
+                                const left = ((finalRect.left - layerRect.left) / layerRect.width) * 100;
+                                const width = (finalRect.width / layerRect.width) * 100;
+                                const height = (finalRect.height / layerRect.height) * 100;
 
                                 // Create the Precision Bounding Box
                                 const box = pdfIframe.contentDocument.createElement('div');
@@ -320,10 +325,10 @@ export class AIEvidenceViewer extends Component {
                                 box.style.position = 'absolute';
                                 box.style.top = `${top}%`;
                                 box.style.left = `${left}%`;
-                                box.style.width = `calc(${width}% + 4px)`;
-                                box.style.height = `calc(${height}% + 4px)`;
-                                box.style.marginTop = '-2px';
-                                box.style.marginLeft = '-2px';
+                                box.style.width = `calc(${width}% + 10px)`;
+                                box.style.height = `calc(${height}% + 8px)`;
+                                box.style.marginTop = '-4px';
+                                box.style.marginLeft = '-5px';
                                 box.style.borderRadius = '3px';
                                 box.style.pointerEvents = 'auto'; // Allow interaction
                                 box.style.cursor = 'pointer';
