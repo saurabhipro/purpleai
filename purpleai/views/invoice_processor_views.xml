@@ -63,7 +63,7 @@
                                         Rule-Based Compliance Report
                                     </div>
                                     <field name="validation_log" nolabel="1"/>
-                                    <div class="alert alert-warning mt-3" invisible="state != 'failed'">
+                                    <div class="alert alert-warning mt-3" role="alert" invisible="state != 'failed'">
                                         <i class="fa fa-warning me-2"/> Some rules have failed. Please review the <b>RED</b> sections on the PDF document to understand the issues.
                                     </div>
                                 </page>

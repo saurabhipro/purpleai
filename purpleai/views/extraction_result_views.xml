@@ -13,7 +13,8 @@
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="client_id"/>
                 <field name="filename"/>
-                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'error'"/>
+                <field name="page_count" string="Pages"/>
+                <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'error'" decoration-warning="state == 'processing'"/>
                 <field name="provider" string="AI Provider"/>
                 <field name="model_used" string="Model"/>
             </list>
@@ -68,7 +69,7 @@
                                 <!-- Fallback -->
                                 <div invisible="is_pdf or is_image" class="d-flex align-items-center justify-content-center h-100 text-white p-5 text-center">
                                     <div>
-                                        <i class="fa fa-file-o fa-5x mb-3 opacity-50"/>
+                                        <i class="fa fa-file-o fa-5x mb-3 opacity-50" title="Document"/>
                                         <h5>Preview unavailable for this format</h5>
                                         <p class="opacity-75">Filename: <field name="filename"/></p>
                                     </div>

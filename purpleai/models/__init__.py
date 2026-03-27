@@ -6,5 +6,6 @@ from . import client_master_scanning
 from . import extraction_result
 from . import property_ai_query
 from . import invoice_processor
+from . import pdf_converter
 from . import invoice_processor_validation
 from . import invoice_processor_tally

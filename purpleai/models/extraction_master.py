@@ -23,6 +23,7 @@ class ExtractionField(models.Model):
     field_key = fields.Char(string='JSON Key', required=True, help="Technical name for AI (no spaces)")
     instruction = fields.Text(string='AI Instruction', required=True, help="Prompt for AI on how to find this data")
     active = fields.Boolean(default=True)
+    use_zoom = fields.Boolean(string='Use Zoom-In', default=False, help="If checked, the AI will also receive a zoomed-in crop of the document margin for better extraction.")
 
     _sql_constraints = [
         ('field_key_unique', 'unique(master_id, field_key)', 'The JSON key must be unique per template!')

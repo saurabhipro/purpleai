@@ -85,34 +85,23 @@ class OpenAIService(BaseAIService):
             role = msg.get("role", "user")
             content = msg.get("content", "")
 
-            # Already a list (multi-modal content)? Use it as-is.
+            # If content is a list and contains proxies, build multi-modal parts
             if isinstance(content, list):
-                messages.append({"role": role, "content": content})
-                continue
-
-            # Handle file proxies (images / documents)
-            if isinstance(contents, list) and role == "user":
                 parts = []
-                for item in contents:
+                for item in content:
                     if isinstance(item, dict) and item.get("type") == "file_proxy":
-                        mime = item.get("mime_type", "")
-                        if "image" in mime:
-                            parts.append({
-                                "type": "image_url",
-                                "image_url": {"url": item.get("url")},
-                            })
-                        else:
-                            # For PDFs/documents — send as image_url if it's a data-URL
-                            parts.append({
-                                "type": "image_url",
-                                "image_url": {"url": item.get("url")},
-                            })
-                    elif isinstance(item, str):
-                        parts.append({"type": "text", "text": item})
-
+                        parts.append({
+                            "type": "image_url",
+                            "image_url": {"url": item.get("url")},
+                        })
+                    elif isinstance(item, (str, int, float)):
+                        parts.append({"type": "text", "text": str(item)})
+                
                 if parts:
                     messages.append({"role": role, "content": parts})
-                    continue
+                else:
+                    messages.append({"role": role, "content": str(content)})
+                continue
 
             messages.append({"role": role, "content": content})
 
@@ -120,7 +109,14 @@ class OpenAIService(BaseAIService):
             "model": chosen_model,
             "messages": messages,
             "temperature": temperature,
+            "max_tokens": 4096,
         }
+
+        # Enable JSON mode if the prompt mentions JSON
+        # (Only supported on gpt-4o, gpt-4-turbo, etc.)
+        all_text = str(contents).lower()
+        if "json" in all_text and ("gpt-4" in chosen_model or "gpt-3.5" in chosen_model):
+             payload["response_format"] = {"type": "json_object"}
 
         last_err: Optional[Exception] = None
         for attempt in range(max_retries + 1):

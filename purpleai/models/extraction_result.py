@@ -12,9 +12,10 @@ class ExtractionResult(models.Model):
     filename = fields.Char(string='File Name', required=True)
     
     state = fields.Selection([
+        ('processing', 'Scanning...'),
         ('done', 'Success'),
         ('error', 'Error')
-    ], string='Status', default='done')
+    ], string='Status', default='processing')
     
     extracted_data = fields.Text(string='Extracted JSON')
     data_html = fields.Html(string='Formatted View', compute='_compute_data_html')
@@ -45,6 +46,7 @@ class ExtractionResult(models.Model):
     output_tokens = fields.Integer(string='Output Tokens')
     total_tokens = fields.Integer(string='Total Tokens')
     cost = fields.Float(string='Estimated Cost ($)', digits=(12, 6))
+    page_count = fields.Integer(string='Pages', default=0)
 
     @api.depends('extracted_data')
     def _compute_data_html(self):
@@ -65,8 +67,6 @@ class ExtractionResult(models.Model):
                         page = False
 
                     # Search/Verify Button
-                    # This uses the browser's find. If inside iframe, it might need deeper logic,
-                    # but simple find() is a good starting point.
                     # Page Badge (Odoo 18 / Bootstrap 5 style)
                     page_badge = f'<span class="badge rounded-pill text-bg-info ms-2" style="font-size: 10px; vertical-align: middle;">Pg {page}</span>' if page else ''
                     
@@ -91,6 +91,7 @@ class ExtractionResult(models.Model):
                 rec.data_html = html
             except:
                 rec.data_html = f"<div class='alert alert-info py-2'>{rec.extracted_data}</div>"
+
     def action_process_invoice(self):
         self.ensure_one()
         processor_id = self.env['purple_ai.invoice_processor'].create_from_extraction(self.id)
@@ -106,13 +107,6 @@ class ExtractionResult(models.Model):
 
     def _get_estimated_cost(self, provider, model, prompt_tokens, output_tokens):
         """Estimate cost based on current provider/model prices (as of 2024-2025)."""
-        # Costs per 1M tokens ($)
-        # Gemini 1.5 Flash: $0.075 input, $0.30 output
-        # Gemini 1.5 Pro: $1.25 input, $5.00 output
-        # GPT-4o: $2.50 input, $10.00 output
-        # GPT-4o mini: $0.15 input, $0.60 output
-        # Mistral Large: $2.00 input, $6.00 output
-        
         provider = (provider or '').lower()
         model = (model or '').lower()
         
@@ -133,11 +127,9 @@ class ExtractionResult(models.Model):
     @api.model
     def get_dashboard_stats(self):
         """Unified API for the Owl Dashboard to fetch stats across all selected companies."""
-        # Multi-company filter: include all companies currently active in the user's switcher
         active_company_ids = self.env.companies.ids
         results = self.search([('company_id', 'in', active_company_ids)])
         
-        # Get Current Config (Still system-wide, usually primary company context)
         active_provider = self.env['ir.config_parameter'].sudo().get_param('tender_ai.ai_provider', 'gemini')
         active_model = "Unknown"
         if active_provider == 'gemini':
@@ -147,10 +139,7 @@ class ExtractionResult(models.Model):
         elif active_provider == 'mistral':
             active_model = self.env['ir.config_parameter'].sudo().get_param('tender_ai.mistral_model', 'mistral-large-latest')
 
-        # INR Conversion (Estimate 1 USD = 83.5 INR)
         inr_rate = 83.5
-
-        # Latest 10 Requests
         latest_requests = []
         for reg in results.sorted('create_date', reverse=True)[:10]:
             latest_requests.append({
@@ -162,6 +151,7 @@ class ExtractionResult(models.Model):
                 'cost_inr': round(reg.cost * inr_rate, 2),
                 'time': reg.create_date.strftime('%d %b, %H:%M'),
                 'client_name': reg.client_id.name,
+                'page_count': reg.page_count,
             })
 
         stats = {
@@ -195,6 +185,7 @@ class ExtractionResult(models.Model):
             }
         
         return stats
+
     def action_retry_extraction(self):
         """Re-scan this record using the stored PDF binary. Overwrites the existing record."""
         self.ensure_one()
@@ -205,151 +196,44 @@ class ExtractionResult(models.Model):
         _logger = logging.getLogger(__name__)
 
         if not self.pdf_file:
-            raise UserError(_("No PDF file found for this result. Please re-upload."))
+            # If no stored PDF, try to find it in the client folder
+            folder_path = self.client_id.folder_path
+            if folder_path and self.filename:
+                file_path = os.path.join(folder_path, self.filename)
+                if os.path.exists(file_path):
+                    self._rescan_from_disk(file_path)
+                    return True
+            raise UserError(_("No document source found to retry extraction. Please re-upload."))
 
-        # Write stored binary to a temp file so ai_service can read it
+        # Extract to temp file for processing service
         ext = os.path.splitext(self.filename)[1] or '.pdf'
         with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as temp:
             temp_path = temp.name
             temp.write(base64.b64decode(self.pdf_file))
 
         try:
-            from odoo.addons.purpleai.services import ai_service
-            from odoo.addons.purpleai.services.document_processing_service import (
-                _extract_json, apply_pdf_highlights
-            )
+            # Explicitly set state to processing so UI shows feedback
+            self.write({'state': 'processing', 'error_log': False})
+            self.env.cr.commit()
 
-            c = self.client_id
-            template = c.extraction_master_id
-
-            field_list = "\n".join([
-                f"- {f.field_key}: {f.instruction}"
-                for f in template.field_ids if f.active
-            ])
-            rule_list = "\n".join([
-                f"- {r.rule_code}: {r.description}"
-                for r in template.rule_ids if r.active and r.eval_type == 'ai'
-            ])
-
-            # Same prompt as process_document for consistency
-            prompt = (
-                "You are a specialized data extraction AI. "
-                "Extract fields from the document. Return a JSON object with: "
-                "'value', 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
-            )
-            if rule_list:
-                prompt += f"VALIDATION RULES:\n{rule_list}\n\n"
-            prompt += f"FIELDS TO EXTRACT:\n{field_list}"
-
-            # Call AI
-            uploaded = ai_service.upload_file(temp_path, env=self.env)
-            res = ai_service.generate([prompt, uploaded], env=self.env)
-
-            raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
-            usage = res.get('usage', {})
-            p_tok = usage.get('promptTokens', 0)
-            o_tok = usage.get('outputTokens', 0)
-
-            # Robust JSON extraction (handles all OpenAI/Gemini response formats)
-            json_str = _extract_json(raw_text)
-            if not json_str:
-                _logger.error("action_retry_extraction: could not parse JSON. Raw: %.300s", raw_text)
-
-            # Update the record
-            self.write({
-                'state': 'done' if json_str else 'error',
-                'raw_response': raw_text,
-                'extracted_data': json_str or '{}',
-                'error_log': None if json_str else f'Could not parse JSON from AI:\n{raw_text[:1000]}',
-                'provider': res.get('provider'),
-                'model_used': res.get('model'),
-                'duration_ms': res.get('durationMs', 0),
-                'prompt_tokens': p_tok,
-                'output_tokens': o_tok,
-                'total_tokens': p_tok + o_tok,
-                'cost': self._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok),
-            })
-
-            # Re-annotate PDF
-            try:
-                import json as _json
-                extracted_json = _json.loads(json_str) if json_str else {}
-                annotated = apply_pdf_highlights(temp_path, extracted_json)
-                if annotated:
-                    self.write({'pdf_file': annotated, 'pdf_filename': f"annotated_{self.filename}"})
-            except Exception as annot_err:
-                _logger.warning("Annotation failed during retry for %s: %s", self.filename, annot_err)
-
+            from odoo.addons.purpleai.services.document_processing_service import process_document
+            process_document(self.env, self.client_id, temp_path, self.filename, existing_record=self)
         except Exception as e:
+            _logger.error("action_retry_extraction failed: %s", str(e))
             self.write({'state': 'error', 'error_log': str(e)})
             raise UserError(_("Retry failed: %s") % str(e))
         finally:
             if os.path.exists(temp_path):
-                os.remove(temp_path)
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
         
         return True
 
     def _rescan_from_disk(self, file_path):
-        """Re-extracts data from an on-disk file and UPDATES this record (no new record created).
-        Used by Force Re-Scan All to overwrite existing records cleanly.
-        """
-        import os as _os
-        import base64 as _b64
+        """Re-extracts data from an on-disk file and UPDATES this record."""
         import logging
         _log = logging.getLogger(__name__)
-
-        from odoo.addons.purpleai.services import ai_service
-        from odoo.addons.purpleai.services.document_processing_service import _extract_json, apply_pdf_highlights
-
-        c = self.client_id
-        template = c.extraction_master_id
-
-        field_list = "\n".join([f"- {f.field_key}: {f.instruction}" for f in template.field_ids if f.active])
-        rule_list = "\n".join([f"- {r.rule_code}: {r.description}" for r in template.rule_ids if r.active and r.eval_type == 'ai'])
-
-        prompt = (
-            "You are a specialized data extraction AI. "
-            "Extract fields from the document. Return a JSON object with: "
-            "'value', 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
-        )
-        if rule_list:
-            prompt += f"VALIDATION RULES:\n{rule_list}\n\n"
-        prompt += f"FIELDS TO EXTRACT:\n{field_list}"
-
-        uploaded = ai_service.upload_file(file_path, env=self.env)
-        res = ai_service.generate([prompt, uploaded], env=self.env)
-
-        raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
-        usage = res.get('usage', {})
-        p_tok = usage.get('promptTokens', 0)
-        o_tok = usage.get('outputTokens', 0)
-
-        json_str = _extract_json(raw_text)
-        if not json_str:
-            _log.error("_rescan_from_disk: could not parse JSON for %s. Raw: %.300s", file_path, raw_text)
-
-        self.write({
-            'state': 'done' if json_str else 'error',
-            'raw_response': raw_text,
-            'extracted_data': json_str or '{}',
-            'error_log': None if json_str else f'Could not parse JSON:\n{raw_text[:1000]}',
-            'provider': res.get('provider'),
-            'model_used': res.get('model'),
-            'duration_ms': res.get('durationMs', 0),
-            'prompt_tokens': p_tok,
-            'output_tokens': o_tok,
-            'total_tokens': p_tok + o_tok,
-            'cost': self._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok),
-        })
-
-        # Re-annotate PDF from disk file
-        try:
-            _json = json.loads(json_str) if json_str else {}
-            annotated = apply_pdf_highlights(file_path, _json)
-            if annotated:
-                self.write({'pdf_file': annotated, 'pdf_filename': f"annotated_{self.filename}"})
-            else:
-                with open(file_path, 'rb') as f:
-                    self.write({'pdf_file': _b64.b64encode(f.read()), 'pdf_filename': self.filename})
-        except Exception as e:
-            _log.warning("PDF highlighting failed during force rescan for %s: %s", file_path, e)
+        from odoo.addons.purpleai.services.document_processing_service import process_document
+        process_document(self.env, self.client_id, file_path, self.filename, existing_record=self)

@@ -21,6 +21,7 @@
         'data/system_parameter_data.xml',
         'data/ir_cron_data.xml',
         'data/extraction_template_data.xml',
+        'data/student_exam_template.xml',
         'views/res_config_settings_views.xml',
         'views/menu_root.xml',
         'views/dashboard_views.xml',
@@ -32,6 +33,7 @@
         'views/invoice_processor_views.xml',
         'views/ir_attachment_views.xml',
         'views/menu_views.xml',
+        'views/pdf_converter_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

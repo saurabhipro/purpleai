@@ -8,16 +8,21 @@ _logger = logging.getLogger(__name__)
 class ClientMaster(models.Model):
     _inherit = 'purple_ai.client'
 
-    def cron_scan_client_folders(self):
-        """Cron entry point to scan all active client folders."""
+    def action_scan_all_clients(self):
+        """Action entry point to scan all active client folders."""
         clients = self.search([('active', '=', True)])
-        _logger.info("Cron: Scanning %d clients", len(clients))
+        _logger.info("Manual: Scanning %d clients", len(clients))
         for client in clients:
             try:
                 client.action_scan_folder()
             except Exception as e:
-                _logger.error("Cron: Failed to scan client %s: %s", client.name, str(e))
+                _logger.error("Manual: Failed to scan client %s: %s", client.name, str(e))
                 self.env.cr.rollback()
+        return True
+
+    def cron_scan_client_folders(self):
+        """Cron entry point to scan all active client folders."""
+        return self.action_scan_all_clients()
 
     def _update_scan_progress(self, vals):
         """Write scan progress fields in an isolated cursor to avoid serialization conflicts."""
@@ -92,8 +97,14 @@ class ClientMaster(models.Model):
                     document_processing_service.process_document(
                         self.env, self, file_path, filename
                     )
+                # Commit after each file so long OCR operations don't accumulate a massive
+                # uncommitted transaction (prevents DB transaction limits and deadlocks)
+                self.env.cr.commit()
             except Exception as e:
                 _logger.error("Failed to process %s for client %s: %s", filename, self.name, str(e))
+                # Critical: If Postgres aborts the transaction (e.g., deadlock), we MUST rollback
+                # so the connection is clean for the next file in the loop.
+                self.env.cr.rollback()
 
         self._update_scan_progress({
             'scan_status': 'idle',
@@ -117,3 +128,15 @@ class ClientMaster(models.Model):
             'status': self.scan_status
         }
         self.env['bus.bus']._sendone(self.env.user.partner_id, 'purple_ai_notification', msg)
+
+    def action_reset_scan_status(self):
+        """Force reset the scanning status back to idle if it gets stuck."""
+        self.ensure_one()
+        self._update_scan_progress({
+            'scan_status': 'idle',
+            'scan_current_file': 'Reset to idle by user',
+        })
+        self.env['purple_ai.client'].invalidate_model(
+            ['scan_status', 'scan_count', 'scan_current_file', 'last_scan']
+        )
+        self._send_scan_notification()

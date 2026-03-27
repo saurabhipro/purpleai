@@ -1,11 +1,73 @@
 # -*- coding: utf-8 -*-
 import requests
+import re
 import logging
 from odoo import _
 
 _logger = logging.getLogger(__name__)
 
-def push_voucher_to_tally(env, invoice_data):
+
+def _get_tally_url(env):
+    """Returns (tally_url, default_company) from system config."""
+    params = env['ir.config_parameter'].sudo()
+    url = params.get_param('tender_ai.tally_url', 'http://localhost').strip()
+    port = params.get_param('tender_ai.tally_port', '9000').strip()
+    company = params.get_param('tender_ai.tally_company', '').strip()
+    if not url.startswith('http'):
+        url = f'http://{url}'
+    return f"{url}:{port}", company
+
+
+def get_open_companies(env):
+    """
+    Fetches all companies currently OPEN in TallyPrime.
+    Tally must be running with at least one company open.
+    Returns: {'status': 'success', 'companies': ['Company A', 'Company B']}
+    """
+    tally_url, _ = _get_tally_url(env)
+
+    xml_request = """
+    <ENVELOPE>
+        <HEADER>
+            <TALLYREQUEST>Export Data</TALLYREQUEST>
+        </HEADER>
+        <BODY>
+            <EXPORTDATA>
+                <REQUESTDESC>
+                    <REPORTNAME>List of Companies</REPORTNAME>
+                    <STATICVARIABLES>
+                        <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+                    </STATICVARIABLES>
+                </REQUESTDESC>
+            </EXPORTDATA>
+        </BODY>
+    </ENVELOPE>
+    """
+
+    try:
+        response = requests.post(tally_url, data=xml_request.encode('utf-8'), timeout=10)
+        if response.status_code == 200:
+            text = response.content.decode('utf-8', errors='replace')
+            # Extract company names from <NAME> or <REMOTECMPNAME> tags
+            names = re.findall(r'<NAME>\s*(.*?)\s*</NAME>', text, re.IGNORECASE)
+            # Also try COMPANY tag attributes
+            attr_names = re.findall(r'<COMPANY\b[^>]*NAME="([^"]+)"', text, re.IGNORECASE)
+            all_names = list(dict.fromkeys(names + attr_names))  # deduplicate, preserve order
+            # Filter out system/empty entries
+            clean = [n for n in all_names if n and not n.startswith('$')]
+            if not clean:
+                return {'status': 'error', 'message': _('No companies found. Ensure at least one company is open in Tally.')}
+            return {'status': 'success', 'companies': clean}
+        else:
+            return {'status': 'error', 'message': _('Tally HTTP %s') % response.status_code}
+    except requests.exceptions.ConnectionError:
+        return {'status': 'error', 'message': _('Cannot connect to Tally. Ensure Tally is running and port 9000 is accessible.')}
+    except Exception as e:
+        _logger.exception("Error fetching Tally companies")
+        return {'status': 'error', 'message': str(e)}
+
+
+def push_voucher_to_tally(env, invoice_data, company_name=None):
     """
     invoice_data should be a dict containing:
     - voucher_type: 'Purchase' or 'Sales'
@@ -15,15 +77,8 @@ def push_voucher_to_tally(env, invoice_data):
     - amount: Total Amount
     - ledger_entries: list of dicts with {'name': LedgerName, 'amount': Amount, 'is_debit': True/False}
     """
-    params = env['ir.config_parameter'].sudo()
-    url = params.get_param('tender_ai.tally_url', 'http://localhost').strip()
-    port = params.get_param('tender_ai.tally_port', '9000').strip()
-    company = params.get_param('tender_ai.tally_company', '').strip()
-
-    if not url.startswith('http'):
-        url = f'http://{url}'
-    
-    tally_url = f"{url}:{port}"
+    tally_url, default_company = _get_tally_url(env)
+    company = company_name or default_company
 
     # Prepare Ledger Entries XML
     ledger_xml = ""
@@ -83,7 +138,6 @@ def push_voucher_to_tally(env, invoice_data):
                 return {'status': 'success', 'message': _('Successfully pushed to Tally.')}
             elif '<ERRORS>1</ERRORS>' in res_text:
                 # Extract error message if possible
-                import re
                 error_match = re.search(r'<LINEERROR>(.*?)</LINEERROR>', res_text)
                 error_msg = error_match.group(1) if error_match else _('Unknown Tally Error')
                 return {'status': 'error', 'message': error_msg}
@@ -94,16 +148,10 @@ def push_voucher_to_tally(env, invoice_data):
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
 
-def get_tally_ledgers(env):
-    """Fetches all ledger names from the active Tally company."""
-    params = env['ir.config_parameter'].sudo()
-    url = params.get_param('tender_ai.tally_url', 'http://localhost').strip()
-    port = params.get_param('tender_ai.tally_port', '9000').strip()
-    company = params.get_param('tender_ai.tally_company', '').strip()
-
-    if not url.startswith('http'):
-        url = f'http://{url}'
-    tally_url = f"{url}:{port}"
+def get_tally_ledgers(env, company_name=None):
+    """Fetches all ledger names from the specified (or default) Tally company."""
+    tally_url, default_company = _get_tally_url(env)
+    company = company_name or default_company
 
     xml_request = f"""
     <ENVELOPE>
@@ -120,15 +168,13 @@ def get_tally_ledgers(env):
     """
 
     try:
-        response = requests.post(tally_url, data=xml_request, timeout=15)
+        response = requests.post(tally_url, data=xml_request.encode('utf-8'), timeout=15)
         if response.status_code == 200:
-            import re
-            # Extract names from <NAME>...</NAME> tags
             names = re.findall(r'<NAME>(.*?)</NAME>', response.content.decode('utf-8'))
-            # Filter out internal/system names and duplicates
             clean_names = sorted(list(set([n for n in names if not n.startswith('$')])))
             return {'status': 'success', 'ledgers': clean_names}
         else:
             return {'status': 'error', 'message': _('Tally HTTP %s') % response.status_code}
     except Exception as e:
+        _logger.exception("Error fetching Tally ledgers")
         return {'status': 'error', 'message': str(e)}

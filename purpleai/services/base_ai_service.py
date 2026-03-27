@@ -92,6 +92,13 @@ class BaseAIService(abc.ABC):
             # Already a list of message dicts?
             if contents and isinstance(contents[0], dict) and "role" in contents[0]:
                 return contents
+            
+            # Check if it's a mix of strings and file proxies
+            has_proxy = any(isinstance(item, dict) and item.get("type") == "file_proxy" for item in contents)
+            if has_proxy:
+                # Keep it as a raw list for the provider to handle
+                return [{"role": "user", "content": contents}]
+
             # Otherwise join everything as a user turn
             joined = "\n".join(str(p) for p in contents)
             return [{"role": "user", "content": joined}]

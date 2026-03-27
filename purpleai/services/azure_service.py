@@ -93,46 +93,35 @@ class AzureService(BaseAIService):
             role = msg.get("role", "user")
             content = msg.get("content", "")
             
-            # If content is already a list, use it; otherwise build our own
             if isinstance(content, list):
-                messages.append({"role": role, "content": content})
-                continue
-
-            parts = []
-            # We treat the string content as a list to find proxies
-            # (In our system, _normalise_messages joins strings with \n, 
-            # but if it was a list of [str, proxy], we look for proxies).
-            
-            # Actually, let's handle the specific case of the dispatcher passing a list
-            if isinstance(contents, list) and role == "user":
-                for item in contents:
+                parts = []
+                for item in content:
                     if isinstance(item, dict) and item.get("type") == "file_proxy":
-                        # Detect if it's an image or document
-                        mime = item.get("mime_type", "")
-                        if "image" in mime:
-                            parts.append({
-                                "type": "image_url",
-                                "image_url": {"url": item.get("url")}
-                            })
-                        else:
-                            # For non-images (PDFs), most models prefer text extraction 
-                            # or specialized PDF support. Here we'll try sending as image 
-                            # if the model supports it, or just a note.
-                            parts.append({
-                                "type": "image_url",
-                                "image_url": {"url": item.get("url")}
-                            })
+                        parts.append({
+                            "type": "image_url",
+                            "image_url": {"url": item.get("url")}
+                        })
                     elif isinstance(item, (str, int, float)):
                         parts.append({"type": "text", "text": str(item)})
                 
                 if parts:
                     messages.append({"role": role, "content": parts})
                 else:
-                    messages.append({"role": role, "content": content})
-            else:
-                messages.append({"role": role, "content": content})
+                    messages.append({"role": role, "content": str(content)})
+                continue
 
-        payload = {"messages": messages, "temperature": temperature}
+            messages.append({"role": role, "content": content})
+
+        payload = {
+            "messages": messages, 
+            "temperature": temperature,
+            "max_tokens": 4096,
+        }
+
+        # Enable JSON mode if the prompt mentions JSON
+        all_text = str(contents).lower()
+        if "json" in all_text and ("gpt-4" in deployment or "gpt-3.5" in deployment):
+            payload["response_format"] = {"type": "json_object"}
 
         last_err: Optional[Exception] = None
         for attempt in range(max_retries + 1):

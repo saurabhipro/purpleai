@@ -47,11 +47,10 @@ class TendeAIResConfigSettings(models.TransientModel):
         
         # Default safety list if none are cached yet
         return [
-            ('gemini-3.1-pro-preview', 'gemini-3.1-pro-preview (Experimental)'),
-            ('gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite-preview'),
-            ('gemini-2.5-flash', 'gemini-2.5-flash'),
-            ('gemini-2.0-flash', 'gemini-2.0-flash'),
-            ('gemini-1.5-flash', 'gemini-1.5-flash'),
+            ('gemini-2.0-flash', 'Gemini 2.0 Flash (Fastest & Best)'),
+            ('gemini-1.5-flash', 'Gemini 1.5 Flash (Stable)'),
+            ('gemini-1.5-pro', 'Gemini 1.5 Pro (Most Capable)'),
+            ('gemini-2.0-pro-exp-02-05', 'Gemini 2.0 Pro Exp'),
         ]
 
     # Available model names (stored as newline-separated value for the selection)

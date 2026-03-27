@@ -39,7 +39,7 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 # ── Default model fallback ────────────────────────────────────────────────────
-_DEFAULT_MODEL_FALLBACK = "gemini-2.5-flash"
+_DEFAULT_MODEL_FALLBACK = "gemini-2.0-flash"
 
 # ── Model cache ───────────────────────────────────────────────────────────────
 _model_cache: Optional[str] = None

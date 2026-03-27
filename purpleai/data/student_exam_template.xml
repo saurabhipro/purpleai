@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Extraction Template: Student Exam Answer Sheet (OMR)
+        Shalom Hills style — covers header OMR sheet + answer sheet marks
+    -->
+    <record id="extraction_master_student_exam" model="purple_ai.extraction_master">
+        <field name="name">Student Exam Answer Sheet</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 1: Student Identification
+    ══════════════════════════════════════════════════ -->
+
+    <record id="field_student_name" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Student Name</field>
+        <field name="field_key">student_name</field>
+        <field name="sequence">10</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the student/candidate name written in CAPITAL LETTERS in the bubble-letter grid labeled "Candidate's Name" or "परीक्षार्थी का नाम". Read the darkened/filled letter bubbles in each column to reconstruct the name. Return as a plain string e.g. "ANVITA".</field>
+    </record>
+
+    <record id="field_subject" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Subject</field>
+        <field name="field_key">subject</field>
+        <field name="sequence">20</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the subject name written next to "विषय Subject :" or "Subject :". Return as written, e.g. "Hindi", "Mathematics", "Science".</field>
+    </record>
+
+    <record id="field_class_section" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Class and Section</field>
+        <field name="field_key">class_section</field>
+        <field name="sequence">30</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the class and section written next to "कक्षा Class :" e.g. "IX C", "X A", "VIII B". Return as a single string.</field>
+    </record>
+
+    <record id="field_exam_date" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Exam Date</field>
+        <field name="field_key">exam_date</field>
+        <field name="sequence">40</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the examination date written next to "Day and Date of the Examination" or "परीक्षा का दिन एवं तिथि". Return in DD/MM/YYYY or DD.MM.YY format as written.</field>
+    </record>
+
+    <record id="field_father_name" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Father Name</field>
+        <field name="field_key">father_name</field>
+        <field name="sequence">50</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the father's name written next to "पिता का नाम Father's Name :" or "Father's Name :". Return as a plain string.</field>
+    </record>
+
+    <record id="field_medium" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Medium of Paper</field>
+        <field name="field_key">medium_of_paper</field>
+        <field name="sequence">55</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the medium of answering the paper written next to "Medium of answering the paper" or "उत्तर देने का माध्यम". Typically "Hindi" or "English".</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 2: OMR Bubble-Grid Fields
+    ══════════════════════════════════════════════════ -->
+
+    <record id="field_roll_no" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Roll No (Bubble Grid)</field>
+        <field name="field_key">roll_no</field>
+        <field name="sequence">60</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the Roll Number from the OMR bubble grid labeled "अनुक्रमांक Roll No." at the top of the sheet. Each column has digits 0-9; read the FILLED/DARKENED bubble in each column from left to right. Return as a numeric string e.g. "203456".</field>
+    </record>
+
+    <record id="field_subject_code" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Subject Code (Bubble Grid)</field>
+        <field name="field_key">subject_code</field>
+        <field name="sequence">70</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the Subject Code from the OMR bubble grid labeled "विषय संख्या Subject Code". Read the FILLED/DARKENED bubble in each digit column. Return as a numeric string.</field>
+    </record>
+
+    <record id="field_center_no" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Centre No (Bubble Grid)</field>
+        <field name="field_key">center_no</field>
+        <field name="sequence">80</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the Centre Number from the OMR bubble grid labeled "केंद्र संख्या Centre No.". Read the FILLED/DARKENED bubble in each digit column. Return as a numeric string.</field>
+    </record>
+
+    <record id="field_roll_no_words" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Roll No in Digits (Written)</field>
+        <field name="field_key">roll_no_words</field>
+        <field name="sequence">85</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the Roll Number in digits written by the student next to "अनुक्रमांक (अंकों में) Roll NO. (in words)". This is a handwritten number e.g. "65". Return as a numeric string.</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 3: Marks Table at Bottom of OMR Sheet
+    ══════════════════════════════════════════════════ -->
+
+    <record id="field_marks_table" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Per-Question Marks Table</field>
+        <field name="field_key">marks_table</field>
+        <field name="sequence">90</field>
+        <field name="active">True</field>
+        <field name="instruction">At the BOTTOM of the OMR sheet there is a grid table with rows labeled "Q.No." and "Marks". Extract ALL question-mark pairs as a JSON array: [{"q": 1, "marks": 3}, {"q": 2, "marks": 1.5}, ...]. If a marks cell is blank use null. Extract every visible question number column.</field>
+    </record>
+
+    <record id="field_total_marks" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Total Marks (OMR Sheet)</field>
+        <field name="field_key">total_marks</field>
+        <field name="sequence">95</field>
+        <field name="active">True</field>
+        <field name="instruction">Extract the GRAND TOTAL marks from the marks table at the bottom of the OMR sheet. Look for a cell labeled "Total", "Grand Total", "कुल", or the last/rightmost total column. Return as a number.</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 4: Answer Sheet — Teacher Marks in Margin
+    ══════════════════════════════════════════════════ -->
+
+    <record id="field_answer_sheet_marks" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Answer Sheet Per-Question Marks (Circled)</field>
+        <field name="field_key">answer_sheet_marks</field>
+        <field name="sequence">100</field>
+        <field name="active">True</field>
+        <field name="instruction">On the ANSWER SHEET pages (handwritten answers), the teacher writes marks for each question in the LEFT MARGIN, often inside a circle. CAUTION: Pay extreme attention to decimal half-marks (like .5), e.g., 2.5, 3.5, 4.5. Some teachers write them with a connected tail, or as a small fraction (½), so look closely for any symbol after the digit. For every question you can identify, extract the page number, the actual question number written next to the mark (e.g., '1', '2(ii)'), the exact marks given, and your confidence score (0-100). If the mark is inside a circle, it is almost certainly a final score for that sub-question. Return as a JSON array: [{"page": 2, "q": "1", "marks": 2.5, "confidence": 98}, {"page": 3, "q": "2", "marks": 3, "confidence": 95}, ...].</field>
+    </record>
+
+    <record id="field_question_sub_totals" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Question-wise Total Marks (All Sub-sections)</field>
+        <field name="field_key">question_sub_totals</field>
+        <field name="sequence">102</field>
+        <field name="active">True</field>
+        <field name="instruction">For each question, compute the GRAND TOTAL by adding all marks given to its sub-sections across all answer sheet pages. Also provide your confidence score (0-100). Return a JSON array: [{"page": "2,3", "q": 1, "marks": 4.5, "confidence": 98}, {"page": "4", "q": 2, "marks": 3, "confidence": 95}, ...]. Where 'page' indicates the page(s) the sub-sections were found on.</field>
+    </record>
+
+    <record id="field_answer_total" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Answer Sheet Total (Sum of Circled Marks)</field>
+        <field name="field_key">answer_sheet_total</field>
+        <field name="sequence">105</field>
+        <field name="active">True</field>
+        <field name="instruction">Sum all teacher-circled per-question marks found on the answer sheet pages. This should match the "total_marks" from the OMR header sheet. Return as a number. If no answer sheet present return null.</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         SECTION 5: Signatures
+    ══════════════════════════════════════════════════ -->
+
+    <record id="field_invigilator_sig" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Invigilator Signature Present</field>
+        <field name="field_key">invigilator_signature_present</field>
+        <field name="sequence">110</field>
+        <field name="active">True</field>
+        <field name="instruction">Check if the invigilator's signature is present next to "परीक्षक के हस्ताक्षर Signature of Invigilator". Return "Yes" if a signature is visible, "No" if blank.</field>
+    </record>
+
+    <record id="field_teacher_sig" model="purple_ai.extraction_field">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Teacher Signature Present</field>
+        <field name="field_key">teacher_signature_present</field>
+        <field name="sequence">115</field>
+        <field name="active">True</field>
+        <field name="instruction">Check if the teacher/examiner's signature is present in the "Teacher's Signature" box at the bottom-right of the OMR sheet. Return "Yes" if a signature is visible, "No" if blank.</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════
+         Validation Rule: Cross-check OMR total vs Answer Sheet total
+    ══════════════════════════════════════════════════ -->
+
+    <record id="rule_marks_match" model="purple_ai.validation_rule">
+        <field name="master_id" ref="extraction_master_student_exam"/>
+        <field name="name">Marks Match: OMR Table vs Answer Sheet</field>
+        <field name="rule_code">MARKS_CROSS_CHECK</field>
+        <field name="sequence">10</field>
+        <field name="eval_type">ai</field>
+        <field name="active">True</field>
+        <field name="description">Compare the total_marks from the OMR marks table with the answer_sheet_total from the answer sheet pages. If they differ by more than 0.5, flag as a mismatch and report both values. If they match (within 0.5), report as valid.</field>
+    </record>
+
+</odoo>

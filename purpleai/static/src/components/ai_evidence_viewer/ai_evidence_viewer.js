@@ -17,6 +17,8 @@ export class AIEvidenceViewer extends Component {
             commentingKey: null,
             commentValue: "",
             hoveredKey: null,
+            hoveredBox2d: null,
+            activeTab: 'main',
         });
         this._updateData(this.props);
         this.pdfApp = null;
@@ -45,19 +47,105 @@ export class AIEvidenceViewer extends Component {
         }
     }
 
+    get hasMarksTab() {
+        return Object.keys(this.state.data).some(k => this.isMarksKey(k));
+    }
+
+    isMarksKey(key) {
+        return ['marks_table', 'answer_sheet_marks', 'question_sub_totals', 'total_marks', 'answer_sheet_total'].includes(key);
+    }
+
+    getTabEntries() {
+        return Object.entries(this.state.data).filter(([k, v]) => !this.isMarksKey(k));
+    }
+
+    getMarksTableData() {
+        // Priority fields to pull the marks array from
+        const priorityFields = ['question_sub_totals', 'answer_sheet_marks', 'marks_table'];
+        let arrayData = [];
+        let matchedKey = null;
+
+        for (const k of priorityFields) {
+            const raw = this.state.data[k];
+            const arr = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw.value : raw;
+            if (Array.isArray(arr) && arr.length > 0) {
+                arrayData = arr;
+                matchedKey = k;
+                break;
+            }
+        }
+
+        let total = 0;
+        const rows = arrayData.map((item, idx) => {
+            if (!item || item.q === undefined) return null;
+            const pmarsks = parseFloat(item.marks);
+            const m = isNaN(pmarsks) ? 0 : pmarsks;
+            total += m;
+            return {
+                idx,
+                qStr: `Q${item.q}_${idx}`,
+                q: item.q,
+                page: item.page ? `PG ${item.page}` : '-',
+                pageNum: item.page || null,
+                marks: item.marks !== undefined && item.marks !== null ? item.marks : '—',
+                confidence: item.confidence !== undefined ? item.confidence : null,
+                box2d: item.box_2d || null
+            };
+        }).filter(Boolean);
+
+        rows.sort((a, b) => {
+            const qA = typeof a.q === 'string' ? parseFloat(a.q.replace(/[^0-9.]/g, '')) || 0 : a.q;
+            const qB = typeof b.q === 'string' ? parseFloat(b.q.replace(/[^0-9.]/g, '')) || 0 : b.q;
+            if (qA !== qB) return qA - qB;
+
+            const pA = a.pageNum ? parseInt(a.pageNum) : Number.MAX_SAFE_INTEGER;
+            const pB = b.pageNum ? parseInt(b.pageNum) : Number.MAX_SAFE_INTEGER;
+            return pA - pB;
+        });
+
+        return { key: matchedKey, rows, total: Math.round(total * 100) / 100 };
+    }
+
+    onMouseEnterMarksRow(m) {
+        if (m.pageNum) {
+            this._navigateToPage(m.pageNum);
+        }
+        if (!m.box2d) return;
+        this.scrollRequested = true;
+        this.state.hoveredBox2d = m.box2d;
+        this._applyMultiHighlights();
+    }
+
+    onMouseLeaveMarksRow() {
+        this.state.hoveredBox2d = null;
+        this._applyMultiHighlights();
+    }
+
+    setActiveTab(tab) {
+        this.state.activeTab = tab;
+        this.state.selectedKey = null;
+    }
+
     selectRow(key, ev) {
         if (ev) {
             ev.stopPropagation();
-            this.scrollRequested = true; // Trigger precision scroll only from table clicks
+            this.scrollRequested = true;
         }
-        if (this.state.editingKey) return; // Don't switch while editing
+        if (this.state.editingKey) return;
 
         this.state.selectedKey = key;
         const val_data = this.state.data[key];
-        const val = (val_data && typeof val_data === 'object') ? val_data.value : val_data;
-        const page = (val_data && typeof val_data === 'object') ? val_data.page_number : null;
+        const val = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.value : val_data;
+        const page = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.page_number : null;
+        const box2d = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.box_2d : null;
 
-        this.onVerify(val, page);
+        if (box2d && box2d.length === 4) {
+            // Precise box_2d coords available — just navigate to page, no text-search
+            this._navigateToPage(page);
+        } else {
+            // No coordinates — fall back to PDF.js text search
+            this.onVerify(val, page);
+        }
         this._applyMultiHighlights();
     }
 
@@ -144,9 +232,54 @@ export class AIEvidenceViewer extends Component {
             'supplier_gstin': 'fa-id-card-o',
             'vendor_bank_account': 'fa-credit-card',
             'po_number': 'fa-file-text-o',
-            'service_type': 'fa-cog'
+            'service_type': 'fa-cog',
+            // Exam sheet fields
+            'student_name': 'fa-user',
+            'roll_no': 'fa-barcode',
+            'subject_code': 'fa-tag',
+            'center_no': 'fa-map-marker',
+            'marks_table': 'fa-table',
+            'answer_sheet_marks': 'fa-pencil',
+            'total_marks': 'fa-check-square-o',
         };
         return icons[key] || 'fa-tag';
+    }
+
+    formatValue(val) {
+        if (val === null || val === undefined) return '---';
+        if (Array.isArray(val)) {
+            // Summarize as "Q1:3, Q2:1.5, ..."
+            return val.map(item => {
+                if (item && item.q !== undefined) {
+                    const p = item.page ? `[Pg ${item.page}] ` : '';
+                    return `${p}Q${item.q}:${item.marks ?? '?'}`;
+                }
+                return this.itemToString(item);
+            }).join(', ');
+        }
+        if (typeof val === 'object') return this.itemToString(val);
+        return String(val);
+    }
+
+    itemToString(item) {
+        if (item === null || item === undefined) return '—';
+        if (typeof item !== 'object') return String(item);
+
+        // Safe JSON serialization for OWL templates
+        try {
+            return Object.entries(item).map(([k, v]) => `${k}:${v}`).join(' ');
+        } catch (e) {
+            return String(item);
+        }
+    }
+
+    formatArrayItem(item) {
+        if (item && item.q !== undefined) {
+            const m = item.marks !== undefined && item.marks !== null ? item.marks : '—';
+            const pageStr = item.page ? `[Pg ${item.page}] ` : '';
+            return `${pageStr}Q${item.q}: ${m}`;
+        }
+        return this.itemToString(item);
     }
 
     onMouseEnterRow(key) {
@@ -154,18 +287,10 @@ export class AIEvidenceViewer extends Component {
         this.state.hoveredKey = key;
 
         const val_data = this.state.data[key];
-        const page = (val_data && typeof val_data === 'object') ? val_data.page_number : null;
+        const page = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.page_number : null;
 
-        // Instant Hover Navigation
-        const pdfIframe = document.querySelector('.o_field_pdf_viewer iframe, iframe.o_pdfview_iframe');
-        if (pdfIframe && pdfIframe.contentWindow && pdfIframe.contentWindow.PDFViewerApplication) {
-            const app = pdfIframe.contentWindow.PDFViewerApplication;
-            if (app.initialized && page && app.page !== page) {
-                app.page = parseInt(page);
-            }
-        }
-
-        this.scrollRequested = true; // Signal for the custom scroller to center view
+        this._navigateToPage(page);
+        this.scrollRequested = true;
         this._applyMultiHighlights();
     }
 
@@ -173,6 +298,16 @@ export class AIEvidenceViewer extends Component {
         if (!this.state.hoveredKey) return;
         this.state.hoveredKey = null;
         this._applyMultiHighlights();
+    }
+
+    _navigateToPage(page) {
+        if (!page) return;
+        const pdfIframe = document.querySelector('.o_field_pdf_viewer iframe, iframe.o_pdfview_iframe');
+        if (!pdfIframe || !pdfIframe.contentWindow) return;
+        const app = pdfIframe.contentWindow.PDFViewerApplication;
+        if (app && app.initialized && app.page !== parseInt(page)) {
+            app.page = parseInt(page);
+        }
     }
 
     _applyMultiHighlights() {
@@ -237,10 +372,70 @@ export class AIEvidenceViewer extends Component {
             Object.entries(this.state.data).forEach(([key, val_data]) => {
                 if (key === 'validations') return;
 
-                const valObj = (val_data && typeof val_data === 'object');
-                // Try preferred 'raw' text if available, fallback to normalized 'value'
-                const textToFind = valObj ? (val_data.raw || val_data.value) : val_data;
+                const valObj = (val_data && typeof val_data === 'object' && !Array.isArray(val_data));
+                const rawValue = valObj ? (val_data.raw || val_data.value) : val_data;
+
+                // Skip array values (marks tables)
+                if (Array.isArray(rawValue)) return;
+
+                const isSelected = this.state.selectedKey === key;
+                const isHovered = this.state.hoveredKey === key;
                 const targetPage = valObj ? val_data.page_number : null;
+                const box2d = valObj ? val_data.box_2d : null;
+                const friendlyName = key.replace(/_/g, ' ').toUpperCase();
+
+                // ── PATH A: box_2d available — draw overlay from coordinates ──────────
+                if (box2d && Array.isArray(box2d) && box2d.length === 4) {
+                    if (targetPage && targetPage !== pageNum) return;
+
+                    const [y0, x0, y1, x1] = box2d.map(Number);
+
+                    // Debug: log to console so we can verify coordinate mapping
+                    const _dbgPage = overlay.closest ? overlay.closest('.page') : null;
+                    console.log(`[AIHighlight] ${key}: box_2d=[${y0},${x0},${y1},${x1}] → CSS: top=${(y0 / 10).toFixed(1)}% left=${(x0 / 10).toFixed(1)}% w=${((x1 - x0) / 10).toFixed(1)}% h=${((y1 - y0) / 10).toFixed(1)}% | pageEl=${_dbgPage ? _dbgPage.offsetWidth + 'x' + _dbgPage.offsetHeight : 'N/A'}`);
+
+                    // Validate: must be 0-1000 and not cover >70% of page
+                    if ([y0, x0, y1, x1].some(v => v < 0 || v > 1000)) return;
+                    if ((x1 - x0) > 700 || (y1 - y0) > 700) return;
+
+                    const box = pdfIframe.contentDocument.createElement('div');
+                    box.className = 'audit-box';
+                    if (isSelected) box.classList.add('pink-box', 'blink');
+                    if (isHovered) box.classList.add('hover-box');
+                    if (!isSelected && !isHovered) box.classList.add('yellow-box');
+
+                    // Convert 0-1000 scale to percentages of page
+                    box.style.position = 'absolute';
+                    box.style.top = `calc(${y0 / 10}% - 2px)`;
+                    box.style.left = `calc(${x0 / 10}% - 3px)`;
+                    box.style.width = `calc(${(x1 - x0) / 10}% + 6px)`;
+                    box.style.height = `calc(${(y1 - y0) / 10}% + 4px)`;
+                    box.style.borderRadius = '3px';
+                    box.style.pointerEvents = 'auto';
+                    box.style.cursor = 'pointer';
+                    box.title = `${friendlyName}: ${rawValue || ''}`;
+
+                    box.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.selectRow(key); };
+
+                    if (isSelected || isHovered) {
+                        const tag = pdfIframe.contentDocument.createElement('div');
+                        tag.className = 'audit-comment-tag';
+                        tag.textContent = friendlyName;
+                        tag.style.cssText = 'position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:#db2777;color:#fff;font-size:8px;padding:1px 6px;border-radius:4px;white-space:nowrap;z-index:110;pointer-events:none;';
+                        box.appendChild(tag);
+
+                        if (this.scrollRequested) {
+                            this.scrollRequested = false;
+                            setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }
+                    }
+
+                    overlay.appendChild(box);
+                    return; // Skip text-search path
+                }
+
+                // ── PATH B: No box_2d — fall back to text span search ─────────────────
+                const textToFind = rawValue;
 
                 // Safeguard: Skip empty, whitespace, or placeholder data (like ---)
                 if (!textToFind) return;
@@ -254,10 +449,6 @@ export class AIEvidenceViewer extends Component {
                 }
 
                 if (targetPage && pageNum && targetPage !== pageNum) return;
-
-                const isSelected = this.state.selectedKey === key;
-                const isHovered = this.state.hoveredKey === key;
-                const friendlyName = key.replace(/_/g, ' ').toUpperCase();
 
                 spans.forEach(span => {
                     const textContent = span.textContent; // Do NOT trim, helps preserve indices
@@ -401,6 +592,31 @@ export class AIEvidenceViewer extends Component {
                         }
                     }
                 });
+
+                // Apply custom hovered bounding box (e.g. from sub-arrays)
+                if (this.state.hoveredBox2d && Array.isArray(this.state.hoveredBox2d) && this.state.hoveredBox2d.length === 4) {
+                    const [y0, x0, y1, x1] = this.state.hoveredBox2d.map(Number);
+                    if (!([y0, x0, y1, x1].some(v => v < 0 || v > 1000))) {
+                        const box = pdfIframe.contentDocument.createElement('div');
+                        box.className = 'audit-box hover-box';
+                        box.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
+                        box.style.border = '2px solid rgba(255, 204, 0, 0.8)';
+                        box.style.position = 'absolute';
+                        box.style.top = `calc(${y0 / 10}% - 2px)`;
+                        box.style.left = `calc(${x0 / 10}% - 3px)`;
+                        box.style.width = `calc(${(x1 - x0) / 10}% + 6px)`;
+                        box.style.height = `calc(${(y1 - y0) / 10}% + 4px)`;
+                        box.style.borderRadius = '3px';
+                        box.style.pointerEvents = 'none';
+                        box.style.zIndex = '100';
+                        overlay.appendChild(box);
+
+                        if (this.scrollRequested) {
+                            this.scrollRequested = false;
+                            setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }
+                    }
+                }
             });
         });
     }

@@ -89,16 +89,12 @@ class MistralService(BaseAIService):
             content = msg.get("content", "")
             
             if isinstance(content, list):
-                messages.append({"role": role, "content": content})
-                continue
-
-            parts = []
-            if isinstance(contents, list) and role == "user":
-                for item in contents:
+                parts = []
+                for item in content:
                     if isinstance(item, dict) and item.get("type") == "file_proxy":
                         parts.append({
                             "type": "image_url",
-                            "image_url": item.get("url") # OpenAI-style image_url can be just the string or dict
+                            "image_url": {"url": item.get("url")}
                         })
                     elif isinstance(item, (str, int, float)):
                         parts.append({"type": "text", "text": str(item)})
@@ -106,15 +102,22 @@ class MistralService(BaseAIService):
                 if parts:
                     messages.append({"role": role, "content": parts})
                 else:
-                    messages.append({"role": role, "content": content})
-            else:
-                messages.append({"role": role, "content": content})
+                    messages.append({"role": role, "content": str(content)})
+                continue
+
+            messages.append({"role": role, "content": content})
 
         payload = {
             "model": resolved_model,
             "messages": messages,
             "temperature": temperature,
+            "max_tokens": 4096,
         }
+
+        # Enable JSON mode if the prompt mentions JSON
+        all_text = str(contents).lower()
+        if "json" in all_text and ("large" in resolved_model or "small" in resolved_model or "pixtral" in resolved_model):
+            payload["response_format"] = {"type": "json_object"}
 
         last_err: Optional[Exception] = None
         for attempt in range(max_retries + 1):

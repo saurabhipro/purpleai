@@ -9,3 +9,4 @@ access_purple_ai_invoice_processor_user,purple_ai.invoice_processor.user,model_p
 access_purple_ai_upload_invoice_wizard,purple_ai.upload_invoice_wizard.user,model_purple_ai_upload_invoice_wizard,base.group_user,1,1,1,1
 access_purple_ai_upload_invoice_file,purple_ai.upload_invoice_file.user,model_purple_ai_upload_invoice_file,base.group_user,1,1,1,1
 access_purple_ai_validation_rule_user,purple_ai.validation_rule.user,model_purple_ai_validation_rule,base.group_user,1,1,1,1
+access_purple_ai_pdf_converter_user,purple_ai.pdf_converter.user,model_purple_ai_pdf_converter,base.group_user,1,1,1,1
