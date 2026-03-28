@@ -12,7 +12,7 @@ def _get_ai_settings(env):
         'openai_key':       config.get_param('memo_ai.openai_api_key', ''),
         'openai_model':     config.get_param('memo_ai.openai_model', 'gpt-4o'),
         'gemini_key':       config.get_param('memo_ai.gemini_api_key', ''),
-        'gemini_model':     config.get_param('memo_ai.gemini_model', 'gemini-1.5-pro'),
+        'gemini_model':     config.get_param('memo_ai.gemini_model', 'gemini-2.5-flash'),
         'azure_key':        config.get_param('memo_ai.azure_api_key', ''),
         'azure_endpoint':   config.get_param('memo_ai.azure_endpoint', ''),
         'azure_deployment': config.get_param('memo_ai.azure_deployment', ''),
@@ -75,11 +75,22 @@ def call_gemini(env, prompt, settings=None):
             "Go to Memo AI → Configuration → Settings to add your key."
         )
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(settings['gemini_model'])
-        response = model.generate_content(prompt)
-        return response.text.strip()
+        import requests
+        api_key = api_key.strip()
+        model_name = settings['gemini_model'].strip()
+        clean_model = model_name if not model_name.startswith('models/') else model_name.replace('models/', '')
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key}"
+        data = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.3}
+        }
+        response = requests.post(url, headers={'Content-Type': 'application/json'}, json=data, timeout=60)
+        
+        if response.status_code == 200:
+            return response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
+        else:
+            raise ValueError(f"Gemini API Error {response.status_code}: {response.text}")
     except Exception as e:
         _logger.error("Gemini call failed: %s", str(e))
         raise

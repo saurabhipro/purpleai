@@ -51,14 +51,17 @@ class MemoAIResConfigSettings(models.TransientModel):
     )
     memo_ai_gemini_model = fields.Selection(
         selection=[
+            ('gemini-2.5-flash', 'Gemini 2.5 Flash (Fastest)'),
+            ('gemini-2.5-pro', 'Gemini 2.5 Pro (Most Capable)'),
+            ('gemini-2.5-flash-lite', 'Gemini 2.5 Flash Lite'),
             ('gemini-2.0-flash', 'Gemini 2.0 Flash (Fastest)'),
-            ('gemini-1.5-flash', 'Gemini 1.5 Flash (Stable)'),
-            ('gemini-1.5-pro', 'Gemini 1.5 Pro (Most Capable)'),
-            ('gemini-2.0-pro-exp-02-05', 'Gemini 2.0 Pro Exp'),
+            ('gemini-1.5-flash', 'Gemini 1.5 Flash (legacy)'),
+            ('gemini-1.5-pro', 'Gemini 1.5 Pro (legacy)'),
+            ('gemini-2.0-pro-exp-02-05', 'Gemini 2.0 Pro Exp (legacy)'),
         ],
         string='Gemini Model',
         config_parameter='memo_ai.gemini_model',
-        default='gemini-1.5-pro',
+        default='gemini-2.5-flash',
         help='The Gemini model to use for Memo AI analysis.',
     )
 
@@ -125,12 +128,24 @@ class MemoAIResConfigSettings(models.TransientModel):
         if not api_key:
             raise UserError(_('Please enter your Gemini API Key first.'))
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model_name = self.memo_ai_gemini_model or 'gemini-1.5-flash'
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content('Say "Memo AI connected!" in one sentence.')
-            return self._notify_success(_('Gemini Connected'), f'Model: {model_name}\n{response.text.strip()}')
+            import requests
+            model_name = (self.memo_ai_gemini_model or 'gemini-2.5-flash').strip()
+            clean_model = model_name if not model_name.startswith('models/') else model_name.replace('models/', '')
+            
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key.strip()}"
+            data = {
+                "contents": [{"parts": [{"text": 'Say "Memo AI connected!" in one sentence.'}]}],
+                "generationConfig": {"temperature": 0.1}
+            }
+            response = requests.post(url, headers={'Content-Type': 'application/json'}, json=data, timeout=15)
+            
+            if response.status_code == 200:
+                answer = response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                return self._notify_success(_('Gemini Connected'), f'Model: {clean_model}\n{answer.strip()}')
+            else:
+                raise UserError(_('API Error %s: %s') % (response.status_code, response.text))
+        except UserError:
+            raise
         except Exception as e:
             raise UserError(_('Gemini test failed: %s') % str(e))
 
