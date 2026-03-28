@@ -231,33 +231,41 @@ class MemoRagDocument(models.Model):
         top_chunks = [c for _, c in scored[:top_k]]
         return "\n\n---\n\n".join(top_chunks)
 
-    @staticmethod
-    def get_rag_context_for_subject(env, subject_id, rag_type, query, top_k=5):
+    @api.model
+    def search_vector_similarity(self, query, limit=5, subject_type=None):
         """
-        High-performance RAG Vector Query using pgvector cosine similarity (<=>).
-        Feeds directly from postgres tensor arrays into the AI Prompt matrix.
+        Native high-performance vector search using pgvector cosine similarity (<=>).
+        Returns a list of dicts with {content, document_name}.
         """
         from ..services.memo_ai_service import get_embedding
-        if not query or len(query.strip()) < 3:
-            return ""
+        if not query or len(query.strip()) < 5:
+            return []
             
         try:
-            # Transform user query into target embedding vector
-            query_vector = get_embedding(env, query)
+            # 1. Transform query to vector
+            query_vector = get_embedding(self.env, query)
             vector_str = "[" + ",".join(map(str, query_vector)) + "]"
             
-            # Execute ultra-fast native PostgreSQL vector search
-            env.cr.execute("""
-                SELECT content
-                FROM memo_ai_rag_chunk
-                WHERE subject_id = %s AND rag_type = %s
-                ORDER BY embedding <=> %s::vector
+            # 2. Native SQL search across all chunks linked to this subject_type
+            # We join with rag_document to filter by type and get document name
+            sql = """
+                SELECT c.content, d.name
+                FROM memo_ai_rag_chunk c
+                JOIN memo_ai_rag_document d ON c.document_id = d.id
+                WHERE d.rag_type = %s
+                ORDER BY c.embedding <=> %s::vector
                 LIMIT %s
-            """, (subject_id, rag_type, vector_str, top_k))
+            """
+            self.env.cr.execute(sql, (subject_type, vector_str, limit))
             
-            top_chunks = [row[0] for row in env.cr.fetchall()]
-            return "\n\n---\n\n".join(top_chunks)
+            results = []
+            for row in self.env.cr.fetchall():
+                results.append({
+                    'content': row[0],
+                    'document_name': row[1]
+                })
+            return results
             
         except Exception as e:
             _logger.error("Vector Cosine similarity search failed: %s", str(e))
-            return ""
+            return []

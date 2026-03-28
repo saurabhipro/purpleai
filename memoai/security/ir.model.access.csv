@@ -7,3 +7,4 @@ access_memo_ai_rag_document_sme,memo_ai.rag_document.sme,model_memo_ai_rag_docum
 access_memo_ai_session_user,memo_ai.session.user,model_memo_ai_session,base.group_user,1,1,1,1
 access_memo_ai_rag_chunk_user,memo_ai.rag_chunk.user,model_memo_ai_rag_chunk,base.group_user,1,0,0,0
 access_memo_ai_rag_chunk_sme,memo_ai.rag_chunk.sme,model_memo_ai_rag_chunk,memoai.group_memo_ai_sme,1,1,1,1
+access_memo_ai_export_wizard,memo_ai.export_wizard,model_memo_ai_export_wizard,base.group_user,1,1,1,1

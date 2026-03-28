@@ -114,6 +114,9 @@
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
+                                    <button name="action_view_pdf" type="object"
+                                            string="Preview" icon="fa-eye"
+                                            invisible="not upload_file"/>
                                     <button name="action_extract_text" type="object"
                                             string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>
@@ -141,6 +144,9 @@
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
+                                    <button name="action_view_pdf" type="object"
+                                            string="Preview" icon="fa-eye"
+                                            invisible="not upload_file"/>
                                     <button name="action_extract_text" type="object"
                                             string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>
@@ -168,6 +174,9 @@
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
+                                    <button name="action_view_pdf" type="object"
+                                            string="Preview" icon="fa-eye"
+                                            invisible="not upload_file"/>
                                     <button name="action_extract_text" type="object"
                                             string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>

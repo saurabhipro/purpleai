@@ -189,40 +189,51 @@ def call_azure_openai(env, prompt, settings=None):
 # Vector Embeddings
 # ───────────────────────────────────────────────────────────────────────────
 def get_embedding(env, text):
-    """Generate a high-dimensional vector embedding for RAG chunks."""
+    """
+    Get vector embedding for a chunk of text.
+    Resilient multi-provider support with Gemini multi-tier fallback.
+    """
     settings = _get_ai_settings(env)
     provider = settings['provider']
     
+    # Sanitize input: ensure we have actual text beyond just whitespace
+    clean_text = (text or "").strip()
+    if not clean_text:
+        # Fallback for empty chunks (prevents Gemini API 400 error)
+        return [0.0] * 768 
+    
+    # Trim to safe limit (approx 9k chars)
+    payload = clean_text[:9000]
+
     if provider == 'gemini':
         from google import genai
-        api_key = settings['gemini_key'].strip()
+        api_key = (settings['gemini_key'] or "").strip()
+        if not api_key:
+            raise ValueError("Gemini API Key missing")
+            
         client = genai.Client(api_key=api_key)
         
-        try:
-            # 1. Flagship text-embedding-004
-            result = client.models.embed_content(
-                model="text-embedding-004",
-                contents=text[:9000]
-            )
-            return result.embeddings[0].values
-        except Exception as e:
-            # 2. Universal gemini-embedding-001
+        # We attempt a resilient multi-tier fallback with both prefixed and raw names
+        # Tiers: 1. Flagship (004) -> 2. Stable (001) -> 3. Preview (2)
+        model_tiers = ["text-embedding-004", "models/text-embedding-004", 
+                       "embedding-001", "models/embedding-001",
+                       "gemini-embedding-2-preview", "models/gemini-embedding-2-preview"]
+        
+        last_error = None
+        for model_name in model_tiers:
             try:
-                fallback = client.models.embed_content(
-                    model="gemini-embedding-001",
-                    contents=text[:9000]
+                result = client.models.embed_content(
+                    model=model_name,
+                    contents=payload
                 )
-                return fallback.embeddings[0].values
-            except Exception:
-                # 3. Newest gemini-embedding-2-preview
-                try:
-                    p_fallback = client.models.embed_content(
-                        model="gemini-embedding-2-preview",
-                        contents=text[:9000]
-                    )
-                    return p_fallback.embeddings[0].values
-                except Exception as final_err:
-                    raise ValueError(f"Gemini SDK Embed Error (All Models Failed: 004, 001, Preview-2): {str(e)} | Final: {str(final_err)}")
+                if result and result.embeddings:
+                    return result.embeddings[0].values
+            except Exception as e:
+                _logger.warning("Gemini Embed failed for %s: %s", model_name, str(e))
+                last_error = e
+                continue
+        
+        raise ValueError(f"Gemini SDK Embed Error (All 6 Tier permutations failed): {str(last_error)}")
     elif provider == 'openai':
         from openai import OpenAI
         client = OpenAI(api_key=settings['openai_key'])
@@ -240,3 +251,4 @@ def get_embedding(env, text):
         return res.data[0].embedding
     
     raise ValueError("Configured AI Provider does not support Embeddings.")
+

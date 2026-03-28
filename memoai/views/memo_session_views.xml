@@ -50,9 +50,9 @@
                             class="btn-primary"
                             invisible="state != 'step3_done'"/>
 
-                    <button name="action_export_word" type="object"
-                            string="📄 Export to Word"
-                            class="btn-success"
+                    <button name="action_open_export_wizard" type="object"
+                            string="📤 Export Report"
+                            class="btn-primary"
                             invisible="state not in ('step4_done', 'done')"/>
 
                     <button name="action_reset_to_draft" type="object"
@@ -104,50 +104,169 @@
                     <separator/>
 
                     <!-- ── STEP 1 OUTPUT ──────────────────────────────────────────── -->
-                    <div invisible="state == 'draft'" class="mt-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill text-bg-primary fs-6 me-2 shadow-sm"><i class="fa fa-file-text-o"/> Step 1</span>
-                            <span class="fs-5 fw-bold text-primary">Summary — AI-Generated (Editable)</span>
+                    <div invisible="state == 'draft' and not step1_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-primary text-white py-3 px-3 clickable" 
+                             data-bs-toggle="collapse" data-bs-target="#collapse_step1" style="border-bottom: 3px solid #0056b3;">
+                            <div class="d-flex align-items-center">
+                                <span class="badge rounded-pill bg-white text-primary fs-6 me-3 shadow-sm"><i class="fa fa-file-text-o"/> Step 1</span>
+                                <span class="fs-5 fw-bold">Summary — AI-Generated (Editable)</span>
+                            </div>
+                            <div class="d-flex align-items-center ms-auto me-3 text-white">
+                                <div class="badge rounded-pill bg-white text-primary border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                                     style="font-weight: 600; font-size: 0.75rem;" invisible="not step1_last_run">
+                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <field name="step1_last_run" widget="datetime" readonly="1"/>
+                                    <span class="mx-3 border-start border-primary opacity-25" style="height: 12px;"/>
+                                    <i class="fa fa-refresh me-2 opacity-75"/>
+                                    <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
+                                    <field name="step1_iteration" readonly="1" class="fw-bold"/>
+                                </div>
+                            </div>
+                             <button name="action_run_step1" string="Summarizing Documents..." 
+                                     icon="fa-spinner fa-spin" invisible="not step1_processing" 
+                                     class="btn btn-sm btn-light text-primary shadow-none fw-bold" disabled="1"/>
+                             <button name="action_rerun_step1" type="object" string="Rerun AI" 
+                                     icon="fa-refresh" class="btn btn-sm btn-light text-primary shadow-none fw-bold"
+                                     invisible="step1_processing"
+                                     confirm="Are you sure you want to rerun Step 1 using the current source documents?"/>
                         </div>
-                        <field name="step1_output" nolabel="1" widget="html" class="w-100"
-                               placeholder="AI summary will appear here after Step 1 runs..."
-                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                        <div id="collapse_step1" class="collapse show">
+                            <div class="card-body p-0">
+                                <field name="step1_output" nolabel="1" widget="html" class="w-100"
+                                       placeholder="AI summary will appear here after Step 1 runs..."
+                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step1_sources">
+                            <i class="fa fa-info-circle text-primary me-2" style="font-size: 0.9rem;"/>
+                            <span class="text-muted small"><strong>Based on:</strong> <field name="step1_sources" readonly="1"/></span>
+                        </div>
                     </div>
 
                     <!-- ── STEP 2 OUTPUT ──────────────────────────────────────────── -->
-                    <div invisible="state not in ('step2_done','step3_done','step4_done','done')" class="mt-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill text-bg-warning fs-6 me-2 shadow-sm"><i class="fa fa-exclamation-triangle"/> Step 2</span>
-                            <span class="fs-5 fw-bold text-warning">Applicable Issues — AI-Generated (Editable)</span>
+                    <div invisible="state not in ('step2_done','step3_done','step4_done','done') and not step2_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-warning text-dark py-3 px-3 clickable"
+                             data-bs-toggle="collapse" data-bs-target="#collapse_step2" style="border-bottom: 3px solid #d39e00;">
+                            <div class="d-flex align-items-center">
+                                <span class="badge rounded-pill bg-white text-warning fs-6 me-3 shadow-sm"><i class="fa fa-exclamation-triangle"/> Step 2</span>
+                                <span class="fs-5 fw-bold">Applicable Issues — AI-Generated (Editable)</span>
+                            </div>
+                            <div class="d-flex align-items-center ms-auto me-3">
+                                <div class="badge rounded-pill bg-white text-warning border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                                     style="font-weight: 600; font-size: 0.75rem;" invisible="not step2_last_run">
+                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <field name="step2_last_run" widget="datetime" readonly="1"/>
+                                    <span class="mx-3 border-start border-warning opacity-25" style="height: 12px;"/>
+                                    <i class="fa fa-refresh me-2 opacity-75"/>
+                                    <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
+                                    <field name="step2_iteration" readonly="1" class="fw-bold"/>
+                                </div>
+                            </div>
+                             <button name="action_run_step2" string="Finding Issues..." 
+                                     icon="fa-spinner fa-spin" invisible="not step2_processing" 
+                                     class="btn btn-sm btn-light text-warning shadow-none fw-bold" disabled="1"/>
+                             <button name="action_rerun_step2" type="object" string="Rerun AI" 
+                                     icon="fa-refresh" class="btn btn-sm btn-light text-warning shadow-none fw-bold"
+                                     invisible="step1_processing or step2_processing"
+                                     confirm="Are you sure you want to rerun Step 2 using the current Summary and RAG matches?"/>
                         </div>
-                        <field name="step2_output" nolabel="1" widget="html" class="w-100"
-                               placeholder="Identified issues will appear here after Step 2 runs..."
-                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                        <div id="collapse_step2" class="collapse show">
+                            <div class="card-body p-0">
+                                <field name="step2_output" nolabel="1" widget="html" class="w-100"
+                                       placeholder="Identified issues will appear here after Step 2 runs..."
+                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step2_sources">
+                            <i class="fa fa-info-circle text-warning me-2" style="font-size: 0.9rem;"/>
+                            <span class="text-muted small"><strong>Matches:</strong> <field name="step2_sources" readonly="1"/></span>
+                        </div>
                     </div>
 
                     <!-- ── STEP 3 OUTPUT ──────────────────────────────────────────── -->
-                    <div invisible="state not in ('step3_done','step4_done','done')" class="mt-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill text-bg-info fs-6 me-2 text-white shadow-sm"><i class="fa fa-balance-scale"/> Step 3</span>
-                            <span class="fs-5 fw-bold text-info">Regulatory Guidelines — AI-Generated (Editable)</span>
+                    <div invisible="state not in ('step3_done','step4_done','done') and not step3_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-info text-white py-3 px-3 clickable"
+                             data-bs-toggle="collapse" data-bs-target="#collapse_step3" style="border-bottom: 3px solid #0aa2c0;">
+                            <div class="d-flex align-items-center">
+                                <span class="badge rounded-pill bg-white text-info fs-6 me-3 shadow-sm"><i class="fa fa-balance-scale"/> Step 3</span>
+                                <span class="fs-5 fw-bold">Regulatory Guidelines — AI-Generated (Editable)</span>
+                            </div>
+                            <div class="d-flex align-items-center ms-auto me-3">
+                                <div class="badge rounded-pill bg-white text-info border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                                     style="font-weight: 600; font-size: 0.75rem;" invisible="not step3_last_run">
+                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <field name="step3_last_run" widget="datetime" readonly="1"/>
+                                    <span class="mx-3 border-start border-info opacity-25" style="height: 12px;"/>
+                                    <i class="fa fa-refresh me-2 opacity-75"/>
+                                    <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
+                                    <field name="step3_iteration" readonly="1" class="fw-bold"/>
+                                </div>
+                            </div>
+                             <button name="action_run_step3" string="Mapping Compliance..." 
+                                     icon="fa-spinner fa-spin" invisible="not step3_processing" 
+                                     class="btn btn-sm btn-light text-info shadow-none fw-bold" disabled="1"/>
+                             <button name="action_rerun_step3" type="object" string="Rerun AI" 
+                                     icon="fa-refresh" class="btn btn-sm btn-light text-info shadow-none fw-bold"
+                                     invisible="step2_processing or step3_processing"
+                                     confirm="Are you sure you want to rerun Step 3 using the current Issues and Guidelines?"/>
                         </div>
-                        <field name="step3_output" nolabel="1" widget="html" class="w-100"
-                               placeholder="Applicable regulations will appear here after Step 3 runs..."
-                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                        <div id="collapse_step3" class="collapse show">
+                            <div class="card-body p-0">
+                                <field name="step3_output" nolabel="1" widget="html" class="w-100"
+                                       placeholder="Applicable regulations will appear here after Step 3 runs..."
+                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step3_sources">
+                            <i class="fa fa-balance-scale text-info me-2" style="font-size: 0.8rem;"/>
+                            <span class="text-muted small"><strong>Library Refs:</strong> <field name="step3_sources" readonly="1"/></span>
+                        </div>
                     </div>
 
                     <!-- ── STEP 4 OUTPUT ──────────────────────────────────────────── -->
-                    <div invisible="state not in ('step4_done','done')" class="mt-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <span class="badge rounded-pill text-bg-success fs-6 me-2 shadow-sm"><i class="fa fa-diamond"/> Step 4</span>
-                            <span class="fs-5 fw-bold text-success">Analysis — AI-Generated (Editable)</span>
+                    <div invisible="state not in ('step4_done','done') and not step4_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-success text-white py-3 px-3 clickable"
+                             data-bs-toggle="collapse" data-bs-target="#collapse_step4" style="border-bottom: 3px solid #198754;">
+                            <div class="d-flex align-items-center">
+                                <span class="badge rounded-pill bg-white text-success fs-6 me-3 shadow-sm"><i class="fa fa-diamond"/> Step 4</span>
+                                <span class="fs-5 fw-bold">Analysis — AI-Generated (Editable)</span>
+                            </div>
+                            <div class="d-flex align-items-center ms-auto me-3">
+                                <div class="badge rounded-pill bg-white text-success border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                                     style="font-weight: 600; font-size: 0.75rem;" invisible="not step4_last_run">
+                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <field name="step4_last_run" widget="datetime" readonly="1"/>
+                                    <span class="mx-3 border-start border-success opacity-25" style="height: 12px;"/>
+                                    <i class="fa fa-refresh me-2 opacity-75"/>
+                                    <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
+                                    <field name="step4_iteration" readonly="1" class="fw-bold"/>
+                                </div>
+                            </div>
+                             <button name="action_run_step4" string="Generating Memo..." 
+                                     icon="fa-spinner fa-spin" invisible="not step4_processing" 
+                                     class="btn btn-sm btn-light text-success shadow-none fw-bold" disabled="1"/>
+                             <button name="action_rerun_step4" type="object" string="Rerun AI" 
+                                     icon="fa-refresh" class="btn btn-sm btn-light text-success shadow-none fw-bold"
+                                     invisible="step3_processing or step4_processing"
+                                     confirm="Are you sure you want to rerun the final Analysis?"/>
                         </div>
-                        <field name="step4_output" nolabel="1" widget="html" class="w-100"
-                               placeholder="Full analysis memo will appear here after Step 4 runs..."
-                               options="{'collaborative': false, 'resizable': true, 'min-height': 350}"/>
+                        <div id="collapse_step4" class="collapse show">
+                            <div class="card-body p-0">
+                                <field name="step4_output" nolabel="1" widget="html" class="w-100"
+                                       placeholder="Full analysis memo will appear here after Step 4 runs..."
+                                       options="{'collaborative': false, 'resizable': true, 'min-height': 350}"/>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step4_sources">
+                            <i class="fa fa-diamond text-success me-2" style="font-size: 0.8rem;"/>
+                            <span class="text-muted small"><strong>Synthesized from:</strong> <field name="step4_sources" readonly="1"/></span>
+                        </div>
                     </div>
 
                 </sheet>
+                <chatter>
+                    <field name="message_ids"/>
+                </chatter>
             </form>
         </field>
     </record>
@@ -188,6 +307,32 @@
                     </t>
                 </templates>
             </kanban>
+        </field>
+    </record>
+
+    <!-- Export Wizard Form -->
+    <record id="view_memo_export_wizard_form" model="ir.ui.view">
+        <field name="name">memo_ai.export_wizard.form</field>
+        <field name="model">memo_ai.export_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Export Report">
+                <sheet>
+                    <div class="alert alert-primary mb-3" role="alert">
+                        <i class="fa fa-info-circle me-2"/> Choose your preferred format for the final analysis memo.
+                    </div>
+                    <group>
+                        <field name="session_id" invisible="1"/>
+                        <field name="format" widget="radio" class="fw-bold"/>
+                    </group>
+                    <div class="alert alert-warning mt-3" role="alert" invisible="format != 'pdf'">
+                        <i class="fa fa-clock-o me-2"/> PDF generation is being optimized for large tables. Using Word as fallback for now.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_export" string="Generate Download" type="object" class="btn-primary" icon="fa-download"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 

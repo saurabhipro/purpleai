@@ -17,7 +17,7 @@ class MemoSession(models.Model):
     """
     _name = 'memo_ai.session'
     _description = 'Memo AI Analysis Session'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread']
     _order = 'create_date desc'
 
     name = fields.Char(string='Session Reference', readonly=True, copy=False, default='New')
@@ -34,7 +34,7 @@ class MemoSession(models.Model):
         ('step3_done', 'Step 3 Done'),
         ('step4_done', 'Step 4 Done'),
         ('done', 'Complete'),
-    ], default='draft', string='Status', tracking=True)
+    ], default='draft', string='Status', tracking=False)
 
     # ── Uploaded Documents ──────────────────────────────────────────────────────
     document_ids = fields.Many2many(
@@ -47,18 +47,30 @@ class MemoSession(models.Model):
     # ── Step 1: Summary ─────────────────────────────────────────────────────────
     step1_output = fields.Html(string='Step 1 — Summary', sanitize=False)
     step1_processing = fields.Boolean(default=False)
+    step1_last_run = fields.Datetime(string='Last Run')
+    step1_iteration = fields.Integer(string='Iterations', default=0)
+    step1_sources = fields.Text(string='Source Documents (RAG)')
 
     # ── Step 2: Issue Identification ────────────────────────────────────────────
     step2_output = fields.Html(string='Step 2 — Applicable Issues', sanitize=False)
     step2_processing = fields.Boolean(default=False)
+    step2_last_run = fields.Datetime(string='Last Run')
+    step2_iteration = fields.Integer(string='Iterations', default=0)
+    step2_sources = fields.Text(string='Source Documents (RAG)')
 
     # ── Step 3: Regulatory Guidelines ──────────────────────────────────────────
     step3_output = fields.Html(string='Step 3 — Regulatory Guidelines', sanitize=False)
     step3_processing = fields.Boolean(default=False)
+    step3_last_run = fields.Datetime(string='Last Run')
+    step3_iteration = fields.Integer(string='Iterations', default=0)
+    step3_sources = fields.Text(string='Source Documents (RAG)')
 
     # ── Step 4: Analysis ────────────────────────────────────────────────────────
     step4_output = fields.Html(string='Step 4 — Analysis', sanitize=False)
     step4_processing = fields.Boolean(default=False)
+    step4_last_run = fields.Datetime(string='Last Run')
+    step4_iteration = fields.Integer(string='Iterations', default=0)
+    step4_sources = fields.Text(string='Source Documents (RAG)')
 
     # ── Tracking & Analytics ────────────────────────────────────────────────────
     total_time_seconds = fields.Float(string='Time Taken (s)', default=0.0,
@@ -76,44 +88,91 @@ class MemoSession(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('memo_ai.session') or 'New'
         return super().create(vals_list)
 
+    def write(self, vals):
+        """Custom logging for HTML steps since native Odoo tracking doesn't support HTML types."""
+        res = super(MemoSession, self).write(vals)
+        for field in ['step1_output', 'step2_output', 'step3_output', 'step4_output']:
+            if field in vals and not self.env.context.get('ai_processing'):
+                # Very concise log for manual overrides
+                self.message_post(body=_("Edited %s") % field.replace('_output', '').replace('step', 'Step '))
+        return res
+
+    def _update_state_safely(self, target_state, vals):
+        """Helper to update state only if it moves forward in the workflow."""
+        self.ensure_one()
+        STATES = ['draft', 'step1_done', 'step2_done', 'step3_done', 'step4_done', 'done']
+        
+        def get_rank(s):
+            try: return STATES.index(s or 'draft')
+            except: return 0
+            
+        # Merge the new values into a dict
+        vals = dict(vals)
+        if get_rank(target_state) > get_rank(self.state):
+            vals['state'] = target_state
+        
+        # Reset processing states
+        vals['step1_processing'] = False
+        vals['step2_processing'] = False
+        vals['step3_processing'] = False
+        vals['step4_processing'] = False
+        
+        return self.with_context(ai_processing=True).write(vals)
+
     # ───────────────────────────────────────────────────────────────────────────
     # Step 1: Extract & Summarize
     # ───────────────────────────────────────────────────────────────────────────
     def action_run_step1(self):
-        """Extract text from all uploaded documents and summarize using AI."""
+        """Extract a summary from uploaded PDFs using LLM."""
         self.ensure_one()
-        if not self.document_ids:
-            raise UserError(_("Please upload at least one document before running Step 1."))
-        subject = self.subject_id
-        if not subject.summarization_prompt:
-            raise UserError(_("The subject '%s' has no Summarization Prompt configured.") % subject.name)
+        self.step1_processing = True
+        self.env.cr.commit() # Feedback UI needs to see it's processing
 
-        # Extract text from all uploaded PDFs
-        all_text_parts = []
-        for attachment in self.document_ids:
-            try:
-                file_data = base64.b64decode(attachment.datas)
-                rag_doc = self.env['memo_ai.rag_document'].new({})
-                text = rag_doc._extract_pdf_text(file_data, attachment.name)
-                all_text_parts.append(f"=== {attachment.name} ===\n{text}")
-            except Exception as e:
-                _logger.warning("Could not extract text from %s: %s", attachment.name, str(e))
-                all_text_parts.append(f"=== {attachment.name} ===\n[Could not extract text: {e}]")
+        try:
+            if not self.document_ids:
+                raise UserError(_("Please upload at least one document before running Step 1."))
+            subject = self.subject_id
+            if not subject.summarization_prompt:
+                raise UserError(_("The subject '%s' has no Summarization Prompt configured.") % subject.name)
 
-        combined_text = "\n\n".join(all_text_parts)
+            # Extract text from all uploaded PDFs
+            all_text_parts = []
+            for attachment in self.document_ids:
+                try:
+                    file_data = base64.b64decode(attachment.datas)
+                    rag_doc = self.env['memo_ai.rag_document'].new({})
+                    text = rag_doc._extract_pdf_text(file_data, attachment.name)
+                    all_text_parts.append(f"=== {attachment.name} ===\n{text}")
+                except Exception as e:
+                    _logger.warning("Could not extract text from %s: %s", attachment.name, str(e))
+                    all_text_parts.append(f"=== {attachment.name} ===\n[Could not extract text: {e}]")
 
-        # Build prompt
-        prompt = subject.summarization_prompt.replace('{document_text}', combined_text)
+            combined_text = "\n\n".join(all_text_parts)
 
-        # Call AI
-        ai_response = self._call_ai(prompt)
+            # Build prompt
+            prompt = subject.summarization_prompt.replace('{document_text}', combined_text)
 
-        self.write({
-            'step1_output': ai_response,
-            'state': 'step1_done',
-        })
-        self.message_post(body=_("✅ Step 1 (Summary) completed by AI."))
+            # Call AI
+            ai_data = self._call_ai(prompt)
+            doc_names = ", ".join(self.document_ids.mapped('name'))
+            self._update_state_safely('step1_done', {
+                'step1_output': ai_data.get('text', ''),
+                'step1_last_run': fields.Datetime.now(),
+                'step1_iteration': self.step1_iteration + 1,
+                'step1_sources': doc_names,
+                'total_time_seconds': self.total_time_seconds + ai_data.get('elapsed', 0),
+                'total_cost': self.total_cost + ai_data.get('cost', 0.0),
+            })
+            self.message_post(body=_("✅ Step 1 (Summary) completed by AI."))
+        finally:
+            self.write({'step1_processing': False})
+            self.env.cr.commit()
         return True
+
+    def action_rerun_step1(self):
+        """Allow manual rerun of Step 1."""
+        self.ensure_one()
+        return self.action_run_step1()
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 2: Issue Identification via RAG
@@ -121,32 +180,51 @@ class MemoSession(models.Model):
     def action_run_step2(self):
         """Search issue list RAG and identify applicable issues."""
         self.ensure_one()
-        if self.state not in ('step1_done', 'step2_done', 'step3_done'):
-            raise UserError(_("Please complete Step 1 first."))
         if not self.step1_output:
-            raise UserError(_("Step 1 output is empty. Please run Step 1."))
+            raise UserError(_("Please complete Step 1 (Summary) first."))
+        
+        self.step2_processing = True
+        self.env.cr.commit()
 
-        subject = self.subject_id
-        if not subject.issue_extraction_prompt:
-            raise UserError(_("The subject '%s' has no Issue Extraction Prompt configured.") % subject.name)
+        try:
+            subject = self.subject_id
+            if not subject.issue_extraction_prompt:
+                raise UserError(_("The subject '%s' has no Issue Extraction Prompt configured.") % subject.name)
 
-        # Retrieve RAG context from issue list documents
-        rag_context = self.env['memo_ai.rag_document'].get_rag_context_for_subject(
-            self.env, subject.id, 'issue_list', self.step1_output, top_k=8
-        )
+            # Retrieve RAG context from issue list documents
+            prompt_context = self.step1_output
+            rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
+                prompt_context, 
+                limit=8, 
+                subject_type='issue_list'
+            )
+            rag_text = "\n\n".join([m['content'] for m in rag_matches])
+            source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
 
-        prompt = subject.issue_extraction_prompt\
-            .replace('{summary}', self.step1_output)\
-            .replace('{rag_context}', rag_context or "No issue list RAG documents found.")
+            ai_prompt = subject.issue_extraction_prompt\
+                .replace('{summary}', self.step1_output or "")\
+                .replace('{rag_context}', rag_text or "No issue list RAG documents found.")
 
-        ai_response = self._call_ai(prompt)
-
-        self.write({
-            'step2_output': ai_response,
-            'state': 'step2_done',
-        })
-        self.message_post(body=_("✅ Step 2 (Issue Identification) completed by AI."))
+            ai_data = self._call_ai(ai_prompt)
+            
+            self._update_state_safely('step2_done', {
+                'step2_output': ai_data.get('text', ''),
+                'step2_last_run': fields.Datetime.now(),
+                'step2_iteration': self.step2_iteration + 1,
+                'step2_sources': source_names or "Internal Knowledge",
+                'total_time_seconds': self.total_time_seconds + ai_data.get('elapsed', 0),
+                'total_cost': self.total_cost + ai_data.get('cost', 0.0),
+            })
+            self.message_post(body=_("✅ Step 2 (Issue Identification) completed by AI."))
+        finally:
+            self.write({'step2_processing': False})
+            self.env.cr.commit()
         return True
+
+    def action_rerun_step2(self):
+        """Allow manual rerun of Step 2."""
+        self.ensure_one()
+        return self.action_run_step2()
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 3: Regulatory Guidelines
@@ -154,31 +232,50 @@ class MemoSession(models.Model):
     def action_run_step3(self):
         """Find applicable regulatory guidelines using guideline RAG."""
         self.ensure_one()
-        if self.state not in ('step2_done', 'step3_done'):
-            raise UserError(_("Please complete Step 2 first."))
+        if not self.step2_output:
+            raise UserError(_("Please complete Step 2 (Issues) first."))
+        
+        self.step3_processing = True
+        self.env.cr.commit()
 
-        subject = self.subject_id
-        if not subject.regulatory_extraction_prompt:
-            raise UserError(_("The subject '%s' has no Regulatory Extraction Prompt configured.") % subject.name)
+        try:
+            subject = self.subject_id
+            if not subject.regulatory_extraction_prompt:
+                raise UserError(_("The subject '%s' has no Regulatory Extraction Prompt configured.") % subject.name)
 
-        query = (self.step2_output or "") + " " + (self.step1_output or "")
-        rag_context = self.env['memo_ai.rag_document'].get_rag_context_for_subject(
-            self.env, subject.id, 'guideline', query, top_k=8
-        )
+            query = (self.step2_output or "") + " " + (self.step1_output or "")
+            rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
+                query, 
+                limit=8, 
+                subject_type='guideline'
+            )
+            rag_text = "\n\n".join([m['content'] for m in rag_matches])
+            source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
 
-        prompt = subject.regulatory_extraction_prompt\
-            .replace('{summary}', self.step1_output or "")\
-            .replace('{issues}', self.step2_output or "")\
-            .replace('{rag_context}', rag_context or "No guideline RAG documents found.")
+            prompt = subject.regulatory_extraction_prompt\
+                .replace('{summary}', self.step1_output or "")\
+                .replace('{issues}', self.step2_output or "")\
+                .replace('{rag_context}', rag_text or "No guideline RAG documents found.")
 
-        ai_response = self._call_ai(prompt)
-
-        self.write({
-            'step3_output': ai_response,
-            'state': 'step3_done',
-        })
-        self.message_post(body=_("✅ Step 3 (Regulatory Guidelines) completed by AI."))
+            ai_data = self._call_ai(prompt)
+            self._update_state_safely('step3_done', {
+                'step3_output': ai_data['text'],
+                'step3_last_run': fields.Datetime.now(),
+                'step3_iteration': self.step3_iteration + 1,
+                'step3_sources': source_names or "Internal Knowledge",
+                'total_time_seconds': self.total_time_seconds + ai_data['elapsed'],
+                'total_cost': self.total_cost + ai_data['cost'],
+            })
+            self.message_post(body=_("✅ Step 3 (Regulatory Guidelines) completed by AI."))
+        finally:
+            self.write({'step3_processing': False})
+            self.env.cr.commit()
         return True
+
+    def action_rerun_step3(self):
+        """Allow manual rerun of Step 3."""
+        self.ensure_one()
+        return self.action_run_step3()
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 4: Final Analysis
@@ -186,36 +283,75 @@ class MemoSession(models.Model):
     def action_run_step4(self):
         """Run analysis combining all previous steps + Analysis RAG."""
         self.ensure_one()
-        if self.state not in ('step3_done', 'step4_done'):
-            raise UserError(_("Please complete Step 3 first."))
+        if not self.step3_output:
+            raise UserError(_("Please complete Step 3 (Regulations) first."))
+        
+        self.step4_processing = True
+        self.env.cr.commit()
 
-        subject = self.subject_id
-        if not subject.analysis_prompt:
-            raise UserError(_("The subject '%s' has no Analysis Prompt configured.") % subject.name)
+        try:
+            subject = self.subject_id
+            if not subject.analysis_prompt:
+                raise UserError(_("The subject '%s' has no Analysis Prompt configured.") % subject.name)
 
-        query = " ".join(filter(None, [self.step1_output, self.step2_output, self.step3_output]))
-        rag_context = self.env['memo_ai.rag_document'].get_rag_context_for_subject(
-            self.env, subject.id, 'analysis', query, top_k=8
-        )
+            query = " ".join(filter(None, [self.step1_output, self.step2_output, self.step3_output]))
+            rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
+                query, 
+                limit=8, 
+                subject_type='analysis'
+            )
+            rag_text = "\n\n".join([m['content'] for m in rag_matches])
+            source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
 
-        prompt = subject.analysis_prompt\
-            .replace('{summary}', self.step1_output or "")\
-            .replace('{issues}', self.step2_output or "")\
-            .replace('{regulatory}', self.step3_output or "")\
-            .replace('{rag_context}', rag_context or "No analysis RAG documents found.")
+            ai_prompt = subject.analysis_prompt\
+                .replace('{summary}', self.step1_output or "")\
+                .replace('{issues}', self.step2_output or "")\
+                .replace('{regulatory}', self.step3_output or "")\
+                .replace('{rag_context}', rag_text or "No analysis RAG documents found.")
 
-        ai_response = self._call_ai(prompt)
-
-        self.write({
-            'step4_output': ai_response,
-            'state': 'step4_done',
-        })
-        self.message_post(body=_("✅ Step 4 (Analysis) completed by AI."))
+            ai_data = self._call_ai(ai_prompt)
+            
+            self._update_state_safely('step4_done', {
+                'step4_output': ai_data.get('text', ''),
+                'step4_last_run': fields.Datetime.now(),
+                'step4_iteration': self.step4_iteration + 1,
+                'step4_sources': source_names or "Synthesized Highlights",
+                'total_time_seconds': self.total_time_seconds + ai_data.get('elapsed', 0),
+                'total_cost': self.total_cost + ai_data.get('cost', 0.0),
+            })
+            self.message_post(body=_("✅ Step 4 (Analysis) completed by AI."))
+        finally:
+            self.write({'step4_processing': False})
+            self.env.cr.commit()
         return True
+
+    def action_rerun_step4(self):
+        """Allow manual rerun of Step 4."""
+        self.ensure_one()
+        return self.action_run_step4()
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 5: Export to Word
     # ───────────────────────────────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────────────────
+    # ── Export & Export Wizard ─────────────────────────────────────────────────
+    # ───────────────────────────────────────────────────────────────────────────
+    def action_open_export_wizard(self):
+        """Show a dialog for PDF/Word format choice."""
+        self.ensure_one()
+        return {
+            'name': _('Export Analysis Report'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'memo_ai.export_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_session_id': self.id}
+        }
+
+    def action_export_pdf(self):
+        # Placeholder for PDF export (will create Word first then maybe convert or handle)
+        return self.action_export_word()
+
     def action_export_word(self):
         """Generate a Word (.docx) document from all step outputs."""
         self.ensure_one()
@@ -272,7 +408,7 @@ class MemoSession(models.Model):
             'word_attachment_id': attachment.id,
             'state': 'done',
         })
-        self.message_post(body=_("✅ Word document generated."), attachment_ids=[attachment.id])
+        # Removed message_post for Word generation to keep chatter clean
 
         return {
             'type': 'ir.actions.act_url',
@@ -280,13 +416,13 @@ class MemoSession(models.Model):
             'target': 'self',
         }
 
+
     # ───────────────────────────────────────────────────────────────────────────
     # ── AI Call Helper ──────────────────────────────────────────────────────────
     # ───────────────────────────────────────────────────────────────────────────
     def _call_ai(self, prompt):
         """
-        Call the configured AI provider and automatically log time and cost.
-        Reads from memo_ai.* config parameters — fully independent of purpleai.
+        Call the configured AI provider. Returns a dict with {text, cost, elapsed}.
         """
         import time
         try:
@@ -296,21 +432,18 @@ class MemoSession(models.Model):
             ai_data = call_ai(self.env, prompt)
             elapsed = time.time() - start_t
             
-            # Since we updated the service to return a dict with text and cost metrics
             if isinstance(ai_data, dict):
-                text = ai_data.get('text', '')
-                cost = ai_data.get('cost', 0.0)
-                
-                self.write({
-                    'total_time_seconds': self.total_time_seconds + elapsed,
-                    'total_cost': self.total_cost + cost,
-                })
-                return text
+                return {
+                    'text': ai_data.get('text', ''),
+                    'cost': ai_data.get('cost', 0.0),
+                    'elapsed': elapsed
+                }
             else:
-                self.write({
-                    'total_time_seconds': self.total_time_seconds + elapsed,
-                })
-                return ai_data
+                return {
+                    'text': ai_data or '',
+                    'cost': 0.0,
+                    'elapsed': elapsed
+                }
             
         except Exception as e:
             _logger.error("AI call failed: %s", str(e))
@@ -321,9 +454,17 @@ class MemoSession(models.Model):
         self.write({
             'state': 'draft',
             'step1_output': False,
+            'step1_last_run': False,
+            'step1_iteration': 0,
             'step2_output': False,
+            'step2_last_run': False,
+            'step2_iteration': 0,
             'step3_output': False,
+            'step3_last_run': False,
+            'step3_iteration': 0,
             'step4_output': False,
+            'step4_last_run': False,
+            'step4_iteration': 0,
             'total_cost': 0.0,
             'total_time_seconds': 0.0,
         })
@@ -374,3 +515,20 @@ class MemoSession(models.Model):
                 'time_data': time_data
             }
         }
+
+class MemoExportWizard(models.TransientModel):
+    _name = 'memo_ai.export_wizard'
+    _description = 'Memo Export Wizard'
+
+    session_id = fields.Many2one('memo_ai.session', string='Session', required=True)
+    format = fields.Selection([
+        ('word', 'Word (.docx)'),
+        ('pdf', 'Portable Document (.pdf) — COMING SOON')
+    ], string='Export Format', default='word', required=True)
+
+    def action_export(self):
+        self.ensure_one()
+        if self.format == 'word':
+            return self.session_id.action_export_word()
+        else:
+            return self.session_id.action_export_pdf()
