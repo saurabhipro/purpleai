@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Subject List View -->
+    <record id="view_memo_subject_list" model="ir.ui.view">
+        <field name="name">memo_ai.subject.list</field>
+        <field name="model">memo_ai.subject</field>
+        <field name="arch" type="xml">
+            <list string="Subjects" decoration-muted="active == False">
+                <field name="name"/>
+                <field name="session_count" string="Sessions"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Subject Form View -->
+    <record id="view_memo_subject_form" model="ir.ui.view">
+        <field name="name">memo_ai.subject.form</field>
+        <field name="model">memo_ai.subject</field>
+        <field name="arch" type="xml">
+            <form string="Subject">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sessions" type="object"
+                                class="oe_stat_button" icon="fa-list">
+                            <field name="session_count" widget="statinfo" string="Sessions"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Subject Name"/>
+                        <h1><field name="name" placeholder="e.g. Income Tax Depreciation"/></h1>
+                    </div>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="active"/>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Step Prompts -->
+                        <page string="AI Prompts" name="prompts">
+                            <group string="Step 1 — Summarization Prompt" col="1">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>SME:</strong> Configure how AI should summarize uploaded documents.
+                                    Use <code>{document_text}</code> as a placeholder for extracted PDF text.
+                                </div>
+                                <field name="summarization_prompt" nolabel="1"
+                                       placeholder="Summarize the following document in the context of {document_text}. Focus on key financial figures, dates, and legal positions..."
+                                       widget="text"/>
+                            </group>
+                            <separator/>
+                            <group string="Step 2 — Issue Extraction Prompt" col="1">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Admin:</strong> Prompt to identify applicable issues from the Issue List RAG.
+                                    Use <code>{summary}</code> and <code>{rag_context}</code>.
+                                </div>
+                                <field name="issue_extraction_prompt" nolabel="1"
+                                       placeholder="Based on the following summary: {summary}\n\nAnd the following issue list: {rag_context}\n\nIdentify all applicable issues..."
+                                       widget="text"/>
+                            </group>
+                            <separator/>
+                            <group string="Step 3 — Regulatory Literature Extraction Prompt" col="1">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Admin:</strong> Prompt to extract applicable regulatory guidelines.
+                                    Use <code>{issues}</code> and <code>{rag_context}</code>.
+                                </div>
+                                <field name="regulatory_extraction_prompt" nolabel="1"
+                                       placeholder="Given these identified issues: {issues}\n\nAnd the regulatory guidelines: {rag_context}\n\nList all applicable regulations..."
+                                       widget="text"/>
+                            </group>
+                            <separator/>
+                            <group string="Step 4 — Analysis Prompt" col="1">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Admin:</strong> Prompt for final analysis combining all previous steps.
+                                    Use <code>{summary}</code>, <code>{issues}</code>, <code>{regulatory}</code>, <code>{rag_context}</code>.
+                                </div>
+                                <field name="analysis_prompt" nolabel="1"
+                                       placeholder="Perform a comprehensive analysis given:\n\nSummary: {summary}\nIssues: {issues}\nRegulations: {regulatory}\n\nReference Analysis: {rag_context}\n\nProvide a detailed professional memo..."
+                                       widget="text"/>
+                            </group>
+                        </page>
+
+                        <!-- Tab 2: Issue List RAG -->
+                        <page string="Issue List RAG" name="issue_rag">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <strong>SME:</strong> Upload PDFs containing known issues/checklists for this subject.
+                                These are used in Step 2 to identify applicable issues.
+                            </div>
+                            <field name="issue_rag_ids" nolabel="1" context="{'default_rag_type': 'issue_list', 'default_subject_id': id}">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="file_name"/>
+                                    <field name="attachment_id" widget="many2one"/>
+                                    <field name="chunk_count"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'processed'"
+                                           decoration-danger="state == 'error'"
+                                           decoration-muted="state == 'draft'"/>
+                                    <button name="action_extract_text" type="object"
+                                            string="Extract" icon="fa-cogs"
+                                            invisible="state == 'processed'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 3: Guideline RAG -->
+                        <page string="Guideline RAG" name="guideline_rag">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <strong>SME:</strong> Upload regulatory guideline documents.
+                                These are searched in Step 3 to find applicable regulations.
+                            </div>
+                            <field name="guideline_rag_ids" nolabel="1" context="{'default_rag_type': 'guideline', 'default_subject_id': id}">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="file_name"/>
+                                    <field name="attachment_id" widget="many2one"/>
+                                    <field name="chunk_count"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'processed'"
+                                           decoration-danger="state == 'error'"
+                                           decoration-muted="state == 'draft'"/>
+                                    <button name="action_extract_text" type="object"
+                                            string="Extract" icon="fa-cogs"
+                                            invisible="state == 'processed'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 4: Analysis RAG -->
+                        <page string="Analysis RAG" name="analysis_rag">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <strong>SME:</strong> Upload reference analysis documents, precedents, or past memos.
+                                These are used in Step 4 to improve analysis quality.
+                            </div>
+                            <field name="analysis_rag_ids" nolabel="1" context="{'default_rag_type': 'analysis', 'default_subject_id': id}">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="file_name"/>
+                                    <field name="attachment_id" widget="many2one"/>
+                                    <field name="chunk_count"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'processed'"
+                                           decoration-danger="state == 'error'"
+                                           decoration-muted="state == 'draft'"/>
+                                    <button name="action_extract_text" type="object"
+                                            string="Extract" icon="fa-cogs"
+                                            invisible="state == 'processed'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_memo_subject" model="ir.actions.act_window">
+        <field name="name">Subjects</field>
+        <field name="res_model">memo_ai.subject</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first subject!
+            </p>
+            <p>Subjects define the domain (e.g. Income Tax Depreciation) and hold all
+            AI prompts and RAG library documents for the analysis pipeline.</p>
+        </field>
+    </record>
+
+</odoo>

@@ -94,7 +94,7 @@ def push_voucher_to_tally(env, invoice_data, company_name=None):
                         <ALLLEDGERENTRIES.LIST>
                             <LEDGERNAME>{entry['name']}</LEDGERNAME>
                             <ISDEEMEDPOSITIVE>{'Yes' if entry.get('is_debit') else 'No'}</ISDEEMEDPOSITIVE>
-                            <AMOUNT>{tally_amount}</AMOUNT>
+                                            <AMOUNT>{tally_amount}</AMOUNT>
                         </ALLLEDGERENTRIES.LIST>"""
 
     xml_payload = f"""

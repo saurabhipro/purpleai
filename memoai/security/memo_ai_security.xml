@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Groups -->
+        <record id="group_memo_ai_user" model="res.groups">
+            <field name="name">Memo AI / User</field>
+            <field name="category_id" ref="base.module_category_operations"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_memo_ai_sme" model="res.groups">
+            <field name="name">Memo AI / SME</field>
+            <field name="category_id" ref="base.module_category_operations"/>
+            <field name="implied_ids" eval="[(4, ref('group_memo_ai_user'))]"/>
+        </record>
+
+        <record id="group_memo_ai_admin" model="res.groups">
+            <field name="name">Memo AI / Administrator</field>
+            <field name="category_id" ref="base.module_category_operations"/>
+            <field name="implied_ids" eval="[(4, ref('group_memo_ai_sme'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Multi-company rule for sessions -->
+        <record id="memo_ai_session_comp_rule" model="ir.rule">
+            <field name="name">Memo AI Session Multi-Company</field>
+            <field name="model_id" ref="model_memo_ai_session"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Sequence for session references -->
+        <record id="seq_memo_ai_session" model="ir.sequence">
+            <field name="name">Memo AI Session</field>
+            <field name="code">memo_ai.session</field>
+            <field name="prefix">MEMO/%(year)s/</field>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_memo_ai_subject_user,memo_ai.subject.user,model_memo_ai_subject,base.group_user,1,0,0,0
+access_memo_ai_subject_sme,memo_ai.subject.sme,model_memo_ai_subject,memoai.group_memo_ai_sme,1,1,1,0
+access_memo_ai_subject_admin,memo_ai.subject.admin,model_memo_ai_subject,memoai.group_memo_ai_admin,1,1,1,1
+access_memo_ai_rag_document_user,memo_ai.rag_document.user,model_memo_ai_rag_document,base.group_user,1,0,0,0
+access_memo_ai_rag_document_sme,memo_ai.rag_document.sme,model_memo_ai_rag_document,memoai.group_memo_ai_sme,1,1,1,1
+access_memo_ai_session_user,memo_ai.session.user,model_memo_ai_session,base.group_user,1,1,1,1

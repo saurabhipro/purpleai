@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ── Subject 1: Income Tax Depreciation & MACRS ──────────────────────── -->
+        <record id="demo_subject_tax_depreciation" model="memo_ai.subject">
+            <field name="name">Income Tax Depreciation &amp; MACRS Extraction</field>
+            <field name="summarization_prompt">You are an expert Tax Accountant. Summarize the following fixed asset acquisition invoice, contract, or ledger. 
+Ensure you identify:
+1. The exact name of the asset.
+2. The date it was acquired or placed in service.
+3. The total cost basis.
+4. The stated useful life or any technical specifications that might affect its asset class.
+
+Do not analyze tax implications yet, just extract the facts clearly.
+
+Document Source Text:
+{document_text}
+            </field>
+            <field name="issue_extraction_prompt">You are a Tax Manager reviewing a fixed asset summary against our firm's known depreciation issue checklist. 
+
+Based on the summary provided below and our standard Issue List Context, identify any potential tax depreciation issues. Look out for:
+- Eligibility for Section 179 expensing.
+- Eligibility for Bonus Depreciation under current phase-out rules.
+- Potential incorrect classification under MACRS (e.g., classifying a 5-year asset as a 7-year asset).
+
+Summary Facts:
+{summary}
+
+Firm Issue List Context:
+{rag_context}
+
+List the identified issues with a brief explanation for each.
+            </field>
+            <field name="regulatory_extraction_prompt">You are a Tax Attorney. For the identified tax depreciation issues, map them to the corresponding US Internal Revenue Code (IRC) sections and Treasury Regulations. 
+
+Use the provided Regulatory Guidelines Context to find exact citations and rules.
+
+Identified Issues:
+{issues}
+
+Regulatory Guidelines Context:
+{rag_context}
+
+Provide a structured list mapping each issue to its governing tax regulation.
+            </field>
+            <field name="analysis_prompt">You are an expert Tax Advisor writing a formal Client Memo on tax depreciation strategy. 
+
+Combine all the previous steps to draft a professional memo containing:
+1. Executive Summary
+2. Statement of Facts (using the Summary)
+3. Tax Issues Identified
+4. Applicable Law &amp; Regulations
+5. Analysis &amp; Conclusion (Recommend whether to apply Section 179, Bonus Depreciation, or standard MACRS life, citing the provided Reference Tax Guidance if useful).
+
+Format beautifully for a Word Document.
+
+Facts:
+{summary}
+
+Identified Issues:
+{issues}
+
+Regulations:
+{regulatory}
+
+Reference Tax Guidance / Precedents:
+{rag_context}
+            </field>
+        </record>
+
+
+        <!-- ── Subject 2: R&D Tax Credit Eligibility (Section 41) ────────────── -->
+        <record id="demo_subject_rnd_tax_credit" model="memo_ai.subject">
+            <field name="name">R&amp;D Tax Credit Eligibility (Section 41)</field>
+            <field name="summarization_prompt">You are a Tax Engineer. Summarize the following technical project description or time-tracking log. 
+Extract:
+1. The project's core objective or technological goal.
+2. The technical uncertainties or challenges faced by the team.
+3. The process of experimentation used (e.g., modeling, simulation, trial &amp; error).
+4. The roles of the individuals involved.
+
+Document Source Text:
+{document_text}
+            </field>
+            <field name="issue_extraction_prompt">As an R&amp;D Tax Specialist, evaluate the project summary against the "Four-Part Test" for R&amp;D tax credits under IRC Section 41. 
+
+Using the provided Issue List Context (which highlights common risks like funded research, internal use software, or failure to meet the discovering technological info test), identify any risks that this project might not qualify.
+
+Project Summary:
+{summary}
+
+R&amp;D Risk Checklist Context:
+{rag_context}
+            </field>
+            <field name="regulatory_extraction_prompt">Map the identified R&amp;D qualification risks to the specific Treasury Regulations (e.g., Treas. Reg. § 1.41-4) and relevant tax court cases.
+
+Use the provided Regulatory Guidelines Context to find exact citations supporting the Four-Part Test requirements.
+
+Identified Qualification Risks:
+{issues}
+
+Regulatory Guidelines Context:
+{rag_context}
+            </field>
+            <field name="analysis_prompt">Write a formal R&amp;D Tax Credit Qualification Memo. 
+
+The memo should evaluate whether the described activities meet the Section 41 Four-Part Test (Permitted Purpose, Elimination of Uncertainty, Process of Experimentation, Technological in Nature). Address the identified risks directly using the mapped regulations and any provided Reference Tax Guidance. 
+
+Conclude definitively if the project qualifies for the R&amp;D credit.
+
+Project Facts:
+{summary}
+
+Qualification Issues:
+{issues}
+
+Regulations &amp; Case Law:
+{regulatory}
+
+Reference Tax Guidance / Precedents:
+{rag_context}
+            </field>
+        </record>
+
+
+        <!-- ── Subject 3: Transfer Pricing Analysis (Section 482) ────────────── -->
+        <record id="demo_subject_transfer_pricing" model="memo_ai.subject">
+            <field name="name">Transfer Pricing Analysis (Section 482)</field>
+            <field name="summarization_prompt">You are a Transfer Pricing Economist. Summarize the following intercompany agreement, invoice, or functional description between related entities.
+Extract:
+1. The related parties involved and their jurisdictions.
+2. The exact nature of the transaction (tangible goods, intangible property, services, financial transaction).
+3. The pricing mechanism stated.
+4. Information on Functions performed, Assets employed, and Risks assumed (FAR).
+
+Document Source Text:
+{document_text}
+            </field>
+            <field name="issue_extraction_prompt">Based on the intercompany transaction summary and our firm's Transfer Pricing risk checklist, identify any potential transfer pricing issues or Arm's Length Principle risks.
+Look for:
+- Missing functional analysis backing the pricing.
+- Intangible property transfers without royalty benchmarks.
+- Pricing methods that don't align with the transaction type.
+
+Transaction Summary:
+{summary}
+
+TP Risk Checklist Context:
+{rag_context}
+            </field>
+            <field name="regulatory_extraction_prompt">For the identified transfer pricing risks, map them to the corresponding rules under US IRC Section 482 and the OECD Transfer Pricing Guidelines.
+
+Use the provided Regulatory Guidelines Context for exact references (e.g., Best Method Rule, specific transfer pricing methods).
+
+Identified TP Risks:
+{issues}
+
+Regulatory Guidelines Context:
+{rag_context}
+            </field>
+            <field name="analysis_prompt">Draft a Transfer Pricing Diagnostic Memo.
+
+Structure the memo as follows:
+1. Background and intercompany transaction facts.
+2. Functional Analysis Summary (FAR).
+3. Transfer Pricing Risks Identified under the Arm's Length Principle.
+4. Regulatory Framework (Section 482 / OECD).
+5. Conclusion and recommendations for benchmarking or adjusting the pricing method.
+
+Use the provided Reference Tax Guidance to align the analysis with firm precedent.
+
+Transaction Facts:
+{summary}
+
+Pricing Risks:
+{issues}
+
+Regulations:
+{regulatory}
+
+Reference Tax Guidance:
+{rag_context}
+            </field>
+        </record>
+
+    </data>
+</odoo>

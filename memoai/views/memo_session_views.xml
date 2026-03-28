@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Session List View -->
+    <record id="view_memo_session_list" model="ir.ui.view">
+        <field name="name">memo_ai.session.list</field>
+        <field name="model">memo_ai.session</field>
+        <field name="arch" type="xml">
+            <list string="Analysis Sessions" decoration-success="state == 'done'"
+                  decoration-muted="state == 'draft'">
+                <field name="name"/>
+                <field name="subject_id"/>
+                <field name="user_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="create_date" string="Started"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-info="state not in ('draft', 'done')"
+                       decoration-muted="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Session Form View — the main 5-step workflow UI -->
+    <record id="view_memo_session_form" model="ir.ui.view">
+        <field name="name">memo_ai.session.form</field>
+        <field name="model">memo_ai.session</field>
+        <field name="arch" type="xml">
+            <form string="Analysis Session">
+                <header>
+                    <button name="action_run_step1" type="object"
+                            string="▶ Run Step 1 — Summarize"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_run_step2" type="object"
+                            string="▶ Run Step 2 — Issues"
+                            class="btn-primary"
+                            invisible="state != 'step1_done'"/>
+
+                    <button name="action_run_step3" type="object"
+                            string="▶ Run Step 3 — Regulations"
+                            class="btn-primary"
+                            invisible="state != 'step2_done'"/>
+
+                    <button name="action_run_step4" type="object"
+                            string="▶ Run Step 4 — Analysis"
+                            class="btn-primary"
+                            invisible="state != 'step3_done'"/>
+
+                    <button name="action_export_word" type="object"
+                            string="📄 Export to Word"
+                            class="btn-success"
+                            invisible="state not in ('step4_done', 'done')"/>
+
+                    <button name="action_reset_to_draft" type="object"
+                            string="↺ Reset"
+                            class="btn-secondary"
+                            invisible="state == 'draft'"
+                            confirm="This will clear all step outputs. Are you sure?"/>
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,step1_done,step2_done,step3_done,step4_done,done"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="subject_id" readonly="state != 'draft'"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="word_attachment_id"
+                                   invisible="not word_attachment_id"/>
+                        </group>
+                    </group>
+
+                    <!-- Documents Upload (draft only) -->
+                    <group string="Source Documents" invisible="state != 'draft'">
+                        <div class="alert alert-info" role="alert">
+                            Upload PDFs or scanned documents to analyze. Then click <strong>Run Step 1</strong>.
+                        </div>
+                        <field name="document_ids" nolabel="1" widget="many2many_binary"/>
+                    </group>
+
+                    <!-- Uploaded files shown after step 1 starts -->
+                    <group string="Source Documents" invisible="state == 'draft'">
+                        <field name="document_ids" nolabel="1" readonly="1" widget="many2many_binary"/>
+                    </group>
+
+                    <separator/>
+
+                    <!-- ── STEP 1 OUTPUT ──────────────────────────────────────────── -->
+                    <group invisible="state == 'draft'">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-primary me-2">Step 1</span>
+                            <strong>Summary — AI-Generated (Editable)</strong>
+                        </div>
+                        <field name="step1_output" nolabel="1" widget="text"
+                               placeholder="AI summary will appear here after Step 1 runs..."/>
+                    </group>
+
+                    <!-- ── STEP 2 OUTPUT ──────────────────────────────────────────── -->
+                    <group invisible="state not in ('step2_done','step3_done','step4_done','done')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-warning text-dark me-2">Step 2</span>
+                            <strong>Applicable Issues — AI-Generated (Editable)</strong>
+                        </div>
+                        <field name="step2_output" nolabel="1" widget="text"
+                               placeholder="Identified issues will appear here after Step 2 runs..."/>
+                    </group>
+
+                    <!-- ── STEP 3 OUTPUT ──────────────────────────────────────────── -->
+                    <group invisible="state not in ('step3_done','step4_done','done')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-success me-2">Step 3</span>
+                            <strong>Regulatory Guidelines — AI-Generated (Editable)</strong>
+                        </div>
+                        <field name="step3_output" nolabel="1" widget="text"
+                               placeholder="Applicable regulations will appear here after Step 3 runs..."/>
+                    </group>
+
+                    <!-- ── STEP 4 OUTPUT ──────────────────────────────────────────── -->
+                    <group invisible="state not in ('step4_done','done')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-danger me-2">Step 4</span>
+                            <strong>Analysis — AI-Generated (Editable)</strong>
+                        </div>
+                        <field name="step4_output" nolabel="1" widget="text"
+                               placeholder="Full analysis memo will appear here after Step 4 runs..."/>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_memo_session_kanban" model="ir.ui.view">
+        <field name="name">memo_ai.session.kanban</field>
+        <field name="model">memo_ai.session</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="subject_id"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <field name="create_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="subject_id"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left text-muted">
+                                    <field name="create_date" widget="date"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_memo_session" model="ir.actions.act_window">
+        <field name="name">Analysis Sessions</field>
+        <field name="res_model">memo_ai.session</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Start a new analysis session!</p>
+            <p>Select a subject, upload your documents, and let AI guide you through the
+            5-step analysis workflow.</p>
+        </field>
+    </record>
+
+</odoo>

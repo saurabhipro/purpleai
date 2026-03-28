@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Main Menu ──────────────────────────────────────────────────── -->
+    <menuitem id="menu_memo_ai_sessions"
+              name="Analysis Sessions"
+              parent="menu_memo_ai_root"
+              action="action_memo_session"
+              sequence="10"/>
+
+    <!-- ── Configuration Sub-menu ────────────────────────────────────── -->
+    <menuitem id="menu_memo_ai_subjects"
+              name="Subjects"
+              parent="menu_memo_ai_config"
+              action="action_memo_subject"
+              sequence="10"
+              groups="memoai.group_memo_ai_sme"/>
+
+    <menuitem id="menu_memo_ai_rag_library"
+              name="RAG Library"
+              parent="menu_memo_ai_config"
+              action="action_memo_rag_document"
+              sequence="20"
+              groups="memoai.group_memo_ai_sme"/>
+
+    <menuitem id="menu_memo_ai_settings"
+              name="Settings"
+              parent="menu_memo_ai_config"
+              action="action_memo_ai_settings"
+              sequence="99"
+              groups="memoai.group_memo_ai_admin"/>
+
+</odoo>

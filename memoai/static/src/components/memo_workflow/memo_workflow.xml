@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="memoai.MemoWorkflow">
+        <div class="memo-workflow-tracker">
+            <div class="memo-steps-track">
+                <t t-foreach="steps" t-as="step" t-key="step.id">
+                    <div t-attf-class="memo-step-node #{getStepClass(step.id)}">
+                        <div class="memo-step-circle" t-attf-style="background: #{step.color}">
+                            <span t-if="isStepComplete(step.id)" class="memo-step-check">✓</span>
+                            <span t-else="" class="memo-step-icon"><t t-esc="step.icon"/></span>
+                        </div>
+                        <div class="memo-step-label"><t t-esc="step.label"/></div>
+                        <div t-if="step.id &lt; 5" class="memo-step-connector"
+                             t-attf-class="memo-step-connector #{isStepComplete(step.id) ? 'done' : ''}"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_memo_ai_root"
+              name="Memo AI"
+              web_icon="memoai,static/description/icon.png"
+              sequence="110"/>
+
+    <menuitem id="menu_memo_ai_config"
+              name="Configuration"
+              parent="menu_memo_ai_root"
+              sequence="90"/>
+</odoo>
