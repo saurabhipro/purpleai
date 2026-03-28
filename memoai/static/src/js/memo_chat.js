@@ -1,46 +1,30 @@
 /** @odoo-module **/
 
-import { patch } from "@web/core/utils/patch";
-import { FormRenderer } from "@web/views/form/form_renderer";
-import { onMounted } from "@odoo/owl";
+// A global, capture-phase event listener is the most robust way to intercept 
+// keystrokes in Odoo, surviving any dynamic form state changes or re-renders.
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') {
+        const activeEl = document.activeElement;
+        if (!activeEl) return;
 
-/**
- * Patching FormRenderer to add Enter key support for AI chat inputs.
- * Uses a much simpler and more direct approach to ensure it works in all conditions.
- */
-patch(FormRenderer.prototype, {
-    setup() {
-        super.setup();
-        onMounted(() => {
-            const el = this.root && this.root.el;
-            if (el) {
-                // Attach a single listener to the form root
-                el.addEventListener('keydown', (ev) => {
-                    if (ev.key === 'Enter') {
-                        // Check if focused element is a chat input
-                        const activeEl = document.activeElement;
-                        if (!activeEl) return;
+        // Verify we are inside one of the chat input areas
+        const isChatInput = activeEl.closest('.chat-input-area') || 
+            (activeEl.getAttribute('name') && activeEl.getAttribute('name').includes('_chat_input'));
 
-                        // Identify the chat input area specifically
-                        const isChat = activeEl.closest('.chat-input-area') ||
-                            activeEl.getAttribute('name')?.includes('_chat_input');
+        if (isChatInput) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation(); // Supercede any Odoo-bound events
 
-                        if (isChat) {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-
-                            // Find the button within the same section and click it
-                            const stepCard = activeEl.closest('.card');
-                            if (stepCard) {
-                                const btn = stepCard.querySelector('button[name="action_chat_step"]');
-                                if (btn) {
-                                    btn.click();
-                                }
-                            }
-                        }
-                    }
-                }, true); // Capture phase is critical
+            // Find the corresponding 'Send' button purely via DOM traversal
+            const stepCard = activeEl.closest('.card');
+            if (stepCard) {
+                const sendBtn = stepCard.querySelector('button[name="action_chat_step"]');
+                if (sendBtn) {
+                    sendBtn.click();
+                }
             }
-        });
+        }
     }
-});
+}, true);
+

@@ -214,8 +214,8 @@ def get_embedding(env, text):
         client = genai.Client(api_key=api_key)
         
         # We attempt a resilient multi-tier fallback with both prefixed and raw names
-        # Tiering: 1. Latest Static (004) -> 2. Stable (001) -> 3. Preview (2)
-        model_tiers = ["text-embedding-004", "embedding-001", "gemini-embedding-2-preview"]
+        # Tiering: To prevent 404 delays on v1beta, we lead with the currently working preview model
+        model_tiers = ["gemini-embedding-2-preview", "text-embedding-004", "embedding-001"]
         
         last_error = None
         for model_name in model_tiers:
