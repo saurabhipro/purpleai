@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="memoai.Dashboard" owl="1">
+        <div class="h-100 overflow-auto bg-view bg-light pb-5">
+            <div class="o_control_panel d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+                <h1 class="text-primary m-0"><i class="fa fa-line-chart me-2"/> Memo AI Analytics Dashboard</h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" t-on-click="fetchStats"><i class="fa fa-refresh"/> Refresh</button>
+                </div>
+            </div>
+
+            <div class="container-fluid mt-4">
+                <!-- KPI Tiles -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-primary text-white h-100 p-2">
+                            <div class="card-body">
+                                <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-hdd-o me-2"/> Total Requests</h6>
+                                <h2 class="display-5 fw-bold"><t t-esc="state.total_requests"/></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-success text-white h-100 p-2">
+                            <div class="card-body">
+                                <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-check-circle me-2"/> Passed Executions</h6>
+                                <h2 class="display-5 fw-bold"><t t-esc="state.passes"/></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-warning text-dark h-100 p-2">
+                            <div class="card-body">
+                                <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-spinner fa-spin me-2"/> In Process / Failed</h6>
+                                <h2 class="display-5 fw-bold"><t t-esc="state.in_process"/></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0 bg-dark text-white h-100 p-2">
+                            <div class="card-body">
+                                <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-money me-2"/> Time &amp; Cost</h6>
+                                <div class="d-flex gap-3 mt-2">
+                                    <div>
+                                        <div class="opacity-75 small text-uppercase">Total Time</div>
+                                        <div class="fs-4 fw-bold"><t t-esc="state.total_time"/>s</div>
+                                    </div>
+                                    <div class="border-start border-white opacity-25"></div>
+                                    <div>
+                                        <div class="opacity-75 small text-uppercase">Total Cost</div>
+                                        <div class="fs-4 fw-bold text-success">$<t t-esc="state.total_cost"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 p-3 pt-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <h4 class="card-title m-0 fw-bold">Daily Analytics Timeline</h4>
+                                <span class="badge bg-light text-dark ms-3 border">Resource Consumption limits against active days</span>
+                            </div>
+                            <div class="position-relative w-100" style="height: 450px;">
+                                <canvas t-ref="chartCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

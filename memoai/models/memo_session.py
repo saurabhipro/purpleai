@@ -327,3 +327,50 @@ class MemoSession(models.Model):
             'total_cost': 0.0,
             'total_time_seconds': 0.0,
         })
+
+    @api.model
+    def get_dashboard_stats(self, date_from=None, date_to=None):
+        """Native RPC method to fetch data for the AI Analytics Dashboard Component."""
+        domain = []
+        if date_from:
+            domain.append(('create_date', '>=', date_from))
+        if date_to:
+            domain.append(('create_date', '<=', date_to))
+            
+        sessions = self.search(domain)
+        
+        # Aggregate Top KPIs
+        total_requests = len(sessions)
+        passes = len(sessions.filtered(lambda s: s.state == 'done'))
+        # Considered failed/in process if not done and not draft
+        in_process = len(sessions.filtered(lambda s: s.state not in ('done', 'draft')))
+        total_time = sum(sessions.mapped('total_time_seconds'))
+        total_cost = sum(sessions.mapped('total_cost'))
+        
+        # Aggregate Chart Data for Bar Chart: cost and time group by date
+        chart_dict = {}
+        for s in sessions:
+            if not s.create_date:
+                continue
+            day_str = s.create_date.strftime('%Y-%m-%d')
+            if day_str not in chart_dict:
+                chart_dict[day_str] = {'cost': 0.0, 'time': 0.0}
+            chart_dict[day_str]['cost'] += s.total_cost
+            chart_dict[day_str]['time'] += s.total_time_seconds
+            
+        labels = sorted(list(chart_dict.keys()))
+        cost_data = [chart_dict[l]['cost'] for l in labels]
+        time_data = [chart_dict[l]['time'] for l in labels]
+            
+        return {
+            'total_requests': total_requests,
+            'passes': passes,
+            'in_process': in_process,
+            'total_time': round(total_time, 2),
+            'total_cost': round(total_cost, 4),
+            'chart': {
+                'labels': labels,
+                'cost_data': cost_data,
+                'time_data': time_data
+            }
+        }

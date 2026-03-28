@@ -2,6 +2,17 @@
 <odoo>
 
     <!-- ── Main Menu ──────────────────────────────────────────────────── -->
+    <record id="action_memo_analytics_dashboard" model="ir.actions.client">
+        <field name="name">Analytics Dashboard</field>
+        <field name="tag">memoai_analytics_dashboard</field>
+    </record>
+
+    <menuitem id="menu_memo_dashboard"
+              name="Dashboard"
+              parent="menu_memo_ai_root"
+              action="action_memo_analytics_dashboard"
+              sequence="5"/>
+
     <menuitem id="menu_memo_ai_sessions"
               name="Analysis Sessions"
               parent="menu_memo_ai_root"
