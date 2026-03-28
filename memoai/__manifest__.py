@@ -34,6 +34,7 @@
             'memoai/static/src/components/memo_workflow/memo_workflow.scss',
             'memoai/static/src/components/dashboard/dashboard.js',
             'memoai/static/src/components/dashboard/dashboard.xml',
+            'memoai/static/src/js/memo_chat.js',
         ],
     },
     'installable': True,

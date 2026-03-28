@@ -35,7 +35,7 @@
     justify-content: center;
     font-size: 20px;
     color: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
     position: relative;
     z-index: 1;
@@ -101,9 +101,20 @@
 }
 
 @keyframes memo-pulse {
-    0%   { transform: scale(1); box-shadow: 0 4px 20px rgba(99,102,241,0.4); }
-    50%  { transform: scale(1.08); box-shadow: 0 6px 24px rgba(99,102,241,0.7); }
-    100% { transform: scale(1); box-shadow: 0 4px 20px rgba(99,102,241,0.4); }
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.7);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    }
 }
 
 /* Step output textareas in form */
@@ -120,5 +131,46 @@
 
 .o_field_text textarea:focus {
     border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── Split Chat Panels ───────────────────────────────────────────────────── */
+.chat-history {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+    }
+}
+
+.chat-input-area {
+    .input-group {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &:focus-within {
+            border-color: #6366f1 !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+    }
+}
+
+/* Animations for panel appearance */
+[invisible="not step1_chat_enabled"],
+[invisible="not step2_chat_enabled"],
+[invisible="not step3_chat_enabled"],
+[invisible="not step4_chat_enabled"] {
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    .w-md-50 {
+        width: 50% !important;
+    }
 }

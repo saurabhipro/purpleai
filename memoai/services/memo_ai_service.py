@@ -214,17 +214,16 @@ def get_embedding(env, text):
         client = genai.Client(api_key=api_key)
         
         # We attempt a resilient multi-tier fallback with both prefixed and raw names
-        # Tiers: 1. Flagship (004) -> 2. Stable (001) -> 3. Preview (2)
-        model_tiers = ["text-embedding-004", "models/text-embedding-004", 
-                       "embedding-001", "models/embedding-001",
-                       "gemini-embedding-2-preview", "models/gemini-embedding-2-preview"]
+        # Tiering: 1. Latest Static (004) -> 2. Stable (001) -> 3. Preview (2)
+        model_tiers = ["text-embedding-004", "embedding-001", "gemini-embedding-2-preview"]
         
         last_error = None
         for model_name in model_tiers:
             try:
+                # The Gemini SDK expects 'contents' as a list/collection of parts
                 result = client.models.embed_content(
                     model=model_name,
-                    contents=payload
+                    contents=[payload]
                 )
                 if result and result.embeddings:
                     return result.embeddings[0].values

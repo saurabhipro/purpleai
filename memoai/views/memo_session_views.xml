@@ -105,14 +105,16 @@
 
                     <!-- ── STEP 1 OUTPUT ──────────────────────────────────────────── -->
                     <div invisible="state == 'draft' and not step1_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
-                        <div class="card-header d-flex align-items-center justify-content-between bg-primary text-white py-3 px-3 clickable" 
-                             data-bs-toggle="collapse" data-bs-target="#collapse_step1" style="border-bottom: 3px solid #0056b3;">
-                            <div class="d-flex align-items-center">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-primary text-white py-3 px-3 border-bottom-0">
+                            <!-- Left: Title (Clickable for Collapse) -->
+                            <div class="d-flex align-items-center flex-grow-1 clickable" data-bs-toggle="collapse" data-bs-target="#collapse_step1" style="cursor: pointer;">
                                 <span class="badge rounded-pill bg-white text-primary fs-6 me-3 shadow-sm"><i class="fa fa-file-text-o"/> Step 1</span>
-                                <span class="fs-5 fw-bold">Summary — AI-Generated (Editable)</span>
+                                <span class="fs-5 fw-bold invisible-header-title">Summary — AI-Generated (Editable)</span>
+                                <i class="fa fa-chevron-down ms-3 opacity-50"/>
                             </div>
-                            <div class="d-flex align-items-center ms-auto me-3 text-white">
-                                <div class="badge rounded-pill bg-white text-primary border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                            <!-- Right: Performance and Action Buttons (NOT Clickable for Collapse) -->
+                            <div class="d-flex align-items-center ms-auto">
+                                <div class="badge rounded-pill bg-white text-primary border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step1_last_run">
                                     <i class="fa fa-clock-o me-2 opacity-75"/>
                                     <field name="step1_last_run" widget="datetime" readonly="1"/>
@@ -121,20 +123,41 @@
                                     <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
                                     <field name="step1_iteration" readonly="1" class="fw-bold"/>
                                 </div>
+                                <button name="action_run_step1" string="Summarizing..." 
+                                        icon="fa-spinner fa-spin" invisible="not step1_processing" 
+                                        class="btn btn-sm btn-light text-primary shadow-none fw-bold" disabled="1"/>
+                                <button name="action_rerun_step1" type="object" string="Rerun AI" 
+                                        icon="fa-refresh" class="btn btn-sm btn-light text-primary shadow-none fw-bold"
+                                        invisible="step1_processing"/>
+                                <button name="action_step1_toggle_chat" type="object" string="Chat with RAG" 
+                                        icon="fa-comments" 
+                                        t-attf-class="btn btn-sm ms-2 shadow-none fw-bold #{step1_chat_enabled ? 'btn-light text-primary' : 'btn-outline-light'}"/>
                             </div>
-                             <button name="action_run_step1" string="Summarizing Documents..." 
-                                     icon="fa-spinner fa-spin" invisible="not step1_processing" 
-                                     class="btn btn-sm btn-light text-primary shadow-none fw-bold" disabled="1"/>
-                             <button name="action_rerun_step1" type="object" string="Rerun AI" 
-                                     icon="fa-refresh" class="btn btn-sm btn-light text-primary shadow-none fw-bold"
-                                     invisible="step1_processing"
-                                     confirm="Are you sure you want to rerun Step 1 using the current source documents?"/>
                         </div>
                         <div id="collapse_step1" class="collapse show">
                             <div class="card-body p-0">
-                                <field name="step1_output" nolabel="1" widget="html" class="w-100"
-                                       placeholder="AI summary will appear here after Step 1 runs..."
-                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                                <div class="d-flex flex-wrap flex-md-nowrap overflow-hidden" style="min-height: 400px;">
+                                    <!-- Left Section: Output (Always visible, width changes) -->
+                                    <div t-attf-class="flex-grow-1 border-end d-flex flex-column #{step1_chat_enabled ? 'w-50' : 'w-100'}" style="transition: width 0.3s ease;">
+                                        <field name="step1_output" nolabel="1" widget="html" class="w-100 flex-grow-1"
+                                               placeholder="AI summary will appear here..."
+                                               options="{'collaborative': false, 'resizable': true, 'min-height': 400}"/>
+                                    </div>
+                                    <!-- Right Section: Chat Panel -->
+                                    <div class="w-100 w-md-50 bg-white d-flex flex-column" invisible="not step1_chat_enabled" style="max-height: 600px;">
+                                        <div class="chat-history flex-grow-1 p-3 overflow-auto bg-light" style="font-size: 0.9rem;">
+                                            <field name="step1_chat_display" widget="html" nolabel="1" readonly="1"/>
+                                        </div>
+                                        <div class="chat-input-area p-3 border-top bg-white">
+                                            <div class="input-group overflow-hidden rounded-pill border">
+                                                <field name="step1_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
+                                                <button name="action_chat_step" type="object" context="{'step_num': 1}" class="btn btn-primary px-3 rounded-0 border-0 shadow-none">
+                                                    <i class="fa fa-paper-plane"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step1_sources">
@@ -145,14 +168,16 @@
 
                     <!-- ── STEP 2 OUTPUT ──────────────────────────────────────────── -->
                     <div invisible="state not in ('step2_done','step3_done','step4_done','done') and not step2_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
-                        <div class="card-header d-flex align-items-center justify-content-between bg-warning text-dark py-3 px-3 clickable"
-                             data-bs-toggle="collapse" data-bs-target="#collapse_step2" style="border-bottom: 3px solid #d39e00;">
-                            <div class="d-flex align-items-center">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-warning text-dark py-3 px-3 border-bottom-0">
+                            <!-- Left: Title (Clickable for Collapse) -->
+                            <div class="d-flex align-items-center flex-grow-1 clickable" data-bs-toggle="collapse" data-bs-target="#collapse_step2" style="cursor: pointer;">
                                 <span class="badge rounded-pill bg-white text-warning fs-6 me-3 shadow-sm"><i class="fa fa-exclamation-triangle"/> Step 2</span>
                                 <span class="fs-5 fw-bold">Applicable Issues — AI-Generated (Editable)</span>
+                                <i class="fa fa-chevron-down ms-3 opacity-50"/>
                             </div>
-                            <div class="d-flex align-items-center ms-auto me-3">
-                                <div class="badge rounded-pill bg-white text-warning border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                            <!-- Right: Performance and Action Buttons -->
+                            <div class="d-flex align-items-center ms-auto">
+                                <div class="badge rounded-pill bg-white text-warning border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step2_last_run">
                                     <i class="fa fa-clock-o me-2 opacity-75"/>
                                     <field name="step2_last_run" widget="datetime" readonly="1"/>
@@ -161,20 +186,40 @@
                                     <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
                                     <field name="step2_iteration" readonly="1" class="fw-bold"/>
                                 </div>
+                                <button name="action_run_step2" string="Finding..." 
+                                        icon="fa-spinner fa-spin" invisible="not step2_processing" 
+                                        class="btn btn-sm btn-light text-warning shadow-none fw-bold" disabled="1"/>
+                                <button name="action_rerun_step2" type="object" string="Rerun AI" 
+                                        icon="fa-refresh" class="btn btn-sm btn-light text-warning shadow-none fw-bold"
+                                        invisible="step2_processing"/>
+                                <button name="action_step2_toggle_chat" type="object" string="Chat with RAG" 
+                                        icon="fa-comments" 
+                                        t-attf-class="btn btn-sm ms-2 shadow-none fw-bold #{step2_chat_enabled ? 'btn-light text-warning' : 'btn-outline-dark'}"/>
                             </div>
-                             <button name="action_run_step2" string="Finding Issues..." 
-                                     icon="fa-spinner fa-spin" invisible="not step2_processing" 
-                                     class="btn btn-sm btn-light text-warning shadow-none fw-bold" disabled="1"/>
-                             <button name="action_rerun_step2" type="object" string="Rerun AI" 
-                                     icon="fa-refresh" class="btn btn-sm btn-light text-warning shadow-none fw-bold"
-                                     invisible="step1_processing or step2_processing"
-                                     confirm="Are you sure you want to rerun Step 2 using the current Summary and RAG matches?"/>
                         </div>
                         <div id="collapse_step2" class="collapse show">
                             <div class="card-body p-0">
-                                <field name="step2_output" nolabel="1" widget="html" class="w-100"
-                                       placeholder="Identified issues will appear here after Step 2 runs..."
-                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                                <div class="d-flex flex-wrap flex-md-nowrap overflow-hidden" style="min-height: 400px;">
+                                    <div t-attf-class="flex-grow-1 border-end d-flex flex-column #{step2_chat_enabled ? 'w-50' : 'w-100'}" style="transition: width 0.3s ease;">
+                                        <field name="step2_output" nolabel="1" widget="html" class="w-100 flex-grow-1"
+                                               placeholder="Identified issues will appear here..."
+                                               options="{'collaborative': false, 'resizable': true, 'min-height': 400}"/>
+                                    </div>
+                                    <!-- Right Section: Chat Panel -->
+                                    <div class="w-100 w-md-50 bg-white d-flex flex-column" invisible="not step2_chat_enabled" style="max-height: 600px;">
+                                        <div class="chat-history flex-grow-1 p-3 overflow-auto bg-light" style="font-size: 0.9rem;">
+                                            <field name="step2_chat_display" widget="html" nolabel="1" readonly="1"/>
+                                        </div>
+                                        <div class="chat-input-area p-3 border-top bg-white">
+                                            <div class="input-group overflow-hidden rounded-pill border">
+                                                <field name="step2_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
+                                                <button name="action_chat_step" type="object" context="{'step_num': 2}" class="btn btn-warning px-3 rounded-0 border-0 shadow-none">
+                                                    <i class="fa fa-paper-plane"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step2_sources">
@@ -185,14 +230,16 @@
 
                     <!-- ── STEP 3 OUTPUT ──────────────────────────────────────────── -->
                     <div invisible="state not in ('step3_done','step4_done','done') and not step3_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
-                        <div class="card-header d-flex align-items-center justify-content-between bg-info text-white py-3 px-3 clickable"
-                             data-bs-toggle="collapse" data-bs-target="#collapse_step3" style="border-bottom: 3px solid #0aa2c0;">
-                            <div class="d-flex align-items-center">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-info text-white py-3 px-3 border-bottom-0">
+                            <!-- Left: Title (Clickable for Collapse) -->
+                            <div class="d-flex align-items-center flex-grow-1 clickable" data-bs-toggle="collapse" data-bs-target="#collapse_step3" style="cursor: pointer;">
                                 <span class="badge rounded-pill bg-white text-info fs-6 me-3 shadow-sm"><i class="fa fa-balance-scale"/> Step 3</span>
                                 <span class="fs-5 fw-bold">Regulatory Guidelines — AI-Generated (Editable)</span>
+                                <i class="fa fa-chevron-down ms-3 opacity-50"/>
                             </div>
-                            <div class="d-flex align-items-center ms-auto me-3">
-                                <div class="badge rounded-pill bg-white text-info border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                            <!-- Right: Performance and Action Buttons -->
+                            <div class="d-flex align-items-center ms-auto">
+                                <div class="badge rounded-pill bg-white text-info border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step3_last_run">
                                     <i class="fa fa-clock-o me-2 opacity-75"/>
                                     <field name="step3_last_run" widget="datetime" readonly="1"/>
@@ -201,20 +248,40 @@
                                     <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
                                     <field name="step3_iteration" readonly="1" class="fw-bold"/>
                                 </div>
+                                <button name="action_run_step3" string="Mapping..." 
+                                        icon="fa-spinner fa-spin" invisible="not step3_processing" 
+                                        class="btn btn-sm btn-light text-info shadow-none fw-bold" disabled="1"/>
+                                <button name="action_rerun_step3" type="object" string="Rerun AI" 
+                                        icon="fa-refresh" class="btn btn-sm btn-light text-info shadow-none fw-bold"
+                                        invisible="step3_processing"/>
+                                <button name="action_step3_toggle_chat" type="object" string="Chat with RAG" 
+                                        icon="fa-comments" 
+                                        t-attf-class="btn btn-sm ms-2 shadow-none fw-bold #{step3_chat_enabled ? 'btn-light text-info' : 'btn-outline-light'}"/>
                             </div>
-                             <button name="action_run_step3" string="Mapping Compliance..." 
-                                     icon="fa-spinner fa-spin" invisible="not step3_processing" 
-                                     class="btn btn-sm btn-light text-info shadow-none fw-bold" disabled="1"/>
-                             <button name="action_rerun_step3" type="object" string="Rerun AI" 
-                                     icon="fa-refresh" class="btn btn-sm btn-light text-info shadow-none fw-bold"
-                                     invisible="step2_processing or step3_processing"
-                                     confirm="Are you sure you want to rerun Step 3 using the current Issues and Guidelines?"/>
                         </div>
                         <div id="collapse_step3" class="collapse show">
                             <div class="card-body p-0">
-                                <field name="step3_output" nolabel="1" widget="html" class="w-100"
-                                       placeholder="Applicable regulations will appear here after Step 3 runs..."
-                                       options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                                <div class="d-flex flex-wrap flex-md-nowrap overflow-hidden" style="min-height: 400px;">
+                                    <div t-attf-class="flex-grow-1 border-end d-flex flex-column #{step3_chat_enabled ? 'w-50' : 'w-100'}" style="transition: width 0.3s ease;">
+                                        <field name="step3_output" nolabel="1" widget="html" class="w-100 flex-grow-1"
+                                               placeholder="Applicable regulations will appear here..."
+                                               options="{'collaborative': false, 'resizable': true, 'min-height': 400}"/>
+                                    </div>
+                                    <!-- Right Section: Chat Panel -->
+                                    <div class="w-100 w-md-50 bg-white d-flex flex-column" invisible="not step3_chat_enabled" style="max-height: 600px;">
+                                        <div class="chat-history flex-grow-1 p-3 overflow-auto bg-light" style="font-size: 0.9rem;">
+                                            <field name="step3_chat_display" widget="html" nolabel="1" readonly="1"/>
+                                        </div>
+                                        <div class="chat-input-area p-3 border-top bg-white">
+                                            <div class="input-group overflow-hidden rounded-pill border">
+                                                <field name="step3_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
+                                                <button name="action_chat_step" type="object" context="{'step_num': 3}" class="btn btn-info px-3 rounded-0 border-0 shadow-none">
+                                                    <i class="fa fa-paper-plane"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step3_sources">
@@ -225,14 +292,16 @@
 
                     <!-- ── STEP 4 OUTPUT ──────────────────────────────────────────── -->
                     <div invisible="state not in ('step4_done','done') and not step4_output" class="mt-4 card shadow-sm border-0 overflow-hidden">
-                        <div class="card-header d-flex align-items-center justify-content-between bg-success text-white py-3 px-3 clickable"
-                             data-bs-toggle="collapse" data-bs-target="#collapse_step4" style="border-bottom: 3px solid #198754;">
-                            <div class="d-flex align-items-center">
+                        <div class="card-header d-flex align-items-center justify-content-between bg-success text-white py-3 px-3 border-bottom-0">
+                            <!-- Left: Title (Clickable for Collapse) -->
+                            <div class="d-flex align-items-center flex-grow-1 clickable" data-bs-toggle="collapse" data-bs-target="#collapse_step4" style="cursor: pointer;">
                                 <span class="badge rounded-pill bg-white text-success fs-6 me-3 shadow-sm"><i class="fa fa-diamond"/> Step 4</span>
                                 <span class="fs-5 fw-bold">Analysis — AI-Generated (Editable)</span>
+                                <i class="fa fa-chevron-down ms-3 opacity-50"/>
                             </div>
-                            <div class="d-flex align-items-center ms-auto me-3">
-                                <div class="badge rounded-pill bg-white text-success border-0 px-3 py-2 shadow-sm d-flex align-items-center" 
+                            <!-- Right: Performance and Action Buttons -->
+                            <div class="d-flex align-items-center ms-auto">
+                                <div class="badge rounded-pill bg-white text-success border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step4_last_run">
                                     <i class="fa fa-clock-o me-2 opacity-75"/>
                                     <field name="step4_last_run" widget="datetime" readonly="1"/>
@@ -241,20 +310,40 @@
                                     <span class="text-uppercase x-small me-1 opacity-50" style="font-size: 0.6rem;">Iter:</span>
                                     <field name="step4_iteration" readonly="1" class="fw-bold"/>
                                 </div>
+                                <button name="action_run_step4" string="Generating..." 
+                                        icon="fa-spinner fa-spin" invisible="not step4_processing" 
+                                        class="btn btn-sm btn-light text-success shadow-none fw-bold" disabled="1"/>
+                                <button name="action_rerun_step4" type="object" string="Rerun AI" 
+                                        icon="fa-refresh" class="btn btn-sm btn-light text-success shadow-none fw-bold"
+                                        invisible="step4_processing"/>
+                                <button name="action_step4_toggle_chat" type="object" string="Chat with RAG" 
+                                        icon="fa-comments" 
+                                        t-attf-class="btn btn-sm ms-2 shadow-none fw-bold #{step4_chat_enabled ? 'btn-light text-success' : 'btn-outline-light'}"/>
                             </div>
-                             <button name="action_run_step4" string="Generating Memo..." 
-                                     icon="fa-spinner fa-spin" invisible="not step4_processing" 
-                                     class="btn btn-sm btn-light text-success shadow-none fw-bold" disabled="1"/>
-                             <button name="action_rerun_step4" type="object" string="Rerun AI" 
-                                     icon="fa-refresh" class="btn btn-sm btn-light text-success shadow-none fw-bold"
-                                     invisible="step3_processing or step4_processing"
-                                     confirm="Are you sure you want to rerun the final Analysis?"/>
                         </div>
                         <div id="collapse_step4" class="collapse show">
                             <div class="card-body p-0">
-                                <field name="step4_output" nolabel="1" widget="html" class="w-100"
-                                       placeholder="Full analysis memo will appear here after Step 4 runs..."
-                                       options="{'collaborative': false, 'resizable': true, 'min-height': 350}"/>
+                                <div class="d-flex flex-wrap flex-md-nowrap overflow-hidden" style="min-height: 400px;">
+                                    <div t-attf-class="flex-grow-1 border-end d-flex flex-column #{step4_chat_enabled ? 'w-50' : 'w-100'}" style="transition: width 0.3s ease;">
+                                        <field name="step4_output" nolabel="1" widget="html" class="w-100 flex-grow-1"
+                                               placeholder="Final analysis memo will appear here..."
+                                               options="{'collaborative': false, 'resizable': true, 'min-height': 400}"/>
+                                    </div>
+                                    <!-- Right Section: Chat Panel -->
+                                    <div class="w-100 w-md-50 bg-white d-flex flex-column" invisible="not step4_chat_enabled" style="max-height: 600px;">
+                                        <div class="chat-history flex-grow-1 p-3 overflow-auto bg-light" style="font-size: 0.9rem;">
+                                            <field name="step4_chat_display" widget="html" nolabel="1" readonly="1"/>
+                                        </div>
+                                        <div class="chat-input-area p-3 border-top bg-white">
+                                            <div class="input-group overflow-hidden rounded-pill border">
+                                                <field name="step4_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
+                                                <button name="action_chat_step" type="object" context="{'step_num': 4}" class="btn btn-success px-3 rounded-0 border-0 shadow-none">
+                                                    <i class="fa fa-paper-plane"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step4_sources">

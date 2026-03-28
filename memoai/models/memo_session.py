@@ -47,30 +47,93 @@ class MemoSession(models.Model):
     # ── Step 1: Summary ─────────────────────────────────────────────────────────
     step1_output = fields.Html(string='Step 1 — Summary', sanitize=False)
     step1_processing = fields.Boolean(default=False)
-    step1_last_run = fields.Datetime(string='Last Run')
-    step1_iteration = fields.Integer(string='Iterations', default=0)
-    step1_sources = fields.Text(string='Source Documents (RAG)')
+    step1_last_run = fields.Datetime(string='Step 1 Last Run')
+    step1_iteration = fields.Integer(string='Step 1 Iterations', default=0)
+    step1_sources = fields.Text(string='Step 1 Source Documents (RAG)')
 
     # ── Step 2: Issue Identification ────────────────────────────────────────────
     step2_output = fields.Html(string='Step 2 — Applicable Issues', sanitize=False)
     step2_processing = fields.Boolean(default=False)
-    step2_last_run = fields.Datetime(string='Last Run')
-    step2_iteration = fields.Integer(string='Iterations', default=0)
-    step2_sources = fields.Text(string='Source Documents (RAG)')
+    step2_last_run = fields.Datetime(string='Step 2 Last Run')
+    step2_iteration = fields.Integer(string='Step 2 Iterations', default=0)
+    step2_sources = fields.Text(string='Step 2 Source Documents (RAG)')
 
     # ── Step 3: Regulatory Guidelines ──────────────────────────────────────────
     step3_output = fields.Html(string='Step 3 — Regulatory Guidelines', sanitize=False)
     step3_processing = fields.Boolean(default=False)
-    step3_last_run = fields.Datetime(string='Last Run')
-    step3_iteration = fields.Integer(string='Iterations', default=0)
-    step3_sources = fields.Text(string='Source Documents (RAG)')
+    step3_last_run = fields.Datetime(string='Step 3 Last Run')
+    step3_iteration = fields.Integer(string='Step 3 Iterations', default=0)
+    step3_sources = fields.Text(string='Step 3 Source Documents (RAG)')
 
     # ── Step 4: Analysis ────────────────────────────────────────────────────────
     step4_output = fields.Html(string='Step 4 — Analysis', sanitize=False)
     step4_processing = fields.Boolean(default=False)
-    step4_last_run = fields.Datetime(string='Last Run')
-    step4_iteration = fields.Integer(string='Iterations', default=0)
-    step4_sources = fields.Text(string='Source Documents (RAG)')
+    step4_last_run = fields.Datetime(string='Step 4 Last Run')
+    step4_iteration = fields.Integer(string='Step 4 Iterations', default=0)
+    step4_sources = fields.Text(string='Step 4 Source Documents (RAG)')
+
+    # ── Chat Features (Split Section Chat) ──────────────────────────────────────
+    step1_chat_enabled = fields.Boolean(string='Step 1 Chat Enabled', default=False)
+    step1_chat_history = fields.Json(string='Step 1 Chat History', default=[])
+    step1_chat_input = fields.Char(string='Step 1 Chat Input') # For simple form entry
+
+    step2_chat_enabled = fields.Boolean(string='Step 2 Chat Enabled', default=False)
+    step2_chat_history = fields.Json(string='Step 2 Chat History', default=[])
+    step2_chat_input = fields.Char(string='Step 2 Chat Input')
+
+    step3_chat_enabled = fields.Boolean(string='Step 3 Chat Enabled', default=False)
+    step3_chat_history = fields.Json(string='Step 3 Chat History', default=[])
+    step3_chat_input = fields.Char(string='Step 3 Chat Input')
+
+    step4_chat_enabled = fields.Boolean(string='Step 4 Chat Enabled', default=False)
+    step4_chat_history = fields.Json(string='Step 4 Chat History', default=[])
+    step4_chat_input = fields.Char(string='Step 4 Chat Input')
+
+    # ── Computed Chat UI Displays ──────────────────────────────────────────────
+    step1_chat_display = fields.Html(compute='_compute_chat_displays')
+    step2_chat_display = fields.Html(compute='_compute_chat_displays')
+    step3_chat_display = fields.Html(compute='_compute_chat_displays')
+    step4_chat_display = fields.Html(compute='_compute_chat_displays')
+
+    @api.depends('step1_chat_history', 'step2_chat_history', 'step3_chat_history', 'step4_chat_history')
+    def _compute_chat_displays(self):
+        """Pre-render the chat bubbles for each step to avoid OWL directive errors in form views."""
+        for rec in self:
+            for s in [1, 2, 3, 4]:
+                history = getattr(rec, f'step{s}_chat_history') or []
+                color_map = {1: '#007bff', 2: '#ffc107', 3: '#17a2b8', 4: '#198754'}
+                text_color_map = {1: '#ffffff', 2: '#212529', 3: '#ffffff', 4: '#ffffff'}
+                
+                if not history:
+                    html = f"""
+                        <div class="text-center text-muted mt-5 opacity-50">
+                            <i class="fa fa-comments-o fa-3x mb-3"/>
+                            <p>Ask questions about Step {s} context.</p>
+                        </div>
+                    """
+                else:
+                    parts = []
+                    for msg in history:
+                        role = msg.get('role', 'user')
+                        content = msg.get('content', '')
+                        is_user = role == 'user'
+                        bg = color_map[s] if is_user else '#ffffff'
+                        tc = text_color_map[s] if is_user else '#212529'
+                        justify = 'justify-content-end' if is_user else 'justify-content-start'
+                        border = 'border' if not is_user else ''
+                        
+                        bubble = f"""
+                            <div class="mb-3 d-flex {justify}">
+                                <div class="px-3 py-2 rounded-3 shadow-sm {border}" 
+                                     style="max-width: 85%; line-height: 1.4; background-color: {bg}; color: {tc};">
+                                    {content}
+                                </div>
+                            </div>
+                        """
+                        parts.append(bubble)
+                    html = "".join(parts)
+                
+                setattr(rec, f'step{s}_chat_display', html)
 
     # ── Tracking & Analytics ────────────────────────────────────────────────────
     total_time_seconds = fields.Float(string='Time Taken (s)', default=0.0,
@@ -126,7 +189,6 @@ class MemoSession(models.Model):
         """Extract a summary from uploaded PDFs using LLM."""
         self.ensure_one()
         self.step1_processing = True
-        self.env.cr.commit() # Feedback UI needs to see it's processing
 
         try:
             if not self.document_ids:
@@ -166,7 +228,80 @@ class MemoSession(models.Model):
             self.message_post(body=_("✅ Step 1 (Summary) completed by AI."))
         finally:
             self.write({'step1_processing': False})
-            self.env.cr.commit()
+        return True
+
+    def action_step1_toggle_chat(self):
+        self.ensure_one()
+        self.step1_chat_enabled = not self.step1_chat_enabled
+
+    def action_chat_step(self):
+        """Unified chat logic for any step using its specific RAG context from self.env.context."""
+        self.ensure_one()
+        step_num = self.env.context.get('step_num')
+        if not step_num or step_num not in [1, 2, 3, 4]:
+            msg = _("Invalid Step selected for chat.")
+            raise UserError(msg)
+            
+        input_field = f'step{step_num}_chat_input'
+        history_field = f'step{step_num}_chat_history'
+        output_field = f'step{step_num}_output'
+        rag_type_map = {1: 'analysis', 2: 'issue_list', 3: 'guideline', 4: 'analysis'}
+        
+        from odoo.tools import html2plaintext
+        user_message_raw = getattr(self, input_field)
+        if not user_message_raw:
+            return True 
+            
+        user_message = html2plaintext(user_message_raw).strip()
+        if not user_message or len(user_message) < 2:
+            return True # Too short or empty
+            
+        # Get existing history
+        history = list(getattr(self, history_field) or [])
+        history.append({'role': 'user', 'content': user_message})
+        
+        # Build Context: Current Step Output + RAG
+        # Performance: We only embed the USER MESSAGE for searching, not the whole summary
+        rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
+            user_message, 
+            limit=3, 
+            subject_type=rag_type_map.get(step_num, 'analysis')
+        )
+        rag_text = "\n\n".join([m['content'] for m in rag_matches])
+        
+        # Build the Prompt
+        full_prompt = f"""
+            You are a subject-matter expert chatting about Step {step_num} of this analysis for the subject: {self.subject_id.name}.
+            
+            REFERENCE CONTEXT (CURRENT ANALYSIS - STEP {step_num}):
+            {(getattr(self, output_field) or "")[:5000]}
+            
+            ADDITIONAL RAG CONTEXT:
+            {rag_text}
+            
+            CHAT HISTORY:
+            {json.dumps(history[-4:], indent=2)}
+            
+            USER MESSAGE:
+            {user_message}
+            
+            INSTRUCTIONS:
+            1. Answer the user's question precisely using the contexts above.
+            2. If the user asks for changes to the analysis, explain how they should edit the HTML box.
+            3. Keep responses helpful but concise.
+        """
+        
+        ai_data = self._call_ai(full_prompt)
+        ai_response = ai_data.get('text', '')
+        
+        history.append({'role': 'assistant', 'content': ai_response})
+        
+        self.write({
+            history_field: history,
+            input_field: False,
+            'total_time_seconds': self.total_time_seconds + ai_data.get('elapsed', 0),
+            'total_cost': self.total_cost + ai_data.get('cost', 0.0),
+        })
         return True
 
     def action_rerun_step1(self):
@@ -184,7 +319,6 @@ class MemoSession(models.Model):
             raise UserError(_("Please complete Step 1 (Summary) first."))
         
         self.step2_processing = True
-        self.env.cr.commit()
 
         try:
             subject = self.subject_id
@@ -218,8 +352,11 @@ class MemoSession(models.Model):
             self.message_post(body=_("✅ Step 2 (Issue Identification) completed by AI."))
         finally:
             self.write({'step2_processing': False})
-            self.env.cr.commit()
         return True
+
+    def action_step2_toggle_chat(self):
+        self.ensure_one()
+        self.step2_chat_enabled = not self.step2_chat_enabled
 
     def action_rerun_step2(self):
         """Allow manual rerun of Step 2."""
@@ -236,7 +373,6 @@ class MemoSession(models.Model):
             raise UserError(_("Please complete Step 2 (Issues) first."))
         
         self.step3_processing = True
-        self.env.cr.commit()
 
         try:
             subject = self.subject_id
@@ -269,8 +405,11 @@ class MemoSession(models.Model):
             self.message_post(body=_("✅ Step 3 (Regulatory Guidelines) completed by AI."))
         finally:
             self.write({'step3_processing': False})
-            self.env.cr.commit()
         return True
+
+    def action_step3_toggle_chat(self):
+        self.ensure_one()
+        self.step3_chat_enabled = not self.step3_chat_enabled
 
     def action_rerun_step3(self):
         """Allow manual rerun of Step 3."""
@@ -287,7 +426,6 @@ class MemoSession(models.Model):
             raise UserError(_("Please complete Step 3 (Regulations) first."))
         
         self.step4_processing = True
-        self.env.cr.commit()
 
         try:
             subject = self.subject_id
@@ -322,8 +460,11 @@ class MemoSession(models.Model):
             self.message_post(body=_("✅ Step 4 (Analysis) completed by AI."))
         finally:
             self.write({'step4_processing': False})
-            self.env.cr.commit()
         return True
+
+    def action_step4_toggle_chat(self):
+        self.ensure_one()
+        self.step4_chat_enabled = not self.step4_chat_enabled
 
     def action_rerun_step4(self):
         """Allow manual rerun of Step 4."""
@@ -467,6 +608,14 @@ class MemoSession(models.Model):
             'step4_iteration': 0,
             'total_cost': 0.0,
             'total_time_seconds': 0.0,
+            'step1_chat_enabled': False,
+            'step2_chat_enabled': False,
+            'step3_chat_enabled': False,
+            'step4_chat_enabled': False,
+            'step1_chat_history': [],
+            'step2_chat_history': [],
+            'step3_chat_history': [],
+            'step4_chat_history': [],
         })
 
     @api.model
