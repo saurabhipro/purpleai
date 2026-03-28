@@ -13,7 +13,7 @@
                 <!-- KPI Tiles -->
                 <div class="row g-3 mb-4">
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-primary text-white h-100 p-2">
+                        <div class="card shadow rounded-3 p-2 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; height: 100%;">
                             <div class="card-body">
                                 <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-hdd-o me-2"/> Total Requests</h6>
                                 <h2 class="display-5 fw-bold"><t t-esc="state.total_requests"/></h2>
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-success text-white h-100 p-2">
+                        <div class="card shadow rounded-3 p-2 border-0" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; height: 100%;">
                             <div class="card-body">
                                 <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-check-circle me-2"/> Passed Executions</h6>
                                 <h2 class="display-5 fw-bold"><t t-esc="state.passes"/></h2>
@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-warning text-dark h-100 p-2">
+                        <div class="card shadow rounded-3 p-2 border-0" style="background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); color: white; height: 100%;">
                             <div class="card-body">
                                 <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-spinner fa-spin me-2"/> In Process / Failed</h6>
                                 <h2 class="display-5 fw-bold"><t t-esc="state.in_process"/></h2>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow-sm border-0 bg-dark text-white h-100 p-2">
+                        <div class="card shadow rounded-3 p-2 border-0" style="background: linear-gradient(135deg, #283048 0%, #859398 100%); color: white; height: 100%;">
                             <div class="card-body">
                                 <h6 class="card-title text-uppercase opacity-75"><i class="fa fa-money me-2"/> Time &amp; Cost</h6>
                                 <div class="d-flex gap-3 mt-2">

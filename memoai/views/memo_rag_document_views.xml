@@ -42,8 +42,12 @@
                             <field name="rag_type"/>
                         </group>
                         <group>
-                            <field name="attachment_id"/>
-                            <field name="chunk_count" readonly="1"/>
+                            <field name="upload_file" widget="binary" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="chunk_count" readonly="1" string="Vector Chunks"/>
+                            <field name="process_time" widget="float_time" invisible="not process_time"/>
+                            <field name="process_cost" invisible="not process_time"/>
+                            <field name="processed_date" invisible="not process_time"/>
                         </group>
                     </group>
                     <group string="Extracted Text Preview" invisible="not extracted_text">

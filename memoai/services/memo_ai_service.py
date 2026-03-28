@@ -184,3 +184,59 @@ def call_azure_openai(env, prompt, settings=None):
     except Exception as e:
         _logger.error("Azure OpenAI call failed: %s", str(e))
         raise
+
+# ───────────────────────────────────────────────────────────────────────────
+# Vector Embeddings
+# ───────────────────────────────────────────────────────────────────────────
+def get_embedding(env, text):
+    """Generate a high-dimensional vector embedding for RAG chunks."""
+    settings = _get_ai_settings(env)
+    provider = settings['provider']
+    
+    if provider == 'gemini':
+        from google import genai
+        api_key = settings['gemini_key'].strip()
+        client = genai.Client(api_key=api_key)
+        
+        try:
+            # 1. Flagship text-embedding-004
+            result = client.models.embed_content(
+                model="text-embedding-004",
+                contents=text[:9000]
+            )
+            return result.embeddings[0].values
+        except Exception as e:
+            # 2. Universal gemini-embedding-001
+            try:
+                fallback = client.models.embed_content(
+                    model="gemini-embedding-001",
+                    contents=text[:9000]
+                )
+                return fallback.embeddings[0].values
+            except Exception:
+                # 3. Newest gemini-embedding-2-preview
+                try:
+                    p_fallback = client.models.embed_content(
+                        model="gemini-embedding-2-preview",
+                        contents=text[:9000]
+                    )
+                    return p_fallback.embeddings[0].values
+                except Exception as final_err:
+                    raise ValueError(f"Gemini SDK Embed Error (All Models Failed: 004, 001, Preview-2): {str(e)} | Final: {str(final_err)}")
+    elif provider == 'openai':
+        from openai import OpenAI
+        client = OpenAI(api_key=settings['openai_key'])
+        res = client.embeddings.create(input=text[:8000], model="text-embedding-3-small")
+        return res.data[0].embedding
+        
+    elif provider == 'azure':
+        from openai import AzureOpenAI
+        client = AzureOpenAI(
+            api_key=settings['azure_key'],
+            azure_endpoint=settings['azure_endpoint'],
+            api_version=settings['azure_api_version']
+        )
+        res = client.embeddings.create(input=text[:8000], model="text-embedding-3-small")
+        return res.data[0].embedding
+    
+    raise ValueError("Configured AI Provider does not support Embeddings.")

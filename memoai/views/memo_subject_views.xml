@@ -38,48 +38,61 @@
                     </group>
 
                     <notebook>
-                        <!-- Tab 1: Step Prompts -->
-                        <page string="AI Prompts" name="prompts">
-                            <group string="Step 1 — Summarization Prompt" col="1">
+                        <!-- Tab 1: Step 1 Prompt -->
+                        <page string="Step 1: Summarize" name="step1_prompt">
+                            <group col="1">
                                 <div class="alert alert-info" role="alert">
                                     <strong>SME:</strong> Configure how AI should summarize uploaded documents.
                                     Use <code>{document_text}</code> as a placeholder for extracted PDF text.
                                 </div>
                                 <field name="summarization_prompt" nolabel="1"
                                        placeholder="Summarize the following document in the context of {document_text}. Focus on key financial figures, dates, and legal positions..."
-                                       widget="text"/>
+                                       widget="text" style="min-height: 200px;"/>
                             </group>
-                            <separator/>
-                            <group string="Step 2 — Issue Extraction Prompt" col="1">
+                        </page>
+
+                        <!-- Tab 2: Step 2 Prompt -->
+                        <page string="Step 2: Issues" name="step2_prompt">
+                            <group col="1">
                                 <div class="alert alert-warning" role="alert">
                                     <strong>Admin:</strong> Prompt to identify applicable issues from the Issue List RAG.
                                     Use <code>{summary}</code> and <code>{rag_context}</code>.
                                 </div>
                                 <field name="issue_extraction_prompt" nolabel="1"
                                        placeholder="Based on the following summary: {summary}\n\nAnd the following issue list: {rag_context}\n\nIdentify all applicable issues..."
-                                       widget="text"/>
+                                       widget="text" style="min-height: 200px;"/>
                             </group>
-                            <separator/>
-                            <group string="Step 3 — Regulatory Literature Extraction Prompt" col="1">
-                                <div class="alert alert-warning" role="alert">
-                                    <strong>Admin:</strong> Prompt to extract applicable regulatory guidelines.
+                        </page>
+
+                        <!-- Tab 3: Step 3 Prompt -->
+                        <page string="Step 3: Guidelines" name="step3_prompt">
+                            <group col="1">
+                                <div class="alert alert-primary" role="alert">
+                                    <strong>Admin:</strong> Prompt to match identified issues with Regulatory Guidelines.
                                     Use <code>{issues}</code> and <code>{rag_context}</code>.
                                 </div>
                                 <field name="regulatory_extraction_prompt" nolabel="1"
                                        placeholder="Given these identified issues: {issues}\n\nAnd the regulatory guidelines: {rag_context}\n\nList all applicable regulations..."
-                                       widget="text"/>
+                                       widget="text" style="min-height: 200px;"/>
                             </group>
-                            <separator/>
-                            <group string="Step 4 — Analysis Prompt" col="1">
-                                <div class="alert alert-warning" role="alert">
-                                    <strong>Admin:</strong> Prompt for final analysis combining all previous steps.
-                                    Use <code>{summary}</code>, <code>{issues}</code>, <code>{regulatory}</code>, <code>{rag_context}</code>.
+                        </page>
+
+                        <!-- Tab 4: Step 4 Prompt -->
+                        <page string="Step 4: Analysis" name="step4_prompt">
+                            <group col="1">
+                                <div class="alert alert-success" role="alert">
+                                    <strong>Admin:</strong> Final prompt to generate the comprehensive legal analysis memo.
+                                    Use <code>{summary}</code>, <code>{issues}</code>, <code>{guidelines}</code>, and <code>{rag_context}</code>.
                                 </div>
                                 <field name="analysis_prompt" nolabel="1"
                                        placeholder="Perform a comprehensive analysis given:\n\nSummary: {summary}\nIssues: {issues}\nRegulations: {regulatory}\n\nReference Analysis: {rag_context}\n\nProvide a detailed professional memo..."
-                                       widget="text"/>
+                                       widget="text" style="min-height: 200px;"/>
                             </group>
                         </page>
+                    </notebook>
+
+                    <h3 class="mt-4 mb-2 border-bottom pb-2 text-primary">RAG Reference Libraries</h3>
+                    <notebook>
 
                         <!-- Tab 2: Issue List RAG -->
                         <page string="Issue List RAG" name="issue_rag">
@@ -89,16 +102,20 @@
                             </div>
                             <field name="issue_rag_ids" nolabel="1" context="{'default_rag_type': 'issue_list', 'default_subject_id': id}">
                                 <list editable="bottom">
+                                    <field name="rag_type" column_invisible="True"/>
                                     <field name="name"/>
-                                    <field name="file_name"/>
-                                    <field name="attachment_id" widget="many2one"/>
-                                    <field name="chunk_count"/>
+                                    <field name="upload_file" filename="file_name" widget="binary"/>
+                                    <field name="file_name" column_invisible="True"/>
+                                    <field name="chunk_count" string="Vectors"/>
+                                    <field name="process_time" widget="float_time"/>
+                                    <field name="process_cost"/>
+                                    <field name="processed_date" widget="date"/>
                                     <field name="state" widget="badge"
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
                                     <button name="action_extract_text" type="object"
-                                            string="Extract" icon="fa-cogs"
+                                            string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>
                                 </list>
                             </field>
@@ -112,16 +129,20 @@
                             </div>
                             <field name="guideline_rag_ids" nolabel="1" context="{'default_rag_type': 'guideline', 'default_subject_id': id}">
                                 <list editable="bottom">
+                                    <field name="rag_type" column_invisible="True"/>
                                     <field name="name"/>
-                                    <field name="file_name"/>
-                                    <field name="attachment_id" widget="many2one"/>
-                                    <field name="chunk_count"/>
+                                    <field name="upload_file" filename="file_name" widget="binary"/>
+                                    <field name="file_name" column_invisible="True"/>
+                                    <field name="chunk_count" string="Vectors"/>
+                                    <field name="process_time" widget="float_time"/>
+                                    <field name="process_cost"/>
+                                    <field name="processed_date" widget="date"/>
                                     <field name="state" widget="badge"
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
                                     <button name="action_extract_text" type="object"
-                                            string="Extract" icon="fa-cogs"
+                                            string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>
                                 </list>
                             </field>
@@ -135,16 +156,20 @@
                             </div>
                             <field name="analysis_rag_ids" nolabel="1" context="{'default_rag_type': 'analysis', 'default_subject_id': id}">
                                 <list editable="bottom">
+                                    <field name="rag_type" column_invisible="True"/>
                                     <field name="name"/>
-                                    <field name="file_name"/>
-                                    <field name="attachment_id" widget="many2one"/>
-                                    <field name="chunk_count"/>
+                                    <field name="upload_file" filename="file_name" widget="binary"/>
+                                    <field name="file_name" column_invisible="True"/>
+                                    <field name="chunk_count" string="Vectors"/>
+                                    <field name="process_time" widget="float_time"/>
+                                    <field name="process_cost"/>
+                                    <field name="processed_date" widget="date"/>
                                     <field name="state" widget="badge"
                                            decoration-success="state == 'processed'"
                                            decoration-danger="state == 'error'"
                                            decoration-muted="state == 'draft'"/>
                                     <button name="action_extract_text" type="object"
-                                            string="Extract" icon="fa-cogs"
+                                            string="Retry" icon="fa-refresh"
                                             invisible="state == 'processed'"/>
                                 </list>
                             </field>

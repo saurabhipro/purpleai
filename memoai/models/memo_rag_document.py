@@ -25,9 +25,10 @@ class MemoRagDocument(models.Model):
     ], string='RAG Type', required=True)
 
     # File storage
-    attachment_id = fields.Many2one(
-        'ir.attachment', string='PDF / Document',
-        help="Upload the source PDF or text file for this RAG document."
+    upload_file = fields.Binary(
+        string='PDF / Document',
+        attachment=True,
+        help="Drag and drop or upload the source PDF for this RAG document."
     )
     file_name = fields.Char(string='File Name')
 
@@ -42,6 +43,65 @@ class MemoRagDocument(models.Model):
     ], default='draft', string='Status')
     error_message = fields.Text(string='Processing Error', readonly=True)
 
+    # Preview & Linkage
+    attachment_id = fields.Many2one('ir.attachment', string='Attachment Link', compute='_compute_attachment_id', store=True)
+
+    @api.depends('upload_file')
+    def _compute_attachment_id(self):
+        """Find or create the implicit attachment for the binary field to allow PDF preview widgets."""
+        for rec in self:
+            if not rec.upload_file:
+                rec.attachment_id = False
+                continue
+            
+            # Find the attachment Odoo creates for the binary field (attachment=True)
+            domain = [
+                ('res_model', '=', self._name),
+                ('res_id', '=', rec.id),
+                ('res_field', '=', 'upload_file')
+            ]
+            attachment = self.env['ir.attachment'].sudo().search(domain, limit=1)
+            rec.attachment_id = attachment.id if attachment else False
+
+    def action_view_pdf(self):
+        """Action for the split-screen viewer."""
+        self.ensure_one()
+        if not self.attachment_id:
+            raise UserError(_("Please upload a PDF first to preview."))
+        
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{self.attachment_id.id}?download=false',
+            'target': 'new',
+        }
+    
+    # Telemetry
+    process_time = fields.Float(string='Time (s)', readonly=True)
+    process_cost = fields.Float(string='Cost ($)', readonly=True, digits=(10, 4))
+    processed_date = fields.Datetime(string='Processed Date', readonly=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Auto-extract vectors when a document is created."""
+        records = super(MemoRagDocument, self).create(vals_list)
+        for rec in records:
+            if rec.upload_file:
+                rec.action_extract_text()
+        return records
+
+    def write(self, vals):
+        """Automatically wipe vectors and re-extract if the PDF is replaced."""
+        res = super(MemoRagDocument, self).write(vals)
+        if 'upload_file' in vals:
+            for rec in self:
+                if rec.upload_file:
+                    # Wipe stale text immediately
+                    rec.write({'state': 'draft', 'extracted_text': False})
+                    rec.env['memo_ai.rag_chunk'].search([('document_id', '=', rec.id)]).unlink()
+                    # Trigger auto-extraction for the new file
+                    rec.action_extract_text()
+        return res
+
     @api.depends('extracted_text')
     def _compute_chunk_count(self):
         for rec in self:
@@ -52,26 +112,64 @@ class MemoRagDocument(models.Model):
                 rec.chunk_count = 0
 
     def action_extract_text(self):
-        """Extract text from the attached PDF using purpleai's document processing."""
+        """Extract text from the attached PDF and generate immutable vector embeddings natively."""
+        from ..services.memo_ai_service import get_embedding, _get_ai_settings
+        import time
+        from odoo import fields
+        
         for rec in self:
-            if not rec.attachment_id:
-                raise UserError(_("Please attach a document first."))
+            if not rec.upload_file:
+                # Don't throw UserError if triggered automatically via write/create
+                continue
+                
+            start_time = time.time()
+            total_tokens = 0
+            
             try:
-                attachment = rec.attachment_id
-                file_data = base64.b64decode(attachment.datas)
-                # Use purpleai's PDF extraction
-                doc_service = rec.env['purple_ai.document_processing'] if hasattr(
-                    rec.env, 'purple_ai.document_processing') else None
+                file_data = base64.b64decode(rec.upload_file)
+                extracted = rec._extract_pdf_text(file_data, rec.file_name or rec.name)
+                
+                # Wipe existing vector chunks securely
+                rec.env['memo_ai.rag_chunk'].search([('document_id', '=', rec.id)]).unlink()
+                
+                # Split and Embed natively using pgvector
+                chunks = rec._split_into_chunks(extracted)
+                for chunk_text in chunks:
+                    vector = get_embedding(rec.env, chunk_text)
+                    vector_str = "[" + ",".join(map(str, vector)) + "]"
+                    
+                    # Approximate token usage (4 chars ~= 1 token)
+                    total_tokens += len(chunk_text) // 4
+                    
+                    # Allocate ID natively in ORM
+                    chunk_record = rec.env['memo_ai.rag_chunk'].create({
+                        'document_id': rec.id,
+                        'content': chunk_text,
+                    })
+                    
+                    # Inject Vector directly into PostgreSQL column bypassing backend validation
+                    rec.env.cr.execute(
+                        "UPDATE memo_ai_rag_chunk SET embedding = %s::vector WHERE id = %s",
+                        (vector_str, chunk_record.id)
+                    )
+                
+                end_time = time.time()
+                elapsed = end_time - start_time
+                
+                # Simple approximation embedding cost ($0.02 / 1M tokens)
+                # Gemini embedding is technically free on many tiers, but we estimate standard logic
+                cost = (total_tokens / 1_000_000.0) * 0.02
 
-                # Fallback: use PyPDF2 / pdfplumber directly
-                extracted = rec._extract_pdf_text(file_data, attachment.name)
                 rec.write({
                     'extracted_text': extracted,
                     'state': 'processed',
                     'error_message': False,
+                    'process_time': elapsed,
+                    'process_cost': cost,
+                    'processed_date': fields.Datetime.now()
                 })
             except Exception as e:
-                _logger.error("RAG document extraction failed: %s", str(e))
+                _logger.error("RAG document vector extraction failed: %s", str(e))
                 rec.write({'state': 'error', 'error_message': str(e)})
 
     def _extract_pdf_text(self, file_data, filename):
@@ -135,21 +233,31 @@ class MemoRagDocument(models.Model):
 
     @staticmethod
     def get_rag_context_for_subject(env, subject_id, rag_type, query, top_k=5):
-        """Aggregate RAG context from all documents of a given type for a subject."""
-        docs = env['memo_ai.rag_document'].search([
-            ('subject_id', '=', subject_id),
-            ('rag_type', '=', rag_type),
-            ('state', '=', 'processed'),
-        ])
-        all_chunks = []
-        for doc in docs:
-            chunks = doc._split_into_chunks(doc.extracted_text or "")
-            query_words = set(query.lower().split())
-            for chunk in chunks:
-                chunk_words = set(chunk.lower().split())
-                score = len(query_words & chunk_words)
-                all_chunks.append((score, chunk))
-
-        all_chunks.sort(key=lambda x: x[0], reverse=True)
-        top = [c for _, c in all_chunks[:top_k]]
-        return "\n\n---\n\n".join(top)
+        """
+        High-performance RAG Vector Query using pgvector cosine similarity (<=>).
+        Feeds directly from postgres tensor arrays into the AI Prompt matrix.
+        """
+        from ..services.memo_ai_service import get_embedding
+        if not query or len(query.strip()) < 3:
+            return ""
+            
+        try:
+            # Transform user query into target embedding vector
+            query_vector = get_embedding(env, query)
+            vector_str = "[" + ",".join(map(str, query_vector)) + "]"
+            
+            # Execute ultra-fast native PostgreSQL vector search
+            env.cr.execute("""
+                SELECT content
+                FROM memo_ai_rag_chunk
+                WHERE subject_id = %s AND rag_type = %s
+                ORDER BY embedding <=> %s::vector
+                LIMIT %s
+            """, (subject_id, rag_type, vector_str, top_k))
+            
+            top_chunks = [row[0] for row in env.cr.fetchall()]
+            return "\n\n---\n\n".join(top_chunks)
+            
+        except Exception as e:
+            _logger.error("Vector Cosine similarity search failed: %s", str(e))
+            return ""
