@@ -45,20 +45,26 @@ class MemoSession(models.Model):
     )
 
     # ── Step 1: Summary ─────────────────────────────────────────────────────────
-    step1_output = fields.Text(string='Step 1 — Summary', tracking=True)
+    step1_output = fields.Html(string='Step 1 — Summary', sanitize=False)
     step1_processing = fields.Boolean(default=False)
 
     # ── Step 2: Issue Identification ────────────────────────────────────────────
-    step2_output = fields.Text(string='Step 2 — Applicable Issues', tracking=True)
+    step2_output = fields.Html(string='Step 2 — Applicable Issues', sanitize=False)
     step2_processing = fields.Boolean(default=False)
 
     # ── Step 3: Regulatory Guidelines ──────────────────────────────────────────
-    step3_output = fields.Text(string='Step 3 — Regulatory Guidelines', tracking=True)
+    step3_output = fields.Html(string='Step 3 — Regulatory Guidelines', sanitize=False)
     step3_processing = fields.Boolean(default=False)
 
     # ── Step 4: Analysis ────────────────────────────────────────────────────────
-    step4_output = fields.Text(string='Step 4 — Analysis', tracking=True)
+    step4_output = fields.Html(string='Step 4 — Analysis', sanitize=False)
     step4_processing = fields.Boolean(default=False)
+
+    # ── Tracking & Analytics ────────────────────────────────────────────────────
+    total_time_seconds = fields.Float(string='Time Taken (s)', default=0.0,
+                                      help="Total execution time for all AI calls in this session.")
+    total_cost = fields.Float(string='API Cost ($)', digits=(10, 4), default=0.0,
+                              help="Estimated USD cost based on token consumption.")
 
     # ── Step 5: Word Export ─────────────────────────────────────────────────────
     word_attachment_id = fields.Many2one('ir.attachment', string='Word Document', readonly=True)
@@ -240,10 +246,11 @@ class MemoSession(models.Model):
             ("3. Regulatory Guidelines", self.step3_output),
             ("4. Analysis", self.step4_output),
         ]
+        from odoo.tools import html2plaintext
         for heading, content in sections:
             if content:
                 doc.add_heading(heading, level=1)
-                doc.add_paragraph(content)
+                doc.add_paragraph(html2plaintext(content))
                 doc.add_paragraph()
 
         # Save to bytes
@@ -278,13 +285,33 @@ class MemoSession(models.Model):
     # ───────────────────────────────────────────────────────────────────────────
     def _call_ai(self, prompt):
         """
-        Call the configured AI provider.
+        Call the configured AI provider and automatically log time and cost.
         Reads from memo_ai.* config parameters — fully independent of purpleai.
-        Configure in: Memo AI → Configuration → Settings
         """
+        import time
         try:
             from ..services.memo_ai_service import call_ai
-            return call_ai(self.env, prompt)
+            
+            start_t = time.time()
+            ai_data = call_ai(self.env, prompt)
+            elapsed = time.time() - start_t
+            
+            # Since we updated the service to return a dict with text and cost metrics
+            if isinstance(ai_data, dict):
+                text = ai_data.get('text', '')
+                cost = ai_data.get('cost', 0.0)
+                
+                self.write({
+                    'total_time_seconds': self.total_time_seconds + elapsed,
+                    'total_cost': self.total_cost + cost,
+                })
+                return text
+            else:
+                self.write({
+                    'total_time_seconds': self.total_time_seconds + elapsed,
+                })
+                return ai_data
+            
         except Exception as e:
             _logger.error("AI call failed: %s", str(e))
             raise UserError(_(f"AI processing failed: {e}\n\nCheck Memo AI → Configuration → Settings."))
@@ -297,4 +324,6 @@ class MemoSession(models.Model):
             'step2_output': False,
             'step3_output': False,
             'step4_output': False,
+            'total_cost': 0.0,
+            'total_time_seconds': 0.0,
         })

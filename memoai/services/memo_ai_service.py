@@ -36,6 +36,12 @@ def call_ai(env, prompt):
         return call_openai(env, prompt, settings)
 
 
+# ───────────────────────────────────────────────────────────────────────────
+# AI Output HTML Enforcer
+# ───────────────────────────────────────────────────────────────────────────
+def _enforce_html_prompt(prompt):
+    return f"{prompt}\n\nIMPORTANT FORMATTING INSTRUCTION:\nFormat your entire response using ONLY valid HTML tags (like <ul>, <li>, <p>, <strong>, <br>). Do NOT use Markdown (no asterisks or hashtags). Do NOT wrap your response in ```html codeblocks. Return only the raw HTML output."
+
 def call_openai(env, prompt, settings=None):
     """Call OpenAI chat completion."""
     if settings is None:
@@ -53,19 +59,38 @@ def call_openai(env, prompt, settings=None):
             model=settings['openai_model'],
             messages=[
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
-                {"role": "user", "content": prompt},
+                {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
             temperature=0.3,
             max_tokens=4096,
         )
-        return response.choices[0].message.content.strip()
+        text = response.choices[0].message.content.strip()
+        usage = response.usage
+        pt = usage.prompt_tokens if usage else 0
+        ct = usage.completion_tokens if usage else 0
+        
+        # Simple cost approximation
+        cost = 0.0
+        model = settings['openai_model'].lower()
+        if 'mini' in model:
+            cost = (pt * 0.15 + ct * 0.60) / 1000000.0
+        else:
+            cost = (pt * 2.50 + ct * 10.00) / 1000000.0
+            
+        return {
+            'text': text,
+            'prompt_tokens': pt,
+            'completion_tokens': ct,
+            'total_tokens': pt + ct,
+            'cost': cost
+        }
     except Exception as e:
         _logger.error("OpenAI call failed: %s", str(e))
         raise
 
 
 def call_gemini(env, prompt, settings=None):
-    """Call Google Gemini Pro."""
+    """Call Google Gemini Pro using REST API."""
     if settings is None:
         settings = _get_ai_settings(env)
     api_key = settings['gemini_key']
@@ -82,13 +107,33 @@ def call_gemini(env, prompt, settings=None):
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key}"
         data = {
-            "contents": [{"parts": [{"text": prompt}]}],
+            "contents": [{"parts": [{"text": _enforce_html_prompt(prompt)}]}],
             "generationConfig": {"temperature": 0.3}
         }
         response = requests.post(url, headers={'Content-Type': 'application/json'}, json=data, timeout=60)
         
         if response.status_code == 200:
-            return response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
+            resp_json = response.json()
+            text = resp_json.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
+            
+            usage = resp_json.get('usageMetadata', {})
+            pt = usage.get('promptTokenCount', 0)
+            ct = usage.get('candidatesTokenCount', 0)
+            
+            # Simple cost approximation
+            cost = 0.0
+            if 'pro' in clean_model.lower():
+                cost = (pt * 1.25 + ct * 5.00) / 1000000.0
+            else:
+                cost = (pt * 0.075 + ct * 0.30) / 1000000.0
+                
+            return {
+                'text': text,
+                'prompt_tokens': pt,
+                'completion_tokens': ct,
+                'total_tokens': pt + ct,
+                'cost': cost
+            }
         else:
             raise ValueError(f"Gemini API Error {response.status_code}: {response.text}")
     except Exception as e:
@@ -118,12 +163,24 @@ def call_azure_openai(env, prompt, settings=None):
             model=settings['azure_deployment'],
             messages=[
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
-                {"role": "user", "content": prompt},
+                {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
             temperature=0.3,
             max_tokens=4096,
         )
-        return response.choices[0].message.content.strip()
+        text = response.choices[0].message.content.strip()
+        usage = response.usage
+        pt = usage.prompt_tokens if usage else 0
+        ct = usage.completion_tokens if usage else 0
+        
+        cost = (pt * 2.50 + ct * 10.00) / 1000000.0
+        return {
+            'text': text,
+            'prompt_tokens': pt,
+            'completion_tokens': ct,
+            'total_tokens': pt + ct,
+            'cost': cost
+        }
     except Exception as e:
         _logger.error("Azure OpenAI call failed: %s", str(e))
         raise

@@ -11,8 +11,10 @@
                 <field name="name"/>
                 <field name="subject_id"/>
                 <field name="user_id"/>
-                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                 <field name="create_date" string="Started"/>
+                <field name="total_time_seconds" sum="Total Time"/>
+                <field name="total_cost" sum="Total Cost" widget="monetary"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'done'"
                        decoration-info="state not in ('draft', 'done')"
@@ -73,11 +75,16 @@
                         <group>
                             <field name="subject_id" readonly="state != 'draft'"/>
                             <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="word_attachment_id"
-                                   invisible="not word_attachment_id"/>
+                            <label for="total_time_seconds" string="Performance Metrics"/>
+                            <div class="o_row">
+                                <field name="total_time_seconds" widget="float_time" class="oe_inline"/> <span class="text-muted pe-2">secs</span>
+                                <i class="fa fa-usd ms-3 text-success me-1"/>
+                                <field name="total_cost" widget="monetary" class="oe_inline fw-bold text-success"/>
+                            </div>
+                            <field name="word_attachment_id" invisible="not word_attachment_id"/>
                         </group>
                     </group>
 
@@ -97,44 +104,48 @@
                     <separator/>
 
                     <!-- ── STEP 1 OUTPUT ──────────────────────────────────────────── -->
-                    <group invisible="state == 'draft'">
+                    <div invisible="state == 'draft'" class="mt-4">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-primary me-2">Step 1</span>
-                            <strong>Summary — AI-Generated (Editable)</strong>
+                            <span class="badge rounded-pill text-bg-primary fs-6 me-2 shadow-sm"><i class="fa fa-file-text-o"/> Step 1</span>
+                            <span class="fs-5 fw-bold text-primary">Summary — AI-Generated (Editable)</span>
                         </div>
-                        <field name="step1_output" nolabel="1" widget="text"
-                               placeholder="AI summary will appear here after Step 1 runs..."/>
-                    </group>
+                        <field name="step1_output" nolabel="1" widget="html" class="w-100"
+                               placeholder="AI summary will appear here after Step 1 runs..."
+                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                    </div>
 
                     <!-- ── STEP 2 OUTPUT ──────────────────────────────────────────── -->
-                    <group invisible="state not in ('step2_done','step3_done','step4_done','done')">
+                    <div invisible="state not in ('step2_done','step3_done','step4_done','done')" class="mt-4">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-warning text-dark me-2">Step 2</span>
-                            <strong>Applicable Issues — AI-Generated (Editable)</strong>
+                            <span class="badge rounded-pill text-bg-warning fs-6 me-2 shadow-sm"><i class="fa fa-exclamation-triangle"/> Step 2</span>
+                            <span class="fs-5 fw-bold text-warning">Applicable Issues — AI-Generated (Editable)</span>
                         </div>
-                        <field name="step2_output" nolabel="1" widget="text"
-                               placeholder="Identified issues will appear here after Step 2 runs..."/>
-                    </group>
+                        <field name="step2_output" nolabel="1" widget="html" class="w-100"
+                               placeholder="Identified issues will appear here after Step 2 runs..."
+                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                    </div>
 
                     <!-- ── STEP 3 OUTPUT ──────────────────────────────────────────── -->
-                    <group invisible="state not in ('step3_done','step4_done','done')">
+                    <div invisible="state not in ('step3_done','step4_done','done')" class="mt-4">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-success me-2">Step 3</span>
-                            <strong>Regulatory Guidelines — AI-Generated (Editable)</strong>
+                            <span class="badge rounded-pill text-bg-info fs-6 me-2 text-white shadow-sm"><i class="fa fa-balance-scale"/> Step 3</span>
+                            <span class="fs-5 fw-bold text-info">Regulatory Guidelines — AI-Generated (Editable)</span>
                         </div>
-                        <field name="step3_output" nolabel="1" widget="text"
-                               placeholder="Applicable regulations will appear here after Step 3 runs..."/>
-                    </group>
+                        <field name="step3_output" nolabel="1" widget="html" class="w-100"
+                               placeholder="Applicable regulations will appear here after Step 3 runs..."
+                               options="{'collaborative': false, 'resizable': true, 'min-height': 250}"/>
+                    </div>
 
                     <!-- ── STEP 4 OUTPUT ──────────────────────────────────────────── -->
-                    <group invisible="state not in ('step4_done','done')">
+                    <div invisible="state not in ('step4_done','done')" class="mt-4">
                         <div class="d-flex align-items-center mb-2">
-                            <span class="badge bg-danger me-2">Step 4</span>
-                            <strong>Analysis — AI-Generated (Editable)</strong>
+                            <span class="badge rounded-pill text-bg-success fs-6 me-2 shadow-sm"><i class="fa fa-diamond"/> Step 4</span>
+                            <span class="fs-5 fw-bold text-success">Analysis — AI-Generated (Editable)</span>
                         </div>
-                        <field name="step4_output" nolabel="1" widget="text"
-                               placeholder="Full analysis memo will appear here after Step 4 runs..."/>
-                    </group>
+                        <field name="step4_output" nolabel="1" widget="html" class="w-100"
+                               placeholder="Full analysis memo will appear here after Step 4 runs..."
+                               options="{'collaborative': false, 'resizable': true, 'min-height': 350}"/>
+                    </div>
 
                 </sheet>
             </form>
