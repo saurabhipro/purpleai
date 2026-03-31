@@ -124,6 +124,13 @@ class OpenAIService(BaseAIService):
             try:
                 t0 = time.time()
                 resp = requests.post(url, headers=headers, json=payload, timeout=60)
+                
+                # Check for O1 series model temperature rejection immediately and inline-retry
+                if resp.status_code == 400 and "temperature" in resp.text.lower() and "temperature" in payload:
+                    _logger.info("OPENAI API: Model rejected temperature setting. Retrying without it.")
+                    del payload["temperature"]
+                    resp = requests.post(url, headers=headers, json=payload, timeout=60)
+                
                 duration_ms = int((time.time() - t0) * 1000)
 
                 if resp.status_code == 429:
@@ -155,13 +162,6 @@ class OpenAIService(BaseAIService):
 
 
                 if resp.status_code != 200:
-                    # O1 series models rigidly reject custom temperatures. Auto-retry without it.
-                    if resp.status_code == 400 and "temperature" in resp.text.lower():
-                        if "temperature" in payload:
-                            _logger.info("OPENAI API: Model rejected temperature setting. Retrying without it.")
-                            del payload["temperature"]
-                            continue
-
                     _logger.error("OPENAI API: error %s – %s", resp.status_code, resp.text)
                     raise RuntimeError(
                         _("OpenAI returned error %s: %s") % (resp.status_code, resp.text)
