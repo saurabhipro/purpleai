@@ -148,6 +148,13 @@ class AzureService(BaseAIService):
                     continue
 
                 if resp.status_code != 200:
+                    # O1 series models rigidly reject custom temperatures. Auto-retry without it.
+                    if resp.status_code == 400 and "temperature" in resp.text.lower():
+                        if "temperature" in payload:
+                            _logger.info("AZURE API: Model rejected temperature setting. Retrying without it.")
+                            del payload["temperature"]
+                            continue
+
                     _logger.error("AZURE API: error %s – %s", resp.status_code, resp.text)
                     raise RuntimeError(
                         _("Azure AI returned error %s: %s") % (resp.status_code, resp.text)
