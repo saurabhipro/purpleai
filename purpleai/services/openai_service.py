@@ -109,7 +109,7 @@ class OpenAIService(BaseAIService):
             "model": chosen_model,
             "messages": messages,
             "temperature": temperature,
-            "max_tokens": 4096,
+            "max_completion_tokens": 4096,
         }
 
         # Enable JSON mode if the prompt mentions JSON

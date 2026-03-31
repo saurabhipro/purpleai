@@ -353,7 +353,7 @@ class TendeAIResConfigSettings(models.TransientModel):
                 },
                 json={
                     'messages': [{'role': 'user', 'content': 'Say "Purple AI connected via Azure!" in one sentence.'}],
-                    'max_tokens': 30,
+                    'max_completion_tokens': 30,
                 },
                 timeout=15,
             )
@@ -413,7 +413,7 @@ class TendeAIResConfigSettings(models.TransientModel):
                 json={
                     'model': model,
                     'messages': [{'role': 'user', 'content': 'Say "Purple AI connected via OpenAI!" in one sentence.'}],
-                    'max_tokens': 30,
+                    'max_completion_tokens': 30,
                 },
                 timeout=15,
             )
