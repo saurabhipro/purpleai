@@ -14,14 +14,25 @@
                 body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background-color: #f4f7f9; color: #333; padding: 0; margin: 0; }
                 .header { background: #6c5ce7; color: white; padding: 20px 10px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
                 .status-msg { font-size: 0.8rem; margin-top: 5px; opacity: 0.8; }
-                .btn-p { background: #6c5ce7; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; margin-top: 10px; }
-                .card-memo { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #6c5ce7; }
+                .btn-p { background: #6c5ce7; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+                .btn-p:hover { background: #5b4cc4; }
+                .btn-s { background: #fff; color: #6c5ce7; border: 1px solid #6c5ce7; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; margin-bottom: 15px; cursor: pointer; }
+                .card-memo { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; border-left: 4px solid #6c5ce7; transition: background 0.2s; }
+                .card-memo:hover { background: #f8f9fa; }
                 .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 10px; border-top: 1px solid #ddd; }
+                #loading { position: fixed; top: 0; color: #666; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 1000; text-align:center; padding-top: 50%; display: none; }
             </style>
         </head>
         <body>
+            <div id="loading">
+                <div class="spinner-border text-primary"></div>
+                <div class="mt-2" id="loading-msg">Working...</div>
+            </div>
             <div class="header">
-                <h4 style="margin:0;">Memo AI Editor</h4>
+                <div style="position:relative;">
+                    <button id="btn-back" class="btn btn-sm btn-light" style="position:absolute; left:0; top:-5px; display:none; padding:2px 8px;" onclick="loadRecent()"><i class="fa fa-arrow-left"></i></button>
+                    <h4 style="margin:0;">Memo AI Editor</h4>
+                </div>
                 <div id="status-label" class="status-msg">Connecting to Odoo...</div>
             </div>
 
@@ -30,24 +41,22 @@
                     <div class="spinner-border text-primary mb-3"></div>
                     <p id="main-msg">Searching for analysis...</p>
                 </div>
-                <div id="memo-list"></div>
             </div>
 
             <div id="footer" class="footer" style="display:none;">
-                <button id="btn-save-final" class="btn-p">Save to Odoo</button>
+                <button id="btn-save-final" class="btn-p"><i class="fa fa-cloud-upload"></i> Save to Odoo</button>
             </div>
 
             <script type="text/javascript">
                 var currentSid = '<t t-esc="session_id"/>';
+                var memoDataCache = null;
+
                 /* <![CDATA[ */
-                
-                // Use the most compatible way to start
                 Office.initialize = function (reason) {
                     updateStatus("Office Bridge Ready");
                     startApp();
                 };
 
-                // Fallback for some systems
                 window.onload = function() {
                     setTimeout(function() {
                         if (document.getElementById('status-label').textContent === "Connecting to Odoo...") {
@@ -61,6 +70,11 @@
                     document.getElementById('status-label').textContent = msg;
                 }
 
+                function showLoading(show, msg) {
+                    document.getElementById('loading').style.display = show ? 'block' : 'none';
+                    if (msg) document.getElementById('loading-msg').textContent = msg;
+                }
+
                 function startApp() {
                     if (currentSid && currentSid !== "None" && currentSid !== "") {
                         loadMemo(currentSid);
@@ -70,7 +84,6 @@
                 }
 
                 function apiCall(url, params, callback) {
-                    updateStatus("Requesting Odoo...");
                     var xhr = new XMLHttpRequest();
                     xhr.open("POST", url, true);
                     xhr.setRequestHeader("Content-Type", "application/json");
@@ -80,9 +93,9 @@
                                 try {
                                     var resp = JSON.parse(xhr.responseText);
                                     callback(resp.result);
-                                } catch (e) { updateStatus("Error reading server."); }
+                                } catch (e) { updateStatus("Error parsing server data."); }
                             } else {
-                                updateStatus("Server not reachable (Status " + xhr.status + ")");
+                                updateStatus("Server not reachable.");
                             }
                         }
                     };
@@ -90,31 +103,34 @@
                 }
 
                 function loadRecent() {
+                    document.getElementById('btn-back').style.display = 'none';
+                    document.getElementById('footer').style.display = 'none';
+                    updateStatus("Fetching memos...");
                     apiCall('/word_addin/get_recent_sessions', {}, function(res) {
                         if (res && res.error === 'authentication_required') {
                              renderLogin();
                         } else if (res && res.length > 0) {
                              renderMemos(res);
                         } else {
-                             document.getElementById('main-msg').textContent = "No recent memos found.";
+                             document.getElementById('content').innerHTML = "<div style='padding:20px;text-align:center;'>No recent memos found.</div>";
                         }
                     });
                 }
 
                 function renderLogin() {
                     updateStatus("Login Required");
-                    var content = document.getElementById('content');
-                    content.innerHTML = '<div style="padding:30px; text-align:center;">' +
+                    document.getElementById('content').innerHTML = '<div style="padding:30px; text-align:center;">' +
                         '<h6>Please log in to Odoo</h6>' +
                         '<button class="btn-p" onclick="window.open(\'/web/login\', \'_blank\')">Login</button>' +
-                        '<p class="mt-3 small">Then close/open this panel.</p>' +
+                        '<p class="mt-3 small">Then click Reload below.</p>' +
+                        '<button class="btn-s mt-2" onclick="startApp()">Reload</button>' +
                         '</div>';
                 }
 
                 function renderMemos(list) {
                     updateStatus("Select a Memo");
                     var content = document.getElementById('content');
-                    content.innerHTML = '<div style="padding:10px;"><h6>Recent Analysis:</h6></div>';
+                    content.innerHTML = '<div style="padding:15px; background:white; font-weight:bold;">Recent Analysis:</div>';
                     list.forEach(function(m) {
                         var div = document.createElement('div');
                         div.className = 'card-memo';
@@ -127,48 +143,121 @@
                 function loadMemo(sid) {
                     currentSid = sid;
                     updateStatus("Loading Memo...");
+                    showLoading(true, "Downloading analysis...");
                     apiCall('/word_addin/get_memo_data', { session_id: sid }, function(res) {
+                        showLoading(false);
                         if (res && !res.error) {
+                            memoDataCache = res;
                             renderSteps(res);
+                            insertEntireMemo(res);
                         } else {
                             loadRecent();
                         }
                     });
                 }
 
+                function insertToWord(htmlContent, insertLocation) {
+                    if (!htmlContent) htmlContent = "<p>[Empty Content]</p>";
+                    // Default to appending if not specified
+                    var loc = insertLocation || "End";
+                    // Wrap the HTML safely
+                    var safeHtml = "<div>" + htmlContent + "</div>";
+                    
+                    showLoading(true, "Inserting to Word...");
+                    Word.run(function(ctx) {
+                        // If replacing the entire document, first clear it to ensure perfect formatting reset
+                        if (loc === "Replace") {
+                            ctx.document.body.clear();
+                            ctx.document.body.insertHtml(safeHtml, "End");
+                        } else {
+                            ctx.document.body.insertHtml(safeHtml, loc);
+                        }
+                        return ctx.sync();
+                    }).then(function() {
+                        showLoading(false);
+                        updateStatus("Inserted Successfully");
+                    }).catch(function(e) {
+                        showLoading(false);
+                        updateStatus("Error: " + e.message);
+                    });
+                }
+
+                function insertEntireMemo(data) {
+                    var colors = {
+                        1: { bg: '#e7f1ff', border: '#0d6efd', text: '#0a58ca' }, // Primary
+                        2: { bg: '#fff3cd', border: '#ffc107', text: '#997404' }, // Warning
+                        3: { bg: '#cff4fc', border: '#0dcaf0', text: '#055160' }, // Info
+                        4: { bg: '#d1e7dd', border: '#198754', text: '#0f5132' }  // Success
+                    };
+                    var allHtml = "";
+                    data.steps.forEach(function(s) {
+                        var theme = colors[s.id] || { bg: '#f8f9fa', border: '#6c5ce7', text: '#333' };
+                        
+                        // Word-native shaded paragraph block
+                        var titleHtml = "<div style='background:" + theme.bg + "; padding:10px; border-left: 6px solid " + theme.border + "; margin-top:20px; margin-bottom:10px;'><p class='MsoNormal' style='margin:0;'><span style='font-size:16.0pt; font-family:Arial; color:" + theme.text + "'><b>" + s.title + "</b></span></p></div>";
+                        
+                        // Aggressive regex to completely eliminate ghost headers even if they have newlines
+                        var cleanContent = s.content ? s.content.replace(/<h[1-6][^>]*>[\s\S]*?Step\s*\d[\s\S]*?<\/h[1-6]>/gi, '').replace(/<div[^>]*>[\s\S]*?Step\s*\d[\s\S]*?<\/div>/gi, '') : "<p>No content generated for this step.</p>";
+                        allHtml += titleHtml + cleanContent + "<br/><br/>";
+                    });
+                    insertToWord(allHtml, "Replace");
+                }
+
                 function renderSteps(data) {
+                    document.getElementById('btn-back').style.display = 'inline-block';
                     updateStatus("Editing: " + data.name);
                     var content = document.getElementById('content');
-                    content.innerHTML = '<div style="padding:10px;"><h6>Insert Steps into Word:</h6></div>';
+                    content.innerHTML = '<div style="padding:15px;">' +
+                        '<h6 style="margin-top:10px;">Insert individual steps manually:</h6>' +
+                        '</div>';
+                    
+                    var colors = {
+                        1: { bg: '#e7f1ff', border: '#0d6efd', text: '#0a58ca' }, // Primary
+                        2: { bg: '#fff3cd', border: '#ffc107', text: '#997404' }, // Warning
+                        3: { bg: '#cff4fc', border: '#0dcaf0', text: '#055160' }, // Info
+                        4: { bg: '#d1e7dd', border: '#198754', text: '#0f5132' }  // Success
+                    };
+
                     data.steps.forEach(function(s) {
                         var div = document.createElement('div');
                         div.className = 'card-memo';
-                        div.onclick = function() {
-                           Word.run(function(ctx) {
-                               ctx.document.body.insertHtml(s.content, "End");
-                               return ctx.sync();
-                           });
+                        div.onclick = function() { 
+                            var theme = colors[s.id] || { bg: '#f8f9fa', border: '#6c5ce7', text: '#333' };
+                            var titleHtml = "<div style='background:" + theme.bg + "; padding:10px; border-left: 6px solid " + theme.border + "; margin-top:20px; margin-bottom:10px;'><p class='MsoNormal' style='margin:0;'><span style='font-size:16.0pt; font-family:Arial; color:" + theme.text + "'><b>" + s.title + "</b></span></p></div>";
+                            
+                            var cleanContent = s.content ? s.content.replace(/<h[1-6][^>]*>[\s\S]*?Step\s*\d[\s\S]*?<\/h[1-6]>/gi, '').replace(/<div[^>]*>[\s\S]*?Step\s*\d[\s\S]*?<\/div>/gi, '') : "";
+                            var text = titleHtml + cleanContent;
+                            insertToWord(text); 
                         };
-                        div.innerHTML = '<strong>' + s.title + '</strong><br/><small>Click to insert into Word</small>';
+                        var preview = s.content ? s.content.substring(0, 60).replace(/<[^>]*>/g, '') + '...' : 'Empty';
+                        div.innerHTML = '<strong><i class="fa fa-plus-circle text-primary"></i> ' + s.title + '</strong><br/><small class="text-muted">' + preview + '</small>';
                         content.appendChild(div);
                     });
+                    
                     document.getElementById('footer').style.display = 'block';
                 }
 
                 document.getElementById('btn-save-final').onclick = function() {
-                    updateStatus("Saving to Odoo...");
+                    showLoading(true, "Saving to Odoo...");
                     Word.run(function(ctx) {
                         var html = ctx.document.body.getHtml();
                         return ctx.sync().then(function() {
                             apiCall('/word_addin/save_memo_data', { 
                                 session_id: currentSid, 
-                                steps_data: [{id: 1, content: html.value}] 
+                                html_content: html.value 
                             }, function(res) {
-                                if (res && res.success) alert("Saved successfully!");
-                                else alert("Save failed.");
-                                updateStatus("Ready");
+                                showLoading(false);
+                                if (res && res.success) {
+                                    updateStatus("Saved to Odoo at " + new Date().toLocaleTimeString());
+                                    alert("Analysis saved successfully back to Odoo!");
+                                } else {
+                                    alert("Save failed. Are you logged in?");
+                                }
                             });
                         });
+                    }).catch(function(e) {
+                        showLoading(false);
+                        alert("Word API error: " + e.message);
                     });
                 };
                 /* ]]> */

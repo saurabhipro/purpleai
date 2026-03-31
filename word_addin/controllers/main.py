@@ -99,20 +99,21 @@ class WordAddinController(http.Controller):
         if not session_id:
             return {'error': 'no_active_session'}
 
-        session = request.env['memo_ai.session'].sudo().browse(int(session_id))
+        env = request.env(user=request.session.uid)
+        session = env['memo_ai.session'].browse(int(session_id))
         if not session.exists():
             return {'error': 'session_not_found'}
 
         steps = []
         if step_num == 'all':
             steps = [
-                {'id': 1, 'title': 'Step 1: Core Issues', 'content': session.step1_output_html},
-                {'id': 2, 'title': 'Step 2: Legal Analysis', 'content': session.step2_output_html},
-                {'id': 3, 'title': 'Step 3: Risk Assessment', 'content': session.step3_output_html},
-                {'id': 4, 'title': 'Step 4: Final Recommendation', 'content': session.step4_output_html},
+                {'id': 1, 'title': 'Step 1: Core Issues', 'content': session.step1_output},
+                {'id': 2, 'title': 'Step 2: Legal Analysis', 'content': session.step2_output},
+                {'id': 3, 'title': 'Step 3: Risk Assessment', 'content': session.step3_output},
+                {'id': 4, 'title': 'Step 4: Final Recommendation', 'content': session.step4_output},
             ]
         else:
-            step_attr = f"step{step_num}_output_html"
+            step_attr = f"step{step_num}_output"
             steps = [{
                 'id': int(step_num),
                 'title': f"Step {step_num}",
@@ -131,7 +132,8 @@ class WordAddinController(http.Controller):
         if not request.session.uid:
             return {'error': 'authentication_required'}
 
-        sessions = request.env['memo_ai.session'].sudo().search([
+        env = request.env(user=request.session.uid)
+        sessions = env['memo_ai.session'].search([
             ('create_uid', '=', request.session.uid)
         ], limit=5, order='write_date desc')
         
@@ -143,21 +145,46 @@ class WordAddinController(http.Controller):
         } for s in sessions]
 
     @http.route('/word_addin/save_memo_data', type='json', auth='none', methods=['POST'], cors='*', csrf=False)
-    def save_memo_data(self, session_id, steps_data):
-        """Save data with CSRF disabled."""
+    def save_memo_data(self, session_id, html_content=None, steps_data=None):
+        """Save data with CSRF disabled, parse document HTML if provided."""
         if not request.session.uid:
             return {'error': 'authentication_required'}
 
-        session = request.env['memo_ai.session'].sudo().browse(int(session_id))
+        env = request.env(user=request.session.uid)
+        session = env['memo_ai.session'].browse(int(session_id))
         if not session.exists():
             return {'success': False, 'message': 'Session not found'}
 
+        import re
         vals = {}
-        for step in steps_data:
-            step_id = step.get('id')
-            content = step.get('content')
-            if step_id and content:
-                vals[f"step{step_id}_output_html"] = content
+        
+        # If the Add-in sent the full raw HTML
+        if html_content:
+            # Capture the entire HTML tag sequence leading up to "Step X"
+            # This ensures we do NOT sever HTML tags (which would break the document display in Odoo)
+            pattern = r'(?i)(<[^>]*?\b(?:h[1-6]|p|div|td)\b[^>]*>\s*(?:<[^>]+>\s*)*Step\s*([1-4])\b)'
+            parts = re.split(pattern, html_content)
+            
+            if len(parts) > 1:
+                # Since we have 2 capture groups in re.split, parts looks like:
+                # [0: before, 1: delimiter_html, 2: step_digit, 3: content_after, 4: next_delimiter_html...]
+                for i in range(1, len(parts), 3):
+                    step_id = parts[i+1]
+                    content_after = parts[i+2]
+                    
+                    # DO NOT save the delimiter back into Odoo (prevents duplicate headers on reload)
+                    vals[f"step{step_id}_output"] = content_after.strip()
+            else:
+                # If no headers were found, just overwrite step 1 so they don't lose data
+                vals['step1_output'] = html_content
+
+        # Fallback for old Add-in versions
+        elif steps_data:
+            for step in steps_data:
+                step_id = step.get('id')
+                content = step.get('content')
+                if step_id and content:
+                    vals[f"step{step_id}_output"] = content
 
         if vals:
             session.write(vals)
