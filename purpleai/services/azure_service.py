@@ -115,7 +115,7 @@ class AzureService(BaseAIService):
         payload = {
             "messages": messages, 
             "temperature": temperature,
-            "max_completion_tokens": 4096,
+            "max_tokens": 4096,
         }
 
         # Enable JSON mode if the prompt mentions JSON
