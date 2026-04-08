@@ -109,7 +109,7 @@ class MemoAIResConfigSettings(models.TransientModel):
                 json={
                     'model': model,
                     'messages': [{'role': 'user', 'content': 'Say "Memo AI connected!" in one sentence.'}],
-                    'max_tokens': 20,
+                    'max_completion_tokens': 20,
                 },
                 timeout=15,
             )
@@ -165,7 +165,7 @@ class MemoAIResConfigSettings(models.TransientModel):
                 headers={'api-key': api_key, 'Content-Type': 'application/json'},
                 json={
                     'messages': [{'role': 'user', 'content': 'Say "Memo AI connected!" in one sentence.'}],
-                    'max_tokens': 20,
+                    'max_completion_tokens': 20,
                 },
                 timeout=15,
             )

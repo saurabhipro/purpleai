@@ -55,15 +55,25 @@ def call_openai(env, prompt, settings=None):
     try:
         from openai import OpenAI
         client = OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
-            model=settings['openai_model'],
-            messages=[
+        payload = {
+            "model": settings['openai_model'],
+            "messages": [
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
                 {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
-            temperature=0.3,
-            max_tokens=4096,
-        )
+            "temperature": 0.3,
+            "max_completion_tokens": 4096,
+        }
+        try:
+            response = client.chat.completions.create(**payload)
+        except Exception as e:
+            # Backward compatibility with old models/endpoints
+            if "max_completion_tokens" in str(e):
+                payload.pop("max_completion_tokens", None)
+                payload["max_tokens"] = 4096
+                response = client.chat.completions.create(**payload)
+            else:
+                raise
         text = response.choices[0].message.content.strip()
         usage = response.usage
         pt = usage.prompt_tokens if usage else 0
@@ -159,15 +169,24 @@ def call_azure_openai(env, prompt, settings=None):
             azure_endpoint=endpoint,
             api_version=settings['azure_api_version'],
         )
-        response = client.chat.completions.create(
-            model=settings['azure_deployment'],
-            messages=[
+        payload = {
+            "model": settings['azure_deployment'],
+            "messages": [
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
                 {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
-            temperature=0.3,
-            max_tokens=4096,
-        )
+            "temperature": 0.3,
+            "max_completion_tokens": 4096,
+        }
+        try:
+            response = client.chat.completions.create(**payload)
+        except Exception as e:
+            if "max_completion_tokens" in str(e):
+                payload.pop("max_completion_tokens", None)
+                payload["max_tokens"] = 4096
+                response = client.chat.completions.create(**payload)
+            else:
+                raise
         text = response.choices[0].message.content.strip()
         usage = response.usage
         pt = usage.prompt_tokens if usage else 0
