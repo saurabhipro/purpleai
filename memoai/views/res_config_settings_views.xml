@@ -76,6 +76,9 @@
                         <setting title="Deployment Name" help="The name of your Azure model deployment">
                             <field name="memo_ai_azure_deployment" placeholder="e.g. gpt-4o"/>
                         </setting>
+                        <setting title="Embedding Deployment" help="Azure deployment name for vector embeddings">
+                            <field name="memo_ai_azure_embedding_deployment" placeholder="e.g. text-embedding-3-small"/>
+                        </setting>
                         <setting title="API Version" help="Azure OpenAI REST API version">
                             <field name="memo_ai_azure_api_version"/>
                             <div class="mt-2">

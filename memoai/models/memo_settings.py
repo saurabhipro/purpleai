@@ -81,6 +81,12 @@ class MemoAIResConfigSettings(models.TransientModel):
         config_parameter='memo_ai.azure_deployment',
         help='The Azure AI model deployment name (e.g. gpt-4o, gpt-35-turbo).',
     )
+    memo_ai_azure_embedding_deployment = fields.Char(
+        string='Azure Embedding Deployment',
+        config_parameter='memo_ai.azure_embedding_deployment',
+        default='text-embedding-3-small',
+        help='Azure deployment name for embeddings (must be an embedding model deployment).',
+    )
     memo_ai_azure_api_version = fields.Selection(
         selection=[
             ('2024-12-01-preview', '2024-12-01-preview'),

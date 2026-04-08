@@ -16,6 +16,7 @@ def _get_ai_settings(env):
         'azure_key':        config.get_param('memo_ai.azure_api_key', ''),
         'azure_endpoint':   config.get_param('memo_ai.azure_endpoint', ''),
         'azure_deployment': config.get_param('memo_ai.azure_deployment', ''),
+        'azure_embedding_deployment': config.get_param('memo_ai.azure_embedding_deployment', 'text-embedding-3-small'),
         'azure_api_version':config.get_param('memo_ai.azure_api_version', '2024-12-01-preview'),
     }
 
@@ -272,8 +273,23 @@ def get_embedding(env, text):
             azure_endpoint=settings['azure_endpoint'],
             api_version=settings['azure_api_version']
         )
-        res = client.embeddings.create(input=text[:8000], model="text-embedding-3-small")
-        return res.data[0].embedding
+        emb_model = (settings.get('azure_embedding_deployment') or settings.get('azure_deployment') or '').strip()
+        if not emb_model:
+            raise ValueError(
+                "Azure embedding deployment is missing. "
+                "Set Memo AI -> Configuration -> Settings -> Embedding Deployment."
+            )
+        try:
+            res = client.embeddings.create(input=text[:8000], model=emb_model)
+            return res.data[0].embedding
+        except Exception as e:
+            msg = str(e)
+            if "DeploymentNotFound" in msg:
+                raise ValueError(
+                    f"Azure embedding deployment '{emb_model}' not found. "
+                    "Create it in Azure AI Studio and set the same name in Memo AI settings."
+                )
+            raise
     
     raise ValueError("Configured AI Provider does not support Embeddings.")
 
