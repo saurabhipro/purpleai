@@ -67,8 +67,11 @@ def call_openai(env, prompt, settings=None):
         try:
             response = client.chat.completions.create(**payload)
         except Exception as e:
-            # Backward compatibility with old models/endpoints
-            if "max_completion_tokens" in str(e):
+            err = str(e).lower()
+            if "temperature" in err and ("unsupported" in err or "does not support" in err):
+                payload.pop("temperature", None)
+                response = client.chat.completions.create(**payload)
+            elif "max_completion_tokens" in str(e):
                 payload.pop("max_completion_tokens", None)
                 payload["max_tokens"] = 4096
                 response = client.chat.completions.create(**payload)
@@ -181,7 +184,11 @@ def call_azure_openai(env, prompt, settings=None):
         try:
             response = client.chat.completions.create(**payload)
         except Exception as e:
-            if "max_completion_tokens" in str(e):
+            err = str(e).lower()
+            if "temperature" in err and ("unsupported" in err or "does not support" in err):
+                payload.pop("temperature", None)
+                response = client.chat.completions.create(**payload)
+            elif "max_completion_tokens" in str(e):
                 payload.pop("max_completion_tokens", None)
                 payload["max_tokens"] = 4096
                 response = client.chat.completions.create(**payload)
