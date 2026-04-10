@@ -7,8 +7,7 @@
             <field name="inherit_id" ref="base.res_config_settings_view_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form" position="inside">
-                    <app data-string="General Settings" string="General Settings" name="general_settings">
-                        <block title="AI Core Configuration" name="ai_core_settings_block">
+                    <block title="AI Core Configuration" name="ai_core_settings_block">
                             <setting title="Primary AI Provider" help="These shared AI Core settings are used by Purple Invoices and Memo AI.">
                                 <field name="provider" widget="radio" class="o_field_radio_vertical"/>
                             </setting>
@@ -42,8 +41,7 @@
                                 <field name="prompt_cost"/>
                                 <field name="completion_cost"/>
                             </setting>
-                        </block>
-                    </app>
+                    </block>
                 </xpath>
             </field>
         </record>
