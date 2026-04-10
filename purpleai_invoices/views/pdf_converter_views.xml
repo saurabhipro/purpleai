@@ -9,13 +9,6 @@
         <field name="target">new</field>
     </record>
 
-    <!-- Menu item — placed AFTER the action so the reference is always valid -->
-    <menuitem id="menu_pdf_converter"
-              name="PDF Converter"
-              parent="purpleai_invoices.menu_extraction_root"
-              action="action_pdf_converter_wizard"
-              sequence="30"/>
-
     <!-- Wizard Form View -->
     <record id="view_pdf_converter_form" model="ir.ui.view">
         <field name="name">purple_ai.pdf_converter.form</field>

@@ -36,9 +36,4 @@
               action="action_extraction_master"
               sequence="20"/>
 
-    <menuitem id="menu_tende_ai_settings"
-              name="Settings"
-              parent="purpleai_invoices.menu_tende_ai_config"
-              action="action_purpleai_config_settings"
-              sequence="100"/>
 </odoo>
