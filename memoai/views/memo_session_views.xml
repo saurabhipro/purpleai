@@ -116,7 +116,7 @@
                             <div class="d-flex align-items-center ms-auto">
                                 <div class="badge rounded-pill bg-white text-primary border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step1_last_run">
-                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <i class="fa fa-clock-o me-2 opacity-75" title="Last run time"/>
                                     <field name="step1_last_run" widget="datetime" readonly="1"/>
                                     <span class="mx-3 border-start border-primary opacity-25" style="height: 12px;"/>
                                     <i class="fa fa-refresh me-2 opacity-75"/>
@@ -152,7 +152,7 @@
                                             <div class="input-group overflow-hidden rounded-pill border">
                                                 <field name="step1_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
                                                 <button name="action_chat_step" type="object" context="{'step_num': 1}" class="btn btn-primary px-3 rounded-0 border-0 shadow-none">
-                                                    <i class="fa fa-paper-plane"/>
+                                                    <i class="fa fa-paper-plane" title="Send message"/>
                                                 </button>
                                             </div>
                                         </div>
@@ -285,7 +285,7 @@
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step3_sources">
-                            <i class="fa fa-balance-scale text-info me-2" style="font-size: 0.8rem;"/>
+                            <i class="fa fa-balance-scale text-info me-2" style="font-size: 0.8rem;" title="Regulation references"/>
                             <span class="text-muted small"><strong>Library Refs:</strong> <field name="step3_sources" readonly="1"/></span>
                         </div>
                     </div>
@@ -303,7 +303,7 @@
                             <div class="d-flex align-items-center ms-auto">
                                 <div class="badge rounded-pill bg-white text-success border-0 px-3 py-2 shadow-sm d-flex align-items-center me-3" 
                                      style="font-weight: 600; font-size: 0.75rem;" invisible="not step4_last_run">
-                                    <i class="fa fa-clock-o me-2 opacity-75"/>
+                                    <i class="fa fa-clock-o me-2 opacity-75" title="Last run time"/>
                                     <field name="step4_last_run" widget="datetime" readonly="1"/>
                                     <span class="mx-3 border-start border-success opacity-25" style="height: 12px;"/>
                                     <i class="fa fa-refresh me-2 opacity-75"/>
@@ -338,7 +338,7 @@
                                             <div class="input-group overflow-hidden rounded-pill border">
                                                 <field name="step4_chat_input" nolabel="1" placeholder="Type your message..." class="form-control border-0 shadow-none ps-3"/>
                                                 <button name="action_chat_step" type="object" context="{'step_num': 4}" class="btn btn-success px-3 rounded-0 border-0 shadow-none">
-                                                    <i class="fa fa-paper-plane"/>
+                                                    <i class="fa fa-paper-plane" title="Send message"/>
                                                 </button>
                                             </div>
                                         </div>
@@ -347,7 +347,7 @@
                             </div>
                         </div>
                         <div class="card-footer bg-light py-2 px-3 border-top d-flex align-items-center" invisible="not step4_sources">
-                            <i class="fa fa-diamond text-success me-2" style="font-size: 0.8rem;"/>
+                            <i class="fa fa-diamond text-success me-2" style="font-size: 0.8rem;" title="Analysis references"/>
                             <span class="text-muted small"><strong>Synthesized from:</strong> <field name="step4_sources" readonly="1"/></span>
                         </div>
                     </div>
