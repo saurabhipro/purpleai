@@ -34,11 +34,4 @@
               sequence="20"
               groups="memoai.group_memo_ai_sme"/>
 
-    <menuitem id="menu_memo_ai_settings"
-              name="Settings"
-              parent="menu_memo_ai_config"
-              action="action_memo_ai_settings"
-              sequence="99"
-              groups="memoai.group_memo_ai_admin"/>
-
 </odoo>

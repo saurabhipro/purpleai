@@ -14,7 +14,7 @@
     'category': 'Operations/AI',
     'author': 'Bhuarjan',
     'website': 'bhuarjan.com',
-    'depends': ['base', 'mail', 'web','ai_core'],
+    'depends': ['base', 'mail', 'web',  'ai_core'],
     'data': [
         'security/purple_ai_security.xml',
         'security/ir.model.access.csv',

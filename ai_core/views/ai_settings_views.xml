@@ -1,4 +1,51 @@
 <odoo>
     <data>
+        <record id="view_ai_core_settings_general" model="ir.ui.view">
+            <field name="name">res.config.settings.ai.core.general</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="120"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="General Settings" string="General Settings" name="general_settings">
+                        <block title="AI Core Configuration" name="ai_core_settings_block">
+                            <setting title="Primary AI Provider" help="These shared AI Core settings are used by Purple Invoices and Memo AI.">
+                                <field name="provider" widget="radio" class="o_field_radio_vertical"/>
+                            </setting>
+
+                            <setting title="OpenAI" help="Credentials and default model when provider is OpenAI." invisible="provider != 'openai'">
+                                <field name="openai_key" password="True" placeholder="sk-..."/>
+                                <field name="openai_model" placeholder="gpt-4o"/>
+                            </setting>
+
+                            <setting title="Google Gemini" help="Credentials and default model when provider is Google Gemini." invisible="provider != 'gemini'">
+                                <field name="gemini_key" password="True" placeholder="AIzaSy..."/>
+                                <field name="gemini_model" placeholder="gemini-2.5-flash"/>
+                            </setting>
+
+                            <setting title="Azure OpenAI" help="Credentials and deployment details when provider is Azure OpenAI." invisible="provider != 'azure'">
+                                <field name="azure_key" password="True"/>
+                                <field name="azure_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
+                                <field name="azure_deployment" placeholder="gpt-4o"/>
+                                <field name="azure_embedding_deployment" placeholder="text-embedding-3-small"/>
+                                <field name="azure_api_version" placeholder="2024-12-01-preview"/>
+                            </setting>
+
+                            <setting title="Embedding Strategy" help="Choose local or cloud embeddings for vector search.">
+                                <field name="use_local_embeddings"/>
+                                <field name="local_embedding_model" invisible="not use_local_embeddings" placeholder="sentence-transformers/all-MiniLM-L6-v2"/>
+                            </setting>
+
+                            <setting title="Generation and Costing Parameters" help="These values are shared for AI calls across apps.">
+                                <field name="temperature"/>
+                                <field name="max_tokens"/>
+                                <field name="prompt_cost"/>
+                                <field name="completion_cost"/>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
     </data>
 </odoo>

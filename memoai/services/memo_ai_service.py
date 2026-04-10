@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
+from odoo.addons.ai_core.services.ai_core_service import (
+    call_ai as _core_call_ai,
+    _get_ai_settings,
+)
 
 _logger = logging.getLogger(__name__)
 _LOCAL_EMBEDDER = None
@@ -13,7 +17,7 @@ _LOCAL_EMBED_MODEL = None
 
 def call_ai(env, prompt):
     """Delegate AI call to the centralized ai_core service."""
-    return _call_ai(env, prompt)
+    return _core_call_ai(env, prompt)
 
 
 

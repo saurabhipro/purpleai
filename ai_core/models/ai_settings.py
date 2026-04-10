@@ -11,15 +11,15 @@ class AISettings(models.TransientModel):
         ('openai', 'OpenAI'),
         ('gemini', 'Google Gemini'),
         ('azure', 'Azure OpenAI'),
-    ], string='AI Provider', default='openai', config_parameter='ai_core.ai_provider')
+    ], string='AI Core Provider', default='openai', config_parameter='ai_core.ai_provider')
 
-    openai_key = fields.Char(string='OpenAI API Key', config_parameter='ai_core.openai_api_key')
-    openai_model = fields.Char(string='OpenAI Model', default='gpt-4o', config_parameter='ai_core.openai_model')
+    openai_key = fields.Char(string='AI Core OpenAI API Key', config_parameter='ai_core.openai_api_key')
+    openai_model = fields.Char(string='AI Core OpenAI Model', default='gpt-4o', config_parameter='ai_core.openai_model')
 
-    gemini_key = fields.Char(string='Gemini API Key', config_parameter='ai_core.gemini_api_key')
-    gemini_model = fields.Char(string='Gemini Model', default='gemini-2.5-flash', config_parameter='ai_core.gemini_model')
+    gemini_key = fields.Char(string='AI Core Gemini API Key', config_parameter='ai_core.gemini_api_key')
+    gemini_model = fields.Char(string='AI Core Gemini Model', default='gemini-2.5-flash', config_parameter='ai_core.gemini_model')
 
-    azure_key = fields.Char(string='Azure API Key', config_parameter='ai_core.azure_api_key')
+    azure_key = fields.Char(string='AI Core Azure API Key', config_parameter='ai_core.azure_api_key')
     azure_endpoint = fields.Char(string='Azure Endpoint', config_parameter='ai_core.azure_endpoint')
     azure_deployment = fields.Char(string='Azure Deployment', config_parameter='ai_core.azure_deployment')
     azure_embedding_deployment = fields.Char(
