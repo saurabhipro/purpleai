@@ -14,10 +14,16 @@ class MemoRagDocument(models.Model):
     """
     _name = 'memo_ai.rag_document'
     _description = 'Memo AI RAG Document'
-    _order = 'subject_id, rag_type, name'
+    _order = 'rag_type, name'
 
     name = fields.Char(string='Document Name', required=True)
-    subject_id = fields.Many2one('memo_ai.subject', string='Subject', required=True, ondelete='cascade')
+    subject_id = fields.Many2one(
+        'memo_ai.subject',
+        string='Legacy Subject',
+        required=False,
+        ondelete='set null',
+        help='Legacy ownership field. Use Subject form links to attach this RAG doc to one or more subjects.',
+    )
     rag_type = fields.Selection([
         ('issue_list', 'Issue List'),
         ('guideline', 'Guideline'),
@@ -232,7 +238,7 @@ class MemoRagDocument(models.Model):
         return "\n\n---\n\n".join(top_chunks)
 
     @api.model
-    def search_vector_similarity(self, query, limit=5, subject_type=None):
+    def search_vector_similarity(self, query, limit=5, subject_type=None, subject_id=None):
         """
         Native high-performance vector search using pgvector cosine similarity (<=>).
         Returns a list of dicts with {content, document_name}.
@@ -246,17 +252,34 @@ class MemoRagDocument(models.Model):
             query_vector = get_embedding(self.env, query)
             vector_str = "[" + ",".join(map(str, query_vector)) + "]"
             
-            # 2. Native SQL search across all chunks linked to this subject_type
-            # We join with rag_document to filter by type and get document name
-            sql = """
-                SELECT c.content, d.name
-                FROM memo_ai_rag_chunk c
-                JOIN memo_ai_rag_document d ON c.document_id = d.id
-                WHERE d.rag_type = %s
-                ORDER BY c.embedding <=> %s::vector
-                LIMIT %s
-            """
-            self.env.cr.execute(sql, (subject_type, vector_str, limit))
+            # If subject is provided, search only in docs linked to that subject.
+            if subject_id:
+                subject = self.env['memo_ai.subject'].browse(subject_id)
+                linked_ids = subject.get_rag_document_ids(subject_type)
+                if not linked_ids:
+                    return []
+                sql = """
+                    SELECT c.content, d.name
+                    FROM memo_ai_rag_chunk c
+                    JOIN memo_ai_rag_document d ON c.document_id = d.id
+                    WHERE c.document_id = ANY(%s)
+                    ORDER BY c.embedding <=> %s::vector
+                    LIMIT %s
+                """
+                params = [linked_ids, vector_str, limit]
+            else:
+                # Fallback to pure document type if no subject context
+                sql = """
+                    SELECT c.content, d.name
+                    FROM memo_ai_rag_chunk c
+                    JOIN memo_ai_rag_document d ON c.document_id = d.id
+                    WHERE d.rag_type = %s
+                    ORDER BY c.embedding <=> %s::vector
+                    LIMIT %s
+                """
+                params = [subject_type, vector_str, limit]
+
+            self.env.cr.execute(sql, tuple(params))
             
             results = []
             for row in self.env.cr.fetchall():

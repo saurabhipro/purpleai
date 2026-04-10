@@ -87,6 +87,18 @@ class MemoAIResConfigSettings(models.TransientModel):
         default='text-embedding-3-small',
         help='Azure deployment name for embeddings (must be an embedding model deployment).',
     )
+    memo_ai_use_local_embeddings = fields.Boolean(
+        string='Use Local Embeddings',
+        config_parameter='memo_ai.use_local_embeddings',
+        default=False,
+        help='If enabled, RAG embeddings are generated locally (SentenceTransformers) instead of cloud embedding APIs.',
+    )
+    memo_ai_local_embedding_model = fields.Char(
+        string='Local Embedding Model',
+        config_parameter='memo_ai.local_embedding_model',
+        default='sentence-transformers/all-MiniLM-L6-v2',
+        help='HuggingFace model id for local embeddings.',
+    )
     memo_ai_azure_api_version = fields.Selection(
         selection=[
             ('2024-12-01-preview', '2024-12-01-preview'),
@@ -99,6 +111,34 @@ class MemoAIResConfigSettings(models.TransientModel):
         config_parameter='memo_ai.azure_api_version',
         default='2024-12-01-preview',
     )
+
+    # ── Advanced Config (Constants) ────────────────────────────────────────────
+    memo_ai_temperature = fields.Float(
+        string='Temperature',
+        config_parameter='memo_ai.temperature',
+        default=0.3,
+        help="AI sampling temperature (e.g., 0.3 for focused extraction).",
+    )
+    memo_ai_max_tokens = fields.Integer(
+        string='Max Context / Completion Tokens',
+        config_parameter='memo_ai.max_tokens',
+        default=4096,
+    )
+    memo_ai_prompt_cost = fields.Float(
+        string='Prompt Cost per 1M (INR)',
+        config_parameter='memo_ai.prompt_cost',
+        digits=(10, 4),
+        default=12.5,
+        help="Used to compute execution cost. Default is approx 12.5 INR (GPT-4o-Mini).",
+    )
+    memo_ai_completion_cost = fields.Float(
+        string='Completion Cost per 1M (INR)',
+        config_parameter='memo_ai.completion_cost',
+        digits=(10, 4),
+        default=50.0,
+        help="Used to compute execution cost. Default is approx 50.0 INR (GPT-4o-Mini).",
+    )
+
 
     # ── Test Connection Actions ─────────────────────────────────────────────────
     def action_test_memo_openai(self):

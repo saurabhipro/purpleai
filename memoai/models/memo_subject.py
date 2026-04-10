@@ -45,21 +45,27 @@ class MemoSubject(models.Model):
              "Use {summary}, {issues}, {regulatory}, {rag_context} as placeholders."
     )
 
-    # ── RAG Document Links ──────────────────────────────────────────────────────
-    issue_rag_ids = fields.One2many(
-        'memo_ai.rag_document', 'subject_id',
-        domain=[('rag_type', '=', 'issue_list')],
-        string='Issue List RAG Documents'
+    # ── RAG Document Links (Shared Library) ────────────────────────────────────
+    issue_rag_ids = fields.Many2many(
+        'memo_ai.rag_document',
+        'memo_ai_subject_issue_rag_rel',
+        'subject_id', 'document_id',
+        string='Issue List RAG Documents',
+        help='Link existing Issue List documents from the shared RAG library.',
     )
-    guideline_rag_ids = fields.One2many(
-        'memo_ai.rag_document', 'subject_id',
-        domain=[('rag_type', '=', 'guideline')],
-        string='Guideline RAG Documents'
+    guideline_rag_ids = fields.Many2many(
+        'memo_ai.rag_document',
+        'memo_ai_subject_guideline_rag_rel',
+        'subject_id', 'document_id',
+        string='Guideline RAG Documents',
+        help='Link existing Guideline documents from the shared RAG library.',
     )
-    analysis_rag_ids = fields.One2many(
-        'memo_ai.rag_document', 'subject_id',
-        domain=[('rag_type', '=', 'analysis')],
-        string='Analysis RAG Documents'
+    analysis_rag_ids = fields.Many2many(
+        'memo_ai.rag_document',
+        'memo_ai_subject_analysis_rag_rel',
+        'subject_id', 'document_id',
+        string='Analysis RAG Documents',
+        help='Link existing Analysis documents from the shared RAG library.',
     )
 
     # ── Stats ───────────────────────────────────────────────────────────────────
@@ -78,3 +84,28 @@ class MemoSubject(models.Model):
             'domain': [('subject_id', '=', self.id)],
             'context': {'default_subject_id': self.id},
         }
+
+    def get_rag_document_ids(self, rag_type):
+        """Return linked RAG library document ids for this subject and type.
+
+        Backward-compatible: includes legacy docs where memo_ai.rag_document.subject_id
+        is still set to this subject.
+        """
+        self.ensure_one()
+        type_map = {
+            'issue_list': 'issue_rag_ids',
+            'guideline': 'guideline_rag_ids',
+            'analysis': 'analysis_rag_ids',
+        }
+        field_name = type_map.get(rag_type)
+        ids = set()
+        if field_name:
+            ids.update(getattr(self, field_name).ids)
+
+        # Legacy compatibility for older data model
+        legacy_docs = self.env['memo_ai.rag_document'].search([
+            ('subject_id', '=', self.id),
+            ('rag_type', '=', rag_type),
+        ])
+        ids.update(legacy_docs.ids)
+        return list(ids)

@@ -97,91 +97,31 @@
                         <!-- Tab 2: Issue List RAG -->
                         <page string="Issue List RAG" name="issue_rag">
                             <div class="alert alert-info mb-3" role="alert">
-                                <strong>SME:</strong> Upload PDFs containing known issues/checklists for this subject.
-                                These are used in Step 2 to identify applicable issues.
+                                <strong>SME:</strong> Link existing Issue List documents from the RAG Library for this subject.
+                                You can also create a new library document from this picker.
                             </div>
-                            <field name="issue_rag_ids" nolabel="1" context="{'default_rag_type': 'issue_list', 'default_subject_id': id}">
-                                <list editable="bottom">
-                                    <field name="rag_type" column_invisible="True"/>
-                                    <field name="name"/>
-                                    <field name="upload_file" filename="file_name" widget="binary"/>
-                                    <field name="file_name" column_invisible="True"/>
-                                    <field name="chunk_count" string="Vectors"/>
-                                    <field name="process_time" widget="float_time"/>
-                                    <field name="process_cost"/>
-                                    <field name="processed_date" widget="date"/>
-                                    <field name="state" widget="badge"
-                                           decoration-success="state == 'processed'"
-                                           decoration-danger="state == 'error'"
-                                           decoration-muted="state == 'draft'"/>
-                                    <button name="action_view_pdf" type="object"
-                                            string="Preview" icon="fa-eye"
-                                            invisible="not upload_file"/>
-                                    <button name="action_extract_text" type="object"
-                                            string="Retry" icon="fa-refresh"
-                                            invisible="state == 'processed'"/>
-                                </list>
-                            </field>
+                            <field name="issue_rag_ids" nolabel="1"
+                                   context="{'default_rag_type': 'issue_list'}"/>
                         </page>
 
                         <!-- Tab 3: Guideline RAG -->
                         <page string="Guideline RAG" name="guideline_rag">
                             <div class="alert alert-info mb-3" role="alert">
-                                <strong>SME:</strong> Upload regulatory guideline documents.
-                                These are searched in Step 3 to find applicable regulations.
+                                <strong>SME:</strong> Link existing Guideline documents from the RAG Library.
+                                These are searched in Step 3.
                             </div>
-                            <field name="guideline_rag_ids" nolabel="1" context="{'default_rag_type': 'guideline', 'default_subject_id': id}">
-                                <list editable="bottom">
-                                    <field name="rag_type" column_invisible="True"/>
-                                    <field name="name"/>
-                                    <field name="upload_file" filename="file_name" widget="binary"/>
-                                    <field name="file_name" column_invisible="True"/>
-                                    <field name="chunk_count" string="Vectors"/>
-                                    <field name="process_time" widget="float_time"/>
-                                    <field name="process_cost"/>
-                                    <field name="processed_date" widget="date"/>
-                                    <field name="state" widget="badge"
-                                           decoration-success="state == 'processed'"
-                                           decoration-danger="state == 'error'"
-                                           decoration-muted="state == 'draft'"/>
-                                    <button name="action_view_pdf" type="object"
-                                            string="Preview" icon="fa-eye"
-                                            invisible="not upload_file"/>
-                                    <button name="action_extract_text" type="object"
-                                            string="Retry" icon="fa-refresh"
-                                            invisible="state == 'processed'"/>
-                                </list>
-                            </field>
+                            <field name="guideline_rag_ids" nolabel="1"
+                                   context="{'default_rag_type': 'guideline'}"/>
                         </page>
 
                         <!-- Tab 4: Analysis RAG -->
                         <page string="Analysis RAG" name="analysis_rag">
                             <div class="alert alert-info mb-3" role="alert">
-                                <strong>SME:</strong> Upload reference analysis documents, precedents, or past memos.
-                                These are used in Step 4 to improve analysis quality.
+                                <strong>SME:</strong> Link existing Analysis/precedent documents from the RAG Library.
+                                These are used in Step 4.
                             </div>
-                            <field name="analysis_rag_ids" nolabel="1" context="{'default_rag_type': 'analysis', 'default_subject_id': id}">
-                                <list editable="bottom">
-                                    <field name="rag_type" column_invisible="True"/>
-                                    <field name="name"/>
-                                    <field name="upload_file" filename="file_name" widget="binary"/>
-                                    <field name="file_name" column_invisible="True"/>
-                                    <field name="chunk_count" string="Vectors"/>
-                                    <field name="process_time" widget="float_time"/>
-                                    <field name="process_cost"/>
-                                    <field name="processed_date" widget="date"/>
-                                    <field name="state" widget="badge"
-                                           decoration-success="state == 'processed'"
-                                           decoration-danger="state == 'error'"
-                                           decoration-muted="state == 'draft'"/>
-                                    <button name="action_view_pdf" type="object"
-                                            string="Preview" icon="fa-eye"
-                                            invisible="not upload_file"/>
-                                    <button name="action_extract_text" type="object"
-                                            string="Retry" icon="fa-refresh"
-                                            invisible="state == 'processed'"/>
-                                </list>
-                            </field>
+                            <field name="analysis_rag_ids" nolabel="1"
+                                   context="{'default_rag_type': 'analysis'}"/>
                         </page>
                     </notebook>
                 </sheet>

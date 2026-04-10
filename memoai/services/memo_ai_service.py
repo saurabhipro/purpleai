@@ -2,6 +2,8 @@
 import logging
 
 _logger = logging.getLogger(__name__)
+_LOCAL_EMBEDDER = None
+_LOCAL_EMBED_MODEL = None
 
 
 def _get_ai_settings(env):
@@ -18,6 +20,12 @@ def _get_ai_settings(env):
         'azure_deployment': config.get_param('memo_ai.azure_deployment', ''),
         'azure_embedding_deployment': config.get_param('memo_ai.azure_embedding_deployment', 'text-embedding-3-small'),
         'azure_api_version':config.get_param('memo_ai.azure_api_version', '2024-12-01-preview'),
+        'use_local_embeddings': (config.get_param('memo_ai.use_local_embeddings', 'False') == 'True'),
+        'local_embedding_model': config.get_param('memo_ai.local_embedding_model', 'sentence-transformers/all-MiniLM-L6-v2'),
+        'temperature':      float(config.get_param('memo_ai.temperature', 0.3)),
+        'max_tokens':       int(config.get_param('memo_ai.max_tokens', 4096)),
+        'prompt_cost':      float(config.get_param('memo_ai.prompt_cost', 12.5)),
+        'completion_cost':  float(config.get_param('memo_ai.completion_cost', 50.0)),
     }
 
 
@@ -62,8 +70,8 @@ def call_openai(env, prompt, settings=None):
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
                 {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
-            "temperature": 0.3,
-            "max_completion_tokens": 4096,
+            "temperature": settings['temperature'],
+            "max_completion_tokens": settings['max_tokens'],
         }
         try:
             response = client.chat.completions.create(**payload)
@@ -74,7 +82,7 @@ def call_openai(env, prompt, settings=None):
                 response = client.chat.completions.create(**payload)
             elif "max_completion_tokens" in str(e):
                 payload.pop("max_completion_tokens", None)
-                payload["max_tokens"] = 4096
+                payload["max_tokens"] = settings['max_tokens']
                 response = client.chat.completions.create(**payload)
             else:
                 raise
@@ -83,13 +91,8 @@ def call_openai(env, prompt, settings=None):
         pt = usage.prompt_tokens if usage else 0
         ct = usage.completion_tokens if usage else 0
         
-        # Simple cost approximation
-        cost = 0.0
-        model = settings['openai_model'].lower()
-        if 'mini' in model:
-            cost = (pt * 0.15 + ct * 0.60) / 1000000.0
-        else:
-            cost = (pt * 2.50 + ct * 10.00) / 1000000.0
+        # Calculate cost dynamically from settings
+        cost = (pt * settings['prompt_cost'] + ct * settings['completion_cost']) / 1000000.0
             
         return {
             'text': text,
@@ -122,7 +125,7 @@ def call_gemini(env, prompt, settings=None):
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key}"
         data = {
             "contents": [{"parts": [{"text": _enforce_html_prompt(prompt)}]}],
-            "generationConfig": {"temperature": 0.3}
+            "generationConfig": {"temperature": settings['temperature']}
         }
         response = requests.post(url, headers={'Content-Type': 'application/json'}, json=data, timeout=60)
         
@@ -134,12 +137,8 @@ def call_gemini(env, prompt, settings=None):
             pt = usage.get('promptTokenCount', 0)
             ct = usage.get('candidatesTokenCount', 0)
             
-            # Simple cost approximation
-            cost = 0.0
-            if 'pro' in clean_model.lower():
-                cost = (pt * 1.25 + ct * 5.00) / 1000000.0
-            else:
-                cost = (pt * 0.075 + ct * 0.30) / 1000000.0
+            # Calculate cost dynamically from settings
+            cost = (pt * settings['prompt_cost'] + ct * settings['completion_cost']) / 1000000.0
                 
             return {
                 'text': text,
@@ -179,8 +178,8 @@ def call_azure_openai(env, prompt, settings=None):
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
                 {"role": "user", "content": _enforce_html_prompt(prompt)},
             ],
-            "temperature": 0.3,
-            "max_completion_tokens": 4096,
+            "temperature": settings['temperature'],
+            "max_completion_tokens": settings['max_tokens'],
         }
         try:
             response = client.chat.completions.create(**payload)
@@ -191,7 +190,7 @@ def call_azure_openai(env, prompt, settings=None):
                 response = client.chat.completions.create(**payload)
             elif "max_completion_tokens" in str(e):
                 payload.pop("max_completion_tokens", None)
-                payload["max_tokens"] = 4096
+                payload["max_tokens"] = settings['max_tokens']
                 response = client.chat.completions.create(**payload)
             else:
                 raise
@@ -200,7 +199,8 @@ def call_azure_openai(env, prompt, settings=None):
         pt = usage.prompt_tokens if usage else 0
         ct = usage.completion_tokens if usage else 0
         
-        cost = (pt * 2.50 + ct * 10.00) / 1000000.0
+        # Calculate cost dynamically from settings
+        cost = (pt * settings['prompt_cost'] + ct * settings['completion_cost']) / 1000000.0
         return {
             'text': text,
             'prompt_tokens': pt,
@@ -231,6 +231,22 @@ def get_embedding(env, text):
     
     # Trim to safe limit (approx 9k chars)
     payload = clean_text[:9000]
+
+    if settings.get('use_local_embeddings'):
+        global _LOCAL_EMBEDDER, _LOCAL_EMBED_MODEL
+        local_model = (settings.get('local_embedding_model') or 'sentence-transformers/all-MiniLM-L6-v2').strip()
+        try:
+            from sentence_transformers import SentenceTransformer
+            if _LOCAL_EMBEDDER is None or _LOCAL_EMBED_MODEL != local_model:
+                _LOCAL_EMBEDDER = SentenceTransformer(local_model)
+                _LOCAL_EMBED_MODEL = local_model
+            vec = _LOCAL_EMBEDDER.encode(payload, normalize_embeddings=True)
+            return vec.tolist() if hasattr(vec, 'tolist') else list(vec)
+        except Exception as e:
+            raise ValueError(
+                "Local embedding failed. Install dependencies and verify model name. "
+                f"Details: {str(e)}"
+            )
 
     if provider == 'gemini':
         from google import genai

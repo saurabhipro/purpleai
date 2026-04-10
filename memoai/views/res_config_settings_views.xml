@@ -88,6 +88,32 @@
                         </setting>
                     </block>
 
+                    <block title="Embedding Strategy" name="memo_embedding_block">
+                        <setting title="Use Local Embeddings" help="Generate RAG embeddings locally instead of cloud embedding APIs">
+                            <field name="memo_ai_use_local_embeddings"/>
+                        </setting>
+                        <setting title="Local Embedding Model" help="HuggingFace model used when local embeddings are enabled"
+                                 invisible="not memo_ai_use_local_embeddings">
+                            <field name="memo_ai_local_embedding_model" placeholder="sentence-transformers/all-MiniLM-L6-v2"/>
+                        </setting>
+                    </block>
+
+                    <!-- Advanced AI Constants -->
+                    <block title="Advanced AI Constants" name="memo_advanced_block">
+                        <setting title="Temperature" help="AI sampling temperature (e.g., 0.3 for focused extraction).">
+                            <field name="memo_ai_temperature"/>
+                        </setting>
+                        <setting title="Max Tokens" help="Max completion tokens to allow per request.">
+                            <field name="memo_ai_max_tokens"/>
+                        </setting>
+                        <setting title="Prompt Cost per 1M (INR)" help="Cost rate in INR per 1 Million prompt tokens. Used for calculation metrics.">
+                            <field name="memo_ai_prompt_cost"/>
+                        </setting>
+                        <setting title="Completion Cost per 1M (INR)" help="Cost rate in INR per 1 Million completion tokens. Used for calculation metrics.">
+                            <field name="memo_ai_completion_cost"/>
+                        </setting>
+                    </block>
+
                 </app>
             </xpath>
         </field>

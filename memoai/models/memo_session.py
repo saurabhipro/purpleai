@@ -265,7 +265,8 @@ class MemoSession(models.Model):
         rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
             user_message, 
             limit=3, 
-            subject_type=rag_type_map.get(step_num, 'analysis')
+            subject_type=rag_type_map.get(step_num, 'analysis'),
+            subject_id=self.subject_id.id,
         )
         rag_text = "\n\n".join([m['content'] for m in rag_matches])
         
@@ -330,7 +331,8 @@ class MemoSession(models.Model):
             rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
                 prompt_context, 
                 limit=8, 
-                subject_type='issue_list'
+                subject_type='issue_list',
+                subject_id=self.subject_id.id,
             )
             rag_text = "\n\n".join([m['content'] for m in rag_matches])
             source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
@@ -383,7 +385,8 @@ class MemoSession(models.Model):
             rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
                 query, 
                 limit=8, 
-                subject_type='guideline'
+                subject_type='guideline',
+                subject_id=self.subject_id.id,
             )
             rag_text = "\n\n".join([m['content'] for m in rag_matches])
             source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
@@ -436,7 +439,8 @@ class MemoSession(models.Model):
             rag_matches = self.env['memo_ai.rag_document'].search_vector_similarity(
                 query, 
                 limit=8, 
-                subject_type='analysis'
+                subject_type='analysis',
+                subject_id=self.subject_id.id,
             )
             rag_text = "\n\n".join([m['content'] for m in rag_matches])
             source_names = ", ".join(list(set([m['document_name'] for m in rag_matches if m.get('document_name')])))
