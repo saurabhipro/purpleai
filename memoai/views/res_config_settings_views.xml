@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Remove legacy Memo settings screen; Memo now uses AI Core settings only. -->
-    <delete id="view_memo_ai_res_config_settings" model="ir.ui.view"/>
-    <delete id="action_memo_ai_settings" model="ir.actions.act_window"/>
+    <!-- Memo AI settings screen intentionally removed; AI Core is the single source of configuration. -->
 </odoo>
