@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="purpleai_invoices.FolderExplorer">
+        <div class="h-100 d-flex flex-column bg-light o_purple_ai_explorer overflow-hidden">
+                <!-- Toolbar -->
+                <div class="p-3 border-bottom bg-white d-flex align-items-center justify-content-between">
+                    <div class="o_explorer_breadcrumbs d-flex align-items-center">
+                        <t t-foreach="state.breadcrumbs" t-as="crumb" t-key="crumb_index">
+                            <span t-if="crumb_index > 0" class="mx-2 text-muted text-sm">/</span>
+                            <button class="btn btn-link p-0 text-decoration-none fw-bold" 
+                                    t-on-click="() => this.onBreadcrumbClick(crumb.path)"
+                                    t-esc="crumb.name"/>
+                        </t>
+                    </div>
+                    <div class="flex-grow-1 mx-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fa fa-folder-open text-primary"/>
+                            </span>
+                            <input type="text" class="form-control border-start-0" 
+                                   t-att-value="state.currentPath" readonly="1"
+                                   placeholder="Root/"/>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <button class="btn btn-primary" t-on-click="() => this.loadFolder(this.state.currentPath)">
+                            <i class="fa fa-refresh me-1"/> Refresh
+                        </button>
+                        <button t-if="state.selectedPaths.size > 0" class="btn btn-danger" t-on-click="onDeleteSelected">
+                            <i class="fa fa-trash me-1"/> Delete Selected (<t t-esc="state.selectedPaths.size"/>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-grow-1 d-flex overflow-hidden content-area position-relative" 
+                     t-on-dragover.prevent="e => state.isDragging = true"
+                     t-on-dragleave.prevent="e => state.isDragging = false"
+                     t-on-drop.prevent="onFileDrop">
+                    
+                    <!-- Drop Overlay -->
+                    <div t-if="state.isDragging" class="drop-overlay d-flex align-items-center justify-content-center">
+                        <div class="text-center p-5 rounded-4 border border-primary border-4 bg-white shadow-lg">
+                            <i class="fa fa-cloud-upload fa-5x text-primary mb-3"/>
+                            <h2 class="text-primary fw-bold">Drop your files here</h2>
+                            <p class="text-muted">Files will be uploaded to <br/><b t-esc="state.currentPath || 'Root'"/></p>
+                        </div>
+                    </div>
+
+                    <!-- Left: File List -->
+                    <div class="flex-grow-1 overflow-auto p-4 list-section" t-att-class="state.selectedFile ? 'w-50 border-end shadow-sm' : 'w-100'">
+                        <div t-if="state.isLoading" class="d-flex align-items-center justify-content-center h-100">
+                            <div class="text-center">
+                                <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"/>
+                                <div class="text-muted">Accessing files...</div>
+                            </div>
+                        </div>
+
+                        <div t-elif="state.error" class="alert alert-danger mx-auto" style="max-width: 600px;">
+                            <h4 class="alert-heading"><i class="fa fa-warning me-2"/> Error</h4>
+                            <p t-esc="state.error"/>
+                            <hr/>
+                            <button class="btn btn-outline-danger btn-sm" t-on-click="() => this.loadFolder('')">
+                                Back to Home
+                            </button>
+                        </div>
+
+                        <div t-else="" class="card shadow-sm border-0 rounded-3">
+                            <table class="table table-hover align-middle mb-0 explorer-table">
+                                <thead class="bg-light sticky-top" style="z-index: 10;">
+                                    <tr>
+                                        <th class="ps-3" style="width: 40px;">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       t-att-checked="state.selectedPaths.size === state.contents.length &amp;&amp; state.contents.length > 0"
+                                                       t-on-change="toggleSelectAll"/>
+                                            </div>
+                                        </th>
+                                        <th class="ps-1">NAME</th>
+                                        <th>SIZE</th>
+                                        <th class="text-end pe-3">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-if="!state.contents.length">
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="fa fa-folder-open-o fa-4x mb-3"/><br/>
+                                            This directory is empty.<br/>
+                                            <b>Drag and drop files here to upload.</b>
+                                        </td>
+                                    </tr>
+
+                                    <tr t-foreach="state.contents" t-as="item" t-key="item.path" 
+                                        class="cursor-pointer exploration-item"
+                                        t-att-class="state.selectedFile &amp;&amp; state.selectedFile.path === item.path ? 'bg-primary-soft-active' : ''"
+                                        t-on-click="() => this.onItemClick(item)">
+                                        <td class="ps-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       t-att-checked="state.selectedPaths.has(item.path)"
+                                                       t-on-click.stop=""
+                                                       t-on-change="(ev) => this.toggleSelectItem(item, ev)"/>
+                                            </div>
+                                        </td>
+                                        <td class="ps-1">
+                                            <div class="d-flex align-items-center">
+                                                <div class="item-icon rounded d-flex align-items-center justify-content-center me-3 shadow-sm border"
+                                                     t-att-class="item.is_dir ? 'bg-primary-soft text-primary border-primary-soft' : 'bg-white text-secondary border-muted'">
+                                                    <i t-if="item.is_dir" class="fa fa-folder fs-5"/>
+                                                    <t t-else="">
+                                                      <i t-if="item.name.toLowerCase().endsWith('.pdf')" class="fa fa-file-pdf-o text-danger fs-5"/>
+                                                      <i t-elif="isImage(item)" class="fa fa-file-image-o text-info fs-5"/>
+                                                      <i t-else="" class="fa fa-file-text-o fs-5"/>
+                                                    </t>
+                                                </div>
+                                                <span class="fw-medium item-name text-truncate" style="max-width: 300px;" t-esc="item.name" t-att-title="item.name"/>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span t-if="!item.is_dir" class="text-muted text-sm" t-esc="formatSize(item.size)"/>
+                                            <span t-else="" class="text-muted text-sm">-</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-light border" title="Download" t-on-click.stop="() => this.onDownload(item)">
+                                                    <i class="fa fa-download text-success"/>
+                                                </button>
+                                                <button class="btn btn-light border text-danger" title="Delete" t-on-click.stop="() => this.onDelete(item)">
+                                                    <i class="fa fa-trash-o"/>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Preview Section -->
+                    <div t-if="state.selectedFile" class="flex-grow-1 bg-dark-soft preview-section shadow-lg border-start d-flex flex-column" style="width: 50%;">
+                        <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center overflow-hidden me-2">
+                                <i t-if="state.selectedFile.name.toLowerCase().endsWith('.pdf')" class="fa fa-file-pdf-o text-danger me-2 fs-5"/>
+                                <i t-elif="isImage(state.selectedFile)" class="fa fa-file-image-o text-info me-2 fs-5"/>
+                                <i t-else="" class="fa fa-file-text-o text-muted me-2 fs-5"/>
+                                <b class="text-truncate" t-esc="state.selectedFile.name"/>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle me-1" title="Delete File" t-on-click="() => this.onDelete(state.selectedFile)">
+                                    <i class="fa fa-trash-o"/>
+                                </button>
+                                <button class="btn btn-sm btn-light border-0 rounded-circle" t-on-click="() => state.selectedFile = null">
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 bg-secondary d-flex align-items-center justify-content-center overflow-auto position-relative">
+                            <iframe t-if="state.selectedFile.name.toLowerCase().endsWith('.pdf')"
+                                    t-att-src="getPreviewSrc(state.selectedFile)"
+                                    class="w-100 h-100 border-0 shadow-inner"/>
+                            
+                            <img t-elif="isImage(state.selectedFile)"
+                                 t-att-src="getPreviewSrc(state.selectedFile)"
+                                 class="mw-100 mh-100 shadow-lg border"
+                                 style="object-fit: contain; cursor: zoom-in;"/>
+                            
+                            <div t-else="" class="text-center text-white p-5 animate__animated animate__fadeIn">
+                                <i class="fa fa-file-text-o fa-5x mb-3 opacity-50"/>
+                                <h5>Preview not available for this file type</h5>
+                                <p class="text-light opacity-75">Only images and PDFs can be previewed in the side panel.</p>
+                                <button class="btn btn-light mt-3 shadow-sm border-0" t-on-click="() => this.onDownload(state.selectedFile)">
+                                    <i class="fa fa-download me-2"/> Download to View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </t>
+</templates>

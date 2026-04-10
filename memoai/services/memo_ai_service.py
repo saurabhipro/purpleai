@@ -6,43 +6,15 @@ _LOCAL_EMBEDDER = None
 _LOCAL_EMBED_MODEL = None
 
 
-def _get_ai_settings(env):
-    """Read AI provider settings from memo_ai's own config parameters."""
-    config = env['ir.config_parameter'].sudo()
-    return {
-        'provider':         config.get_param('memo_ai.ai_provider', 'openai'),
-        'openai_key':       config.get_param('memo_ai.openai_api_key', ''),
-        'openai_model':     config.get_param('memo_ai.openai_model', 'gpt-4o'),
-        'gemini_key':       config.get_param('memo_ai.gemini_api_key', ''),
-        'gemini_model':     config.get_param('memo_ai.gemini_model', 'gemini-2.5-flash'),
-        'azure_key':        config.get_param('memo_ai.azure_api_key', ''),
-        'azure_endpoint':   config.get_param('memo_ai.azure_endpoint', ''),
-        'azure_deployment': config.get_param('memo_ai.azure_deployment', ''),
-        'azure_embedding_deployment': config.get_param('memo_ai.azure_embedding_deployment', 'text-embedding-3-small'),
-        'azure_api_version':config.get_param('memo_ai.azure_api_version', '2024-12-01-preview'),
-        'use_local_embeddings': (config.get_param('memo_ai.use_local_embeddings', 'False') == 'True'),
-        'local_embedding_model': config.get_param('memo_ai.local_embedding_model', 'sentence-transformers/all-MiniLM-L6-v2'),
-        'temperature':      float(config.get_param('memo_ai.temperature', 0.3)),
-        'max_tokens':       int(config.get_param('memo_ai.max_tokens', 4096)),
-        'prompt_cost':      float(config.get_param('memo_ai.prompt_cost', 12.5)),
-        'completion_cost':  float(config.get_param('memo_ai.completion_cost', 50.0)),
-    }
+# Import centralized AI utilities from ai_core
+# Circular import removed – memo_ai_service provides its own implementations
+
 
 
 def call_ai(env, prompt):
-    """
-    Dispatch to the configured AI provider.
-    Reads from memo_ai.* ir.config_parameter keys — completely independent of purpleai.
-    """
-    settings = _get_ai_settings(env)
-    provider = settings['provider']
+    """Delegate AI call to the centralized ai_core service."""
+    return _call_ai(env, prompt)
 
-    if provider == 'gemini':
-        return call_gemini(env, prompt, settings)
-    elif provider == 'azure':
-        return call_azure_openai(env, prompt, settings)
-    else:
-        return call_openai(env, prompt, settings)
 
 
 # ───────────────────────────────────────────────────────────────────────────

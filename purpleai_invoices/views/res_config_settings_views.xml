@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_purpleai_config_settings" model="ir.actions.act_window">
+        <field name="name">Purple Invoices Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'purpleai_invoices'}</field>
+    </record>
+
+    <record id="view_purpleai_config_settings_form" model="ir.ui.view">
+        <field name="name">res.config.settings.purpleai.invoices.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="99"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Purple Invoices" string="Purple Invoices" name="purpleai_invoices">
+                    <!-- Folder & File Explorer Settings -->
+                    <block title="Folder &amp; File Explorer" name="folder_config">
+                        <setting title="Root Access" help="Specify the starting path for the file explorer">
+                            <div class="content-group">
+                                <label for="purple_ai_root_path"/>
+                                <field name="purple_ai_root_path"/>
+                                <div class="text-muted">This folder will be the 'Home' for the DMS explorer.</div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- Pricing & Token Settings -->
+                    <block title="Pricing &amp; Tokens" name="pricing_config">
+                        <setting title="Input Cost" help="Cost per 1M input tokens (INR)">
+                            <field name="tender_ai_input_cost"/>
+                        </setting>
+                        <setting title="Output Cost" help="Cost per 1M output tokens (INR)">
+                            <field name="tender_ai_output_cost"/>
+                        </setting>
+                    </block>
+
+                    <!-- Tally ERP / Prime Integration -->
+                    <block title="Tally ERP / Prime Integration" name="tally_config">
+                        <setting title="Tally Connectivity" help="Configure connection to Tally ERP/Prime">
+                            <div class="content-group">
+                                <group>
+                                    <field name="tally_url" placeholder="e.g. 192.168.1.10 or localhost"/>
+                                    <field name="tally_port" placeholder="9000"/>
+                                    <field name="tally_company" placeholder="Exact Company Name in Tally"/>
+                                </group>
+                                <div class="mt-2">
+                                    <button name="action_test_tally_connection" string="Test Tally Connection" type="object" class="btn-primary btn-sm" icon="fa-exchange"/>
+                                    <button name="action_sync_tally_ledgers" string="Sync Tally Ledgers" type="object" class="btn-secondary btn-sm ms-2" icon="fa-refresh" help="Pull all ledger names from Tally into Odoo Chart of Accounts."/>
+                                </div>
+                                <div class="text-info mt-2">
+                                    <i class="fa fa-info-circle"/> Ensure <b>HTTP Server</b> is enabled in Tally (F1 → Settings → Connectivity).
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <block title="AI Core" name="ai_core_settings_block">
+                        <setting title="Shared AI Provider" help="This provider and credentials are reused by Purple Invoices and Memo AI.">
+                            <field name="provider" widget="radio" class="o_field_radio_vertical"/>
+                        </setting>
+                        <setting title="OpenAI Credentials" help="Used when provider is OpenAI." invisible="provider != 'openai'">
+                            <field name="openai_key" password="True" placeholder="sk-..."/>
+                            <field name="openai_model" placeholder="gpt-4o"/>
+                        </setting>
+                        <setting title="Gemini Credentials" help="Used when provider is Google Gemini." invisible="provider != 'gemini'">
+                            <field name="gemini_key" password="True" placeholder="AIzaSy..."/>
+                            <field name="gemini_model" placeholder="gemini-2.5-flash"/>
+                        </setting>
+                        <setting title="Azure OpenAI Credentials" help="Used when provider is Azure OpenAI." invisible="provider != 'azure'">
+                            <field name="azure_key" password="True"/>
+                            <field name="azure_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
+                            <field name="azure_deployment" placeholder="gpt-4o"/>
+                            <field name="azure_embedding_deployment" placeholder="text-embedding-3-small"/>
+                            <field name="azure_api_version" placeholder="2024-12-01-preview"/>
+                        </setting>
+                        <setting title="Embedding Strategy" help="Choose local or cloud embeddings for vector search.">
+                            <field name="use_local_embeddings"/>
+                            <field name="local_embedding_model" invisible="not use_local_embeddings" placeholder="sentence-transformers/all-MiniLM-L6-v2"/>
+                        </setting>
+                        <setting title="Advanced Parameters" help="Shared generation and costing parameters for all AI calls.">
+                            <field name="temperature"/>
+                            <field name="max_tokens"/>
+                            <field name="prompt_cost"/>
+                            <field name="completion_cost"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
