@@ -7,6 +7,45 @@ class AISettings(models.TransientModel):
     _inherit = 'res.config.settings'
     _description = 'AI Core Settings'
 
+    # Compatibility fields so shared settings views always render safely.
+    purple_ai_root_path = fields.Char(config_parameter='purple_ai.root_path')
+    tender_ai_input_cost = fields.Float(config_parameter='tender_ai.input_cost', default=12.5)
+    tender_ai_output_cost = fields.Float(config_parameter='tender_ai.output_cost', default=50.0)
+    tally_url = fields.Char(config_parameter='tender_ai.tally_url', default='http://localhost')
+    tally_port = fields.Char(config_parameter='tender_ai.tally_port', default='9000')
+    tally_company = fields.Char(config_parameter='tender_ai.tally_company')
+
+    # Compatibility fields for Purple Invoices settings view rendering.
+    # These prevent "field is undefined" UI errors when view/model load order changes.
+    purple_ai_root_path = fields.Char(
+        string='Root Folder Path (Compat)',
+        config_parameter='purple_ai.root_path',
+    )
+    tender_ai_input_cost = fields.Float(
+        string='Input Cost (Compat)',
+        config_parameter='tender_ai.input_cost',
+        default=12.5,
+    )
+    tender_ai_output_cost = fields.Float(
+        string='Output Cost (Compat)',
+        config_parameter='tender_ai.output_cost',
+        default=50.0,
+    )
+    tally_url = fields.Char(
+        string='Tally Host URL (Compat)',
+        config_parameter='tender_ai.tally_url',
+        default='http://localhost',
+    )
+    tally_port = fields.Char(
+        string='Tally Port (Compat)',
+        config_parameter='tender_ai.tally_port',
+        default='9000',
+    )
+    tally_company = fields.Char(
+        string='Tally Company Name (Compat)',
+        config_parameter='tender_ai.tally_company',
+    )
+
     provider = fields.Selection([
         ('openai', 'OpenAI'),
         ('gemini', 'Google Gemini'),

@@ -4,9 +4,9 @@
             <field name="name">res.config.settings.ai.core.general</field>
             <field name="model">res.config.settings</field>
             <field name="priority" eval="120"/>
-            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//form" position="inside">
+                <xpath expr="//app[@name='general_settings']/block[1]" position="before">
                     <block title="AI Core Configuration" name="ai_core_settings_block">
                             <setting title="Primary AI Provider" help="These shared AI Core settings are used by Purple Invoices and Memo AI.">
                                 <field name="provider" widget="radio" class="o_field_radio_vertical"/>
@@ -35,13 +35,31 @@
                                 <field name="local_embedding_model" invisible="not use_local_embeddings" placeholder="sentence-transformers/all-MiniLM-L6-v2"/>
                             </setting>
 
-                            <setting title="Generation and Costing Parameters" help="These values are shared for AI calls across apps.">
+                            <setting title="Generation Controls" help="Core generation behavior used by all AI calls.">
                                 <field name="temperature"/>
                                 <field name="max_tokens"/>
+                            </setting>
+
+                            <setting title="Cost Controls" help="Per 1M token rates used for cost calculations and reporting.">
                                 <field name="prompt_cost"/>
                                 <field name="completion_cost"/>
                             </setting>
                     </block>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_ai_core_hide_dev_about" model="ir.ui.view">
+            <field name="name">res.config.settings.ai.core.hide.dev.about</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="130"/>
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//widget[@name='res_config_dev_tool']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='about']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
             </field>
         </record>
