@@ -33,6 +33,6 @@ Or:
 npm run dev
 ```
 
-`VITE_ODOO_URL` in `.env` is where Vite proxies **`/ai_core`**, **`/purple_invoices`**, and **`/web`** (default `http://localhost:8069`).
+`VITE_ODOO_URL` in `.env` is where Vite proxies **`/ai_core`**, **`/invoiceai`**, and **`/web`** (default `http://localhost:8069`).
 
 If uploads or invoice API calls return **404**, the dev server is not forwarding to Odoo: check `VITE_ODOO_URL` and restart Vite after changing `.env`.

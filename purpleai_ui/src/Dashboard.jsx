@@ -24,22 +24,102 @@ function normalizeExtractedFields(extracted) {
     });
 }
 
+/** Matches server-side `invoice_processor_validation` field_key targets for navigation. */
+const RULE_CODE_TO_FIELD = {
+  RULE_1: 'invoice_number',
+  RULE_2: 'supplier_gstin',
+  RULE_3: 'gst_amount',
+  RULE_4: 'po_number',
+  RULE_5: 'vendor_bank_account',
+  RULE_6: 'invoice_date',
+  RULE_7: 'service_type',
+};
+
+function normalizeRuleCode(rule) {
+  return String(rule || '')
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '_');
+}
+
+function normalizeValidationRow(row) {
+  if (!row || typeof row !== 'object') return null;
+  const rawRule = row.rule ?? row.rule_code ?? row.code ?? '';
+  const rule = normalizeRuleCode(rawRule);
+  if (!rule) return null;
+  const pg = row.page_number != null ? Number(row.page_number) : null;
+  const box = row.box_2d;
+  return {
+    rule,
+    status: Boolean(row.status),
+    msg: row.msg ?? row.message ?? row.conclusion ?? '',
+    skipped: Boolean(row.skipped),
+    field_key: row.field_key ?? row.fieldKey ?? null,
+    description: row.description ?? '',
+    name: row.name ?? row.rule_name ?? '',
+    box_2d: Array.isArray(box) && box.length === 4 ? box.map(Number) : null,
+    page_number: Number.isFinite(pg) && pg > 0 ? pg : null,
+  };
+}
+
+function parseValidations(extracted) {
+  if (!extracted || typeof extracted !== 'object') return [];
+  const v = extracted.validations;
+  if (!v) return [];
+  if (Array.isArray(v)) {
+    return v.map(normalizeValidationRow).filter(Boolean);
+  }
+  if (typeof v === 'object') {
+    return Object.values(v)
+      .map(normalizeValidationRow)
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function findFieldForRule(fields, row) {
+  const raw =
+    row.field_key ||
+    RULE_CODE_TO_FIELD[row.rule] ||
+    null;
+  if (!raw) return null;
+  const want = String(raw).toLowerCase();
+  return (
+    fields.find((f) => f.key.toLowerCase() === want) ||
+    fields.find((f) => f.key.replace(/\s+/g, '_').toLowerCase() === want) ||
+    null
+  );
+}
+
+function isValidationNavigable(row, fields) {
+  if (row.box_2d && row.page_number) return true;
+  return Boolean(findFieldForRule(fields, row));
+}
+
 // --- Sub-Component: Document Viewer ---
 function DocumentViewer({ docId, onClose }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hoverField, setHoverField] = useState(null);
   const [pinnedField, setPinnedField] = useState(null);
+  const [rightTab, setRightTab] = useState('fields');
+  const [extraHighlight, setExtraHighlight] = useState(null);
+  const fieldRefs = useRef({});
+  const scrollFieldKeyRef = useRef(null);
 
   useEffect(() => {
     setHoverField(null);
     setPinnedField(null);
+    setRightTab('fields');
+    setExtraHighlight(null);
+    fieldRefs.current = {};
+    scrollFieldKeyRef.current = null;
   }, [docId]);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/purple_invoices/v1/viewer_data/${docId}`, {
+        const res = await fetch(`/invoiceai/v1/viewer_data/${docId}`, {
           headers: { ...api.authHeaders() },
           credentials: 'include',
         });
@@ -55,19 +135,79 @@ function DocumentViewer({ docId, onClose }) {
   }, [docId]);
 
   const fields = useMemo(() => normalizeExtractedFields(data?.extracted_json), [data?.extracted_json]);
+  const validationRows = useMemo(
+    () => parseValidations(data?.extracted_json),
+    [data?.extracted_json],
+  );
 
   const activeHighlight = useMemo(() => {
-    const h = hoverField || pinnedField;
-    if (!h) return null;
-    return {
-      fieldKey: h.key,
-      pageNumber: h.page_number,
-      box2d: h.box_2d,
-      snapValue: h.value,
-      label: h.key,
-      variant: hoverField ? 'hover' : 'selected',
-    };
-  }, [hoverField, pinnedField]);
+    if (hoverField) {
+      return {
+        fieldKey: hoverField.key,
+        pageNumber: hoverField.page_number,
+        box2d: hoverField.box_2d,
+        snapValue: hoverField.value,
+        label: hoverField.key,
+        variant: 'hover',
+      };
+    }
+    if (pinnedField) {
+      return {
+        fieldKey: pinnedField.key,
+        pageNumber: pinnedField.page_number,
+        box2d: pinnedField.box_2d,
+        snapValue: pinnedField.value,
+        label: pinnedField.key,
+        variant: 'selected',
+      };
+    }
+    if (extraHighlight) {
+      return extraHighlight;
+    }
+    return null;
+  }, [hoverField, pinnedField, extraHighlight]);
+
+  useEffect(() => {
+    const k = scrollFieldKeyRef.current;
+    if (!k) return;
+    scrollFieldKeyRef.current = null;
+    const el = fieldRefs.current[k];
+    if (el) {
+      requestAnimationFrame(() =>
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+      );
+    }
+  }, [pinnedField, rightTab]);
+
+  const navigateFromValidation = useCallback(
+    (row) => {
+      const field = findFieldForRule(fields, row);
+      if (field) {
+        scrollFieldKeyRef.current = field.key;
+        setExtraHighlight(null);
+        setPinnedField(field);
+        setRightTab('fields');
+        return;
+      }
+      if (row.box_2d && row.page_number) {
+        setPinnedField(null);
+        setExtraHighlight({
+          fieldKey: `validation:${row.rule}`,
+          pageNumber: row.page_number,
+          box2d: row.box_2d,
+          snapValue: null,
+          label: row.rule,
+          variant: 'selected',
+        });
+      }
+    },
+    [fields],
+  );
+
+  const onFieldClick = useCallback((f) => {
+    setExtraHighlight(null);
+    setPinnedField((p) => (p && p.key === f.key ? null : f));
+  }, []);
 
   if (loading) return <div className="viewer-loading"><Loader2 className="spinning" /></div>;
 
@@ -82,7 +222,8 @@ function DocumentViewer({ docId, onClose }) {
           <div className="gt-viewer-left">
             <p className="gt-viewer-hint">
               Hover or click a field to highlight it on the PDF. The viewer snaps to real text when possible
-              (same idea as Odoo), then falls back to AI coordinates.
+              (same idea as Odoo), then falls back to AI coordinates. From <strong>Validations</strong>, click a row
+              to jump to the related field or evidence box.
             </p>
             {data?.pdf_base64 ? (
               <PdfViewerWithHighlights pdfBase64={data.pdf_base64} highlight={activeHighlight} />
@@ -91,38 +232,146 @@ function DocumentViewer({ docId, onClose }) {
             )}
           </div>
           <div className="gt-viewer-right">
-            <h4>Extracted Data</h4>
-            <div className="gt-data-grid">
-              {fields.map((f) => (
-                <div
-                  key={f.key}
-                  role="button"
-                  tabIndex={0}
-                  className={`gt-data-item ${f.box_2d || (f.value != null && String(f.value).trim() !== '') ? 'gt-data-item--interactive' : ''} ${pinnedField?.key === f.key ? 'gt-data-item--pinned' : ''}`}
-                  onMouseEnter={() => setHoverField(f)}
-                  onMouseLeave={() => setHoverField(null)}
-                  onClick={() =>
-                    setPinnedField((p) => (p && p.key === f.key ? null : f))
-                  }
-                  onKeyDown={(ev) => {
-                    if (ev.key === 'Enter' || ev.key === ' ') {
-                      ev.preventDefault();
-                      setPinnedField((p) => (p && p.key === f.key ? null : f));
-                    }
-                  }}
-                >
-                  <label>{f.key}</label>
-                  <div className="gt-data-val">
-                    {f.value != null && f.value !== '' ? String(f.value) : '—'}
-                    <span className="gt-pg-badge">Pg {f.page_number}</span>
-                  </div>
-                </div>
-              ))}
+            <div className="gt-viewer-tabs" role="tablist" aria-label="Document panels">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={rightTab === 'fields'}
+                className={`gt-viewer-tab ${rightTab === 'fields' ? 'gt-viewer-tab--active' : ''}`}
+                onClick={() => setRightTab('fields')}
+              >
+                AI Extracted Data
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={rightTab === 'validations'}
+                className={`gt-viewer-tab ${rightTab === 'validations' ? 'gt-viewer-tab--active' : ''}`}
+                onClick={() => setRightTab('validations')}
+              >
+                Validations
+                {validationRows.length > 0 ? (
+                  <span className="gt-viewer-tab-count">{validationRows.length}</span>
+                ) : null}
+              </button>
             </div>
-            {data?.status === 'processing' && (
-              <div className="gt-processing-loader">
-                <Loader2 className="spinning" size={16} />
-                <span>AI is still analyzing...</span>
+
+            {rightTab === 'fields' && (
+              <>
+                <div className="gt-data-grid">
+                  {fields.map((f) => (
+                    <div
+                      key={f.key}
+                      ref={(el) => {
+                        if (el) fieldRefs.current[f.key] = el;
+                        else delete fieldRefs.current[f.key];
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      className={`gt-data-item ${f.box_2d || (f.value != null && String(f.value).trim() !== '') ? 'gt-data-item--interactive' : ''} ${pinnedField?.key === f.key ? 'gt-data-item--pinned' : ''}`}
+                      onMouseEnter={() => setHoverField(f)}
+                      onMouseLeave={() => setHoverField(null)}
+                      onClick={() => onFieldClick(f)}
+                      onKeyDown={(ev) => {
+                        if (ev.key === 'Enter' || ev.key === ' ') {
+                          ev.preventDefault();
+                          onFieldClick(f);
+                        }
+                      }}
+                    >
+                      <label>{f.key}</label>
+                      <div className="gt-data-val">
+                        {f.value != null && f.value !== '' ? String(f.value) : '—'}
+                        <span className="gt-pg-badge">Pg {f.page_number}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {data?.status === 'processing' && (
+                  <div className="gt-processing-loader">
+                    <Loader2 className="spinning" size={16} />
+                    <span>AI is still analyzing...</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {rightTab === 'validations' && (
+              <div className="gt-validation-panel">
+                <div className="gt-validation-heading">Rule-based compliance</div>
+                {validationRows.length === 0 ? (
+                  <p className="gt-validation-empty">
+                    No <code>validations</code> array was returned in this extraction JSON. When the template
+                    includes AI rules, the model should add a <code>validations</code> list with{' '}
+                    <code>rule</code>, <code>status</code>, and <code>msg</code> (optional{' '}
+                    <code>field_key</code>, <code>box_2d</code>, <code>page_number</code>).
+                  </p>
+                ) : (
+                  <div className="gt-validation-table-wrap">
+                    <table className="gt-validation-table">
+                      <thead>
+                        <tr>
+                          <th className="gt-val-th-status">Status</th>
+                          <th>Rule</th>
+                          <th>Details</th>
+                          <th>Conclusion</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {validationRows.map((row, vIdx) => {
+                          const navigable = isValidationNavigable(row, fields);
+                          const ok = row.skipped ? null : row.status;
+                          return (
+                            <tr
+                              key={`${row.rule}-${vIdx}`}
+                              className={navigable ? 'gt-validation-row gt-validation-row--action' : 'gt-validation-row'}
+                              onClick={() => navigable && navigateFromValidation(row)}
+                              onKeyDown={(ev) => {
+                                if (navigable && (ev.key === 'Enter' || ev.key === ' ')) {
+                                  ev.preventDefault();
+                                  navigateFromValidation(row);
+                                }
+                              }}
+                              tabIndex={navigable ? 0 : undefined}
+                              aria-label={
+                                navigable
+                                  ? `Show evidence for ${row.rule}`
+                                  : undefined
+                              }
+                            >
+                              <td className="gt-val-cell-status">
+                                {row.skipped ? (
+                                  <span className="gt-val-ico gt-val-ico--skip" title="Skipped">!</span>
+                                ) : ok ? (
+                                  <span className="gt-val-ico gt-val-ico--ok" title="Passed">✓</span>
+                                ) : (
+                                  <span className="gt-val-ico gt-val-ico--fail" title="Failed">✕</span>
+                                )}
+                              </td>
+                              <td className="gt-val-cell-rule">
+                                <div className="gt-val-rule-name">
+                                  {row.name || row.rule.replace(/_/g, ' ')}
+                                </div>
+                                <div className="gt-val-rule-code">{row.rule}</div>
+                              </td>
+                              <td className="gt-val-cell-desc">
+                                {row.description || (row.skipped ? '—' : 'AI / policy check')}
+                              </td>
+                              <td
+                                className={`gt-val-cell-msg ${row.skipped ? 'gt-val-msg--skip' : ok ? 'gt-val-msg--ok' : 'gt-val-msg--fail'}`}
+                              >
+                                {row.msg || '—'}
+                                {navigable ? (
+                                  <span className="gt-val-jump-hint"> · Click to locate</span>
+                                ) : null}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -137,7 +386,7 @@ function DocumentViewer({ docId, onClose }) {
 export function Dashboard() {
   const [token, setToken] = useState(() => api.devKey());
   const [authRequired, setAuthRequired] = useState(false);
-  const [activeEnv, setActiveEnv] = useState('purpleai_invoices');
+  const [activeEnv, setActiveEnv] = useState('invoiceai');
   const [pingMsg, setPingMsg] = useState('Offline');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -166,7 +415,7 @@ export function Dashboard() {
 
   const loadRecords = useCallback(async () => {
     try {
-      const res = await fetch('/purple_invoices/v1/results', {
+      const res = await fetch('/invoiceai/v1/results', {
         headers: { ...api.authHeaders() },
         credentials: 'include',
       });
@@ -195,7 +444,7 @@ export function Dashboard() {
         setAuthRequired(false);
         setError('');
         try {
-          const cr = await fetch('/purple_invoices/v1/clients', {
+          const cr = await fetch('/invoiceai/v1/clients', {
             headers: { ...api.authHeaders() },
             credentials: 'include',
           });
@@ -262,7 +511,7 @@ export function Dashboard() {
     }
 
     try {
-      const res = await fetch('/purple_invoices/v1/upload', {
+      const res = await fetch('/invoiceai/v1/upload', {
         method: 'POST',
         headers: { ...api.authHeaders() },
         credentials: 'include',
@@ -358,8 +607,8 @@ export function Dashboard() {
       <div className="gt-layout">
         <aside className="gt-sidebar">
           <button 
-            className={`gt-nav-item ${activeEnv === 'purpleai_invoices' ? 'active' : ''}`}
-            onClick={() => setActiveEnv('purpleai_invoices')}
+            className={`gt-nav-item ${activeEnv === 'invoiceai' ? 'active' : ''}`}
+            onClick={() => setActiveEnv('invoiceai')}
           >
             <FileText size={18} />
             <span>Invoices</span>
@@ -385,14 +634,14 @@ export function Dashboard() {
             {clientsApiMissing && (
               <div className="gt-banner-error" role="alert">
                 <strong>Client list API not found (404).</strong> Update and restart Odoo with the latest{' '}
-                <code>purpleai_invoices</code> module (route <code>/purple_invoices/v1/clients</code>), then refresh
+                <code>invoiceai</code> module (route <code>/invoiceai/v1/clients</code>), then refresh
                 this page.
               </div>
             )}
             {invoiceClients && invoiceClients.length === 0 && !clientsApiMissing && (
               <div className="gt-banner-warn" role="alert">
                 <strong>No invoice clients in Odoo.</strong> Uploads will fail until you create one:
-                Purple Invoices → Client Master — add a client and an Extraction Template, then refresh.
+                Invoice AI → Client Master — add a client and an Extraction Template, then refresh.
               </div>
             )}
             {invoiceClients && invoiceClients.length > 0 && (

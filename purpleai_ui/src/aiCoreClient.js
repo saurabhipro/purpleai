@@ -16,7 +16,7 @@ export function setToken(token) {
   else localStorage.removeItem(LS_KEY)
 }
 
-/** Headers for Purple Invoices API (must match Odoo AI Core “React UI Dev API Key” when set). */
+/** Headers for Invoice AI API (must match Odoo AI Core “React UI Dev API Key” when set). */
 export function authHeaders() {
   const k = devKey()
   return k ? { 'X-AI-Core-Dev-Key': k } : {}

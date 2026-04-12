@@ -54,12 +54,12 @@ def _dispatch_chat(env, prompt, module='memoai'):
         except ImportError:
             raise RuntimeError("Module 'leaseai' is not installed or accessible.")
 
-    elif module == 'purpleai_invoices':
+    elif module == 'invoiceai':
         try:
             # Placeholder for invoice specific logic
-            return "Purple Invoices AI integration is active."
+            return "Invoice AI integration is active."
         except ImportError:
-            raise RuntimeError("Module 'purpleai_invoices' is not installed or accessible.")
+            raise RuntimeError("Module 'invoiceai' is not installed or accessible.")
 
     else:
         # Default back to memoai or error

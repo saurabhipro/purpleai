@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       port,
       proxy: {
         '/ai_core': { target: odooTarget, changeOrigin: true },
-        '/purple_invoices': { target: odooTarget, changeOrigin: true },
+        '/invoiceai': { target: odooTarget, changeOrigin: true },
         '/web': { target: odooTarget, changeOrigin: true },
       },
     },

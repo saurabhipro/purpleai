@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root menu: loads first so all child menuitems can reference it as parent -->
+    <menuitem id="menu_tende_ai_root"
+              name="Invoice AI"
+              web_icon="invoiceai,static/description/icon.png"
+              sequence="100"/>
+
+    <!-- Configuration group: no action, just a container — loads first -->
+    <menuitem id="menu_tende_ai_config"
+              name="Configuration"
+              parent="menu_tende_ai_root"
+              sequence="100"/>
+</odoo>

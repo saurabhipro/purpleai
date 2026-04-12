@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Results Menu -->
+    <menuitem id="menu_extraction_root"
+              name="Extraction"
+              parent="invoiceai.menu_tende_ai_root"
+              sequence="10"/>
+
+    <menuitem id="menu_folder_explorer"
+              name="Folders"
+              parent="invoiceai.menu_tende_ai_root"
+              action="action_folder_explorer"
+              sequence="20"/>
+
+    <menuitem id="menu_extraction_results"
+              name="AI extractions"
+              parent="menu_extraction_root"
+              action="action_extraction_result"
+              sequence="5"/>
+
+    <menuitem id="menu_invoice_processor"
+              name="Invoices"
+              parent="menu_extraction_root"
+              action="action_invoice_processor"
+              sequence="10"/>
+
+
+
+
+
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_purple_ai_client"
+              name="Clients &amp; Folders"
+              parent="invoiceai.menu_tende_ai_config"
+              action="action_purple_ai_client"
+              sequence="10"/>
+
+    <menuitem id="menu_tende_ai_extraction_master"
+              name="Extraction Templates"
+              parent="invoiceai.menu_tende_ai_config"
+              action="action_extraction_master"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_purpleai_config_settings" model="ir.actions.act_window">
+        <field name="name">Invoice AI Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'invoiceai'}</field>
+    </record>
+
+    <record id="view_purpleai_config_settings_form" model="ir.ui.view">
+        <field name="name">res.config.settings.purpleai.invoices.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="99"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Invoice AI" string="Invoice AI" name="invoiceai">
+                    <!-- Folder & File Explorer Settings -->
+                    <block title="Folder &amp; File Explorer" name="folder_config">
+                        <setting title="Root Access" help="Specify the starting path for the file explorer">
+                            <div class="content-group">
+                                <label for="purple_ai_root_path"/>
+                                <field name="purple_ai_root_path"/>
+                                <div class="text-muted">This folder will be the 'Home' for the DMS explorer.</div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- Pricing & Token Settings -->
+                    <block title="Pricing &amp; Tokens" name="pricing_config">
+                        <setting title="Input Cost" help="Cost per 1M input tokens (INR)">
+                            <field name="tender_ai_input_cost"/>
+                        </setting>
+                        <setting title="Output Cost" help="Cost per 1M output tokens (INR)">
+                            <field name="tender_ai_output_cost"/>
+                        </setting>
+                    </block>
+
+                    <!-- Tally ERP / Prime Integration -->
+                    <block title="Tally ERP / Prime Integration" name="tally_config">
+                        <setting title="Tally Connectivity" help="Configure connection to Tally ERP/Prime">
+                            <div class="content-group">
+                                <group>
+                                    <field name="tally_url" placeholder="e.g. 192.168.1.10 or localhost"/>
+                                    <field name="tally_port" placeholder="9000"/>
+                                    <field name="tally_company" placeholder="Exact Company Name in Tally"/>
+                                </group>
+                                <div class="mt-2">
+                                    <button name="action_test_tally_connection" string="Test Tally Connection" type="object" class="btn-primary btn-sm" icon="fa-exchange"/>
+                                    <button name="action_sync_tally_ledgers" string="Sync Tally Ledgers" type="object" class="btn-secondary btn-sm ms-2" icon="fa-refresh" help="Fetches ledger names from Tally. Creates Odoo chart-of-accounts lines only when the Accounting app is installed."/>
+                                </div>
+                                <div class="text-info mt-2">
+                                    <i class="fa fa-info-circle"/> Ensure <b>HTTP Server</b> is enabled in Tally (F1 → Settings → Connectivity).
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
