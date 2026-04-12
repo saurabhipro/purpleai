@@ -94,15 +94,41 @@ class ExtractionResult(models.Model):
 
     def action_process_invoice(self):
         self.ensure_one()
-        processor_id = self.env['purple_ai.invoice_processor'].create_from_extraction(self.id)
+        proc = self.env['purple_ai.invoice_processor'].create_from_extraction(self.id)
+        if not proc:
+            raise UserError(_("Could not create or open the invoice queue row for this extraction."))
+        proc.action_validate()
         return {
             'name': _('Invoice Detail'),
             'view_mode': 'form',
             'res_model': 'purple_ai.invoice_processor',
-            'res_id': processor_id.id,
+            'res_id': proc.id,
             'type': 'ir.actions.act_window',
             'context': self._context,
             'target': 'current'
+        }
+
+    def action_sync_invoice_queue_row(self):
+        """Create or refresh the accounting queue row (for done extractions missing from Invoices menu)."""
+        done = self.filtered(lambda r: r.state == 'done')
+        if not done:
+            raise UserError(_("Only successful extractions (Status = Success) can be linked to the invoice queue."))
+        Proc = self.env['purple_ai.invoice_processor']
+        n = 0
+        for rec in done:
+            proc = Proc.create_from_extraction(rec.id)
+            if proc:
+                proc.action_validate()
+                n += 1
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Invoice queue'),
+                'message': _('Updated %s row(s) in Invoice Processing Queue.') % n,
+                'type': 'success',
+                'sticky': False,
+            },
         }
 
     def _get_estimated_cost(self, provider, model, prompt_tokens, output_tokens):
@@ -111,14 +137,18 @@ class ExtractionResult(models.Model):
         model = (model or '').lower()
         
         rates = {
-            'gemini': {'input': 0.075 / 1000000, 'output': 0.30 / 1000000}, # default flash
-            'azure': {'input': 2.50 / 1000000, 'output': 10.00 / 1000000}, # default 4o
-            'mistral': {'input': 2.00 / 1000000, 'output': 6.00 / 1000000}, 
+            'gemini': {'input': 0.075 / 1000000, 'output': 0.30 / 1000000},  # default flash
+            'openai': {'input': 2.50 / 1000000, 'output': 10.00 / 1000000},  # ~gpt-4o ballpark
+            'azure': {'input': 2.50 / 1000000, 'output': 10.00 / 1000000},
+            'mistral': {'input': 2.00 / 1000000, 'output': 6.00 / 1000000},
         }
-        
+
         # Override specific models if known
-        if 'pro' in model: rates['gemini'] = {'input': 1.25 / 1000000, 'output': 5.00 / 1000000}
-        if 'mini' in model: rates['azure'] = {'input': 0.15 / 1000000, 'output': 0.60 / 1000000}
+        if 'pro' in model:
+            rates['gemini'] = {'input': 1.25 / 1000000, 'output': 5.00 / 1000000}
+        if 'mini' in model:
+            rates['azure'] = {'input': 0.15 / 1000000, 'output': 0.60 / 1000000}
+            rates['openai'] = {'input': 0.15 / 1000000, 'output': 0.60 / 1000000}
 
         config = rates.get(provider, rates['gemini'])
         cost = (prompt_tokens * config['input']) + (output_tokens * config['output'])
@@ -129,15 +159,22 @@ class ExtractionResult(models.Model):
         """Unified API for the Owl Dashboard to fetch stats across all selected companies."""
         active_company_ids = self.env.companies.ids
         results = self.search([('company_id', 'in', active_company_ids)])
-        
-        active_provider = self.env['ir.config_parameter'].sudo().get_param('tender_ai.ai_provider', 'gemini')
-        active_model = "Unknown"
+
+        from odoo.addons.ai_core.services.ai_core_service import _get_ai_settings
+
+        ai = _get_ai_settings(self.env)
+        active_provider = (ai.get('provider') or 'openai').lower()
+        active_model = 'Unknown'
         if active_provider == 'gemini':
-            active_model = self.env['ir.config_parameter'].sudo().get_param('tender_ai.gemini_model', 'gemini-1.5-flash')
+            active_model = (ai.get('gemini_model') or '').strip() or 'gemini-2.0-flash'
+        elif active_provider == 'openai':
+            active_model = (ai.get('openai_model') or '').strip() or 'gpt-4o'
         elif active_provider == 'azure':
-            active_model = self.env['ir.config_parameter'].sudo().get_param('tender_ai.azure_deployment', 'gpt-4o')
+            active_model = (ai.get('azure_deployment') or '').strip() or 'gpt-4o'
         elif active_provider == 'mistral':
-            active_model = self.env['ir.config_parameter'].sudo().get_param('tender_ai.mistral_model', 'mistral-large-latest')
+            active_model = self.env['ir.config_parameter'].sudo().get_param(
+                'tender_ai.mistral_model', 'mistral-large-latest'
+            )
 
         inr_rate = 83.5
         latest_requests = []
@@ -145,7 +182,7 @@ class ExtractionResult(models.Model):
             latest_requests.append({
                 'id': reg.id,
                 'name': reg.filename or f"REQ-{reg.id}",
-                'provider': (reg.provider or 'Unknown').capitalize(),
+                'provider': (reg.provider or 'unknown').capitalize(),
                 'model': reg.model_used or '—',
                 'status': reg.state,
                 'cost_inr': round(reg.cost * inr_rate, 2),
@@ -156,7 +193,7 @@ class ExtractionResult(models.Model):
 
         stats = {
             'active_info': {
-                'provider': active_provider.upper(),
+                'provider': (active_provider or 'openai').upper(),
                 'model': active_model,
                 'company': ", ".join(self.env.companies.mapped('name')),
             },
@@ -173,7 +210,7 @@ class ExtractionResult(models.Model):
             'latest': latest_requests
         }
 
-        for provider in ['gemini', 'azure', 'mistral']:
+        for provider in ['gemini', 'openai', 'azure', 'mistral']:
             prov_results = results.filtered(lambda r: (r.provider or '').lower() == provider)
             if not prov_results: continue
             

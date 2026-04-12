@@ -4,6 +4,79 @@ import { registry } from "@web/core/registry";
 import { Component, onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
+/**
+ * Normalise box_2d to [ymin, xmin, ymax, xmax] in 0–1000.
+ * Models sometimes emit [xmin, ymin, xmax, ymax]; pick the interpretation that
+ * looks like a text run (aligned with extraction prompt + React viewer).
+ */
+function resolveBox2d(raw) {
+    if (!Array.isArray(raw) || raw.length !== 4) {
+        return null;
+    }
+    let a = Number(raw[0]);
+    let b = Number(raw[1]);
+    let c = Number(raw[2]);
+    let d = Number(raw[3]);
+    if ([a, b, c, d].some((v) => Number.isNaN(v))) {
+        return null;
+    }
+    if ([a, b, c, d].every((v) => v >= 0 && v <= 1)) {
+        a *= 1000;
+        b *= 1000;
+        c *= 1000;
+        d *= 1000;
+    }
+    function pack(y0, x0, y1, x1) {
+        if ([y0, x0, y1, x1].some((v) => v < 0 || v > 1000)) {
+            return null;
+        }
+        if (x1 <= x0 || y1 <= y0) {
+            return null;
+        }
+        if (x1 - x0 > 700 || y1 - y0 > 700) {
+            return null;
+        }
+        const aspect = (x1 - x0) / (y1 - y0);
+        return { y0, x0, y1, x1, aspect };
+    }
+    const optA = pack(a, b, c, d);
+    const optB = pack(b, a, d, c);
+    function score(o) {
+        if (!o) {
+            return -1;
+        }
+        const r = o.aspect;
+        if (r >= 0.35 && r <= 10) {
+            return 3;
+        }
+        if (r >= 0.18 && r <= 16) {
+            return 2;
+        }
+        if (r >= 0.06 && r <= 40) {
+            return 1;
+        }
+        return 0;
+    }
+    const sA = score(optA);
+    const sB = score(optB);
+    if (optA && !optB) {
+        return [optA.y0, optA.x0, optA.y1, optA.x1];
+    }
+    if (optB && !optA) {
+        return [optB.y0, optB.x0, optB.y1, optB.x1];
+    }
+    if (!optA && !optB) {
+        return null;
+    }
+    if (sB > sA) {
+        return [optB.y0, optB.x0, optB.y1, optB.x1];
+    }
+    if (sA > sB) {
+        return [optA.y0, optA.x0, optA.y1, optA.x1];
+    }
+    return [optA.y0, optA.x0, optA.y1, optA.x1];
+}
+
 export class AIEvidenceViewer extends Component {
     static template = "purpleai_invoices.AIEvidenceViewer";
     static props = { ...standardFieldProps };
@@ -388,15 +461,11 @@ export class AIEvidenceViewer extends Component {
                 if (box2d && Array.isArray(box2d) && box2d.length === 4) {
                     if (targetPage && targetPage !== pageNum) return;
 
-                    const [y0, x0, y1, x1] = box2d.map(Number);
-
-                    // Debug: log to console so we can verify coordinate mapping
-                    const _dbgPage = overlay.closest ? overlay.closest('.page') : null;
-                    console.log(`[AIHighlight] ${key}: box_2d=[${y0},${x0},${y1},${x1}] → CSS: top=${(y0 / 10).toFixed(1)}% left=${(x0 / 10).toFixed(1)}% w=${((x1 - x0) / 10).toFixed(1)}% h=${((y1 - y0) / 10).toFixed(1)}% | pageEl=${_dbgPage ? _dbgPage.offsetWidth + 'x' + _dbgPage.offsetHeight : 'N/A'}`);
-
-                    // Validate: must be 0-1000 and not cover >70% of page
-                    if ([y0, x0, y1, x1].some(v => v < 0 || v > 1000)) return;
-                    if ((x1 - x0) > 700 || (y1 - y0) > 700) return;
+                    const resolved = resolveBox2d(box2d);
+                    if (!resolved) {
+                        return;
+                    }
+                    const [y0, x0, y1, x1] = resolved;
 
                     const box = pdfIframe.contentDocument.createElement('div');
                     box.className = 'audit-box';
@@ -464,7 +533,8 @@ export class AIEvidenceViewer extends Component {
                         const normContent = textContent.replace(/[^0-9]/g, '');
                         // Match first 5 digits to handle rounding (.01 vs .00)
                         const normSearch = searchStr.replace(/[^0-9]/g, '').slice(0, 5);
-                        if (normSearch && normContent && normContent.includes(normSearch)) {
+                        // Require 4+ digits to avoid spurious matches (e.g. bank rows vs amounts)
+                        if (normSearch.length >= 4 && normContent && normContent.includes(normSearch)) {
                             const firstDigit = textContent.match(/\d/);
                             if (firstDigit) idx = textContent.indexOf(firstDigit[0]);
                         }
@@ -595,8 +665,9 @@ export class AIEvidenceViewer extends Component {
 
                 // Apply custom hovered bounding box (e.g. from sub-arrays)
                 if (this.state.hoveredBox2d && Array.isArray(this.state.hoveredBox2d) && this.state.hoveredBox2d.length === 4) {
-                    const [y0, x0, y1, x1] = this.state.hoveredBox2d.map(Number);
-                    if (!([y0, x0, y1, x1].some(v => v < 0 || v > 1000))) {
+                    const hResolved = resolveBox2d(this.state.hoveredBox2d);
+                    if (hResolved) {
+                        const [y0, x0, y1, x1] = hResolved;
                         const box = pdfIframe.contentDocument.createElement('div');
                         box.className = 'audit-box hover-box';
                         box.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';

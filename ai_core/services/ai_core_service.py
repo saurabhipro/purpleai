@@ -23,12 +23,14 @@ def _ensure_loaded():
     if _call_ai is None:
         _call_ai, _get_embedding, _get_ai_settings_internal = _load_memo_functions()
 
-def call_ai(env, prompt):
+def call_ai(env, prompt, enforce_html=True):
     """Delegate AI call to Memo AI service.
     This keeps a single source of truth for provider handling.
+
+    ``enforce_html`` is passed through to Memo AI (False for JSON / structured output).
     """
     _ensure_loaded()
-    return _call_ai(env, prompt)
+    return _call_ai(env, prompt, enforce_html=enforce_html)
 
 def get_embedding(env, text):
     """Delegate embedding retrieval to Memo AI service."""

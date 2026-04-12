@@ -8,6 +8,8 @@
                 <header>
                     <button name="%(purpleai_invoices.action_upload_invoice_wizard)d" string="Manual AI Upload" type="action" class="btn-primary"/>
                     <button name="action_retry_extraction" string="Retry Selection" type="object" class="btn-secondary"/>
+                    <button name="action_sync_invoice_queue_row" string="Add to invoice queue" type="object" class="btn-secondary"
+                            title="Creates or updates rows in Extraction → Invoices (Invoice Processing Queue) for selected successful extractions."/>
                 </header>
                 <field name="create_date" string="Processed Date"/>
                 <field name="company_id" groups="base.group_multi_company"/>

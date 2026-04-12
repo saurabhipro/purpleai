@@ -12,6 +12,12 @@
               action="action_folder_explorer"
               sequence="20"/>
 
+    <menuitem id="menu_extraction_results"
+              name="AI extractions"
+              parent="menu_extraction_root"
+              action="action_extraction_result"
+              sequence="5"/>
+
     <menuitem id="menu_invoice_processor"
               name="Invoices"
               parent="menu_extraction_root"

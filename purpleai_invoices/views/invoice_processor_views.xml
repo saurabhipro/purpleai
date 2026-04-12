@@ -103,7 +103,10 @@
             Process extracted invoices for accounting.
           </p>
           <p>
-            Invoices extracted by AI will appear here for verification and journal posting.
+            This list is the <b>accounting queue</b> (<code>invoice processor</code> rows), not the raw AI run log.
+            New rows are created automatically when an extraction finishes successfully; if the list is empty but you see files under
+            <b>Extraction → AI extractions</b>, select those lines and click <b>Add to invoice queue</b>, or open a record and use
+            <b>Process for Accounting</b>.
           </p>
         </field>
     </record>

@@ -151,17 +151,29 @@ class InvoiceProcessor(models.Model):
         return True
 
     @api.model
+    def _flat_data_from_extraction_json(self, extraction):
+        """Lowercase keys so VENDOR_NAME / vendor_name both map; skip validations blob."""
+        data = {}
+        if not extraction.extracted_data:
+            return data
+        try:
+            raw_data = json.loads(extraction.extracted_data)
+            for key, val in raw_data.items():
+                if key == 'validations':
+                    continue
+                lk = str(key).lower()
+                data[lk] = val.get('value') if isinstance(val, dict) else val
+        except Exception:
+            pass
+        return data
+
+    @api.model
     def create_from_extraction(self, extraction_id):
         extraction = self.env['purple_ai.extraction_result'].browse(extraction_id)
-        data = {}
-        if extraction.extracted_data:
-            try:
-                raw_data = json.loads(extraction.extracted_data)
-                for key, val in raw_data.items():
-                    # Handle both {"value": "..."} and plain string formats
-                    data[key] = val.get('value') if isinstance(val, dict) else val
-            except Exception:
-                pass
+        if not extraction.exists():
+            _logger.warning('create_from_extraction: extraction id=%s does not exist', extraction_id)
+            return self.browse()
+        data = self._flat_data_from_extraction_json(extraction)
 
         # ── Helpers ────────────────────────────────────────────────────────────
         def to_float(val):
@@ -217,6 +229,10 @@ class InvoiceProcessor(models.Model):
             'po_number': data.get('po_number'),
             'service_type': data.get('service_type'),
         }
+        write_vals = {k: v for k, v in vals.items() if k != 'extraction_result_id'}
+        existing = self.search([('extraction_result_id', '=', extraction.id)], limit=1)
+        if existing:
+            existing.write(write_vals)
+            return existing
         proc = self.create(vals)
-        proc.action_validate()
         return proc

@@ -7,6 +7,7 @@ import base64
 import io
 from odoo import fields, _
 from odoo.addons.purpleai_invoices.services import ai_service
+from odoo.addons.ai_core.services.ai_core_service import _get_ai_settings
 
 try:
     import fitz
@@ -18,7 +19,7 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 
-def _extract_json(raw_text: str) -> str:
+def _extract_json(raw_text: str, _strip_html_once: bool = True) -> str:
     """
     Robustly extract a JSON object from an AI response string.
 
@@ -35,6 +36,14 @@ def _extract_json(raw_text: str) -> str:
         return ''
 
     text = raw_text.strip()
+
+    # If the model returned JSON wrapped in HTML (legacy / misconfigured prompts), try tag-stripped text once.
+    if _strip_html_once and '<' in text and '>' in text:
+        stripped = re.sub(r'<[^>]+>', '', text)
+        if stripped != text:
+            inner = _extract_json(stripped, _strip_html_once=False)
+            if inner:
+                return inner
 
     # Strategy 1: Markdown code fences  ```json ... ``` or ``` ... ```
     fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
@@ -75,6 +84,179 @@ def _extract_json(raw_text: str) -> str:
 
     _logger.warning("_extract_json: no valid JSON found in response: %.200s", raw_text)
     return ''
+
+
+def _search_string_variants(value):
+    """Candidate substrings to find extracted values inside PDF text."""
+    if value is None:
+        return []
+    s = str(value).strip()
+    if not s or s.lower() in ('---', 'null', 'none', 'n/a', 'undefined'):
+        return []
+    seen = set()
+    out = []
+
+    def add(x):
+        x = str(x).strip()
+        if x and x not in seen:
+            seen.add(x)
+            out.append(x)
+
+    add(s)
+    compact = re.sub(r'[\s₹$€]', '', s)
+    compact = compact.replace(',', '')
+    if compact and compact != s.replace(' ', ''):
+        add(compact)
+    num = re.search(r'-?[\d]+(?:[.,][\d]+)?', s.replace(',', ''))
+    if num:
+        raw = num.group(0).replace(',', '.')
+        add(raw)
+        try:
+            f = float(raw)
+            if abs(f - round(f)) < 1e-9:
+                add(str(int(round(f))))
+            add(f'{f:.2f}')
+            add(f'{f:.1f}')
+        except ValueError:
+            pass
+    return out
+
+
+def _rect_to_box2d(rect, pw, ph):
+    if pw <= 0 or ph <= 0:
+        return None
+    y0 = int(round(1000 * rect.y0 / ph))
+    x0 = int(round(1000 * rect.x0 / pw))
+    y1 = int(round(1000 * rect.y1 / ph))
+    x1 = int(round(1000 * rect.x1 / pw))
+    y0 = max(0, min(1000, y0))
+    x0 = max(0, min(1000, x0))
+    y1 = max(0, min(1000, y1))
+    x1 = max(0, min(1000, x1))
+    if x1 <= x0 or y1 <= y0:
+        return None
+    if (x1 - x0) > 700 or (y1 - y0) > 700:
+        return None
+    return [y0, x0, y1, x1]
+
+
+def _box_iou_yxyx(a, b):
+    if not a or not b or len(a) != 4 or len(b) != 4:
+        return 0.0
+    ay0, ax0, ay1, ax1 = a
+    by0, bx0, by1, bx1 = b
+    iy0, iy1 = max(ay0, by0), min(ay1, by1)
+    ix0, ix1 = max(ax0, bx0), min(ax1, bx1)
+    if iy1 <= iy0 or ix1 <= ix0:
+        return 0.0
+    inter = (iy1 - iy0) * (ix1 - ix0)
+    area_a = max(1, (ay1 - ay0) * (ax1 - ax0))
+    area_b = max(1, (by1 - by0) * (bx1 - bx0))
+    union = area_a + area_b - inter
+    return inter / union if union > 0 else 0.0
+
+
+def _page_search_hits(page, query, ignore_case=False):
+    if not query:
+        return []
+    flags = 0
+    if ignore_case:
+        flags = getattr(fitz, 'TEXT_SEARCH_IGNORECASE', 0) or 0
+    try:
+        if flags:
+            return page.search_for(query, quads=False, flags=flags)
+        return page.search_for(query, quads=False)
+    except TypeError:
+        try:
+            return page.search_for(query, quads=False)
+        except Exception:
+            return []
+    except Exception:
+        return []
+
+
+def _pick_best_rect(rects, pw, ph, existing_box):
+    if not rects:
+        return None
+    if len(rects) == 1:
+        return rects[0]
+    if existing_box and isinstance(existing_box, list) and len(existing_box) == 4:
+        best_r = None
+        best_iou = 0.0
+        for r in rects:
+            b = _rect_to_box2d(r, pw, ph)
+            if not b:
+                continue
+            iou = _box_iou_yxyx(existing_box, b)
+            if iou > best_iou:
+                best_iou = iou
+                best_r = r
+        if best_r is not None and best_iou >= 0.02:
+            return best_r
+
+    def area(r):
+        return max(0.0, (r.x1 - r.x0) * (r.y1 - r.y0))
+
+    return min(rects, key=area)
+
+
+def refine_extracted_boxes_with_fitz(file_path, data):
+    """Snap model box_2d to PyMuPDF text hits so highlights match real glyphs (Gemini offset fix)."""
+    if not fitz or not isinstance(data, dict):
+        return data
+    path = str(file_path or '')
+    if not path.lower().endswith('.pdf') or not os.path.isfile(path):
+        return data
+    doc = None
+    try:
+        doc = fitz.open(path)
+    except Exception as e:
+        _logger.debug('refine_extracted_boxes: open failed: %s', e)
+        return data
+    try:
+        for key, item in list(data.items()):
+            if key == 'validations' or not isinstance(item, dict):
+                continue
+            val = item.get('value')
+            variants = _search_string_variants(val)
+            if not variants:
+                continue
+            if max(len(v) for v in variants) < 2:
+                continue
+            page_no = item.get('page_number', 1)
+            try:
+                pidx = int(page_no) - 1
+            except (TypeError, ValueError):
+                pidx = 0
+            if pidx < 0 or pidx >= len(doc):
+                continue
+            page = doc[pidx]
+            pw, ph = page.rect.width, page.rect.height
+            if pw <= 0 or ph <= 0:
+                continue
+            numericish = bool(re.match(r'^[\d\s.,₹$€+-]+$', str(val).strip()))
+            rects = []
+            for q in variants:
+                rects.extend(
+                    _page_search_hits(page, q, ignore_case=not numericish)
+                )
+            if not rects:
+                continue
+            existing = item.get('box_2d')
+            chosen = _pick_best_rect(rects, pw, ph, existing if isinstance(existing, list) else None)
+            if not chosen:
+                continue
+            new_box = _rect_to_box2d(chosen, pw, ph)
+            if new_box:
+                _logger.debug('Refined %s box_2d via PDF text: %s -> %s', key, existing, new_box)
+                item['box_2d'] = new_box
+        return data
+    except Exception as e:
+        _logger.warning('refine_extracted_boxes_with_fitz: %s', e)
+        return data
+    finally:
+        if doc is not None:
+            doc.close()
 
 
 def _crop_document_margins(file_path):
@@ -139,7 +321,8 @@ def process_document(env, client, file_path, filename, existing_record=None):
     rule_prompts = [f"- {r.rule_code}: {r.description}" for r in rules_to_eval]
     rule_list = "\n".join(rule_prompts) if rule_prompts else ""
     
-    ai_provider = env['ir.config_parameter'].sudo().get_param('tender_ai.ai_provider', 'gemini').lower().strip()
+    # Must match the provider used by ai_service.generate (AI Core), not legacy tender_ai.*
+    ai_provider = (_get_ai_settings(env).get('provider') or 'openai').lower().strip()
     
     system_prompt = (
         "You are a specialized data extraction AI. "
@@ -159,7 +342,10 @@ def process_document(env, client, file_path, filename, existing_record=None):
     if ai_provider != 'gemini':
         system_prompt += "6. IMPORTANT: For your model, DO NOT guess coordinates. You MUST return null for all 'box_2d' values so the system can use exact text-search fallback.\n\n"
     else:
-        system_prompt += "\n"
+        system_prompt += (
+            "6. Place each box_2d strictly over the printed value glyphs (digits, decimals, letters as shown), "
+            "not over neighbouring empty table cells or labels. The UI will also snap boxes to PDF text when possible.\n\n"
+        )
 
     if rule_list:
         system_prompt += (
@@ -169,6 +355,10 @@ def process_document(env, client, file_path, filename, existing_record=None):
         )
 
     system_prompt += f"FIELDS TO EXTRACT:\n{field_list}"
+    system_prompt += (
+        "\n\nOUTPUT: Respond with exactly one JSON object and nothing else — "
+        "no HTML tags, no markdown fences, no commentary before or after."
+    )
 
     # 2. Prepare visual inputs
     # If any field needs zoom, we create crops of the margins
@@ -191,7 +381,12 @@ def process_document(env, client, file_path, filename, existing_record=None):
             )
 
     # 3. Call AI
-    res = ai_service.generate([system_prompt] + visual_inputs, env=env, max_retries=0)
+    res = ai_service.generate(
+        [system_prompt] + visual_inputs,
+        env=env,
+        max_retries=0,
+        enforce_html=False,
+    )
     
     # Clean up temp zoom files if created
     for zf in zoom_files:
@@ -202,10 +397,9 @@ def process_document(env, client, file_path, filename, existing_record=None):
                 pass
     
     raw_text = res.get('text', '') if isinstance(res, dict) else str(res)
-    usage = res.get('usage', {})
-
-    p_tok = usage.get('promptTokens', 0)
-    o_tok = usage.get('outputTokens', 0)
+    usage = (res.get('usage') if isinstance(res, dict) else None) or {}
+    p_tok = int(usage.get('promptTokens') or (res.get('prompt_tokens') if isinstance(res, dict) else 0) or 0)
+    o_tok = int(usage.get('outputTokens') or (res.get('completion_tokens') if isinstance(res, dict) else 0) or 0)
     
     _logger.info(
         "AI response for %s [%s tokens]: %.300s%s",
@@ -214,12 +408,32 @@ def process_document(env, client, file_path, filename, existing_record=None):
 
     # ── Robust JSON extraction ────────────────────────────────────────────────
     json_str = _extract_json(raw_text)
+    if json_str:
+        try:
+            parsed = json.loads(json_str)
+            parsed = refine_extracted_boxes_with_fitz(file_path, parsed)
+            json_str = json.dumps(parsed, ensure_ascii=False)
+        except json.JSONDecodeError:
+            pass
+        except Exception as ex:
+            _logger.warning('box_2d text snap skipped for %s: %s', filename, ex)
     if not json_str:
         _logger.error("Could not extract JSON from AI response for %s. Raw: %s", filename, raw_text[:500])
 
     # 3. Validation and Single-Pass Rendering
     ResultModel = env['purple_ai.extraction_result']
-    cost = ResultModel._get_estimated_cost(res.get('provider'), res.get('model'), p_tok, o_tok)
+    st = _get_ai_settings(env)
+    prov = (res.get('provider') if isinstance(res, dict) else None) or st.get('provider') or ''
+    mod = (res.get('model') if isinstance(res, dict) else None) or ''
+    if not mod:
+        pl = (prov or '').lower()
+        if pl == 'gemini':
+            mod = (st.get('gemini_model') or '').strip()
+        elif pl == 'openai':
+            mod = (st.get('openai_model') or '').strip()
+        elif pl == 'azure':
+            mod = (st.get('azure_deployment') or '').strip()
+    cost = ResultModel._get_estimated_cost(prov, mod, p_tok, o_tok)
     
     page_count = 0
     if filename.lower().endswith('.pdf'):
@@ -238,8 +452,8 @@ def process_document(env, client, file_path, filename, existing_record=None):
         'extracted_data': json_str or '{}',
         'state': 'done' if json_str else 'error',
         'error_log': None if json_str else f'Could not parse JSON from AI response:\n{raw_text[:1000]}',
-        'provider': res.get('provider'),
-        'model_used': res.get('model'),
+        'provider': prov,
+        'model_used': mod,
         'duration_ms': res.get('durationMs', 0),
         'prompt_tokens': p_tok,
         'output_tokens': o_tok,

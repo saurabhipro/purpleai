@@ -52,13 +52,25 @@ class AISettings(models.TransientModel):
         ('azure', 'Azure OpenAI'),
     ], string='AI Core Provider', default='openai', config_parameter='ai_core.ai_provider')
 
-    openai_key = fields.Char(string='AI Core OpenAI API Key', config_parameter='ai_core.openai_api_key')
+    openai_key = fields.Char(
+        string='AI Core OpenAI API Key',
+        config_parameter='ai_core.openai_api_key',
+        help='Create an API key in the OpenAI dashboard: https://platform.openai.com/api-keys',
+    )
     openai_model = fields.Char(string='AI Core OpenAI Model', default='gpt-4o', config_parameter='ai_core.openai_model')
 
-    gemini_key = fields.Char(string='AI Core Gemini API Key', config_parameter='ai_core.gemini_api_key')
+    gemini_key = fields.Char(
+        string='AI Core Gemini API Key',
+        config_parameter='ai_core.gemini_api_key',
+        help='Create an API key in Google AI Studio: https://aistudio.google.com/app/apikey',
+    )
     gemini_model = fields.Char(string='AI Core Gemini Model', default='gemini-2.5-flash', config_parameter='ai_core.gemini_model')
 
-    azure_key = fields.Char(string='AI Core Azure API Key', config_parameter='ai_core.azure_api_key')
+    azure_key = fields.Char(
+        string='AI Core Azure API Key',
+        config_parameter='ai_core.azure_api_key',
+        help='From your Azure OpenAI resource (Keys and Endpoint) or Azure OpenAI Studio: https://oai.azure.com/',
+    )
     azure_endpoint = fields.Char(string='Azure Endpoint', config_parameter='ai_core.azure_endpoint')
     azure_deployment = fields.Char(string='Azure Deployment', config_parameter='ai_core.azure_deployment')
     azure_embedding_deployment = fields.Char(
@@ -86,4 +98,18 @@ class AISettings(models.TransientModel):
         string='Completion Cost (per 1M tokens)',
         default=50.0,
         config_parameter='ai_core.completion_cost',
+    )
+
+    react_dev_api_key = fields.Char(
+        string='React UI Dev API Key',
+        config_parameter='ai_core.react_dev_api_key',
+        help='Shared secret for the Purple AI React dev UI (header X-AI-Core-Dev-Key). '
+        'Leave empty only if you rely on an Odoo browser session via reverse proxy.',
+    )
+    react_cors_origins = fields.Char(
+        string='React UI CORS Origins',
+        default='http://localhost:5173,http://127.0.0.1:5173',
+        config_parameter='ai_core.react_cors_origins',
+        help='Comma-separated origins allowed for direct browser calls to /ai_core/v1/*. '
+        'Not needed when the React app uses the Vite proxy (recommended).',
     )

@@ -267,7 +267,11 @@ class GeminiService(BaseAIService):
         # 2. System parameter
         if env:
             try:
-                for param in ("tender_ai.ai_api_key", "tender_ai.gemini_api_key"):
+                for param in (
+                    "ai_core.gemini_api_key",
+                    "tender_ai.ai_api_key",
+                    "tender_ai.gemini_api_key",
+                ):
                     value = env["ir.config_parameter"].sudo().get_param(param, "")
                     if value:
                         _logger.debug("AI API KEY: found in system parameter (%s)", param)
@@ -287,9 +291,10 @@ class GeminiService(BaseAIService):
 
         raise RuntimeError(
             "Missing AI API key. Set it via:\n"
-            "1. odoo.conf → add 'ai_api_key=your_key' in [options] then restart Odoo\n"
-            "2. Environment variable: export AI_API_KEY=your_key\n"
-            "3. Odoo System Parameter: tender_ai.ai_api_key"
+            "1. Odoo → Settings → AI Core → Google Gemini API key (ai_core.gemini_api_key)\n"
+            "2. odoo.conf → add 'ai_api_key=your_key' in [options] then restart Odoo\n"
+            "3. Environment variable: export AI_API_KEY=your_key\n"
+            "4. Legacy: tender_ai.ai_api_key"
         )
 
     def get_model(self, env=None) -> str:
@@ -300,9 +305,13 @@ class GeminiService(BaseAIService):
 
         if env:
             try:
-                model = env["ir.config_parameter"].sudo().get_param(
-                    "tender_ai.default_model", ""
-                )
+                icp = env["ir.config_parameter"].sudo()
+                model = icp.get_param("ai_core.gemini_model", "")
+                if model:
+                    with _model_cache_lock:
+                        _model_cache = model
+                    return model
+                model = icp.get_param("tender_ai.default_model", "")
                 if model:
                     with _model_cache_lock:
                         _model_cache = model

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from odoo.addons.ai_core.services.ai_core_service import (
-    call_ai as _core_call_ai,
-    _get_ai_settings,
-)
+from odoo.addons.ai_core.services.ai_core_service import _get_ai_settings
 
 _logger = logging.getLogger(__name__)
 _LOCAL_EMBEDDER = None
@@ -15,9 +12,19 @@ _LOCAL_EMBED_MODEL = None
 
 
 
-def call_ai(env, prompt):
-    """Delegate AI call to the centralized ai_core service."""
-    return _core_call_ai(env, prompt)
+def call_ai(env, prompt, enforce_html=True):
+    """Route chat completion by configured provider (ai_core settings).
+
+    ``enforce_html`` appends Memo-style HTML formatting rules to the user message.
+    Set to False for machine-readable outputs (e.g. JSON extraction).
+    """
+    settings = _get_ai_settings(env)
+    provider = (settings.get("provider") or "openai").lower().strip()
+    if provider == "gemini":
+        return call_gemini(env, prompt, settings, enforce_html=enforce_html)
+    if provider == "azure":
+        return call_azure_openai(env, prompt, settings, enforce_html=enforce_html)
+    return call_openai(env, prompt, settings, enforce_html=enforce_html)
 
 
 
@@ -27,7 +34,12 @@ def call_ai(env, prompt):
 def _enforce_html_prompt(prompt):
     return f"{prompt}\n\nIMPORTANT FORMATTING INSTRUCTION:\nFormat your entire response using ONLY valid HTML tags (like <ul>, <li>, <p>, <strong>, <br>). Do NOT use Markdown (no asterisks or hashtags). Do NOT wrap your response in ```html codeblocks. Return only the raw HTML output."
 
-def call_openai(env, prompt, settings=None):
+
+def _format_user_prompt(prompt, enforce_html):
+    return _enforce_html_prompt(prompt) if enforce_html else prompt
+
+
+def call_openai(env, prompt, settings=None, enforce_html=True):
     """Call OpenAI chat completion."""
     if settings is None:
         settings = _get_ai_settings(env)
@@ -44,7 +56,7 @@ def call_openai(env, prompt, settings=None):
             "model": settings['openai_model'],
             "messages": [
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
-                {"role": "user", "content": _enforce_html_prompt(prompt)},
+                {"role": "user", "content": _format_user_prompt(prompt, enforce_html)},
             ],
             "temperature": settings['temperature'],
             "max_completion_tokens": settings['max_tokens'],
@@ -82,7 +94,7 @@ def call_openai(env, prompt, settings=None):
         raise
 
 
-def call_gemini(env, prompt, settings=None):
+def call_gemini(env, prompt, settings=None, enforce_html=True):
     """Call Google Gemini Pro using REST API."""
     if settings is None:
         settings = _get_ai_settings(env)
@@ -100,7 +112,7 @@ def call_gemini(env, prompt, settings=None):
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={api_key}"
         data = {
-            "contents": [{"parts": [{"text": _enforce_html_prompt(prompt)}]}],
+            "contents": [{"parts": [{"text": _format_user_prompt(prompt, enforce_html)}]}],
             "generationConfig": {"temperature": settings['temperature']}
         }
         response = requests.post(url, headers={'Content-Type': 'application/json'}, json=data, timeout=60)
@@ -130,7 +142,7 @@ def call_gemini(env, prompt, settings=None):
         raise
 
 
-def call_azure_openai(env, prompt, settings=None):
+def call_azure_openai(env, prompt, settings=None, enforce_html=True):
     """Call Azure OpenAI."""
     if settings is None:
         settings = _get_ai_settings(env)
@@ -152,7 +164,7 @@ def call_azure_openai(env, prompt, settings=None):
             "model": settings['azure_deployment'],
             "messages": [
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
-                {"role": "user", "content": _enforce_html_prompt(prompt)},
+                {"role": "user", "content": _format_user_prompt(prompt, enforce_html)},
             ],
             "temperature": settings['temperature'],
             "max_completion_tokens": settings['max_tokens'],

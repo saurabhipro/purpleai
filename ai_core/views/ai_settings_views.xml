@@ -13,21 +13,44 @@
                             </setting>
 
                             <setting title="OpenAI" help="Credentials and default model when provider is OpenAI." invisible="provider != 'openai'">
-                                <field name="openai_key" password="True" placeholder="sk-..."/>
-                                <field name="openai_model" placeholder="gpt-4o"/>
+                                <div class="content-group">
+                                    <field name="openai_key" password="True" placeholder="sk-..."/>
+                                    <field name="openai_model" placeholder="gpt-4o"/>
+                                    <div class="text-muted small mt-2">
+                                        <a href="https://platform.openai.com/api-keys" class="oe_link" target="_blank" rel="noreferrer">OpenAI Platform — API keys</a>
+                                        ·
+                                        <a href="https://platform.openai.com/docs/overview" class="oe_link" target="_blank" rel="noreferrer">Documentation</a>
+                                    </div>
+                                </div>
                             </setting>
 
                             <setting title="Google Gemini" help="Credentials and default model when provider is Google Gemini." invisible="provider != 'gemini'">
-                                <field name="gemini_key" password="True" placeholder="AIzaSy..."/>
-                                <field name="gemini_model" placeholder="gemini-2.5-flash"/>
+                                <div class="content-group">
+                                    <field name="gemini_key" password="True" placeholder="AIzaSy..."/>
+                                    <field name="gemini_model" placeholder="gemini-2.5-flash"/>
+                                    <div class="text-muted small mt-2">
+                                        <a href="https://aistudio.google.com/app/apikey" class="oe_link" target="_blank" rel="noreferrer">Google AI Studio — Get API key</a>
+                                        ·
+                                        <a href="https://ai.google.dev/gemini-api/docs" class="oe_link" target="_blank" rel="noreferrer">Gemini API docs</a>
+                                    </div>
+                                </div>
                             </setting>
 
                             <setting title="Azure OpenAI" help="Credentials and deployment details when provider is Azure OpenAI." invisible="provider != 'azure'">
-                                <field name="azure_key" password="True"/>
-                                <field name="azure_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
-                                <field name="azure_deployment" placeholder="gpt-4o"/>
-                                <field name="azure_embedding_deployment" placeholder="text-embedding-3-small"/>
-                                <field name="azure_api_version" placeholder="2024-12-01-preview"/>
+                                <div class="content-group">
+                                    <field name="azure_key" password="True"/>
+                                    <field name="azure_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
+                                    <field name="azure_deployment" placeholder="gpt-4o"/>
+                                    <field name="azure_embedding_deployment" placeholder="text-embedding-3-small"/>
+                                    <field name="azure_api_version" placeholder="2024-12-01-preview"/>
+                                    <div class="text-muted small mt-2">
+                                        <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI" class="oe_link" target="_blank" rel="noreferrer">Azure Portal — Create OpenAI resource</a>
+                                        ·
+                                        <a href="https://oai.azure.com/" class="oe_link" target="_blank" rel="noreferrer">Azure OpenAI Studio</a>
+                                        ·
+                                        <a href="https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource" class="oe_link" target="_blank" rel="noreferrer">Microsoft Learn — setup guide</a>
+                                    </div>
+                                </div>
                             </setting>
 
                             <setting title="Embedding Strategy" help="Choose local or cloud embeddings for vector search.">
@@ -43,6 +66,11 @@
                             <setting title="Cost Controls" help="Per 1M token rates used for cost calculations and reporting.">
                                 <field name="prompt_cost"/>
                                 <field name="completion_cost"/>
+                            </setting>
+
+                            <setting title="React UI (development)" help="Optional integration for the Purple AI React app (folder purpleai_ui, script run_purpleai). Use a long random dev key; keep it private.">
+                                <field name="react_dev_api_key" password="True" placeholder="e.g. openssl rand -hex 32"/>
+                                <field name="react_cors_origins" placeholder="http://localhost:5173"/>
                             </setting>
                     </block>
                 </xpath>

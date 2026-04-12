@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Launch Purple AI React UI (purpleai_ui → Odoo AI Core via Vite proxy)
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT/purpleai_ui"
+
+if [[ ! -f .env ]] && [[ -f .env.example ]]; then
+  echo "Tip: copy purpleai_ui/.env.example to purpleai_ui/.env and set VITE_ODOO_URL / VITE_AI_CORE_DEV_KEY"
+fi
+
+if [[ ! -d node_modules ]]; then
+  echo "Installing npm dependencies…"
+  npm install
+fi
+
+PORT="${1:-${VITE_PORT:-5173}}"
+echo "Launching Purple AI UI on port ${PORT}"
+exec npm run dev -- --port "$PORT" --host 0.0.0.0
