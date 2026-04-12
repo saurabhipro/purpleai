@@ -14,6 +14,7 @@ Solution:
   request body in the first place.
 
 Config (odoo.conf):
+
 [options]
 tender_ai_max_content_length = 536870912   ; 512 MiB in bytes
 """

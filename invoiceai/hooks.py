@@ -116,6 +116,17 @@ def migrate_from_purpleai_invoices(cr_or_env):
         )
 
 
+def populate_stored_ir_model_modules(env):
+    """Fill ``ir.model.modules`` after the column is added (stored compute)."""
+    IrModel = env["ir.model"].sudo()
+    field = IrModel._fields.get("modules")
+    if not field or not getattr(field, "store", False):
+        return
+    records = IrModel.search([])
+    if records:
+        env.add_to_compute(field, records)
+
+
 def verify_models_registered(registry):
     """Fail install early if Python models did not register (easier than a silent KeyError later)."""
     if "purple_ai.extraction_result" not in registry:

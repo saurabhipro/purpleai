@@ -33,6 +33,7 @@ def pre_init_hook(env):
 
 def post_init_hook(env):
     """Odoo 18+ passes a single Environment (not cr, registry)."""
-    from .hooks import verify_models_registered
+    from .hooks import populate_stored_ir_model_modules, verify_models_registered
 
     verify_models_registered(env.registry)
+    populate_stored_ir_model_modules(env)
