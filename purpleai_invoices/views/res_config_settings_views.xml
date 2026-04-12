@@ -49,7 +49,7 @@
                                 </group>
                                 <div class="mt-2">
                                     <button name="action_test_tally_connection" string="Test Tally Connection" type="object" class="btn-primary btn-sm" icon="fa-exchange"/>
-                                    <button name="action_sync_tally_ledgers" string="Sync Tally Ledgers" type="object" class="btn-secondary btn-sm ms-2" icon="fa-refresh" help="Pull all ledger names from Tally into Odoo Chart of Accounts."/>
+                                    <button name="action_sync_tally_ledgers" string="Sync Tally Ledgers" type="object" class="btn-secondary btn-sm ms-2" icon="fa-refresh" help="Fetches ledger names from Tally. Creates Odoo chart-of-accounts lines only when the Accounting app is installed."/>
                                 </div>
                                 <div class="text-info mt-2">
                                     <i class="fa fa-info-circle"/> Ensure <b>HTTP Server</b> is enabled in Tally (F1 → Settings → Connectivity).

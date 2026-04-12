@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { box2dToPixelStyle } from './box2d.js';
 import { snapHighlightToText } from './textSnap.js';
 
 export function PdfPage({ pdfDoc, pageNumber, maxWidth, highlight }) {
   const canvasRef = useRef(null);
+  const highlightRef = useRef(null);
   const [pagePx, setPagePx] = useState({ w: 0, h: 0 });
   const [overlayStyle, setOverlayStyle] = useState(null);
 
@@ -64,6 +65,19 @@ export function PdfPage({ pdfDoc, pageNumber, maxWidth, highlight }) {
   const label = hl?.label || '';
   const showOverlay = Boolean(overlayStyle && hl);
 
+  const overlayPosKey = overlayStyle
+    ? `${overlayStyle.left}|${overlayStyle.top}|${overlayStyle.width}|${overlayStyle.height}`
+    : '';
+
+  useLayoutEffect(() => {
+    if (!showOverlay || !highlightRef.current) return;
+    highlightRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+  }, [showOverlay, overlayPosKey, hl?.fieldKey, hl?.variant, pagePx.w, pagePx.h]);
+
   return (
     <div className="gt-pdf-page-shell" data-page={pageNumber}>
       <div
@@ -97,6 +111,7 @@ export function PdfPage({ pdfDoc, pageNumber, maxWidth, highlight }) {
         />
         {showOverlay && hl && (
           <div
+            ref={highlightRef}
             key={hl.fieldKey || hl.label || 'hl'}
             className={`gt-pdf-highlight-box ${hl.variant === 'selected' ? 'is-selected' : 'is-hover'}`}
             style={{

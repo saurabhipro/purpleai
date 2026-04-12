@@ -450,6 +450,63 @@ body {
   flex-direction: column;
 }
 
+.gt-pdf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--gt-border);
+  background: #1a1a1c;
+  flex-shrink: 0;
+}
+
+.gt-pdf-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gt-pdf-toolbar-meta {
+  font-size: 11px;
+  color: var(--gt-muted);
+  letter-spacing: 0.02em;
+}
+
+.gt-pdf-tool-btn {
+  min-width: 32px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--gt-border);
+  border-radius: 6px;
+  background: #2a2a2e;
+  color: #e5e7eb;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gt-pdf-tool-btn:hover {
+  background: #36363c;
+  border-color: var(--gt-purple);
+}
+
+.gt-pdf-tool-btn--text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 10px;
+}
+
+.gt-pdf-zoom-label {
+  min-width: 44px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--gt-muted);
+}
+
 .gt-pdf-scroll {
   flex: 1;
   min-width: 0;
@@ -463,73 +520,69 @@ body {
   scroll-margin-top: 24px;
 }
 
+.gt-pdf-highlight-box {
+  /* Room for label above + value when scrollIntoView centers */
+  scroll-margin-block: 80px 48px;
+  scroll-margin-inline: 12px;
+}
+
+/* Crisp evidence frame: no glow blur; readable on white PDF */
 .gt-pdf-highlight-box.is-hover {
-  background: rgba(170, 59, 255, 0.12);
-  border: 1.5px solid rgba(192, 132, 252, 0.95);
-  border-radius: 6px;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.35) inset,
-    0 0 20px rgba(170, 59, 255, 0.45),
-    0 4px 16px rgba(0, 0, 0, 0.2);
+  background: rgba(147, 51, 234, 0.14);
+  border: 2px solid #9333ea;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .gt-pdf-highlight-box.is-selected {
-  background: rgba(236, 72, 153, 0.14);
-  border: 2px solid #e11d8c;
-  border-radius: 6px;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.45) inset,
-    0 0 24px rgba(225, 29, 140, 0.55),
-    0 0 48px rgba(225, 29, 140, 0.2),
-    0 4px 18px rgba(0, 0, 0, 0.22);
-  animation: gt-pdf-pulse 2.2s ease-in-out infinite;
+  background: rgba(219, 39, 119, 0.12);
+  border: 2px solid #be185d;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+  animation: gt-pdf-pulse-clear 2s ease-in-out infinite;
 }
 
-@keyframes gt-pdf-pulse {
+@keyframes gt-pdf-pulse-clear {
   0%,
   100% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.45) inset,
-      0 0 24px rgba(225, 29, 140, 0.55),
-      0 0 48px rgba(225, 29, 140, 0.2),
-      0 4px 18px rgba(0, 0, 0, 0.22);
+    border-color: #be185d;
   }
   50% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-      0 0 32px rgba(225, 29, 140, 0.65),
-      0 0 56px rgba(225, 29, 140, 0.28),
-      0 4px 20px rgba(0, 0, 0, 0.24);
+    border-color: #db2777;
   }
 }
 
+/* Label sits fully above the value box so it does not cover PDF lines */
 .gt-pdf-highlight-tag {
   position: absolute;
-  top: -26px;
   left: 50%;
+  bottom: calc(100% + 10px);
+  top: auto;
   transform: translateX(-50%);
-  background: linear-gradient(180deg, #ec4899 0%, #db2777 100%);
+  z-index: 3;
+  background: #7c3aed;
   color: #fff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 999px;
+  padding: 5px 12px;
+  border-radius: 4px;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-    0 6px 20px rgba(219, 39, 119, 0.4);
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
 
 .gt-pdf-highlight-box.is-hover .gt-pdf-highlight-tag {
-  background: linear-gradient(180deg, #c084fc 0%, #9333ea 100%);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-    0 6px 20px rgba(147, 51, 234, 0.35);
+  background: #6d28d9;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.gt-pdf-highlight-box.is-selected .gt-pdf-highlight-tag {
+  background: #be185d;
 }
 
 .gt-pdf-error {

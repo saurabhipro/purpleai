@@ -20,6 +20,11 @@ export const defaultViewerConfig = {
     defaultMaxWidth: 600,
     scrollHorizontalPad: 32,
     minMaxWidth: 200,
+    /** Viewer zoom around fitted width (1 = fit panel). */
+    defaultZoom: 1,
+    zoomMin: 0.5,
+    zoomMax: 2.5,
+    zoomStep: 0.15,
   },
 };
 

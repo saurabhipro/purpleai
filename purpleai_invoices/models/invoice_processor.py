@@ -2,13 +2,12 @@
 import json
 import logging
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
 class InvoiceProcessor(models.Model):
     _name = 'purple_ai.invoice_processor'
-    _description = 'Invoice Processor to Journal Entries'
+    _description = 'Invoice review queue (AI extraction)'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     extraction_result_id = fields.Many2one('purple_ai.extraction_result', string='Extraction Source', required=True, ondelete='cascade')
@@ -30,14 +29,7 @@ class InvoiceProcessor(models.Model):
     service_type = fields.Char(string='Service Type')
     
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
-    journal_id = fields.Many2one('account.journal', string='Journal', domain="[('company_id', '=', company_id), ('type', 'in', ('general', 'purchase'))]")
 
-    # Account Overrides
-    expense_account_id = fields.Many2one('account.account', string='Expense Account', domain="[('company_id', '=', company_id), ('account_type', '=', 'expense')]")
-    gst_account_id = fields.Many2one('account.account', string='GST Account', domain="[('company_id', '=', company_id), ('account_type', 'in', ('asset_current', 'liability_current'))]")
-    tds_account_id = fields.Many2one('account.account', string='TDS Account', domain="[('company_id', '=', company_id), ('account_type', 'in', ('liability_current', 'asset_current'))]")
-    payable_account_id = fields.Many2one('account.account', string='Payable Account', domain="[('company_id', '=', company_id), ('account_type', '=', 'liability_payable')]")
-    
     untaxed_amount = fields.Monetary(string='Untaxed Amount', currency_field='currency_id')
     gst_rate = fields.Float(string='GST Rate (%)', default=18.0)
     gst_amount = fields.Monetary(string='GST Amount', currency_field='currency_id', compute='_compute_totals', store=True, readonly=False)
@@ -52,13 +44,11 @@ class InvoiceProcessor(models.Model):
         ('draft', 'Draft'),
         ('failed', 'Validation Failed'),
         ('posted', 'Posted'),
-        ('cancel', 'Cancelled')
+        ('cancel', 'Cancelled'),
     ], string='Status', default='draft', tracking=True)
 
     validation_log = fields.Html(string='Validation Report')
     is_validated = fields.Boolean(default=False)
-
-    move_id = fields.Many2one('account.move', string='Journal Entry', readonly=True)
 
     @api.depends('untaxed_amount', 'gst_rate', 'tds_rate')
     def _compute_totals(self):
@@ -69,86 +59,6 @@ class InvoiceProcessor(models.Model):
                 rec.tds_amount = rec.untaxed_amount * (rec.tds_rate / 100.0)
                 rec.total_amount = rec.untaxed_amount + rec.gst_amount
                 rec.net_payable = rec.total_amount - rec.tds_amount
-
-    def action_post(self):
-        self.ensure_one()
-        if self.move_id:
-            raise UserError(_("Journal entry already created."))
-        
-        # Partner Logic: Try to find or create the vendor
-        if not self.partner_id and self.vendor_name:
-            partner = self.env['res.partner'].search([('name', '=', self.vendor_name)], limit=1)
-            if not partner:
-                partner = self.env['res.partner'].create({'name': self.vendor_name, 'supplier_rank': 1})
-            self.partner_id = partner
-
-        if not self.partner_id:
-            raise UserError(_("Please select or specify a Vendor."))
-
-        # Journal and Account Logic (Company Scoped)
-        journal = self.journal_id or self.env['account.journal'].search([
-            ('type', 'in', ('purchase', 'general')),
-            ('company_id', '=', self.company_id.id)
-        ], limit=1)
-        if not journal:
-             raise UserError(_("Please define a Purchase or General journal for company %s.") % self.company_id.name)
-
-        # Smart defaults if fields are empty
-        domain = [('company_id', '=', self.company_id.id)]
-        expense_acc = self.expense_account_id or self.env['account.account'].search(domain + [('account_type', '=', 'expense')], limit=1)
-        gst_acc = self.gst_account_id or self.env['account.account'].search(domain + [('name', 'ilike', 'GST')], limit=1)
-        tds_acc = self.tds_account_id or self.env['account.account'].search(domain + [('name', 'ilike', 'TDS')], limit=1)
-        payable_acc = (
-            self.payable_account_id or 
-            self.partner_id.with_company(self.company_id).property_account_payable_id or 
-            self.env['account.account'].search(domain + [('account_type', '=', 'liability_payable')], limit=1)
-        )
-
-        if not expense_acc: raise UserError(_("Could not find an Expense account. Please specify one."))
-        if not payable_acc: raise UserError(_("Could not find a Payable account. Please specify one."))
-
-        line_ids = [
-            (0, 0, {
-                'name': _('Invoice %s - Purchase') % self.invoice_number,
-                'debit': self.untaxed_amount,
-                'credit': 0.0,
-                'account_id': expense_acc.id,
-                'partner_id': self.partner_id.id,
-            }),
-            (0, 0, {
-                'name': _('Invoice %s - GST Input') % self.invoice_number,
-                'debit': self.gst_amount,
-                'credit': 0.0,
-                'account_id': gst_acc.id if gst_acc else expense_acc.id, # Fallback to expense if no GST acc found
-                'partner_id': self.partner_id.id,
-            }),
-            (0, 0, {
-                'name': _('Invoice %s - TDS Deduction') % self.invoice_number,
-                'debit': 0.0,
-                'credit': self.tds_amount,
-                'account_id': tds_acc.id if tds_acc else payable_acc.id, # Fallback to payable if no TDS acc found
-                'partner_id': self.partner_id.id,
-            }),
-            (0, 0, {
-                'name': _('Invoice %s - Vendor Net Payable') % self.invoice_number,
-                'debit': 0.0,
-                'credit': self.net_payable,
-                'account_id': payable_acc.id,
-                'partner_id': self.partner_id.id,
-            }),
-        ]
-
-        move = self.env['account.move'].create({
-            'company_id': self.company_id.id,
-            'journal_id': journal.id,
-            'date': self.invoice_date or fields.Date.today(),
-            'ref': self.invoice_number,
-            'line_ids': line_ids,
-        })
-        move.action_post()
-        self.move_id = move.id
-        self.state = 'posted'
-        return True
 
     @api.model
     def _flat_data_from_extraction_json(self, extraction):

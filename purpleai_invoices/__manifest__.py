@@ -12,9 +12,9 @@
         - SQL-powered property analytics
     """,
     'category': 'Operations/AI',
-    'author': 'Bhuarjan',
-    'website': 'bhuarjan.com',
-    'depends': ['base', 'mail', 'web',  'ai_core'],
+    'author': 'GT Bharat',
+    'website': 'https://gtbharat.in',
+    'depends': ['base', 'mail', 'web', 'ai_core'],
     'data': [
         'security/purple_ai_security.xml',
         'security/ir.model.access.csv',

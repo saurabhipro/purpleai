@@ -80,10 +80,39 @@ class InvoiceProcessor(models.Model):
                     continue
 
                 # Python Rules
-                if code == 'RULE_1': # Unique Invoice
-                    dup = self.env['account.move'].search([('ref', '=', rec.invoice_number), ('partner_id', '=', rec.partner_id.id)], limit=1)
-                    dup_proc = self.env['purple_ai.invoice_processor'].search([('invoice_number', '=', rec.invoice_number), ('partner_id', '=', rec.partner_id.id), ('id', '!=', rec.id)], limit=1)
-                    log_rule(rule, not (dup or dup_proc), "Invoice already exists in Odoo" if (dup or dup_proc) else "Unique reference confirmed", "invoice_number")
+                if code == 'RULE_1':  # Unique Invoice
+                    Move = self.env.get('account.move')
+                    if not Move:
+                        log_rule(
+                            rule,
+                            False,
+                            _("Accounting app is not installed — cannot check existing journal entries"),
+                            skipped=True,
+                        )
+                    else:
+                        dup = Move.search(
+                            [
+                                ('ref', '=', rec.invoice_number),
+                                ('partner_id', '=', rec.partner_id.id),
+                            ],
+                            limit=1,
+                        )
+                        dup_proc = self.env['purple_ai.invoice_processor'].search(
+                            [
+                                ('invoice_number', '=', rec.invoice_number),
+                                ('partner_id', '=', rec.partner_id.id),
+                                ('id', '!=', rec.id),
+                            ],
+                            limit=1,
+                        )
+                        log_rule(
+                            rule,
+                            not (dup or dup_proc),
+                            _("Invoice already exists in Odoo")
+                            if (dup or dup_proc)
+                            else _("Unique reference confirmed"),
+                            "invoice_number",
+                        )
                 
                 elif code == 'RULE_2': # GST Format
                     gstin = (rec.supplier_gstin or '').strip()

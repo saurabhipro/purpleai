@@ -9,8 +9,8 @@
         using custom prompts powered by centralized AI Core settings.
     """,
     'category': 'Operations/AI',
-    'author': 'Bhuarjan',
-    'website': 'bhuarjan.com',
+    'author': 'GT Bharat',
+    'website': 'https://gtbharat.in',
     'images': ['static/description/icon.png'],
     'depends': ['base', 'mail', 'ai_core'],
     'data': [

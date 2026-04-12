@@ -4,7 +4,7 @@
         <field name="name">purple_ai.invoice_processor.tree</field>
         <field name="model">purple_ai.invoice_processor</field>
         <field name="arch" type="xml">
-            <list decoration-danger="state == 'failed'" decoration-info="state == 'posted'" decoration-warning="state == 'validation_failed'">
+            <list decoration-danger="state == 'failed'" decoration-info="state == 'posted'">
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="invoice_date"/>
                 <field name="invoice_number" decoration-bf="1"/>
@@ -27,12 +27,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_post" string="Post Journal Entry" type="object" class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_push_to_tally" string="Push to Tally" type="object" class="btn-warning" icon="fa-exchange" invisible="state == 'cancel'"/>
-                    <button name="action_validate" string="Re-Run Validations" type="object" class="btn-secondary" invisible="state == 'posted'"/>
+                    <button name="action_validate" string="Re-Run Validations" type="object" class="btn-secondary"/>
                     <button name="action_export_validation_excel" string="Export Validation Report" type="object" class="btn-info" invisible="state not in ('draft', 'failed')"/>
                     <button name="action_export_tally_excel" string="Export Tally Excel" type="object" class="btn-success" icon="fa-file-excel-o" invisible="state == 'cancel'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,failed,posted"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,failed,posted,cancel"/>
                 </header>
                 <sheet>
                     <div class="row g-0 o_audit_container">
@@ -55,7 +54,6 @@
                                     </group>
                                     <group string="System Links" invisible="not extraction_result_id">
                                         <field name="extraction_result_id" readonly="1" options="{'no_open': True}"/>
-                                        <field name="move_id" readonly="1" invisible="not move_id"/>
                                     </group>
                                 </page>
                                 <page string="Validations" name="validations">
@@ -100,13 +98,13 @@
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
           <p class="o_view_nocontent_smiling_face">
-            Process extracted invoices for accounting.
+            Review and validate extracted invoices in the queue.
           </p>
           <p>
-            This list is the <b>accounting queue</b> (<code>invoice processor</code> rows), not the raw AI run log.
+            This list is the <b>review queue</b> (<code>invoice processor</code> rows), not the raw AI run log.
             New rows are created automatically when an extraction finishes successfully; if the list is empty but you see files under
             <b>Extraction → AI extractions</b>, select those lines and click <b>Add to invoice queue</b>, or open a record and use
-            <b>Process for Accounting</b>.
+            <b>Open in review queue</b>.
           </p>
         </field>
     </record>
@@ -118,7 +116,7 @@
         <field name="inherit_id" ref="purpleai_invoices.view_extraction_result_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <button name="action_process_invoice" string="Process for Accounting" type="object" class="btn-primary" invisible="state != 'done'"/>
+                <button name="action_process_invoice" string="Open in review queue" type="object" class="btn-primary" invisible="state != 'done'"/>
             </xpath>
         </field>
     </record>

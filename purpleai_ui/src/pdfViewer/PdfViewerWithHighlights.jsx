@@ -5,11 +5,26 @@ import { PdfPage } from './PdfPage.jsx';
 
 export function PdfViewerWithHighlights({ pdfBase64, highlight }) {
   const scrollRef = useRef(null);
-  const { defaultMaxWidth, scrollHorizontalPad, minMaxWidth } = getViewerConfig().layout;
+  const layoutCfg = getViewerConfig().layout;
+  const {
+    defaultMaxWidth,
+    scrollHorizontalPad,
+    minMaxWidth,
+    defaultZoom,
+    zoomMin,
+    zoomMax,
+    zoomStep,
+  } = layoutCfg;
   const [maxWidth, setMaxWidth] = useState(defaultMaxWidth);
+  const [zoom, setZoom] = useState(defaultZoom);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [numPages, setNumPages] = useState(0);
   const [error, setError] = useState('');
+
+  const clampZoom = useCallback(
+    (z) => Math.min(zoomMax, Math.max(zoomMin, z)),
+    [zoomMin, zoomMax],
+  );
 
   const measure = useCallback(() => {
     const el = scrollRef.current;
@@ -53,15 +68,7 @@ export function PdfViewerWithHighlights({ pdfBase64, highlight }) {
     };
   }, [pdfBase64]);
 
-  useEffect(() => {
-    if (!highlight || !highlight.pageNumber || !scrollRef.current) return;
-    const shell = scrollRef.current.querySelector(
-      `.gt-pdf-page-shell[data-page="${highlight.pageNumber}"]`,
-    );
-    if (shell) {
-      shell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [highlight]);
+  const scaledMaxWidth = Math.round(Math.max(minMaxWidth, maxWidth * zoom));
 
   if (error) {
     return <div className="gt-pdf-error">{error}</div>;
@@ -73,11 +80,53 @@ export function PdfViewerWithHighlights({ pdfBase64, highlight }) {
 
   return (
     <div className="gt-pdf-scroll-wrap">
+      <div className="gt-pdf-toolbar" role="toolbar" aria-label="Document zoom and page">
+        <span className="gt-pdf-toolbar-group">
+          <button
+            type="button"
+            className="gt-pdf-tool-btn"
+            aria-label="Zoom out"
+            onClick={() => setZoom((z) => clampZoom(z - zoomStep))}
+          >
+            −
+          </button>
+          <span className="gt-pdf-zoom-label">{Math.round(zoom * 100)}%</span>
+          <button
+            type="button"
+            className="gt-pdf-tool-btn"
+            aria-label="Zoom in"
+            onClick={() => setZoom((z) => clampZoom(z + zoomStep))}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="gt-pdf-tool-btn gt-pdf-tool-btn--text"
+            aria-label="Reset zoom to fit width"
+            onClick={() => setZoom(defaultZoom)}
+          >
+            Fit width
+          </button>
+        </span>
+        {numPages > 0 ? (
+          <span className="gt-pdf-toolbar-meta">
+            {highlight?.pageNumber
+              ? `Page ${highlight.pageNumber} of ${numPages}`
+              : `${numPages} page${numPages === 1 ? '' : 's'}`}
+          </span>
+        ) : null}
+      </div>
       <div className="gt-pdf-scroll" ref={scrollRef}>
         {pdfDoc &&
           numPages > 0 &&
           Array.from({ length: numPages }, (_, i) => i + 1).map((pn) => (
-            <PdfPage key={pn} pdfDoc={pdfDoc} pageNumber={pn} maxWidth={maxWidth} highlight={highlight} />
+            <PdfPage
+              key={pn}
+              pdfDoc={pdfDoc}
+              pageNumber={pn}
+              maxWidth={scaledMaxWidth}
+              highlight={highlight}
+            />
           ))}
         {!pdfDoc && pdfBase64 && (
           <div className="viewer-loading">Loading PDF…</div>

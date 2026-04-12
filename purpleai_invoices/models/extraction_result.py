@@ -109,7 +109,7 @@ class ExtractionResult(models.Model):
         }
 
     def action_sync_invoice_queue_row(self):
-        """Create or refresh the accounting queue row (for done extractions missing from Invoices menu)."""
+        """Create or refresh the review queue row (for done extractions missing from the queue)."""
         done = self.filtered(lambda r: r.state == 'done')
         if not done:
             raise UserError(_("Only successful extractions (Status = Success) can be linked to the invoice queue."))

@@ -39,18 +39,18 @@ class InvoiceProcessor(models.Model):
              {'name': party_ledger, 'amount': self.total_amount, 'is_debit': False},
              
              # Expense (Debit Untaxed)
-             {'name': self.expense_account_id.name if self.expense_account_id else 'Purchase Accounts', 
+             {'name': 'Purchase Accounts',
               'amount': self.untaxed_amount, 'is_debit': True},
         ]
         
         # Taxes (Debit Input GST)
         if self.gst_amount:
-            ledger_entries.append({'name': self.gst_account_id.name if self.gst_account_id else 'Input GST', 
+            ledger_entries.append({'name': 'Input GST',
                                    'amount': self.gst_amount, 'is_debit': True})
         
         # TDS (Credit Deduction)
         if self.tds_amount:
-            ledger_entries.append({'name': self.tds_account_id.name if self.tds_account_id else 'TDS on Contract', 
+            ledger_entries.append({'name': 'TDS on Contract',
                                    'amount': self.tds_amount, 'is_debit': False})
 
         tally_data = {
@@ -153,16 +153,16 @@ class InvoiceProcessor(models.Model):
             sheet.write(row, 14, rec.untaxed_amount, fmt_amt_red)
 
             sheet.write(row, 15, rec.gst_rate if rec.gst_amount else '', fmt_std)
-            sheet.write(row, 16, rec.gst_account_id.name if rec.gst_account_id else 'Input IGST', fmt_std)
+            sheet.write(row, 16, 'Input IGST', fmt_std)
             sheet.write(row, 17, rec.gst_amount, fmt_green)
 
             for i in range(18, 24): sheet.write(row, i, '', fmt_std)
 
             sheet.write(row, 24, rec.tds_rate if rec.tds_amount else '', fmt_std)
-            sheet.write(row, 25, rec.tds_account_id.name if rec.tds_account_id else 'TDS on Contract', fmt_std)
+            sheet.write(row, 25, 'TDS on Contract', fmt_std)
             sheet.write(row, 26, rec.tds_amount, fmt_amt_yellow)
 
-            sheet.write(row, 27, rec.expense_account_id.name if rec.expense_account_id else 'Marketing Cost', fmt_red)
+            sheet.write(row, 27, 'Marketing Cost', fmt_red)
             sheet.write(row, 28, narration, fmt_std)
             row += 1
 

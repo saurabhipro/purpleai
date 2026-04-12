@@ -13,8 +13,8 @@
         - Editable AI outputs at every step
     """,
     'category': 'Operations/AI',
-    'author': 'Bhuarjan',
-    'website': 'bhuarjan.com',
+    'author': 'GT Bharat',
+    'website': 'https://gtbharat.in',
     'depends': ['base', 'mail', 'web','ai_core'],
     'data': [
         'security/memo_ai_security.xml',

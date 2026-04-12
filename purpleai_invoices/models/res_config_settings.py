@@ -500,35 +500,47 @@ class TendeAIResConfigSettings(models.TransientModel):
             raise UserError(_('Failed to connect to Tally: %s. Ensure Tally is running and the HTTP server is enabled.') % str(e))
 
     def action_sync_tally_ledgers(self):
-        """Fetch all Tally ledgers and create/update them in Odoo as generic accounts."""
+        """Fetch ledger names from Tally. When Odoo Accounting is installed, mirror them as accounts."""
         self.ensure_one()
         from ..services.tally_service import get_tally_ledgers
         res = get_tally_ledgers(self.env)
-        
-        if res.get('status') == 'success':
-            names = res.get('ledgers', [])
-            count = 0
-            for name in names:
-                # Check if account already exists with this name
-                existing = self.env['account.account'].search([('name', '=', name)], limit=1)
-                if not existing:
-                    # Create a default "Expense" account for new Tally ledgers if needed
-                    # Note: We need a unique code in Odoo. Using a prefix for simplicity.
-                    self.env['account.account'].create({
-                        'name': name,
-                        'code': f"T-{name[:8]}-{count}", # T-Marketing-01 style
-                        'account_type': 'expense',
-                    })
-                    count += 1
-            
+
+        if res.get('status') != 'success':
+            raise UserError(_("Failed to sync: %s") % res.get('message'))
+
+        names = res.get('ledgers', [])
+        Account = self.env.get('account.account')
+        if not Account:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('✅ Ledger Sync Complete'),
-                    'message': _('Imported %d new Tally ledgers. Total ledgers scanned: %d') % (count, len(names)),
-                    'type': 'success',
+                    'title': _('Tally ledgers'),
+                    'message': _(
+                        'Read %d ledger names from Tally. Odoo Accounting is not installed, so no accounts were created.'
+                    ) % len(names),
+                    'type': 'info',
+                    'sticky': False,
                 },
             }
-        else:
-            raise UserError(_("Failed to sync: %s") % res.get('message'))
+
+        count = 0
+        for name in names:
+            existing = Account.search([('name', '=', name)], limit=1)
+            if not existing:
+                Account.create({
+                    'name': name,
+                    'code': f"T-{name[:8]}-{count}",
+                    'account_type': 'expense',
+                })
+                count += 1
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('✅ Ledger Sync Complete'),
+                'message': _('Imported %d new Tally ledgers. Total ledgers scanned: %d') % (count, len(names)),
+                'type': 'success',
+            },
+        }
