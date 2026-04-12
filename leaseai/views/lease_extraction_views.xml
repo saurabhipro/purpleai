@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lease_ai_extraction_tree" model="ir.ui.view">
+        <field name="name">lease.ai.extraction.tree</field>
+        <field name="model">lease_ai.extraction</field>
+        <field name="arch" type="xml">
+            <list string="Lease Extractions">
+                <field name="name"/>
+                <field name="document_filename"/>
+                <field name="state" widget="badge"/>
+                <field name="create_date"/>
+                <field name="create_uid"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lease_ai_extraction_form" model="ir.ui.view">
+        <field name="name">lease.ai.extraction.form</field>
+        <field name="model">lease_ai.extraction</field>
+        <field name="arch" type="xml">
+            <form string="Lease Extraction">
+                <header>
+                    <button name="action_extract" string="Run Extraction" type="object" class="btn-primary" invisible="state == 'processing'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,processing,done,error"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="template_id"/>
+                            <field name="auto_extract_on_upload"/>
+                            <field name="document_file" filename="document_filename"/>
+                            <field name="document_filename" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="create_uid" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Template Rules / Prompt">
+                        <field name="custom_prompt" nolabel="1" placeholder="Template rules auto-load here. Edit to test custom rules."/>
+                    </group>
+                    <group string="Extraction Result" invisible="not extracted_json">
+                        <field name="extracted_html" nolabel="1" widget="html"/>
+                        <field name="extracted_json" nolabel="1"/>
+                    </group>
+                    <group string="Diagnostics" invisible="not raw_response and not error_log">
+                        <field name="raw_response" nolabel="1" readonly="1"/>
+                        <field name="error_log" nolabel="1" readonly="1" invisible="not error_log"/>
+                    </group>
+                </sheet>
+                <chatter>
+                    <field name="message_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lease_ai_extraction" model="ir.actions.act_window">
+        <field name="name">Lease Extractions</field>
+        <field name="res_model">lease_ai.extraction</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_lease_ai_extractions"
+              name="Lease Extractions"
+              parent="leaseai.menu_lease_ai_root"
+              action="action_lease_ai_extraction"
+              sequence="10"/>
+</odoo>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_lease_ai_root"
+              name="Lease AI"
+              web_icon="leaseai,static/description/icon.png"
+              sequence="120"/>
+</odoo>

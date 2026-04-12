@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lease_ai_extraction_user,lease.ai.extraction.user,model_lease_ai_extraction,base.group_user,1,1,1,1
+access_lease_ai_template_user,lease.ai.template.user,model_lease_ai_template,base.group_user,1,1,1,1
+access_lease_ai_template_rule_user,lease.ai.template.rule.user,model_lease_ai_template_rule,base.group_user,1,1,1,1

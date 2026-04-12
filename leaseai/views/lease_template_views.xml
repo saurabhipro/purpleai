@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lease_ai_template_tree" model="ir.ui.view">
+        <field name="name">lease.ai.template.tree</field>
+        <field name="model">lease_ai.template</field>
+        <field name="arch" type="xml">
+            <list string="Lease Extraction Templates">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active"/>
+                <field name="rules_text"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lease_ai_template_form" model="ir.ui.view">
+        <field name="name">lease.ai.template.form</field>
+        <field name="model">lease_ai.template</field>
+        <field name="arch" type="xml">
+            <form string="Lease Extraction Template">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="description"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Rule Rows">
+                        <field name="rule_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="sequence"/>
+                                <field name="rule_key"/>
+                                <field name="instruction"/>
+                                <field name="active"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Compiled Prompt (Active Rules)">
+                        <field name="rules_text" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lease_ai_template" model="ir.actions.act_window">
+        <field name="name">Extraction Templates</field>
+        <field name="res_model">lease_ai.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_lease_ai_templates"
+              name="Extraction Templates"
+              parent="leaseai.menu_lease_ai_root"
+              action="action_lease_ai_template"
+              sequence="20"/>
+</odoo>

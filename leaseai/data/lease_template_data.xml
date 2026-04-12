@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="lease_template_sample_v1" model="lease_ai.template">
+            <field name="name">Sample Lease Rules v1</field>
+            <field name="description">Editable sample rules for lease extraction</field>
+        </record>
+
+        <record id="lease_template_rule_001" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">10</field>
+            <field name="rule_key">R001_output_format</field>
+            <field name="instruction">Return ONLY valid JSON output. Do not include markdown fences or extra text.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_002" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">20</field>
+            <field name="rule_key">R002_lease_start_date</field>
+            <field name="instruction">Extract lease_start_date from agreement. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_003" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">30</field>
+            <field name="rule_key">R003_end_date</field>
+            <field name="instruction">Extract end_date including renewals if explicitly indicated. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_004" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">40</field>
+            <field name="rule_key">R004_tenure</field>
+            <field name="instruction">Extract tenure in months; include days as decimal when needed (example 60.15). Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_005" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">50</field>
+            <field name="rule_key">R005_frequency_months</field>
+            <field name="instruction">Extract frequency_months with mapping monthly=1, quarterly=3, half-yearly=6, yearly=12. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_006" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">60</field>
+            <field name="rule_key">R006_first_payment_date</field>
+            <field name="instruction">Extract first_payment_date; if unavailable use lease_start_date; cannot be before lease_start_date. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_007" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">70</field>
+            <field name="rule_key">R007_day_of_month</field>
+            <field name="instruction">Extract day_of_month as 1-30. If due is last day of month, return "last". Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_008" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">80</field>
+            <field name="rule_key">R008_accrual_day</field>
+            <field name="instruction">Extract accrual_day. Usually 1; if agreement indicates a mid-month accrual, use that day. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_009" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">90</field>
+            <field name="rule_key">R009_agreement_date</field>
+            <field name="instruction">Extract agreement_date (date on which agreement is executed). Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_010" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">100</field>
+            <field name="rule_key">R010_auto_rentals</field>
+            <field name="instruction">Set auto_rentals to "Yes" only for one absolute escalation percent and single consistent frequency throughout; otherwise "No". Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_011" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">110</field>
+            <field name="rule_key">R011_specific_instruction</field>
+            <field name="instruction">If auto_rentals is "No", compute and list each rental slab and effective date from agreement schedule.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_012" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">120</field>
+            <field name="rule_key">R012_rental_1</field>
+            <field name="instruction">Extract rental_1 as first lease rental amount. Must contain a value.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_013" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">130</field>
+            <field name="rule_key">R013_rental_date_1</field>
+            <field name="instruction">Extract rental_date_1 as effective till date for rental_1 if auto_rentals is "No"; otherwise keep empty.</field>
+            <field name="active">1</field>
+        </record>
+        <record id="lease_template_rule_014" model="lease_ai.template.rule">
+            <field name="template_id" ref="leaseai.lease_template_sample_v1"/>
+            <field name="sequence">140</field>
+            <field name="rule_key">R014_rental_series</field>
+            <field name="instruction">Continue extraction for rental_2/rental_date_2 up to rental_20/rental_date_20 when applicable.</field>
+            <field name="active">1</field>
+        </record>
+    </data>
+</odoo>

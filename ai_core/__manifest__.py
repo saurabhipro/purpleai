@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "summary": "Centralized AI configuration and services for Memo AI and Purple AI modules.",
     "author": "Your Company",
+    "images": ["static/description/icon.png"],
     "category": "Tools",
     "depends": ["base", "base_setup"],
     "data": [
