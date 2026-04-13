@@ -272,9 +272,16 @@ def get_embedding(env, text):
         
     elif provider == 'azure':
         from openai import AzureOpenAI
+        embedding_endpoint = (settings.get('azure_embedding_endpoint') or settings.get('azure_endpoint') or '').strip()
+        embedding_key = (settings.get('azure_embedding_key') or settings.get('azure_key') or '').strip()
+        if not embedding_endpoint or not embedding_key:
+            raise ValueError(
+                "Azure embedding credentials are incomplete. "
+                "Set Azure Embedding Endpoint/API Key (or fallback Azure Endpoint/API Key) in AI Core settings."
+            )
         client = AzureOpenAI(
-            api_key=settings['azure_key'],
-            azure_endpoint=settings['azure_endpoint'],
+            api_key=embedding_key,
+            azure_endpoint=embedding_endpoint,
             api_version=settings['azure_api_version']
         )
         emb_model = (settings.get('azure_embedding_deployment') or settings.get('azure_deployment') or '').strip()

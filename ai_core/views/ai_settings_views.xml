@@ -36,13 +36,29 @@
                                 </div>
                             </setting>
 
-                            <setting title="Azure OpenAI" help="Credentials and deployment details when provider is Azure OpenAI." invisible="provider != 'azure'">
+                            <setting title="Azure OpenAI - Chat/Completion" help="Used for normal chat/completion requests when provider is Azure OpenAI." invisible="provider != 'azure'">
                                 <div class="content-group">
-                                    <field name="azure_key" password="True"/>
+                                    <label for="azure_endpoint"/>
                                     <field name="azure_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
+                                    <label for="azure_key"/>
+                                    <field name="azure_key" password="True"/>
+                                    <label for="azure_deployment"/>
                                     <field name="azure_deployment" placeholder="gpt-4o"/>
+                                </div>
+                            </setting>
+
+                            <setting title="Azure OpenAI - Embeddings (Separate Optional Credentials)" help="Use this when embedding model is hosted on a different Azure resource/key." invisible="provider != 'azure'">
+                                <div class="content-group">
+                                    <label for="azure_embedding_endpoint"/>
+                                    <field name="azure_embedding_endpoint" placeholder="https://&lt;resource&gt;.openai.azure.com/"/>
+                                    <label for="azure_embedding_key"/>
+                                    <field name="azure_embedding_key" password="True"/>
+                                    <label for="azure_embedding_deployment"/>
                                     <field name="azure_embedding_deployment" placeholder="text-embedding-3-small"/>
                                     <field name="azure_api_version" placeholder="2024-12-01-preview"/>
+                                    <div class="text-muted small mt-2">
+                                        Leave Endpoint/API Key empty to reuse Chat credentials above.
+                                    </div>
                                     <div class="text-muted small mt-2">
                                         <a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI" class="oe_link" target="_blank" rel="noreferrer">Azure Portal — Create OpenAI resource</a>
                                         ·

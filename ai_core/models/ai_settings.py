@@ -78,6 +78,16 @@ class AISettings(models.TransientModel):
         default='text-embedding-3-small',
         config_parameter='ai_core.azure_embedding_deployment',
     )
+    azure_embedding_endpoint = fields.Char(
+        string='Azure Embedding Endpoint',
+        config_parameter='ai_core.azure_embedding_endpoint',
+        help='Optional dedicated endpoint for embedding deployment. Leave empty to use Azure Endpoint.',
+    )
+    azure_embedding_key = fields.Char(
+        string='Azure Embedding API Key',
+        config_parameter='ai_core.azure_embedding_api_key',
+        help='Optional dedicated API key for embeddings. Leave empty to use Azure API Key.',
+    )
     azure_api_version = fields.Char(
         string='Azure API Version',
         default='2024-12-01-preview',

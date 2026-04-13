@@ -53,6 +53,8 @@ def _get_ai_settings(env):
         'azure_endpoint': config.get_param('ai_core.azure_endpoint', ''),
         'azure_deployment': config.get_param('ai_core.azure_deployment', ''),
         'azure_embedding_deployment': config.get_param('ai_core.azure_embedding_deployment', 'text-embedding-3-small'),
+        'azure_embedding_endpoint': config.get_param('ai_core.azure_embedding_endpoint', ''),
+        'azure_embedding_key': config.get_param('ai_core.azure_embedding_api_key', ''),
         'azure_api_version': config.get_param('ai_core.azure_api_version', '2024-12-01-preview'),
         'use_local_embeddings': config.get_param('ai_core.use_local_embeddings', 'False') == 'True',
         'local_embedding_model': config.get_param('ai_core.local_embedding_model', 'sentence-transformers/all-MiniLM-L6-v2'),
