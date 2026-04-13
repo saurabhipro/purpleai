@@ -410,6 +410,20 @@ export class AIEvidenceViewer extends Component {
         return this.itemToString(item);
     }
 
+    getBooleanState(val) {
+        if (typeof val === "boolean") {
+            return val ? "true" : "false";
+        }
+        const text = String(val ?? "").trim().toLowerCase();
+        if (["true", "1", "yes", "y"].includes(text)) {
+            return "true";
+        }
+        if (["false", "0", "no", "n"].includes(text)) {
+            return "false";
+        }
+        return null;
+    }
+
     onMouseEnterRow(key) {
         if (this.state.hoveredKey === key) return;
         this.state.hoveredKey = key;

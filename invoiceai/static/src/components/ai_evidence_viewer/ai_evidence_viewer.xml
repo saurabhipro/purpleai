@@ -48,6 +48,7 @@
                                     <t t-set="val_data" t-value="item[1]"/>
                                     <t t-set="val_raw" t-value="(val_data and typeof val_data === 'object' and !Array.isArray(val_data)) ? val_data.value : val_data"/>
                                     <t t-set="val" t-value="this.formatValue(val_raw)"/>
+                                    <t t-set="boolState" t-value="this.getBooleanState(val_raw)"/>
                                     <t t-set="isArray" t-value="Array.isArray(val_raw)"/>
                                     <t t-set="page" t-value="(val_data and typeof val_data === 'object' and !Array.isArray(val_data)) ? val_data.page_number : null"/>
 
@@ -103,6 +104,16 @@
                                                             </t>
                                                         </div>
                                                         <!-- Plain value display -->
+                                                        <t t-if="boolState === 'true'">
+                                                            <span class="badge rounded-pill text-bg-success" style="font-size: 0.78rem;">
+                                                                <i class="fa fa-check me-1"/> True
+                                                            </span>
+                                                        </t>
+                                                        <t t-elif="boolState === 'false'">
+                                                            <span class="badge rounded-pill text-bg-danger" style="font-size: 0.78rem;">
+                                                                <i class="fa fa-times me-1"/> False
+                                                            </span>
+                                                        </t>
                                                         <span t-else=""
                                                               t-attf-class="evidence-value fw-bold #{state.selectedKey === key ? 'text-danger' : 'text-primary'}"
                                                               style="font-size: 0.9rem;" t-esc="val || '---'"/>
