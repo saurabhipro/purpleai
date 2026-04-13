@@ -47,6 +47,25 @@ export class PurpleAIDashboard extends Component {
     }
 
     async openResults(domain = [], resId = false) {
+        if (resId) {
+            try {
+                const action = await this.orm.call(
+                    "purple_ai.extraction_result",
+                    "action_process_invoice",
+                    [[resId]]
+                );
+                if (action) {
+                    if (!action.views) {
+                        action.views = [[false, "form"]];
+                    }
+                    this.action.doAction(action);
+                    return;
+                }
+            } catch (e) {
+                console.warn("Direct workflow open failed, falling back to extraction form.", e);
+            }
+        }
+
         const action = {
             name: _t("Extraction Results"),
             type: "ir.actions.act_window",
@@ -55,11 +74,11 @@ export class PurpleAIDashboard extends Component {
             target: "current",
         };
         
-        if (resId) {
+        if (!resId) {
+            action.views = [[false, "list"], [false, "form"]];
+        } else {
             action.res_id = resId;
             action.views = [[false, "form"]];
-        } else {
-            action.views = [[false, "list"], [false, "form"]];
         }
         
         this.action.doAction(action);

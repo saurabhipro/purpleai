@@ -120,18 +120,6 @@
         <field name="domain">['|', ('workflow_status', '=', 'manager_rejected'), ('approval_state', '=', 'rejected')]</field>
     </record>
     
-    <!-- Result form enhancement to open invoice workflow -->
-    <record id="view_extraction_result_form_inherit" model="ir.ui.view">
-        <field name="name">purple_ai.extraction_result.form.inherit</field>
-        <field name="model">purple_ai.extraction_result</field>
-        <field name="inherit_id" ref="invoiceai.view_extraction_result_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//header" position="inside">
-                <button name="action_process_invoice" string="Open Invoice Workflow" type="object" class="btn-primary" invisible="state != 'done'"/>
-            </xpath>
-        </field>
-    </record>
-
     <!-- Bulk Export Action for List View -->
     <record id="action_bulk_export_tally_excel" model="ir.actions.server">
         <field name="name">Export Tally Excel (Bulk)</field>
