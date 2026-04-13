@@ -303,156 +303,83 @@ class ClientMaster(models.Model):
             with open(path, 'wb') as f:
                 f.write(pdf.encode('utf-8'))
 
-        samples = [
-            {
-                "file": "INV-APPROVAL-001.pdf",
-                "inv_no": "INV-APPROVAL-001",
-                "date": "2026-04-01",
-                "due_date": "2026-04-15",
-                "po": "PO-1001",
-                "place_of_supply": "Karnataka",
-                "vendor": "Acme Services Pvt Ltd",
-                "vendor_addr": "12 Residency Road, Bengaluru",
-                "vendor_gstin": "29ABCDE1234F1Z5",
-                "vendor_pan": "ABCDE1234F",
-                "bill_to": "GT Bharat Technologies Pvt Ltd",
-                "bill_addr": "Whitefield, Bengaluru",
-                "bill_gstin": "29AAACG9999K1Z7",
-                "items": [
-                    {"desc": "Consulting Services - Monthly Retainer", "qty": 1, "rate": "10000.00", "amount": "10000.00"},
-                ],
-                "taxable_value": "10000.00",
-                "cgst": "900.00",
-                "sgst": "900.00",
-                "igst": "0.00",
-                "total": "11800.00",
-                "tds": "1000.00",
-                "net_payable": "10800.00",
+        today = fields.Date.context_today(self)
+        fy_start = today.year if today.month >= 4 else today.year - 1
+        fy_tag = f"{str(fy_start)[-2:]}{str(fy_start + 1)[-2:]}"
+        prefix = f"INV-{fy_tag}-"
+        generator_folder = os.path.join(folder, "invoice_generator")
+        os.makedirs(generator_folder, exist_ok=True)
+
+        existing_max = 0
+        seq_pattern = re.compile(rf"^{re.escape(prefix)}(\d{{3}})")
+        for fname in os.listdir(generator_folder):
+            if not fname.lower().endswith(".pdf"):
+                continue
+            m = seq_pattern.match(fname)
+            if m:
+                existing_max = max(existing_max, int(m.group(1)))
+
+        base = {
+            "bill_to": "GT Bharat Technologies Pvt Ltd",
+            "bill_addr": "Whitefield, Bengaluru",
+            "bill_gstin": "29AAACG9999K1Z7",
+        }
+        scenarios = [
+            {"suffix": "domestic_services", "vendor": "Acme Services Pvt Ltd", "vendor_addr": "Residency Road, Bengaluru", "vendor_gstin": "29ABCDE1234F1Z5", "vendor_pan": "ABCDE1234F", "place_of_supply": "Karnataka", "po": "PO-2001", "item_desc": "Consulting services retainer", "rate": "10000.00", "taxable": "10000.00", "cgst": "900.00", "sgst": "900.00", "igst": "0.00", "tds": "1000.00", "remarks": "Domestic service with TDS"},
+            {"suffix": "domestic_goods", "vendor": "Northwind Traders", "vendor_addr": "Peenya, Bengaluru", "vendor_gstin": "29AACCN5678M1Z2", "vendor_pan": "AACCN5678M", "place_of_supply": "Karnataka", "po": "PO-2002", "item_desc": "Network switch procurement", "rate": "24000.00", "taxable": "24000.00", "cgst": "2160.00", "sgst": "2160.00", "igst": "0.00", "tds": "0.00", "remarks": "Domestic goods"},
+            {"suffix": "interstate_igst", "vendor": "Beta Enterprises", "vendor_addr": "Andheri East, Mumbai", "vendor_gstin": "27AABCB2222P1ZZ", "vendor_pan": "AABCB2222P", "place_of_supply": "Maharashtra", "po": "PO-2003", "item_desc": "Professional design services", "rate": "18500.00", "taxable": "18500.00", "cgst": "0.00", "sgst": "0.00", "igst": "3330.00", "tds": "1850.00", "remarks": "Inter-state IGST with TDS"},
+            {"suffix": "foreign_invoice", "vendor": "Global Cloud Inc", "vendor_addr": "San Francisco, USA", "vendor_gstin": "NA", "vendor_pan": "NA", "place_of_supply": "Outside India", "po": "PO-2004", "item_desc": "Cloud subscription annual plan", "rate": "600.00 USD", "taxable": "600.00 USD", "cgst": "0.00", "sgst": "0.00", "igst": "0.00", "tds": "0.00", "remarks": "Foreign currency invoice"},
+            {"suffix": "proforma_invoice", "vendor": "Zenith Supplies", "vendor_addr": "Mysore Road, Bengaluru", "vendor_gstin": "29AAACZ7654R1Z0", "vendor_pan": "AAACZ7654R", "place_of_supply": "Karnataka", "po": "PO-2005", "item_desc": "Advance billing for annual support", "rate": "15000.00", "taxable": "15000.00", "cgst": "1350.00", "sgst": "1350.00", "igst": "0.00", "tds": "0.00", "remarks": "PROFORMA INVOICE - Advance request"},
+            {"suffix": "prepaid_expense", "vendor": "Orbit Tech Services", "vendor_addr": "HSR Layout, Bengaluru", "vendor_gstin": "29AAACO1234K1Z2", "vendor_pan": "AAACO1234K", "place_of_supply": "Karnataka", "po": "PO-2006", "item_desc": "AMC for 12 months prepaid", "rate": "36000.00", "taxable": "36000.00", "cgst": "3240.00", "sgst": "3240.00", "igst": "0.00", "tds": "3600.00", "remarks": "Prepaid service for next period"},
+            {"suffix": "capex_asset", "vendor": "Prime Machinery Pvt Ltd", "vendor_addr": "Pune", "vendor_gstin": "27AACCP7788M1Z9", "vendor_pan": "AACCP7788M", "place_of_supply": "Maharashtra", "po": "PO-2007", "item_desc": "High-end workstation asset", "rate": "125000.00", "taxable": "125000.00", "cgst": "0.00", "sgst": "0.00", "igst": "22500.00", "tds": "0.00", "remarks": "Capital asset procurement"},
+            {"suffix": "rcm_case", "vendor": "Unregistered Transporter", "vendor_addr": "Tumkur, Karnataka", "vendor_gstin": "NA", "vendor_pan": "AVUPT1122Q", "place_of_supply": "Karnataka", "po": "PO-2008", "item_desc": "Freight inward charges", "rate": "8000.00", "taxable": "8000.00", "cgst": "0.00", "sgst": "0.00", "igst": "0.00", "tds": "0.00", "remarks": "RCM applicable freight service"},
+        ]
+
+        samples = []
+        for idx, sc in enumerate(scenarios, start=1):
+            seq_no = existing_max + idx
+            inv_no = f"{prefix}{seq_no:03d}"
+            taxable_val = sc["taxable"]
+            total_val = (
+                f"{float(sc['taxable']) + float(sc['cgst']) + float(sc['sgst']) + float(sc['igst']):.2f}"
+                if "USD" not in taxable_val
+                else taxable_val
+            )
+            net_payable = (
+                f"{float(total_val) - float(sc['tds']):.2f}"
+                if "USD" not in total_val
+                else total_val
+            )
+            samples.append({
+                "file": f"{inv_no}_{sc['suffix']}.pdf",
+                "inv_no": inv_no,
+                "date": str(today),
+                "due_date": str(today),
+                "po": sc["po"],
+                "place_of_supply": sc["place_of_supply"],
+                "vendor": sc["vendor"],
+                "vendor_addr": sc["vendor_addr"],
+                "vendor_gstin": sc["vendor_gstin"],
+                "vendor_pan": sc["vendor_pan"],
+                "bill_to": base["bill_to"],
+                "bill_addr": base["bill_addr"],
+                "bill_gstin": base["bill_gstin"],
+                "items": [{"desc": sc["item_desc"], "qty": 1, "rate": sc["rate"], "amount": sc["taxable"]}],
+                "taxable_value": taxable_val,
+                "cgst": sc["cgst"],
+                "sgst": sc["sgst"],
+                "igst": sc["igst"],
+                "total": total_val,
+                "tds": sc["tds"],
+                "net_payable": net_payable,
                 "payment_terms": "Net 15 days",
                 "bank_details": "HDFC 50200012345678 IFSC HDFC0001234",
-                "service_period": "01-Apr-2026 to 30-Apr-2026",
-                "remarks": "For approval workflow demo",
-            },
-            {
-                "file": "INV-READY-002.pdf",
-                "inv_no": "INV-READY-002",
-                "date": "2026-04-02",
-                "due_date": "2026-04-12",
-                "po": "PO-1002",
-                "place_of_supply": "Karnataka",
-                "vendor": "Northwind Traders",
-                "vendor_addr": "44 Industrial Area, Peenya, Bengaluru",
-                "vendor_gstin": "29AACCN5678M1Z2",
-                "vendor_pan": "AACCN5678M",
-                "bill_to": "GT Bharat Technologies Pvt Ltd",
-                "bill_addr": "Whitefield, Bengaluru",
-                "bill_gstin": "29AAACG9999K1Z7",
-                "items": [
-                    {"desc": "Hardware Procurement - Network Equipment", "qty": 2, "rate": "12000.00", "amount": "24000.00"},
-                ],
-                "taxable_value": "24000.00",
-                "cgst": "2160.00",
-                "sgst": "2160.00",
-                "igst": "0.00",
-                "total": "28320.00",
-                "tds": "0.00",
-                "net_payable": "28320.00",
-                "payment_terms": "Immediate",
-                "bank_details": "ICICI 001234567890 IFSC ICIC0000456",
-                "service_period": "NA",
-                "remarks": "Ready for tally demo",
-            },
-            {
-                "file": "INV-FAILED-003.pdf",
-                "inv_no": "INV-FAILED-003",
-                "date": "2026-04-03",
-                "due_date": "2026-04-20",
-                "po": "PO-1003",
-                "place_of_supply": "Maharashtra",
-                "vendor": "Beta Enterprises",
-                "vendor_addr": "Andheri East, Mumbai",
-                "vendor_gstin": "27AABCB2222P1ZZ",
-                "vendor_pan": "AABCB2222P",
-                "bill_to": "GT Bharat Technologies Pvt Ltd",
-                "bill_addr": "Whitefield, Bengaluru",
-                "bill_gstin": "29AAACG9999K1Z7",
-                "items": [
-                    {"desc": "Professional Services - Design and Review", "qty": 1, "rate": "18500.00", "amount": "18500.00"},
-                ],
-                "taxable_value": "18500.00",
-                "cgst": "0.00",
-                "sgst": "0.00",
-                "igst": "1500.00",
-                "total": "20000.00",
-                "tds": "1850.00",
-                "net_payable": "18150.00",
-                "payment_terms": "Net 30 days",
-                "bank_details": "SBI 334455667788 IFSC SBIN0007788",
-                "service_period": "03-Apr-2026",
-                "remarks": "Intentional tax mismatch for failed validation",
-            },
-            {
-                "file": "INV-FOREIGN-004.pdf",
-                "inv_no": "INV-FOREIGN-004",
-                "date": "2026-04-04",
-                "due_date": "2026-04-14",
-                "po": "PO-1004",
-                "place_of_supply": "Outside India",
-                "vendor": "Global Cloud Inc",
-                "vendor_addr": "120 Market St, San Francisco, USA",
-                "vendor_gstin": "NA",
-                "vendor_pan": "NA",
-                "bill_to": "GT Bharat Technologies Pvt Ltd",
-                "bill_addr": "Whitefield, Bengaluru",
-                "bill_gstin": "29AAACG9999K1Z7",
-                "items": [
-                    {"desc": "Cloud Subscription - Enterprise Plan", "qty": 1, "rate": "600.00 USD", "amount": "600.00 USD"},
-                ],
-                "taxable_value": "600.00 USD",
-                "cgst": "0.00",
-                "sgst": "0.00",
-                "igst": "0.00",
-                "total": "600.00 USD",
-                "tds": "0.00",
-                "net_payable": "600.00 USD",
-                "payment_terms": "Advance",
-                "bank_details": "Wire Transfer SWIFT GCLDUS33",
-                "service_period": "Apr-2026",
-                "remarks": "Foreign invoice hold scenario",
-            },
-            {
-                "file": "INV-REJECT-005.pdf",
-                "inv_no": "INV-REJECT-005",
-                "date": "2026-04-05",
-                "due_date": "2026-04-18",
-                "po": "PO-1005",
-                "place_of_supply": "Karnataka",
-                "vendor": "Zenith Supplies",
-                "vendor_addr": "Mysore Road, Bengaluru",
-                "vendor_gstin": "29AAACZ7654R1Z0",
-                "vendor_pan": "AAACZ7654R",
-                "bill_to": "GT Bharat Technologies Pvt Ltd",
-                "bill_addr": "Whitefield, Bengaluru",
-                "bill_gstin": "29AAACG9999K1Z7",
-                "items": [
-                    {"desc": "Office Consumables - Bulk Supply", "qty": 1, "rate": "9000.00", "amount": "9000.00"},
-                ],
-                "taxable_value": "9000.00",
-                "cgst": "810.00",
-                "sgst": "810.00",
-                "igst": "0.00",
-                "total": "10620.00",
-                "tds": "0.00",
-                "net_payable": "10620.00",
-                "payment_terms": "Net 10 days",
-                "bank_details": "Axis 918273645001 IFSC UTIB0001789",
-                "service_period": "05-Apr-2026",
-                "remarks": "Contains HSN mismatch for manager rejection demo",
-            },
-        ]
+                "service_period": str(today),
+                "remarks": sc["remarks"],
+            })
         created = 0
         for invoice in samples:
-            fpath = os.path.join(folder, invoice["file"])
+            fpath = os.path.join(generator_folder, invoice["file"])
             _make_pdf(fpath, invoice)
             created += 1
 
@@ -461,7 +388,7 @@ class ClientMaster(models.Model):
             'tag': 'display_notification',
             'params': {
                 'title': _('Demo invoices created'),
-                'message': _('Created %d sample PDF invoices in %s') % (created, folder),
+                'message': _('Created %d sample PDF invoices in %s') % (created, generator_folder),
                 'type': 'success',
                 'sticky': False,
             },
