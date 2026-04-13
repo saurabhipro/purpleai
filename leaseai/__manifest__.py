@@ -8,7 +8,7 @@
         Upload lease documents and extract structured information
         using custom prompts powered by centralized AI Core settings.
     """,
-    'category': 'Operations/AI',
+    'category': 'Purple AI',
     'author': 'GT Bharat',
     'website': 'https://gtbharat.in',
     'images': ['static/description/icon.png'],

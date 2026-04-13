@@ -1,6 +1,6 @@
 {
     'name': 'Invoice AI - Folder-based AI Extraction',
-    'version': '18.0.1.0.6',
+    'version': '18.0.1.0.7',
     'summary': 'AI-powered folder monitoring and data extraction',
     'description': """
         Install this app from Apps (or ``-i invoiceai``) on each database; models such as
@@ -15,7 +15,7 @@
         - Client-wise extraction templates
         - SQL-powered property analytics
     """,
-    'category': 'Operations/AI',
+    'category': 'Purple AI',
     'author': 'GT Bharat',
     'website': 'https://gtbharat.in',
     'depends': ['base', 'mail', 'web', 'ai_core'],
@@ -23,6 +23,7 @@
         'security/purple_ai_security.xml',
         'security/ir.model.access.csv',
         'data/system_parameter_data.xml',
+        'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',
         'data/extraction_template_data.xml',
         'data/invoice_processor_dummy_data.xml',

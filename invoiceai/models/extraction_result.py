@@ -268,10 +268,15 @@ class ExtractionResult(models.Model):
         proc_domain_company = [('company_id', 'in', active_company_ids)]
         stats['invoice_buckets'] = {
             'all': Proc.search_count(proc_domain_company),
-            'pending': Proc.search_count(proc_domain_company + ['|', ('state', '=', 'failed'), ('workflow_status', 'in', [
-                'pending_vrf_field_mapping', 'gl_decision_in_progress', 'waiting_fa_schedule_update',
-                'waiting_prepaid_review', 'pending_manager_approval'
-            ])]),
+            'pending': Proc.search_count(proc_domain_company + ['|', '|',
+                ('state', '=', 'failed'),
+                ('approval_state', '=', 'rejected'),
+                ('workflow_status', 'in', [
+                    'hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma',
+                    'pending_vrf_field_mapping', 'gl_decision_in_progress', 'waiting_fa_schedule_update',
+                    'waiting_prepaid_review'
+                ])
+            ]),
             'hold': Proc.search_count(proc_domain_company + [('workflow_status', 'in', [
                 'hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma'
             ])]),

@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
-                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#fff4e6 !important; background-image:url('/invoiceai/static/img/orange_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Pending Invoices', ['|', ['state', '=', 'failed'], ['workflow_status', 'in', ['pending_vrf_field_mapping', 'gl_decision_in_progress', 'waiting_fa_schedule_update', 'waiting_prepaid_review', 'pending_manager_approval']]])">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#fff4e6 !important; background-image:url('/invoiceai/static/img/orange_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Pending Invoices', ['|', '|', ['state', '=', 'failed'], ['approval_state', '=', 'rejected'], ['workflow_status', 'in', ['hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma', 'pending_vrf_field_mapping', 'gl_decision_in_progress', 'waiting_fa_schedule_update', 'waiting_prepaid_review']]])">
                             <div class="card-body py-3" style="background: transparent !important;">
                                 <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#7c2d12;">
                                     <i class="fa fa-hourglass-half" style="font-size: 1rem;"/>

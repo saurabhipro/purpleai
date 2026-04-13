@@ -9,6 +9,14 @@
             <field name="number_increment">1</field>
             <field name="number_next">1</field>
         </record>
+        <record id="sequence_purple_ai_invoice_processor" model="ir.sequence">
+            <field name="name">Purple AI Invoice Process ID</field>
+            <field name="code">purple_ai.invoice_processor</field>
+            <field name="prefix">PROC-</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+        </record>
     </data>
 </odoo>
 

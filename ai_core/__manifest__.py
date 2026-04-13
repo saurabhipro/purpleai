@@ -4,7 +4,7 @@
     "summary": "Centralized AI configuration and services for Memo AI and Purple AI modules.",
     "author": "Your Company",
     "images": ["static/description/icon.png"],
-    "category": "Tools",
+    "category": "Purple AI",
     "depends": ["base", "base_setup"],
     "data": [
         "views/ai_settings_views.xml"

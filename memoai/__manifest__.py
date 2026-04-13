@@ -12,7 +12,7 @@
         - SME-configurable prompts per subject
         - Editable AI outputs at every step
     """,
-    'category': 'Operations/AI',
+    'category': 'Purple AI',
     'author': 'GT Bharat',
     'website': 'https://gtbharat.in',
     'depends': ['base', 'mail', 'web','ai_core'],

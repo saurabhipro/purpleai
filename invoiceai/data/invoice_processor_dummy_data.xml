@@ -4,8 +4,6 @@
         <record id="client_demo_ap_team" model="purple_ai.client">
             <field name="name">Demo AP Team</field>
             <field name="extraction_master_id" ref="invoiceai.extraction_master_invoice"/>
-            <field name="company_id" ref="base.main_company"/>
-            <field name="manager_user_id" ref="base.user_admin"/>
             <field name="folder_path">/home/odoo18/invoice/demo_ap_team</field>
         </record>
 
