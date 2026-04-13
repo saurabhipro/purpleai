@@ -18,6 +18,7 @@ class ClientMaster(models.Model):
     folder_path = fields.Char(string='Watch Folder Path', help="Automatically generated path on the server")
     extraction_master_id = fields.Many2one('purple_ai.extraction_master', string='Extraction Template', required=True)
     company_id = fields.Many2one('res.company', string='Linked Company', readonly=True)
+    manager_user_id = fields.Many2one('res.users', string='Client Manager')
     active = fields.Boolean(default=True)
     
     # Progress Tracking
@@ -215,6 +216,255 @@ class ClientMaster(models.Model):
             'view_mode': 'list,form',
             'domain': [('client_id', '=', self.id)],
             'context': {'default_client_id': self.id},
+        }
+
+    def action_generate_demo_invoices(self):
+        """Generate sample PDF invoices directly into this client's watch folder."""
+        self.ensure_one()
+        self._ensure_folder_exists()
+        folder = (self.folder_path or '').strip()
+        if not folder:
+            raise UserError(_("Watch folder path is not configured for this client."))
+
+        def _esc(txt):
+            return (txt or "").replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+        def _make_pdf(path, invoice):
+            lines = [
+                "TAX INVOICE",
+                "",
+                f"Invoice No: {invoice['inv_no']}    Date: {invoice['date']}    Due: {invoice['due_date']}",
+                f"PO Number: {invoice['po']}    Place of Supply: {invoice['place_of_supply']}",
+                "",
+                "Vendor (Supplier):",
+                f"{invoice['vendor']}",
+                f"{invoice['vendor_addr']}",
+                f"GSTIN: {invoice['vendor_gstin']}    PAN: {invoice['vendor_pan']}",
+                "",
+                "Bill To:",
+                f"{invoice['bill_to']}",
+                f"{invoice['bill_addr']}",
+                f"GSTIN: {invoice['bill_gstin']}",
+                "",
+                "Line Items",
+                "---------------------------------------------------------------------",
+                "Description                               Qty   Rate      Amount",
+                "---------------------------------------------------------------------",
+            ]
+            for item in invoice["items"]:
+                desc = item["desc"][:38]
+                qty = item["qty"]
+                rate = item["rate"]
+                amount = item["amount"]
+                lines.append(f"{desc:<38} {qty:>3} {rate:>8} {amount:>11}")
+            lines.extend([
+                "---------------------------------------------------------------------",
+                f"Taxable Value: {invoice['taxable_value']}",
+                f"CGST @9%: {invoice['cgst']}",
+                f"SGST @9%: {invoice['sgst']}",
+                f"IGST: {invoice['igst']}",
+                f"Total Invoice Value: {invoice['total']}",
+                f"TDS: {invoice['tds']}    Net Payable: {invoice['net_payable']}",
+                "",
+                f"Payment Terms: {invoice['payment_terms']}",
+                f"Bank Details: {invoice['bank_details']}",
+                f"Service Period: {invoice['service_period']}",
+                f"Remarks: {invoice['remarks']}",
+                "",
+                "Authorized Signatory",
+            ])
+
+            y = 800
+            body_parts = ["BT", "/F1 10 Tf"]
+            for line in lines:
+                body_parts.append(f"1 0 0 1 40 {y} Tm ({_esc(line)}) Tj")
+                y -= 14
+                if y < 40:
+                    break
+            body_parts.append("ET")
+            body = "\n".join(body_parts) + "\n"
+            pdf = (
+                "%PDF-1.1\n"
+                "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+                "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+                "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R "
+                "/Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n"
+                f"4 0 obj\n<< /Length {len(body.encode('utf-8'))} >>\nstream\n{body}endstream\nendobj\n"
+                "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n"
+                "xref\n0 6\n"
+                "0000000000 65535 f \n"
+                "0000000009 00000 n \n"
+                "0000000058 00000 n \n"
+                "0000000115 00000 n \n"
+                "0000000241 00000 n \n"
+                "0000000461 00000 n \n"
+                "trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n531\n%%EOF\n"
+            )
+            with open(path, 'wb') as f:
+                f.write(pdf.encode('utf-8'))
+
+        samples = [
+            {
+                "file": "INV-APPROVAL-001.pdf",
+                "inv_no": "INV-APPROVAL-001",
+                "date": "2026-04-01",
+                "due_date": "2026-04-15",
+                "po": "PO-1001",
+                "place_of_supply": "Karnataka",
+                "vendor": "Acme Services Pvt Ltd",
+                "vendor_addr": "12 Residency Road, Bengaluru",
+                "vendor_gstin": "29ABCDE1234F1Z5",
+                "vendor_pan": "ABCDE1234F",
+                "bill_to": "GT Bharat Technologies Pvt Ltd",
+                "bill_addr": "Whitefield, Bengaluru",
+                "bill_gstin": "29AAACG9999K1Z7",
+                "items": [
+                    {"desc": "Consulting Services - Monthly Retainer", "qty": 1, "rate": "10000.00", "amount": "10000.00"},
+                ],
+                "taxable_value": "10000.00",
+                "cgst": "900.00",
+                "sgst": "900.00",
+                "igst": "0.00",
+                "total": "11800.00",
+                "tds": "1000.00",
+                "net_payable": "10800.00",
+                "payment_terms": "Net 15 days",
+                "bank_details": "HDFC 50200012345678 IFSC HDFC0001234",
+                "service_period": "01-Apr-2026 to 30-Apr-2026",
+                "remarks": "For approval workflow demo",
+            },
+            {
+                "file": "INV-READY-002.pdf",
+                "inv_no": "INV-READY-002",
+                "date": "2026-04-02",
+                "due_date": "2026-04-12",
+                "po": "PO-1002",
+                "place_of_supply": "Karnataka",
+                "vendor": "Northwind Traders",
+                "vendor_addr": "44 Industrial Area, Peenya, Bengaluru",
+                "vendor_gstin": "29AACCN5678M1Z2",
+                "vendor_pan": "AACCN5678M",
+                "bill_to": "GT Bharat Technologies Pvt Ltd",
+                "bill_addr": "Whitefield, Bengaluru",
+                "bill_gstin": "29AAACG9999K1Z7",
+                "items": [
+                    {"desc": "Hardware Procurement - Network Equipment", "qty": 2, "rate": "12000.00", "amount": "24000.00"},
+                ],
+                "taxable_value": "24000.00",
+                "cgst": "2160.00",
+                "sgst": "2160.00",
+                "igst": "0.00",
+                "total": "28320.00",
+                "tds": "0.00",
+                "net_payable": "28320.00",
+                "payment_terms": "Immediate",
+                "bank_details": "ICICI 001234567890 IFSC ICIC0000456",
+                "service_period": "NA",
+                "remarks": "Ready for tally demo",
+            },
+            {
+                "file": "INV-FAILED-003.pdf",
+                "inv_no": "INV-FAILED-003",
+                "date": "2026-04-03",
+                "due_date": "2026-04-20",
+                "po": "PO-1003",
+                "place_of_supply": "Maharashtra",
+                "vendor": "Beta Enterprises",
+                "vendor_addr": "Andheri East, Mumbai",
+                "vendor_gstin": "27AABCB2222P1ZZ",
+                "vendor_pan": "AABCB2222P",
+                "bill_to": "GT Bharat Technologies Pvt Ltd",
+                "bill_addr": "Whitefield, Bengaluru",
+                "bill_gstin": "29AAACG9999K1Z7",
+                "items": [
+                    {"desc": "Professional Services - Design and Review", "qty": 1, "rate": "18500.00", "amount": "18500.00"},
+                ],
+                "taxable_value": "18500.00",
+                "cgst": "0.00",
+                "sgst": "0.00",
+                "igst": "1500.00",
+                "total": "20000.00",
+                "tds": "1850.00",
+                "net_payable": "18150.00",
+                "payment_terms": "Net 30 days",
+                "bank_details": "SBI 334455667788 IFSC SBIN0007788",
+                "service_period": "03-Apr-2026",
+                "remarks": "Intentional tax mismatch for failed validation",
+            },
+            {
+                "file": "INV-FOREIGN-004.pdf",
+                "inv_no": "INV-FOREIGN-004",
+                "date": "2026-04-04",
+                "due_date": "2026-04-14",
+                "po": "PO-1004",
+                "place_of_supply": "Outside India",
+                "vendor": "Global Cloud Inc",
+                "vendor_addr": "120 Market St, San Francisco, USA",
+                "vendor_gstin": "NA",
+                "vendor_pan": "NA",
+                "bill_to": "GT Bharat Technologies Pvt Ltd",
+                "bill_addr": "Whitefield, Bengaluru",
+                "bill_gstin": "29AAACG9999K1Z7",
+                "items": [
+                    {"desc": "Cloud Subscription - Enterprise Plan", "qty": 1, "rate": "600.00 USD", "amount": "600.00 USD"},
+                ],
+                "taxable_value": "600.00 USD",
+                "cgst": "0.00",
+                "sgst": "0.00",
+                "igst": "0.00",
+                "total": "600.00 USD",
+                "tds": "0.00",
+                "net_payable": "600.00 USD",
+                "payment_terms": "Advance",
+                "bank_details": "Wire Transfer SWIFT GCLDUS33",
+                "service_period": "Apr-2026",
+                "remarks": "Foreign invoice hold scenario",
+            },
+            {
+                "file": "INV-REJECT-005.pdf",
+                "inv_no": "INV-REJECT-005",
+                "date": "2026-04-05",
+                "due_date": "2026-04-18",
+                "po": "PO-1005",
+                "place_of_supply": "Karnataka",
+                "vendor": "Zenith Supplies",
+                "vendor_addr": "Mysore Road, Bengaluru",
+                "vendor_gstin": "29AAACZ7654R1Z0",
+                "vendor_pan": "AAACZ7654R",
+                "bill_to": "GT Bharat Technologies Pvt Ltd",
+                "bill_addr": "Whitefield, Bengaluru",
+                "bill_gstin": "29AAACG9999K1Z7",
+                "items": [
+                    {"desc": "Office Consumables - Bulk Supply", "qty": 1, "rate": "9000.00", "amount": "9000.00"},
+                ],
+                "taxable_value": "9000.00",
+                "cgst": "810.00",
+                "sgst": "810.00",
+                "igst": "0.00",
+                "total": "10620.00",
+                "tds": "0.00",
+                "net_payable": "10620.00",
+                "payment_terms": "Net 10 days",
+                "bank_details": "Axis 918273645001 IFSC UTIB0001789",
+                "service_period": "05-Apr-2026",
+                "remarks": "Contains HSN mismatch for manager rejection demo",
+            },
+        ]
+        created = 0
+        for invoice in samples:
+            fpath = os.path.join(folder, invoice["file"])
+            _make_pdf(fpath, invoice)
+            created += 1
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Demo invoices created'),
+                'message': _('Created %d sample PDF invoices in %s') % (created, folder),
+                'type': 'success',
+                'sticky': False,
+            },
         }
 
     def unlink(self):

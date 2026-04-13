@@ -11,6 +11,9 @@ class InvoiceProcessor(models.Model):
         """Pushes the current invoice details to Tally via XML API."""
         self.ensure_one()
         from ..services.tally_service import push_voucher_to_tally
+
+        if self.workflow_status != 'ready_for_tally' or self.approval_state != 'approved':
+            raise UserError(_("Invoice is not manager-approved. Only 'Ready for Tally' invoices can be pushed."))
         
         if not self.partner_id and not self.vendor_name:
             raise UserError(_("No Vendor info found to push."))
@@ -67,6 +70,7 @@ class InvoiceProcessor(models.Model):
         res = push_voucher_to_tally(self.env, tally_data)
         
         if res['status'] == 'success':
+            self.write({'state': 'posted'})
             self.message_post(body=f"✅ <b>Successfully pushed to Tally</b>.<br/>VOUCHER: {tally_data['number']}<br/>PARTY: {party_ledger}")
             return {
                 'type': 'ir.actions.client',

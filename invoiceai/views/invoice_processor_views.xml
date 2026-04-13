@@ -9,6 +9,8 @@
                 <field name="invoice_date"/>
                 <field name="invoice_number" decoration-bf="1"/>
                 <field name="vendor_name"/>
+                <field name="workflow_status" widget="badge"/>
+                <field name="approval_state" widget="badge"/>
                 <field name="untaxed_amount"/>
                 <field name="gst_amount" string="GST"/>
                 <field name="tds_amount" string="TDS (10%)"/>
@@ -27,10 +29,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_push_to_tally" string="Push to Tally" type="object" class="btn-warning" icon="fa-exchange" invisible="state == 'cancel'"/>
-                    <button name="action_validate" string="Re-Run Validations" type="object" class="btn-secondary"/>
-                    <button name="action_export_validation_excel" string="Export Validation Report" type="object" class="btn-info" invisible="state not in ('draft', 'failed')"/>
-                    <button name="action_export_tally_excel" string="Export Tally Excel" type="object" class="btn-success" icon="fa-file-excel-o" invisible="state == 'cancel'"/>
+                    <field name="workflow_status" widget="statusbar" statusbar_visible="draft_extracted,pending_vrf_field_mapping,gl_decision_in_progress,pending_manager_approval,ready_for_tally"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,failed,posted,cancel"/>
                 </header>
                 <sheet>
@@ -44,6 +43,14 @@
                                 
                                 <page string="Financial Details" name="financials">
                                     <group>
+                                        <field name="workflow_status"/>
+                                        <field name="approval_state"/>
+                                        <field name="manager_user_id" readonly="1"/>
+                                        <field name="approved_by" readonly="1"/>
+                                        <field name="approved_on" readonly="1"/>
+                                        <field name="rejected_by" readonly="1"/>
+                                        <field name="rejected_on" readonly="1"/>
+                                        <field name="rejection_reason"/>
                                         <field name="untaxed_amount"/>
                                         <field name="gst_rate"/>
                                         <field name="gst_amount"/>
@@ -93,7 +100,7 @@
     </record>
 
     <record id="action_invoice_processor" model="ir.actions.act_window">
-        <field name="name">Invoice Processing Queue</field>
+        <field name="name">All Invoices</field>
         <field name="res_model">purple_ai.invoice_processor</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
@@ -107,6 +114,39 @@
             <b>Open in review queue</b>.
           </p>
         </field>
+    </record>
+
+    <record id="action_invoice_processor_hold" model="ir.actions.act_window">
+        <field name="name">Hold Invoices</field>
+        <field name="res_model">purple_ai.invoice_processor</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('workflow_status', 'in', ['hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma'])]</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Invoices currently on hold in workflow branches.
+          </p>
+        </field>
+    </record>
+
+    <record id="action_invoice_processor_validated" model="ir.actions.act_window">
+        <field name="name">Validated Invoices</field>
+        <field name="res_model">purple_ai.invoice_processor</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('workflow_status', 'in', ['validation_passed', 'pending_manager_approval', 'manager_approved', 'ready_for_tally'])]</field>
+    </record>
+
+    <record id="action_invoice_processor_passed_tally" model="ir.actions.act_window">
+        <field name="name">Passed to Tally</field>
+        <field name="res_model">purple_ai.invoice_processor</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'posted')]</field>
+    </record>
+
+    <record id="action_invoice_processor_rejected" model="ir.actions.act_window">
+        <field name="name">Rejected Invoices</field>
+        <field name="res_model">purple_ai.invoice_processor</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">['|', ('workflow_status', '=', 'manager_rejected'), ('approval_state', '=', 'rejected')]</field>
     </record>
     
     <!-- Result form enhancement to add a process button -->
@@ -131,6 +171,114 @@
         <field name="code">
             if records:
                 action = records.action_export_tally_excel()
+        </field>
+    </record>
+
+    <record id="action_bulk_reprocess_pending_invoices" model="ir.actions.server">
+        <field name="name">Reprocess Pending (Bulk)</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_bulk_reprocess_pending()
+        </field>
+    </record>
+
+    <record id="action_create_demo_invoices" model="ir.actions.server">
+        <field name="name">Create Demo Invoices</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = env['purple_ai.invoice_processor'].action_create_demo_invoices()
+        </field>
+    </record>
+
+    <!-- Form Action menu entries (below Delete) -->
+    <record id="action_form_push_to_tally" model="ir.actions.server">
+        <field name="name">Push to Tally</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_push_to_tally()
+        </field>
+    </record>
+
+    <record id="action_form_rerun_validations" model="ir.actions.server">
+        <field name="name">Re-Run Validations</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_validate()
+        </field>
+    </record>
+
+    <record id="action_form_send_manager_approval" model="ir.actions.server">
+        <field name="name">Send for Manager Approval</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_send_for_manager_approval()
+        </field>
+    </record>
+
+    <record id="action_form_manager_approve" model="ir.actions.server">
+        <field name="name">Manager Approve</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_manager_approve()
+        </field>
+    </record>
+
+    <record id="action_form_manager_reject" model="ir.actions.server">
+        <field name="name">Manager Reject</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_manager_reject()
+        </field>
+    </record>
+
+    <record id="action_form_export_validation_report" model="ir.actions.server">
+        <field name="name">Export Validation Report</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_export_validation_excel()
+        </field>
+    </record>
+
+    <record id="action_form_export_tally_excel" model="ir.actions.server">
+        <field name="name">Export Tally Excel</field>
+        <field name="model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_model_id" ref="model_purple_ai_invoice_processor"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_export_tally_excel()
         </field>
     </record>
 

@@ -1,6 +1,6 @@
 {
     'name': 'Invoice AI - Folder-based AI Extraction',
-    'version': '18.0.1.0.5',
+    'version': '18.0.1.0.6',
     'summary': 'AI-powered folder monitoring and data extraction',
     'description': """
         Install this app from Apps (or ``-i invoiceai``) on each database; models such as
@@ -25,7 +25,7 @@
         'data/system_parameter_data.xml',
         'data/ir_cron_data.xml',
         'data/extraction_template_data.xml',
-        'data/student_exam_template.xml',
+        'data/invoice_processor_dummy_data.xml',
         'views/res_config_settings_views.xml',
         'views/menu_root.xml',
         'views/dashboard_views.xml',

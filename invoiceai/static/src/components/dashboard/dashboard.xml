@@ -17,6 +17,48 @@
                     </button>
                 </div>
             </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#eceff1 !important; background-image:url('/invoiceai/static/img/blue_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('All Invoices', [])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#102a43;">All Invoices</div>
+                                <div class="display-6 fw-bold" style="color:#102a43;"><t t-esc="state.stats.invoice_buckets.all"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#fff3cd !important; background-image:url('/invoiceai/static/img/orange_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Hold Invoices', [['workflow_status', 'in', ['hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma']]])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#5c3d00;">Hold Invoices</div>
+                                <div class="display-6 fw-bold" style="color:#5c3d00;"><t t-esc="state.stats.invoice_buckets.hold"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#e7f1ff !important; background-image:url('/invoiceai/static/img/purple_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Validated Invoices', [['workflow_status', 'in', ['validation_passed', 'pending_manager_approval', 'manager_approved', 'ready_for_tally']]])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#2d1b69;">Validated Invoices</div>
+                                <div class="display-6 fw-bold" style="color:#2d1b69;"><t t-esc="state.stats.invoice_buckets.validated"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#d1e7dd !important; background-image:url('/invoiceai/static/img/green_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Passed to Tally', [['state', '=', 'posted']])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#14532d;">Passed to Tally</div>
+                                <div class="display-6 fw-bold" style="color:#14532d;"><t t-esc="state.stats.invoice_buckets.passed_tally"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#f8d7da !important; background-image:url('/invoiceai/static/img/pink_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Rejected Invoices', ['|', ['workflow_status', '=', 'manager_rejected'], ['approval_state', '=', 'rejected']])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#7f1d1d;">Rejected Invoices</div>
+                                <div class="display-6 fw-bold" style="color:#7f1d1d;"><t t-esc="state.stats.invoice_buckets.rejected"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             <t t-if="state.loading">
                 <div class="d-flex justify-content-center align-items-center h-100">

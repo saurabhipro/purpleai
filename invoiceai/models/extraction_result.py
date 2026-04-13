@@ -30,6 +30,36 @@ class ExtractionResult(models.Model):
     
     is_pdf = fields.Boolean(compute='_compute_file_type', string='Is PDF')
     is_image = fields.Boolean(compute='_compute_file_type', string='Is Image')
+    invoice_processor_id = fields.Many2one(
+        'purple_ai.invoice_processor',
+        string='Review Queue Record',
+        compute='_compute_invoice_processor_id',
+    )
+    review_workflow_status = fields.Selection(
+        selection=[
+            ('draft_extracted', 'Draft Extracted'),
+            ('hold_vrf_vendor_missing', 'Hold - Vendor Missing in VRF'),
+            ('hold_last_provision', 'Hold - Move to Last Provisions'),
+            ('hold_foreign_invoice', 'Hold - Foreign Invoice'),
+            ('hold_advance_proforma', 'Hold - Move to Advance'),
+            ('pending_vrf_field_mapping', 'Pending VRF Field Mapping'),
+            ('gl_decision_in_progress', 'GL Decision In Progress'),
+            ('waiting_fa_schedule_update', 'Waiting FA Schedule Update'),
+            ('waiting_prepaid_review', 'Waiting Prepaid Review'),
+            ('validation_passed', 'Validation Passed'),
+            ('pending_manager_approval', 'Pending Manager Approval'),
+            ('manager_approved', 'Manager Approved'),
+            ('manager_rejected', 'Manager Rejected'),
+            ('ready_for_tally', 'Ready for Tally'),
+        ],
+        string='Workflow Status',
+        compute='_compute_review_statuses',
+    )
+    review_approval_state = fields.Selection(
+        selection=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        string='Approval State',
+        compute='_compute_review_statuses',
+    )
 
     @api.depends('filename')
     def _compute_file_type(self):
@@ -37,6 +67,17 @@ class ExtractionResult(models.Model):
             fn = (rec.filename or '').lower()
             rec.is_pdf = fn.endswith('.pdf')
             rec.is_image = any(fn.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif'])
+
+    def _compute_invoice_processor_id(self):
+        Proc = self.env['purple_ai.invoice_processor'].sudo()
+        for rec in self:
+            rec.invoice_processor_id = Proc.search([('extraction_result_id', '=', rec.id)], limit=1)
+
+    def _compute_review_statuses(self):
+        for rec in self:
+            proc = rec.invoice_processor_id
+            rec.review_workflow_status = proc.workflow_status if proc else False
+            rec.review_approval_state = proc.approval_state if proc else False
 
     # Analytics Fields
     provider = fields.Char(string='AI Provider')
@@ -199,6 +240,7 @@ class ExtractionResult(models.Model):
             },
             'total_clients': self.env['purple_ai.client'].search_count([('company_id', 'in', active_company_ids)]),
             'total_requests': len(results),
+            'invoice_buckets': {},
             'status_breakdown': {
                 'success': len(results.filtered(lambda r: r.state == 'done')),
                 'error': len(results.filtered(lambda r: r.state == 'error')),
@@ -220,6 +262,20 @@ class ExtractionResult(models.Model):
                 'avg_time': round(sum(prov_results.mapped('duration_ms')) / max(1, len(prov_results)), 1),
                 'success_rate': round(len(prov_results.filtered(lambda r: r.state == 'done')) / len(prov_results) * 100, 1)
             }
+
+        Proc = self.env['purple_ai.invoice_processor']
+        proc_domain_company = [('company_id', 'in', active_company_ids)]
+        stats['invoice_buckets'] = {
+            'all': Proc.search_count(proc_domain_company),
+            'hold': Proc.search_count(proc_domain_company + [('workflow_status', 'in', [
+                'hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma'
+            ])]),
+            'validated': Proc.search_count(proc_domain_company + [('workflow_status', 'in', [
+                'validation_passed', 'pending_manager_approval', 'manager_approved', 'ready_for_tally'
+            ])]),
+            'passed_tally': Proc.search_count(proc_domain_company + [('state', '=', 'posted')]),
+            'rejected': Proc.search_count(proc_domain_company + ['|', ('workflow_status', '=', 'manager_rejected'), ('approval_state', '=', 'rejected')]),
+        }
         
         return stats
 

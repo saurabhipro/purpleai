@@ -151,6 +151,262 @@
             <field name="eval_type">ai</field>
         </record>
 
+        <!-- Decision-flow fields for AP automation -->
+        <record id="field_vendor_gstin_decision" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">110</field>
+            <field name="name">Vendor GSTIN (Decision)</field>
+            <field name="field_key">vendor_gstin</field>
+            <field name="instruction">Extract supplier GSTIN exactly as printed. Return uppercase alphanumeric text.</field>
+        </record>
+        <record id="field_vendor_pan" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">120</field>
+            <field name="name">Vendor PAN</field>
+            <field name="field_key">vendor_pan</field>
+            <field name="instruction">Extract supplier PAN if available. Return uppercase text without spaces.</field>
+        </record>
+        <record id="field_invoice_currency" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">130</field>
+            <field name="name">Invoice Currency</field>
+            <field name="field_key">invoice_currency</field>
+            <field name="instruction">Extract invoice currency code like INR, USD, EUR. Return 3-letter ISO code when possible.</field>
+        </record>
+        <record id="field_exchange_rate" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">140</field>
+            <field name="name">Exchange Rate</field>
+            <field name="field_key">exchange_rate</field>
+            <field name="instruction">Extract FX conversion rate if mentioned. Return only numeric value.</field>
+        </record>
+        <record id="field_cgst_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">150</field>
+            <field name="name">CGST Amount</field>
+            <field name="field_key">cgst_amount</field>
+            <field name="instruction">Extract CGST amount. Return numeric value only; return 0 if not applicable.</field>
+        </record>
+        <record id="field_sgst_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">160</field>
+            <field name="name">SGST Amount</field>
+            <field name="field_key">sgst_amount</field>
+            <field name="instruction">Extract SGST amount. Return numeric value only; return 0 if not applicable.</field>
+        </record>
+        <record id="field_igst_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">170</field>
+            <field name="name">IGST Amount</field>
+            <field name="field_key">igst_amount</field>
+            <field name="instruction">Extract IGST amount. Return numeric value only; return 0 if not applicable.</field>
+        </record>
+        <record id="field_tds_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">180</field>
+            <field name="name">TDS Amount</field>
+            <field name="field_key">tds_amount</field>
+            <field name="instruction">Extract TDS deduction amount if printed or computable from invoice details. Return numeric value.</field>
+        </record>
+        <record id="field_rcm_amount" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">190</field>
+            <field name="name">RCM Amount</field>
+            <field name="field_key">rcm_amount</field>
+            <field name="instruction">Extract reverse charge tax amount if present. Return numeric value, else 0.</field>
+        </record>
+        <record id="field_service_period_from" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">200</field>
+            <field name="name">Service Period From</field>
+            <field name="field_key">service_period_from</field>
+            <field name="instruction">Extract service period start date in YYYY-MM-DD when available.</field>
+        </record>
+        <record id="field_service_period_to" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">210</field>
+            <field name="name">Service Period To</field>
+            <field name="field_key">service_period_to</field>
+            <field name="instruction">Extract service period end date in YYYY-MM-DD when available.</field>
+        </record>
+        <record id="field_is_foreign_invoice" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">220</field>
+            <field name="name">Is Foreign Invoice</field>
+            <field name="field_key">is_foreign_invoice</field>
+            <field name="instruction">Return boolean true/false whether this is a foreign invoice (non-India vendor/tax context/currency).</field>
+        </record>
+        <record id="field_is_proforma_invoice" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">230</field>
+            <field name="name">Is Proforma Invoice</field>
+            <field name="field_key">is_proforma_invoice</field>
+            <field name="instruction">Return boolean true/false if document is proforma/performa invoice.</field>
+        </record>
+        <record id="field_is_services_invoice" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">240</field>
+            <field name="name">Is Services Invoice</field>
+            <field name="field_key">is_services_invoice</field>
+            <field name="instruction">Return boolean true/false whether this invoice is for services (not goods).</field>
+        </record>
+        <record id="field_is_capex" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">250</field>
+            <field name="name">Is CapEx</field>
+            <field name="field_key">is_capex</field>
+            <field name="instruction">Return boolean true/false if invoice nature indicates capital expenditure asset creation.</field>
+        </record>
+        <record id="field_is_gst_applicable" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">260</field>
+            <field name="name">Is GST Applicable</field>
+            <field name="field_key">is_gst_applicable</field>
+            <field name="instruction">Return boolean true/false if GST applies for this invoice.</field>
+        </record>
+        <record id="field_is_tds_applicable" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">270</field>
+            <field name="name">Is TDS Applicable</field>
+            <field name="field_key">is_tds_applicable</field>
+            <field name="instruction">Return boolean true/false if TDS should be applied.</field>
+        </record>
+        <record id="field_is_rcm_applicable" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">280</field>
+            <field name="name">Is RCM Applicable</field>
+            <field name="field_key">is_rcm_applicable</field>
+            <field name="instruction">Return boolean true/false if reverse charge mechanism applies.</field>
+        </record>
+        <record id="field_is_prepaid" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">290</field>
+            <field name="name">Is Prepaid</field>
+            <field name="field_key">is_prepaid</field>
+            <field name="instruction">Return boolean true/false if expense pertains to prepaid nature.</field>
+        </record>
+        <record id="field_is_next_period" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">300</field>
+            <field name="name">Belongs To Next Period</field>
+            <field name="field_key">belongs_to_next_period</field>
+            <field name="instruction">Return boolean true/false if service period/invoice should be recognized in next accounting period.</field>
+        </record>
+        <record id="field_selected_hold_bucket" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">310</field>
+            <field name="name">Selected Hold Bucket</field>
+            <field name="field_key">selected_hold_bucket</field>
+            <field name="instruction">If hold is needed, return one value only: vrf_hold, last_provision_hold, foreign_invoice_hold, advance_hold; else empty.</field>
+        </record>
+        <record id="field_selected_expense_gl" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">320</field>
+            <field name="name">Selected Expense GL</field>
+            <field name="field_key">selected_expense_gl</field>
+            <field name="instruction">Return best matched expense GL code/name from context, if identifiable.</field>
+        </record>
+        <record id="field_selected_gst_gl" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">330</field>
+            <field name="name">Selected GST GL</field>
+            <field name="field_key">selected_gst_gl</field>
+            <field name="instruction">Return GST GL bucket suggestion (eligible_gst_gl, ineligible_gst_gl, no_gst_gl) based on invoice evidence.</field>
+        </record>
+        <record id="field_selected_rcm_gl" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">340</field>
+            <field name="name">Selected RCM GL</field>
+            <field name="field_key">selected_rcm_gl</field>
+            <field name="instruction">Return RCM GL suggestion when applicable, else no_gl.</field>
+        </record>
+        <record id="field_selected_tds_gl" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">350</field>
+            <field name="name">Selected TDS GL</field>
+            <field name="field_key">selected_tds_gl</field>
+            <field name="instruction">Return TDS GL suggestion (or no_tds_gl) based on TDS applicability and section.</field>
+        </record>
+        <record id="field_selected_prepaid_gl" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">360</field>
+            <field name="name">Selected Prepaid GL</field>
+            <field name="field_key">selected_prepaid_gl</field>
+            <field name="instruction">Return prepaid GL if prepaid treatment is required, else no_prepaid.</field>
+        </record>
+        <record id="field_fa_schedule_update_required" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">370</field>
+            <field name="name">FA Schedule Update Required</field>
+            <field name="field_key">fa_schedule_update_required</field>
+            <field name="instruction">Return boolean true/false whether fixed asset schedule update is required for this invoice.</field>
+        </record>
+        <record id="field_final_action" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">380</field>
+            <field name="name">Final Action</field>
+            <field name="field_key">final_action</field>
+            <field name="instruction">Return one final workflow decision: pass_entry, hold, update_fa_schedule, move_to_prepaid, move_to_last_provision.</field>
+        </record>
+
+        <!-- Decision-flow validation rules -->
+        <record id="rule_vendor_exists_vrf" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">80</field>
+            <field name="rule_code">RULE_8</field>
+            <field name="name">Vendor Exists in VRF</field>
+            <field name="description">Verify if vendor exists in VRF/master mapping; else route to hold bucket.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_current_fy_check" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">90</field>
+            <field name="rule_code">RULE_9</field>
+            <field name="name">Current FY Date Check</field>
+            <field name="description">Check whether invoice date belongs to current FY; otherwise suggest last provision hold.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_foreign_invoice_check" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">100</field>
+            <field name="rule_code">RULE_10</field>
+            <field name="name">Foreign Invoice Check</field>
+            <field name="description">Detect foreign invoice and route per policy.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_proforma_check" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">110</field>
+            <field name="rule_code">RULE_11</field>
+            <field name="name">Proforma Invoice Check</field>
+            <field name="description">Detect proforma/performa documents and route to advance/hold logic.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_services_vs_goods" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">120</field>
+            <field name="rule_code">RULE_12</field>
+            <field name="name">Services vs Goods</field>
+            <field name="description">Classify line nature as services or goods to drive GST/CapEx/prepaid branch.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_capex_check" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">130</field>
+            <field name="rule_code">RULE_13</field>
+            <field name="name">CapEx Decision Check</field>
+            <field name="description">Determine if invoice is CapEx and whether FA schedule update is required.</field>
+            <field name="eval_type">ai</field>
+        </record>
+        <record id="rule_prepaid_period_check" model="purple_ai.validation_rule">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">140</field>
+            <field name="rule_code">RULE_14</field>
+            <field name="name">Prepaid and Period Cutoff</field>
+            <field name="description">Identify prepaid and next-period scenarios to route posting correctly.</field>
+            <field name="eval_type">ai</field>
+        </record>
+
         <!-- OMR Ranchi Template -->
         <record id="extraction_master_omr_ranchi" model="purple_ai.extraction_master">
             <field name="name">OMR Ranchi</field>

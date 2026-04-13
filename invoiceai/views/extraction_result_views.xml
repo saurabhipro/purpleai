@@ -32,6 +32,8 @@
                     <button name="action_retry_extraction" string="Retry Extraction" type="object" class="btn-primary" invisible="state != 'error'"/>
                     <button name="action_retry_extraction" string="Re-Scan (Overwrite)" type="object" class="btn-secondary" invisible="state == 'error'"/>
                     <field name="state" widget="statusbar"/>
+                    <field name="review_workflow_status" widget="badge" string="Workflow"/>
+                    <field name="review_approval_state" widget="badge" string="Approval"/>
                 </header>
                 <sheet>
                     <div class="row g-0 o_audit_container">

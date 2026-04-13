@@ -19,10 +19,34 @@
               sequence="5"/>
 
     <menuitem id="menu_invoice_processor"
-              name="Invoices"
+              name="All Invoices"
               parent="menu_extraction_root"
               action="action_invoice_processor"
               sequence="10"/>
+
+    <menuitem id="menu_invoice_processor_hold"
+              name="Hold Invoices"
+              parent="menu_extraction_root"
+              action="action_invoice_processor_hold"
+              sequence="11"/>
+
+    <menuitem id="menu_invoice_processor_validated"
+              name="Validated Invoices"
+              parent="menu_extraction_root"
+              action="action_invoice_processor_validated"
+              sequence="12"/>
+
+    <menuitem id="menu_invoice_processor_passed_tally"
+              name="Passed to Tally"
+              parent="menu_extraction_root"
+              action="action_invoice_processor_passed_tally"
+              sequence="13"/>
+
+    <menuitem id="menu_invoice_processor_rejected"
+              name="Rejected Invoices"
+              parent="menu_extraction_root"
+              action="action_invoice_processor_rejected"
+              sequence="14"/>
 
 
 

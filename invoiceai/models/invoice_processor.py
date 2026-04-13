@@ -2,6 +2,7 @@
 import json
 import logging
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -46,6 +47,35 @@ class InvoiceProcessor(models.Model):
         ('posted', 'Posted'),
         ('cancel', 'Cancelled'),
     ], string='Status', default='draft', tracking=True)
+
+    workflow_status = fields.Selection([
+        ('draft_extracted', 'Draft Extracted'),
+        ('hold_vrf_vendor_missing', 'Hold - Vendor Missing in VRF'),
+        ('hold_last_provision', 'Hold - Move to Last Provisions'),
+        ('hold_foreign_invoice', 'Hold - Foreign Invoice'),
+        ('hold_advance_proforma', 'Hold - Move to Advance'),
+        ('pending_vrf_field_mapping', 'Pending VRF Field Mapping'),
+        ('gl_decision_in_progress', 'GL Decision In Progress'),
+        ('waiting_fa_schedule_update', 'Waiting FA Schedule Update'),
+        ('waiting_prepaid_review', 'Waiting Prepaid Review'),
+        ('validation_passed', 'Validation Passed'),
+        ('pending_manager_approval', 'Pending Manager Approval'),
+        ('manager_approved', 'Manager Approved'),
+        ('manager_rejected', 'Manager Rejected'),
+        ('ready_for_tally', 'Ready for Tally'),
+    ], string='Workflow Status', default='draft_extracted', tracking=True)
+
+    approval_state = fields.Selection([
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], string='Approval State', default='pending', tracking=True)
+    manager_user_id = fields.Many2one('res.users', related='client_id.manager_user_id', store=True, readonly=True)
+    approved_by = fields.Many2one('res.users', string='Approved By', readonly=True)
+    approved_on = fields.Datetime(string='Approved On', readonly=True)
+    rejected_by = fields.Many2one('res.users', string='Rejected By', readonly=True)
+    rejected_on = fields.Datetime(string='Rejected On', readonly=True)
+    rejection_reason = fields.Text(string='Rejection Reason')
 
     validation_log = fields.Html(string='Validation Report')
     is_validated = fields.Boolean(default=False)
@@ -138,6 +168,8 @@ class InvoiceProcessor(models.Model):
             'vendor_bank_account': data.get('vendor_bank_account'),
             'po_number': data.get('po_number'),
             'service_type': data.get('service_type'),
+            'workflow_status': 'draft_extracted',
+            'approval_state': 'pending',
         }
         write_vals = {k: v for k, v in vals.items() if k != 'extraction_result_id'}
         existing = self.search([('extraction_result_id', '=', extraction.id)], limit=1)
@@ -146,3 +178,144 @@ class InvoiceProcessor(models.Model):
             return existing
         proc = self.create(vals)
         return proc
+
+    def _check_manager_permission(self):
+        self.ensure_one()
+        if self.env.user.has_group('base.group_system'):
+            return True
+        if self.manager_user_id and self.manager_user_id == self.env.user:
+            return True
+        raise UserError(_("Only the configured Client Manager can approve/reject this invoice."))
+
+    def action_send_for_manager_approval(self):
+        for rec in self:
+            if rec.state == 'failed':
+                raise UserError(_("Validation must pass before manager approval."))
+            rec.write({
+                'workflow_status': 'pending_manager_approval',
+                'approval_state': 'pending',
+                'rejection_reason': False,
+            })
+        return True
+
+    def action_manager_approve(self):
+        now = fields.Datetime.now()
+        for rec in self:
+            rec._check_manager_permission()
+            if rec.state == 'failed':
+                raise UserError(_("Cannot approve: invoice is in failed validation state."))
+            rec.write({
+                'approval_state': 'approved',
+                'approved_by': self.env.user.id,
+                'approved_on': now,
+                'rejected_by': False,
+                'rejected_on': False,
+                'workflow_status': 'ready_for_tally',
+            })
+        return True
+
+    def action_manager_reject(self):
+        now = fields.Datetime.now()
+        for rec in self:
+            rec._check_manager_permission()
+            if not (rec.rejection_reason or '').strip():
+                raise UserError(_("Please enter Rejection Reason before rejecting."))
+            rec.write({
+                'approval_state': 'rejected',
+                'rejected_by': self.env.user.id,
+                'rejected_on': now,
+                'approved_by': False,
+                'approved_on': False,
+                'workflow_status': 'manager_rejected',
+            })
+        return True
+
+    def action_bulk_reprocess_pending(self):
+        for rec in self:
+            if rec.state == 'failed' or rec.approval_state == 'rejected':
+                rec.write({
+                    'workflow_status': 'gl_decision_in_progress',
+                    'approval_state': 'pending',
+                    'rejection_reason': False,
+                })
+                rec.action_validate()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Reprocess complete'),
+                'message': _('Selected pending invoices were re-processed.'),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
+    @api.model
+    def action_create_demo_invoices(self):
+        """Create sample workflow invoices in the active company (idempotent)."""
+        company = self.env.company
+        template = self.env['purple_ai.extraction_master'].search([('name', '=', 'Invoice Extraction')], limit=1)
+        if not template:
+            raise UserError(_("Invoice Extraction template not found."))
+
+        client = self.env['purple_ai.client'].sudo().search([
+            ('name', '=', 'Demo AP Team'),
+            ('company_id', '=', company.id),
+        ], limit=1)
+        if not client:
+            client = self.env['purple_ai.client'].sudo().create({
+                'name': 'Demo AP Team',
+                'company_id': company.id,
+                'extraction_master_id': template.id,
+                'manager_user_id': self.env.user.id,
+                'folder_path': '/home/odoo18/invoice/demo_ap_team',
+            })
+
+        samples = [
+            ('INV-APPROVAL-001', 'pending_manager_approval', 'pending', 'draft'),
+            ('INV-READY-002', 'ready_for_tally', 'approved', 'draft'),
+            ('INV-FAILED-003', 'gl_decision_in_progress', 'pending', 'failed'),
+            ('INV-FOREIGN-004', 'hold_foreign_invoice', 'pending', 'draft'),
+            ('INV-REJECT-005', 'manager_rejected', 'rejected', 'draft'),
+        ]
+        created = 0
+        for inv_no, workflow_status, approval_state, state in samples:
+            exists = self.search([('invoice_number', '=', inv_no), ('company_id', '=', company.id)], limit=1)
+            if exists:
+                continue
+            extraction = self.env['purple_ai.extraction_result'].sudo().create({
+                'client_id': client.id,
+                'filename': f'{inv_no}.pdf',
+                'state': 'done',
+            })
+            vals = {
+                'extraction_result_id': extraction.id,
+                'vendor_name': 'Demo Vendor',
+                'invoice_number': inv_no,
+                'invoice_date': fields.Date.today(),
+                'untaxed_amount': 10000 + (created * 1000),
+                'state': state,
+                'workflow_status': workflow_status,
+                'approval_state': approval_state,
+            }
+            if approval_state == 'approved':
+                vals.update({'approved_by': self.env.user.id, 'approved_on': fields.Datetime.now()})
+            if approval_state == 'rejected':
+                vals.update({
+                    'rejected_by': self.env.user.id,
+                    'rejected_on': fields.Datetime.now(),
+                    'rejection_reason': 'Demo rejection reason',
+                })
+            self.sudo().create(vals)
+            created += 1
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Demo invoices'),
+                'message': _('Created %s demo invoice(s) in company %s.') % (created, company.name),
+                'type': 'success',
+                'sticky': False,
+            },
+        }

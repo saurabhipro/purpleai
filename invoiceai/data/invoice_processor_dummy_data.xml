@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="client_demo_ap_team" model="purple_ai.client">
+            <field name="name">Demo AP Team</field>
+            <field name="extraction_master_id" ref="invoiceai.extraction_master_invoice"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="manager_user_id" ref="base.user_admin"/>
+            <field name="folder_path">/home/odoo18/invoice/demo_ap_team</field>
+        </record>
+
+        <record id="extract_demo_pending_mgr" model="purple_ai.extraction_result">
+            <field name="client_id" ref="invoiceai.client_demo_ap_team"/>
+            <field name="filename">INV-APPROVAL-001.pdf</field>
+            <field name="state">done</field>
+        </record>
+        <record id="extract_demo_ready_tally" model="purple_ai.extraction_result">
+            <field name="client_id" ref="invoiceai.client_demo_ap_team"/>
+            <field name="filename">INV-READY-002.pdf</field>
+            <field name="state">done</field>
+        </record>
+        <record id="extract_demo_failed_tax" model="purple_ai.extraction_result">
+            <field name="client_id" ref="invoiceai.client_demo_ap_team"/>
+            <field name="filename">INV-FAILED-003.pdf</field>
+            <field name="state">error</field>
+        </record>
+        <record id="extract_demo_foreign_hold" model="purple_ai.extraction_result">
+            <field name="client_id" ref="invoiceai.client_demo_ap_team"/>
+            <field name="filename">INV-FOREIGN-004.pdf</field>
+            <field name="state">done</field>
+        </record>
+        <record id="extract_demo_rejected" model="purple_ai.extraction_result">
+            <field name="client_id" ref="invoiceai.client_demo_ap_team"/>
+            <field name="filename">INV-REJECT-005.pdf</field>
+            <field name="state">done</field>
+        </record>
+
+        <record id="proc_demo_pending_mgr" model="purple_ai.invoice_processor">
+            <field name="extraction_result_id" ref="invoiceai.extract_demo_pending_mgr"/>
+            <field name="vendor_name">Acme Services Pvt Ltd</field>
+            <field name="invoice_number">INV-APPROVAL-001</field>
+            <field name="invoice_date">2026-04-01</field>
+            <field name="untaxed_amount">10000</field>
+            <field name="state">draft</field>
+            <field name="workflow_status">pending_manager_approval</field>
+            <field name="approval_state">pending</field>
+        </record>
+
+        <record id="proc_demo_ready_tally" model="purple_ai.invoice_processor">
+            <field name="extraction_result_id" ref="invoiceai.extract_demo_ready_tally"/>
+            <field name="vendor_name">Northwind Traders</field>
+            <field name="invoice_number">INV-READY-002</field>
+            <field name="invoice_date">2026-04-02</field>
+            <field name="untaxed_amount">24000</field>
+            <field name="state">draft</field>
+            <field name="workflow_status">ready_for_tally</field>
+            <field name="approval_state">approved</field>
+            <field name="approved_by" ref="base.user_admin"/>
+        </record>
+
+        <record id="proc_demo_failed_tax" model="purple_ai.invoice_processor">
+            <field name="extraction_result_id" ref="invoiceai.extract_demo_failed_tax"/>
+            <field name="vendor_name">Beta Enterprises</field>
+            <field name="invoice_number">INV-FAILED-003</field>
+            <field name="invoice_date">2026-04-03</field>
+            <field name="untaxed_amount">18500</field>
+            <field name="state">failed</field>
+            <field name="workflow_status">gl_decision_in_progress</field>
+            <field name="approval_state">pending</field>
+        </record>
+
+        <record id="proc_demo_foreign_hold" model="purple_ai.invoice_processor">
+            <field name="extraction_result_id" ref="invoiceai.extract_demo_foreign_hold"/>
+            <field name="vendor_name">Global Cloud Inc</field>
+            <field name="invoice_number">INV-FOREIGN-004</field>
+            <field name="invoice_date">2026-04-04</field>
+            <field name="untaxed_amount">50000</field>
+            <field name="state">draft</field>
+            <field name="workflow_status">hold_foreign_invoice</field>
+            <field name="approval_state">pending</field>
+        </record>
+
+        <record id="proc_demo_rejected" model="purple_ai.invoice_processor">
+            <field name="extraction_result_id" ref="invoiceai.extract_demo_rejected"/>
+            <field name="vendor_name">Zenith Supplies</field>
+            <field name="invoice_number">INV-REJECT-005</field>
+            <field name="invoice_date">2026-04-05</field>
+            <field name="untaxed_amount">9000</field>
+            <field name="state">draft</field>
+            <field name="workflow_status">manager_rejected</field>
+            <field name="approval_state">rejected</field>
+            <field name="rejection_reason">HSN mismatch with supporting document.</field>
+            <field name="rejected_by" ref="base.user_admin"/>
+        </record>
+    </data>
+</odoo>

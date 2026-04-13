@@ -25,6 +25,7 @@
             <form>
                 <header>
                     <button name="action_scan_folder" string="Scan Now" type="object" class="btn-primary" icon="fa-refresh" invisible="scan_status == 'scanning'"/>
+                    <button name="action_generate_demo_invoices" string="Generate Demo PDFs" type="object" class="btn-secondary" icon="fa-file-pdf-o"/>
                     <button string="Scanning..." class="btn-secondary" disabled="1" icon="fa-spinner fa-spin" invisible="scan_status != 'scanning'"/>
                     <button name="action_reset_scan_status" string="Clear Lock" type="object" class="btn-link text-danger" invisible="scan_status != 'scanning'" title="Use this if the scanner gets stuck to force it back to idle." confirm="Force the scan status back to idle?"/>
                     <button name="action_view_results" string="View Results" type="object" icon="fa-list"/>
@@ -38,6 +39,7 @@
                         <group string="Basic Information">
                             <field name="name" placeholder="e.g. GT"/>
                             <field name="extraction_master_id" placeholder="e.g. Invoice Template"/>
+                            <field name="manager_user_id" placeholder="Manager who approves invoices"/>
                             <field name="active" widget="boolean_toggle"/>
                         </group>
                         <group string="System Configuration">

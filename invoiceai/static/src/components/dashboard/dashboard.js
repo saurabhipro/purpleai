@@ -14,6 +14,7 @@ export class PurpleAIDashboard extends Component {
                 active_info: { provider: '...', model: '...' },
                 total_cost_inr: 0,
                 total_requests: 0,
+                invoice_buckets: { all: 0, hold: 0, validated: 0, passed_tally: 0, rejected: 0 },
                 avg_time: 0,
                 status_breakdown: { success: 0, error: 0 },
                 providers: {},
@@ -25,6 +26,7 @@ export class PurpleAIDashboard extends Component {
         // Explicitly bind to fix "this is undefined" error
         this.loadStats = this.loadStats.bind(this);
         this.openResults = this.openResults.bind(this);
+        this.openInvoiceQueue = this.openInvoiceQueue.bind(this);
 
         onWillStart(async () => {
             await this.loadStats();
@@ -59,6 +61,18 @@ export class PurpleAIDashboard extends Component {
             action.views = [[false, "list"], [false, "form"]];
         }
         
+        this.action.doAction(action);
+    }
+
+    async openInvoiceQueue(name = "Invoices", domain = []) {
+        const action = {
+            name: _t(name),
+            type: "ir.actions.act_window",
+            res_model: "purple_ai.invoice_processor",
+            domain: domain,
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        };
         this.action.doAction(action);
     }
 

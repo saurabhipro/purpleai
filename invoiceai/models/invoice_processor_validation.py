@@ -159,6 +159,12 @@ class InvoiceProcessor(models.Model):
             rec.validation_log = "".join(rules_html)
             rec.is_validated = True
             rec.state = 'failed' if failed_rules else 'draft'
+            if failed_rules:
+                rec.workflow_status = 'gl_decision_in_progress'
+                rec.approval_state = 'pending'
+            else:
+                rec.workflow_status = 'pending_manager_approval'
+                rec.approval_state = 'pending'
             return failed_rules
 
     def action_export_validation_excel(self):
