@@ -20,6 +20,7 @@ class AISettings(models.TransientModel):
     purple_ai_root_path = fields.Char(
         string='Root Folder Path (Compat)',
         config_parameter='purple_ai.root_path',
+        default='/home/odoo18',
     )
     tender_ai_input_cost = fields.Float(
         string='Input Cost (Compat)',

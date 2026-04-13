@@ -5,7 +5,7 @@
         <record id="purple_ai_client_comp_rule" model="ir.rule">
             <field name="name">Purple AI Client Multi-Company</field>
             <field name="model_id" ref="model_purple_ai_client"/>
-            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="0"/>

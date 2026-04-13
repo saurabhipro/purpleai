@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
+        <function model="ir.config_parameter" name="set_param" eval="('purple_ai.root_path', '/home/odoo18')"/>
+
         <!-- Increase file upload size limit for Purple AI -->
         <record id="ir_config_parameter_tender_ai_max_file_size" model="ir.config_parameter">
             <field name="key">tender_ai.max_file_size_mb</field>

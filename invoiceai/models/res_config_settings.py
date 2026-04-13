@@ -78,6 +78,7 @@ class TendeAIResConfigSettings(models.TransientModel):
     purple_ai_root_path = fields.Char(
         string='Root Folder Path',
         config_parameter='purple_ai.root_path',
+        default='/home/odoo18',
         help='The root directory for the Purple AI Folder Explorer.',
     )
 

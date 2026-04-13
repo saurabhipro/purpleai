@@ -8,6 +8,7 @@
                 <header>
                     <button name="action_scan_all_clients" string="Scan All Folders" type="object" class="btn-primary" icon="fa-refresh"/>
                 </header>
+                <field name="company_id" groups="base.group_multi_company"/>
                 <field name="name"/>
                 <field name="folder_path"/>
                 <field name="extraction_master_id"/>

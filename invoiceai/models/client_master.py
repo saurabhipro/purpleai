@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
 import logging
 import re
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
+DEFAULT_ROOT_PATH = '/home/odoo18'
 
 class ClientMaster(models.Model):
     _name = 'purple_ai.client'
@@ -139,7 +141,7 @@ class ClientMaster(models.Model):
         return res
 
     def write(self, vals):
-        root_path = self.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
+        root_path = self._get_root_path()
         if 'name' in vals or 'extraction_master_id' in vals:
             for rec in self:
                 if root_path and (not rec.folder_path or rec.folder_path.startswith(root_path)):
@@ -153,9 +155,7 @@ class ClientMaster(models.Model):
 
     def _generate_auto_path(self, vals):
         """Generates a sanitized path: {root_path}/{template}/{client}"""
-        root_path = self.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
-        if not root_path:
-             raise UserError(_("Please define the 'Root Folder Path' in Purple AI settings first."))
+        root_path = self._get_root_path()
              
         def slugify(text):
             if not text: return "unknown"
@@ -168,9 +168,17 @@ class ClientMaster(models.Model):
             if template.exists(): template_name = slugify(template.name)
         return os.path.join(root_path, template_name, client_name)
 
+    def _get_root_path(self):
+        """Return normalized root path with install-time fallback."""
+        configured = self.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
+        root_path = (configured or DEFAULT_ROOT_PATH or '').strip()
+        if not root_path:
+            raise UserError(_("Please define the 'Root Folder Path' in Purple AI settings first."))
+        return os.path.normpath(root_path)
+
     def _ensure_folder_exists(self):
         """Creates the directory structure on the server with 777 permissions."""
-        root_path = self.env['ir.config_parameter'].sudo().get_param('purple_ai.root_path')
+        root_path = self._get_root_path()
         if not root_path:
             return
             
@@ -208,3 +216,66 @@ class ClientMaster(models.Model):
             'domain': [('client_id', '=', self.id)],
             'context': {'default_client_id': self.id},
         }
+
+    def unlink(self):
+        """Delete client row + client folder + linked company."""
+        to_cleanup = []
+        for rec in self:
+            to_cleanup.append({
+                'folder_path': (rec.folder_path or '').strip(),
+                'company_id': rec.company_id.id if rec.company_id else False,
+            })
+
+        res = super().unlink()
+
+        root_path = self._get_root_path()
+        root_real = os.path.realpath(root_path)
+
+        # 1) Delete client watch folder from OS
+        for item in to_cleanup:
+            folder_path = item.get('folder_path')
+            if not folder_path:
+                continue
+            try:
+                folder_real = os.path.realpath(folder_path)
+                # Safety: only remove folders inside configured root path.
+                if os.path.commonpath([root_real, folder_real]) != root_real:
+                    _logger.warning(
+                        "Skipped deleting folder outside root path: %s (root=%s)",
+                        folder_real,
+                        root_real,
+                    )
+                    continue
+                if os.path.isdir(folder_real):
+                    shutil.rmtree(folder_real, ignore_errors=False)
+            except Exception as e:
+                _logger.error("Failed to delete client folder %s: %s", folder_path, str(e))
+
+        # 2) Delete linked company if no other client uses it
+        company_ids = {item.get('company_id') for item in to_cleanup if item.get('company_id')}
+        if company_ids:
+            Client = self.env['purple_ai.client'].sudo()
+            Company = self.env['res.company'].sudo()
+            for company in Company.browse(list(company_ids)).exists():
+                try:
+                    if Client.search_count([('company_id', '=', company.id)]) == 0:
+                        company.unlink()
+                except Exception as e:
+                    # If deletion is blocked by other dependencies, archive it.
+                    _logger.warning(
+                        "Could not delete company %s (%s). Archiving instead. Reason: %s",
+                        company.display_name,
+                        company.id,
+                        str(e),
+                    )
+                    try:
+                        company.write({'active': False})
+                    except Exception as sub_e:
+                        _logger.error(
+                            "Could not archive company %s (%s): %s",
+                            company.display_name,
+                            company.id,
+                            str(sub_e),
+                        )
+
+        return res
