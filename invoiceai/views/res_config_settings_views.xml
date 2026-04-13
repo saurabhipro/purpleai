@@ -28,16 +28,6 @@
                         </setting>
                     </block>
 
-                    <!-- Pricing & Token Settings -->
-                    <block title="Pricing &amp; Tokens" name="pricing_config">
-                        <setting title="Input Cost" help="Cost per 1M input tokens (INR)">
-                            <field name="tender_ai_input_cost"/>
-                        </setting>
-                        <setting title="Output Cost" help="Cost per 1M output tokens (INR)">
-                            <field name="tender_ai_output_cost"/>
-                        </setting>
-                    </block>
-
                     <!-- Tally ERP / Prime Integration -->
                     <block title="Tally ERP / Prime Integration" name="tally_config">
                         <setting title="Tally Connectivity" help="Configure connection to Tally ERP/Prime">

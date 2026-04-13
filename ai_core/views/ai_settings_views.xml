@@ -84,6 +84,13 @@
                                 <field name="completion_cost"/>
                             </setting>
 
+                            <setting title="Invoice AI Processing Cost" help="Used by Invoice AI processing calculations (per 1M tokens in INR).">
+                                <label for="tender_ai_input_cost" string="Processing Input Cost (per 1M tokens)"/>
+                                <field name="tender_ai_input_cost"/>
+                                <label for="tender_ai_output_cost" string="Processing Output Cost (per 1M tokens)"/>
+                                <field name="tender_ai_output_cost"/>
+                            </setting>
+
                             <setting title="React UI (development)" help="Optional integration for the Purple AI React app (folder purpleai_ui, script run_purpleai). Use a long random dev key; keep it private.">
                                 <field name="react_dev_api_key" password="True" placeholder="e.g. openssl rand -hex 32"/>
                                 <field name="react_cors_origins" placeholder="http://localhost:5173"/>
