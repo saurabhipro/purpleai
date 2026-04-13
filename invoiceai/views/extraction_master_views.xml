@@ -26,7 +26,7 @@
                     </group>
                     <notebook>
                         <page string="Fields to Extract">
-                            <field name="field_ids">
+                            <field name="field_ids" context="{'active_test': False}">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
@@ -38,7 +38,7 @@
                             </field>
                         </page>
                         <page string="Validation Rules">
-                            <field name="rule_ids">
+                            <field name="rule_ids" context="{'active_test': False}">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
                                     <field name="rule_code"/>

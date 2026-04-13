@@ -21,15 +21,32 @@
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
                         <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#eceff1 !important; background-image:url('/invoiceai/static/img/blue_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('All Invoices', [])">
                             <div class="card-body py-3" style="background: transparent !important;">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#102a43;">All Invoices</div>
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#102a43;">
+                                    <i class="fa fa-files-o" style="font-size: 1rem;"/>
+                                    <span>All Invoices</span>
+                                </div>
                                 <div class="display-6 fw-bold" style="color:#102a43;"><t t-esc="state.stats.invoice_buckets.all"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 col-xl">
+                        <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#fff4e6 !important; background-image:url('/invoiceai/static/img/orange_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Pending Invoices', ['|', ['state', '=', 'failed'], ['workflow_status', 'in', ['pending_vrf_field_mapping', 'gl_decision_in_progress', 'waiting_fa_schedule_update', 'waiting_prepaid_review', 'pending_manager_approval']]])">
+                            <div class="card-body py-3" style="background: transparent !important;">
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#7c2d12;">
+                                    <i class="fa fa-hourglass-half" style="font-size: 1rem;"/>
+                                    <span>Pending Invoices</span>
+                                </div>
+                                <div class="display-6 fw-bold" style="color:#7c2d12;"><t t-esc="state.stats.invoice_buckets.pending"/></div>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
                         <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#fff3cd !important; background-image:url('/invoiceai/static/img/orange_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Hold Invoices', [['workflow_status', 'in', ['hold_vrf_vendor_missing', 'hold_last_provision', 'hold_foreign_invoice', 'hold_advance_proforma']]])">
                             <div class="card-body py-3" style="background: transparent !important;">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#5c3d00;">Hold Invoices</div>
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#5c3d00;">
+                                    <i class="fa fa-pause-circle" style="font-size: 1rem;"/>
+                                    <span>Hold Invoices</span>
+                                </div>
                                 <div class="display-6 fw-bold" style="color:#5c3d00;"><t t-esc="state.stats.invoice_buckets.hold"/></div>
                             </div>
                         </div>
@@ -37,7 +54,10 @@
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
                         <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#e7f1ff !important; background-image:url('/invoiceai/static/img/purple_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Validated Invoices', [['workflow_status', 'in', ['validation_passed', 'pending_manager_approval', 'manager_approved', 'ready_for_tally']]])">
                             <div class="card-body py-3" style="background: transparent !important;">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#2d1b69;">Validated Invoices</div>
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#2d1b69;">
+                                    <i class="fa fa-check-square-o" style="font-size: 1rem;"/>
+                                    <span>Validated Invoices</span>
+                                </div>
                                 <div class="display-6 fw-bold" style="color:#2d1b69;"><t t-esc="state.stats.invoice_buckets.validated"/></div>
                             </div>
                         </div>
@@ -45,7 +65,10 @@
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
                         <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#d1e7dd !important; background-image:url('/invoiceai/static/img/green_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Passed to Tally', [['state', '=', 'posted']])">
                             <div class="card-body py-3" style="background: transparent !important;">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#14532d;">Passed to Tally</div>
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#14532d;">
+                                    <i class="fa fa-share-square-o" style="font-size: 1rem;"/>
+                                    <span>Passed to Tally</span>
+                                </div>
                                 <div class="display-6 fw-bold" style="color:#14532d;"><t t-esc="state.stats.invoice_buckets.passed_tally"/></div>
                             </div>
                         </div>
@@ -53,7 +76,10 @@
                     <div class="col-12 col-md-6 col-lg-4 col-xl">
                         <div class="card border-0 shadow-sm h-100 cursor-pointer" style="background-color:#f8d7da !important; background-image:url('/invoiceai/static/img/pink_pattern.jpg') !important; background-position:center !important; background-size:cover !important; background-repeat:no-repeat !important;" t-on-click="() => this.openInvoiceQueue('Rejected Invoices', ['|', ['workflow_status', '=', 'manager_rejected'], ['approval_state', '=', 'rejected']])">
                             <div class="card-body py-3" style="background: transparent !important;">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.7rem; color:#7f1d1d;">Rejected Invoices</div>
+                                <div class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.7rem; color:#7f1d1d;">
+                                    <i class="fa fa-times-circle-o" style="font-size: 1rem;"/>
+                                    <span>Rejected Invoices</span>
+                                </div>
                                 <div class="display-6 fw-bold" style="color:#7f1d1d;"><t t-esc="state.stats.invoice_buckets.rejected"/></div>
                             </div>
                         </div>
@@ -72,21 +98,27 @@
                     <!-- Spend Card -->
                     <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #7b1fa2 url('/invoiceai/static/img/purple_pattern.jpg') center/cover no-repeat !important;">
                         <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
-                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">Monthly AI Spend</div>
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-money me-1" style="font-size: 1rem;"/> Monthly AI Spend
+                            </div>
                             <div style="font-size: 1.5rem; font-weight: 900; margin-top: 4px; color: #000000 !important;"><t t-esc="this.formatINR(state.stats.total_cost_inr)"/></div>
                         </div>
                     </div>
                     <!-- Clients Card -->
                     <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #c2185b url('/invoiceai/static/img/pink_pattern.jpg') center/cover no-repeat !important;">
                         <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
-                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">Active Clients</div>
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-users me-1" style="font-size: 1rem;"/> Active Clients
+                            </div>
                             <div style="font-size: 1.5rem; font-weight: 900; margin-top: 4px; color: #000000 !important;"><t t-esc="state.stats.total_clients"/> <span style="font-size: 0.8rem; opacity: 0.8;">Folders</span></div>
                         </div>
                     </div>
                     <!-- Success Card -->
                     <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #2e7d32 url('/invoiceai/static/img/green_pattern.jpg') center/cover no-repeat !important;">
                         <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
-                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">Success Rate</div>
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-check-circle me-1" style="font-size: 1rem;"/> Success Rate
+                            </div>
                             <div style="font-size: 1.5rem; font-weight: 900; margin-top: 4px; color: #000000 !important;"><t t-esc="Math.floor((state.stats.status_breakdown.success / (state.stats.total_requests || 1)) * 100)"/>%</div>
                             <div style="font-size: 0.8rem; font-weight: 800; color: #000000 !important;"><i class="fa fa-check-circle"/> <t t-esc="state.stats.status_breakdown.success"/> Accurate</div>
                         </div>
@@ -94,16 +126,32 @@
                     <!-- Latency Card -->
                     <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #ef6c00 url('/invoiceai/static/img/orange_pattern.jpg') center/cover no-repeat !important;">
                         <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
-                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">Response Latency</div>
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-clock-o me-1" style="font-size: 1rem;"/> Response Latency
+                            </div>
                             <div style="font-size: 1.5rem; font-weight: 900; margin-top: 4px; color: #000000 !important;"><t t-esc="state.stats.avg_time"/><span style="font-size: 0.8rem; opacity: 0.8; margin-left: 4px;">ms</span></div>
                         </div>
                     </div>
                     <!-- Provider Card -->
                     <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #0277bd url('/invoiceai/static/img/blue_pattern.jpg') center/cover no-repeat !important;">
                         <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
-                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">Active Engine</div>
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-microchip me-1" style="font-size: 1rem;"/> Active Engine
+                            </div>
                             <div style="font-size: 1.2rem; font-weight: 900; margin-top: 4px; color: #000000 !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="state.stats.active_info.provider"/></div>
                             <div style="font-size: 0.8rem; font-weight: 800; color: #000000 !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="state.stats.active_info.model"/></div>
+                        </div>
+                    </div>
+                    <!-- Total Pages Processed -->
+                    <div style="flex: 1; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #455a64 url('/invoiceai/static/img/blue_pattern.jpg') center/cover no-repeat !important;">
+                        <div style="position: relative; z-index: 2; padding: 12px; color: #000000 !important;">
+                            <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; color: #000000 !important;">
+                                <i class="fa fa-file-text-o me-1" style="font-size: 1rem;"/> Total Pages Processed
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 900; margin-top: 4px; color: #000000 !important;">
+                                <t t-esc="state.stats.total_pages_processed"/>
+                                <span style="font-size: 0.8rem; opacity: 0.8;"> pages</span>
+                            </div>
                         </div>
                     </div>
                 </div>
