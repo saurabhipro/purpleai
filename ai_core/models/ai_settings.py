@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """AI Settings model for central configuration"""
 
-from odoo import models, fields
+from odoo import models, fields, _
+from odoo.exceptions import UserError
 
 class AISettings(models.TransientModel):
     _inherit = 'res.config.settings'
@@ -124,3 +125,62 @@ class AISettings(models.TransientModel):
         help='Comma-separated origins allowed for direct browser calls to /ai_core/v1/*. '
         'Not needed when the React app uses the Vite proxy (recommended).',
     )
+
+    def action_test_ai_connection(self):
+        """Test configured provider credentials and show sample response."""
+        self.ensure_one()
+
+        settings = {
+            'provider': self.provider or 'openai',
+            'openai_key': self.openai_key or '',
+            'openai_model': self.openai_model or 'gpt-4o',
+            'gemini_key': self.gemini_key or '',
+            'gemini_model': self.gemini_model or 'gemini-2.5-flash',
+            'azure_key': self.azure_key or '',
+            'azure_endpoint': self.azure_endpoint or '',
+            'azure_deployment': self.azure_deployment or '',
+            'azure_api_version': self.azure_api_version or '2024-12-01-preview',
+            'temperature': float(self.temperature or 0.3),
+            'max_tokens': int(self.max_tokens or 4096),
+            'prompt_cost': float(self.prompt_cost or 12.5),
+            'completion_cost': float(self.completion_cost or 50.0),
+        }
+        provider = (settings.get('provider') or '').lower().strip()
+
+        prompt = (
+            "Connection test from Odoo AI Core settings. "
+            "Reply in one short line: CONNECTED OK."
+        )
+
+        try:
+            from odoo.addons.memoai.services.memo_ai_service import (
+                call_openai, call_gemini, call_azure_openai,
+            )
+            if provider == 'gemini':
+                result = call_gemini(self.env, prompt, settings=settings, enforce_html=False)
+            elif provider == 'azure':
+                result = call_azure_openai(self.env, prompt, settings=settings, enforce_html=False)
+            else:
+                result = call_openai(self.env, prompt, settings=settings, enforce_html=False)
+
+            response_text = (result.get('text') or '').strip()
+            if len(response_text) > 220:
+                response_text = response_text[:220] + "..."
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('AI Core Connection Successful'),
+                    'message': _(
+                        "Provider: %(provider)s | Tokens: %(tokens)s | Response: %(response)s",
+                        provider=provider.upper(),
+                        tokens=result.get('total_tokens', 0),
+                        response=response_text or 'No text returned',
+                    ),
+                    'type': 'success',
+                    'sticky': True,
+                },
+            }
+        except Exception as e:
+            raise UserError(_("AI connection test failed: %s") % str(e)) from e

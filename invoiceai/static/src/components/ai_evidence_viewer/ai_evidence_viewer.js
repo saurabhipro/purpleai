@@ -132,6 +132,61 @@ export class AIEvidenceViewer extends Component {
         return Object.entries(this.state.data).filter(([k, v]) => !this.isMarksKey(k));
     }
 
+    formatFieldLabel(key) {
+        return (key || "").replace(/_/g, " ").toUpperCase();
+    }
+
+    getMainSections() {
+        return [
+            { id: "general", title: "General Data", entries: [] },
+            { id: "financial", title: "Financial Data", entries: [] },
+            { id: "boolean", title: "Boolean Data", entries: [] },
+            { id: "workflow", title: "Workflow Hints", entries: [] },
+            { id: "other", title: "Other Extracted Fields", entries: [] },
+        ];
+    }
+
+    getSectionIdForKey(key) {
+        const sectionMap = {
+            general: new Set([
+                "invoice_number", "invoice_date", "vendor_name", "supplier_gstin", "po_number",
+                "service_type", "invoice_currency", "exchange_rate", "vendor_bank_account",
+            ]),
+            financial: new Set([
+                "untaxed_amount", "gst_amount", "total_amount", "cgst_amount", "sgst_amount",
+                "igst_amount", "tds_amount", "rcm_amount", "net_payable", "gst_rate", "tds_rate",
+            ]),
+            boolean: new Set([
+                "is_foreign_invoice", "is_tds_applicable", "is_gst_applicable", "is_rcm_applicable",
+                "is_services_invoice", "is_capex", "is_prepaid", "belongs_to_next_period",
+                "is_proforma_invoice",
+            ]),
+            workflow: new Set([
+                "selected_hold_bucket", "selected_expense_gl", "selected_gst_gl", "selected_rcm_gl",
+                "selected_tds_gl", "selected_prepaid_gl", "fa_schedule_update_required", "final_action",
+            ]),
+        };
+        if (sectionMap.general.has(key)) return "general";
+        if (sectionMap.financial.has(key)) return "financial";
+        if (sectionMap.boolean.has(key)) return "boolean";
+        if (sectionMap.workflow.has(key)) return "workflow";
+        return "other";
+    }
+
+    getGroupedTabEntries() {
+        const sections = this.getMainSections();
+        const byId = {};
+        sections.forEach((section) => {
+            byId[section.id] = section;
+        });
+        this.getTabEntries().forEach(([key, val]) => {
+            if (key === "validations") return;
+            const sectionId = this.getSectionIdForKey(key);
+            byId[sectionId].entries.push([key, val]);
+        });
+        return sections.filter((section) => section.entries.length);
+    }
+
     getMarksTableData() {
         // Priority fields to pull the marks array from
         const priorityFields = ['question_sub_totals', 'answer_sheet_marks', 'marks_table'];

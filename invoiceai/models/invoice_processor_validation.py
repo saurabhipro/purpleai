@@ -4,7 +4,7 @@ import io
 import csv
 import base64
 from odoo import models, api, fields, _
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 class InvoiceProcessor(models.Model):
     _inherit = 'purple_ai.invoice_processor'
@@ -213,6 +213,7 @@ class InvoiceProcessor(models.Model):
             data = json.loads(self.extraction_result_id.extracted_data or '{}')
             old_item = data.get(key)
             old_value = ""
+            new_value = "" if new_value is None else str(new_value)
             
             if isinstance(old_item, dict):
                 old_value = old_item.get('value', '')
@@ -220,17 +221,41 @@ class InvoiceProcessor(models.Model):
             else:
                 old_value = str(old_item) if old_item is not None else ""
                 data[key] = new_value
+
+            old_value = "" if old_value is None else str(old_value)
+
+            # No-op edit: avoid noise in chatter
+            if old_value.strip() == new_value.strip():
+                return True
             
             # Update source record
             self.extraction_result_id.extracted_data = json.dumps(data)
             
             # Post Audit Log to Chatter
             field_label = key.replace('_', ' ').title()
+            editor = self.env.user.display_name or "Unknown User"
             msg = Markup(
-                "<strong>Audit Correction</strong>: %s updated.<br/>"
-                "• Old: <span style='color: #dc3545; font-weight: bold;'>%s</span><br/>"
-                "• New: <span style='color: #28a745; font-weight: bold;'>%s</span>"
-            ) % (field_label, old_value or 'Empty', new_value)
+                "<div style='border:1px solid #e5e7eb; border-radius:8px; padding:10px; background:#fafafa;'>"
+                "<div style='font-weight:600; color:#111827; margin-bottom:8px;'>📝 Field Edited</div>"
+                "<div style='font-size:13px; margin-bottom:6px;'><b>User:</b> %s</div>"
+                "<div style='font-size:13px; margin-bottom:10px;'><b>Field:</b> %s</div>"
+                "<table style='width:100%%; border-collapse:collapse; font-size:13px;'>"
+                "<tr>"
+                "<th style='text-align:left; padding:6px; border:1px solid #e5e7eb; background:#fef2f2; color:#991b1b;'>From</th>"
+                "<th style='text-align:left; padding:6px; border:1px solid #e5e7eb; background:#f0fdf4; color:#166534;'>To</th>"
+                "</tr>"
+                "<tr>"
+                "<td style='padding:6px; border:1px solid #e5e7eb;'>%s</td>"
+                "<td style='padding:6px; border:1px solid #e5e7eb;'>%s</td>"
+                "</tr>"
+                "</table>"
+                "</div>"
+            ) % (
+                escape(editor),
+                escape(field_label),
+                escape(old_value or "Empty"),
+                escape(new_value or "Empty"),
+            )
             
             self.message_post(body=msg)
             

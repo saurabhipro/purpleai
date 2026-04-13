@@ -32,6 +32,7 @@
         'views/dashboard_views.xml',
         'views/extraction_master_views.xml',
         'wizard/upload_invoice_wizard_views.xml',
+        'wizard/invoice_reject_reason_wizard_views.xml',
         'views/client_master_views.xml',
         'views/extraction_result_views.xml',
         'views/folder_explorer_views.xml',

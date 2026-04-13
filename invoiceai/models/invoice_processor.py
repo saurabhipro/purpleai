@@ -118,7 +118,6 @@ class InvoiceProcessor(models.Model):
     general_data_html = fields.Html(string='General Data Summary', compute='_compute_general_data_html')
     financial_data_html = fields.Html(string='Financial Data Summary', compute='_compute_financial_data_html', sanitize=False)
     boolean_data_html = fields.Html(string='Boolean Data Summary', compute='_compute_boolean_data_html', sanitize=False)
-    ai_extracted_grouped_html = fields.Html(string='AI Extracted Grouped', compute='_compute_ai_extracted_grouped_html', sanitize=False)
     is_foreign_invoice = fields.Boolean(string='Is Foreign Invoice', compute='_compute_extracted_booleans')
     is_tds_applicable = fields.Boolean(string='Is TDS Applicable', compute='_compute_extracted_booleans')
     is_gst_applicable = fields.Boolean(string='Is GST Applicable', compute='_compute_extracted_booleans')
@@ -292,100 +291,6 @@ class InvoiceProcessor(models.Model):
                 "<style>.o_boolean_data_table tbody tr:hover{background:#f3f7ff;}</style>"
                 "<table class='table table-sm o_boolean_data_table' style='border:1px solid #eef1f4; border-radius:8px; overflow:hidden;'>"
                 "<tbody>" + "".join(tr) + "</tbody></table>"
-            )
-
-    @api.depends('extracted_data')
-    def _compute_ai_extracted_grouped_html(self):
-        section_map = {
-            "General": [
-                "invoice_number", "invoice_date", "vendor_name", "supplier_gstin", "po_number",
-                "service_type", "invoice_currency", "exchange_rate",
-            ],
-            "Financial": [
-                "untaxed_amount", "gst_amount", "total_amount", "cgst_amount", "sgst_amount",
-                "igst_amount", "tds_amount", "rcm_amount",
-            ],
-            "Boolean": [
-                "is_foreign_invoice", "is_tds_applicable", "is_gst_applicable", "is_rcm_applicable",
-                "is_services_invoice", "is_capex", "is_prepaid", "belongs_to_next_period",
-                "is_proforma_invoice",
-            ],
-            "Workflow Hints": [
-                "selected_hold_bucket", "selected_expense_gl", "selected_gst_gl", "selected_rcm_gl",
-                "selected_tds_gl", "selected_prepaid_gl", "fa_schedule_update_required", "final_action",
-            ],
-        }
-
-        def verify_btn(val):
-            sval = escape(str(val or ""))
-            if not sval or sval == "-":
-                return ""
-            js_safe = sval.replace("'", "\\'")
-            return (
-                f"<button class='btn btn-sm btn-outline-primary py-0 px-2' "
-                f"onclick=\"window.find && window.find('{js_safe}')\" "
-                f"title='Find in document'><i class='fa fa-search'></i></button>"
-            )
-
-        for rec in self:
-            source = {}
-            try:
-                if rec.extracted_data:
-                    raw = json.loads(rec.extracted_data)
-                    for k, v in raw.items():
-                        if str(k).lower() == "validations":
-                            continue
-                        source[str(k).lower()] = v.get('value') if isinstance(v, dict) else v
-            except Exception:
-                source = {}
-
-            rendered_sections = []
-            used = set()
-            for section, keys in section_map.items():
-                rows = []
-                for key in keys:
-                    if key in source:
-                        used.add(key)
-                        label = key.replace('_', ' ').title()
-                        val = source.get(key)
-                        rows.append(
-                            "<tr style='transition: all .15s ease;'>"
-                            f"<th style='width:34%; padding:8px; border-bottom:1px solid #eef1f4;'>{escape(label)}</th>"
-                            f"<td style='padding:8px; border-bottom:1px solid #eef1f4;'>{escape(str(val))}</td>"
-                            f"<td style='width:44px; text-align:center; padding:8px; border-bottom:1px solid #eef1f4;'>{verify_btn(val)}</td>"
-                            "</tr>"
-                        )
-                if rows:
-                    rendered_sections.append(
-                        f"<div class='mt-2 mb-1 fw-bold text-primary'>{escape(section)}</div>"
-                        "<table class='table table-sm o_ai_grouped_table' style='border:1px solid #eef1f4; border-radius:8px; overflow:hidden;'>"
-                        "<tbody>" + "".join(rows) + "</tbody></table>"
-                    )
-
-            other_rows = []
-            for key in sorted(source.keys()):
-                if key in used:
-                    continue
-                val = source.get(key)
-                other_rows.append(
-                    "<tr style='transition: all .15s ease;'>"
-                    f"<th style='width:34%; padding:8px; border-bottom:1px solid #eef1f4;'>{escape(key.replace('_', ' ').title())}</th>"
-                    f"<td style='padding:8px; border-bottom:1px solid #eef1f4;'>{escape(str(val))}</td>"
-                    f"<td style='width:44px; text-align:center; padding:8px; border-bottom:1px solid #eef1f4;'>{verify_btn(val)}</td>"
-                    "</tr>"
-                )
-            if other_rows:
-                rendered_sections.append(
-                    "<div class='mt-2 mb-1 fw-bold text-primary'>Other Extracted Fields</div>"
-                    "<table class='table table-sm o_ai_grouped_table' style='border:1px solid #eef1f4; border-radius:8px; overflow:hidden;'>"
-                    "<tbody>" + "".join(other_rows) + "</tbody></table>"
-                )
-
-            rec.ai_extracted_grouped_html = (
-                "<style>.o_ai_grouped_table tbody tr:hover{background:#f3f7ff; cursor:pointer;}</style>"
-                + "".join(rendered_sections)
-                if rendered_sections
-                else "<div class='text-muted'>No extracted fields available.</div>"
             )
 
     @api.depends('state', 'workflow_status', 'approval_state')
@@ -619,19 +524,46 @@ class InvoiceProcessor(models.Model):
         return True
 
     def action_manager_reject(self):
+        self.ensure_one()
+        self._check_manager_permission()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Reject Invoice'),
+            'res_model': 'purple_ai.invoice_reject_reason_wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref('invoiceai.view_invoice_reject_reason_wizard_form').id,
+            'target': 'new',
+            'context': {
+                'default_invoice_processor_id': self.id,
+                'active_id': self.id,
+                'active_model': 'purple_ai.invoice_processor',
+            },
+        }
+
+    def action_manager_reject_with_reason(self, reason):
+        self.ensure_one()
+        self._check_manager_permission()
+        clean_reason = (reason or '').strip()
+        if not clean_reason:
+            raise UserError(_("Please enter Rejection Reason before rejecting."))
+
         now = fields.Datetime.now()
-        for rec in self:
-            rec._check_manager_permission()
-            if not (rec.rejection_reason or '').strip():
-                raise UserError(_("Please enter Rejection Reason before rejecting."))
-            rec.write({
-                'approval_state': 'rejected',
-                'rejected_by': self.env.user.id,
-                'rejected_on': now,
-                'approved_by': False,
-                'approved_on': False,
-                'workflow_status': 'manager_rejected',
-            })
+        self.write({
+            'approval_state': 'rejected',
+            'rejected_by': self.env.user.id,
+            'rejected_on': now,
+            'approved_by': False,
+            'approved_on': False,
+            'rejection_reason': clean_reason,
+            'workflow_status': 'manager_rejected',
+        })
+        self.message_post(
+            body=_(
+                "<b>Invoice Rejected</b><br/>"
+                "By: %s<br/>"
+                "Reason: %s"
+            ) % (self.env.user.display_name, escape(clean_reason))
+        )
         return True
 
     def action_bulk_reprocess_pending(self):

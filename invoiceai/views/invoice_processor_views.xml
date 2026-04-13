@@ -34,46 +34,6 @@
                             <notebook>
                                 <page string="🧠 AI Extracted Data" name="ai_extracted_data">
                                     <field name="extracted_data" widget="ai_evidence_viewer" nolabel="1"/>
-                                    <div class="mt-3">
-                                        <field name="ai_extracted_grouped_html" widget="html" nolabel="1" readonly="1"/>
-                                    </div>
-                                </page>
-                                <page string="📋 General Data" name="general_data" class="p-0">
-                                    <field name="general_data_html" widget="html" nolabel="1" readonly="1"/>
-                                </page>
-                                
-                                <page string="💰 Financial Data" name="financial_data">
-                                    <field name="financial_data_html" widget="html" nolabel="1" readonly="1"/>
-                                </page>
-
-                                <page string="🔘 Boolean Data" name="boolean_data">
-                                    <group string="System Links" invisible="not extraction_result_id">
-                                        <field name="extraction_result_id" readonly="1" options="{'no_open': True}"/>
-                                    </group>
-                                    <field name="boolean_data_html" widget="html" nolabel="1" readonly="1"/>
-                                    <group string="Approval Trail">
-                                        <field name="manager_user_id" readonly="1"/>
-                                        <field name="approved_by" readonly="1"/>
-                                        <field name="approved_on" readonly="1"/>
-                                        <field name="rejected_by" readonly="1"/>
-                                        <field name="rejected_on" readonly="1"/>
-                                        <field name="rejection_reason"/>
-                                    </group>
-                                </page>
-                                <page string="🧾 Reconciliation" name="reconciliation">
-                                    <group string="Status Summary">
-                                        <field name="status_with_icon" readonly="1"/>
-                                        <field name="reconciliation_state"/>
-                                    </group>
-                                    <group string="Reconciliation Details">
-                                        <field name="reconciled_by" readonly="1"/>
-                                        <field name="reconciled_on" readonly="1"/>
-                                        <field name="reconciliation_note" placeholder="Add reconciliation comments..."/>
-                                    </group>
-                                    <group string="Actions">
-                                        <button name="action_mark_reconciled" type="object" string="Mark Reconciled" class="btn-primary"/>
-                                        <button name="action_reopen_reconciliation" type="object" string="Reopen" class="btn-secondary"/>
-                                    </group>
                                 </page>
                                 <page string="✅ Validation Results" name="validation_results">
                                     <div class="o_horizontal_separator text-primary fw-bold mb-3" style="font-size: 1.1rem; border-bottom: 2px solid #007bff;">
