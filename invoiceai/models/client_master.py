@@ -194,6 +194,14 @@ class ClientMaster(models.Model):
                     parent = os.path.dirname(path)
                     if parent != root_path and parent.startswith(root_path):
                         os.chmod(parent, 0o777)
+                    # Ensure a 'processed' subfolder exists for moved/archived files
+                    try:
+                        proc_dir = os.path.join(path, 'processed')
+                        if not os.path.exists(proc_dir):
+                            os.makedirs(proc_dir, mode=0o777, exist_ok=True)
+                        os.chmod(proc_dir, 0o777)
+                    except Exception as e:
+                        _logger.debug("Could not create processed subfolder for %s: %s", path, e)
                 except Exception as e:
                     _logger.error("Failed to create/chmod folder %s: %s", path, str(e))
 

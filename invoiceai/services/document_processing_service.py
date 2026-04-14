@@ -1,4 +1,25 @@
 # -*- coding: utf-8 -*-
+"""
+Document Processing Service (Refactored)
+
+Orchestrates AI-powered extraction pipeline for invoices and documents:
+  1. PDF preparation and searchability checks
+  2. AI extraction with vision inputs (main document + zoom crops)
+  3. Box refinement via PDF text search
+  4. PDF annotation and highlights
+  5. Extraction record persistence
+
+Delegates specialized tasks to modular services:
+  - ocr_service: OCR and PDF searchability
+  - box_refinement_service: Text search and box snapping
+  - pdf_utils: PDF utilities (margins, rendering)
+  - ai_service: LLM calls (external)
+
+See also:
+  - purpleai/services/ocr_service.py
+  - purpleai/services/box_refinement_service.py
+  - purpleai/services/pdf_utils.py
+"""
 import os
 import re
 import json
@@ -10,6 +31,11 @@ from odoo import fields, _
 from odoo.addons.invoiceai.services import ai_service
 from odoo.addons.ai_core.services.ai_core_service import _get_ai_settings
 
+# Import new modular services
+from odoo.addons.invoiceai.services import ocr_service
+from odoo.addons.invoiceai.services import box_refinement_service
+from odoo.addons.invoiceai.services import pdf_utils
+
 try:
     import fitz
     from PIL import Image as PILImage
@@ -18,6 +44,14 @@ except ImportError:
     PILImage = None
 
 _logger = logging.getLogger(__name__)
+
+
+def _detailed_logging_enabled(env):
+    try:
+        val = env['ir.config_parameter'].sudo().get_param('purple_ai.detailed_logging', 'False')
+        return str(val).lower() in ('1', 'true', 'yes', 'y')
+    except Exception:
+        return False
 
 
 def _extract_json(raw_text: str, _strip_html_once: bool = True) -> str:
@@ -87,409 +121,20 @@ def _extract_json(raw_text: str, _strip_html_once: bool = True) -> str:
     return ''
 
 
-def _search_string_variants(value):
-    """Candidate substrings to find extracted values inside PDF text."""
-    if value is None:
-        return []
-    s = str(value).strip()
-    if not s or s.lower() in ('---', 'null', 'none', 'n/a', 'undefined'):
-        return []
-    seen = set()
-    out = []
-
-    def add(x):
-        x = str(x).strip()
-        if x and x not in seen and len(x) >= 1:  # Accept even single characters
-            seen.add(x)
-            out.append(x)
-
-    add(s)
-    
-    # Variants: remove spaces and currency symbols
-    compact = re.sub(r'[\s₹$€]', '', s)
-    compact = compact.replace(',', '')
-    if compact and compact != s.replace(' ', ''):
-        add(compact)
-    
-    # Try with dashes removed too
-    no_dash = s.replace('-', '')
-    if no_dash and no_dash != s:
-        add(no_dash)
-    
-    # Extract numeric part and variants
-    num = re.search(r'-?[\d]+(?:[.,][\d]+)?', s.replace(',', ''))
-    if num:
-        raw = num.group(0).replace(',', '.')
-        add(raw)
-        try:
-            f = float(raw)
-            # Try different formats
-            if abs(f - round(f)) < 1e-9:
-                add(str(int(round(f))))
-            add(f'{f:.2f}')
-            add(f'{f:.1f}')
-            add(str(int(f)))
-        except ValueError:
-            pass
-    
-    # For short strings, try partial matches
-    if 1 <= len(s) <= 15:
-        # Add 2-char to full length substrings for better PDF search
-        for i in range(len(s) - 1):
-            for j in range(i + 2, len(s) + 1):
-                substr = s[i:j].strip()
-                if len(substr) >= 2:
-                    add(substr)
-    
-    return out
-
-
-def _rect_to_box2d(rect, pw, ph):
-    if pw <= 0 or ph <= 0:
-        return None
-    y0 = int(round(1000 * rect.y0 / ph))
-    x0 = int(round(1000 * rect.x0 / pw))
-    y1 = int(round(1000 * rect.y1 / ph))
-    x1 = int(round(1000 * rect.x1 / pw))
-    y0 = max(0, min(1000, y0))
-    x0 = max(0, min(1000, x0))
-    y1 = max(0, min(1000, y1))
-    x1 = max(0, min(1000, x1))
-    if x1 <= x0 or y1 <= y0:
-        return None
-    if (x1 - x0) > 700 or (y1 - y0) > 700:
-        return None
-    return [y0, x0, y1, x1]
-
-
-def _box_iou_yxyx(a, b):
-    if not a or not b or len(a) != 4 or len(b) != 4:
-        return 0.0
-    ay0, ax0, ay1, ax1 = a
-    by0, bx0, by1, bx1 = b
-    iy0, iy1 = max(ay0, by0), min(ay1, by1)
-    ix0, ix1 = max(ax0, bx0), min(ax1, bx1)
-    if iy1 <= iy0 or ix1 <= ix0:
-        return 0.0
-    inter = (iy1 - iy0) * (ix1 - ix0)
-    area_a = max(1, (ay1 - ay0) * (ax1 - ax0))
-    area_b = max(1, (by1 - by0) * (bx1 - bx0))
-    union = area_a + area_b - inter
-    return inter / union if union > 0 else 0.0
-
-
-def _page_search_hits(page, query, ignore_case=False):
-    if not query:
-        return []
-    flags = 0
-    if ignore_case:
-        flags = getattr(fitz, 'TEXT_SEARCH_IGNORECASE', 0) or 0
-    try:
-        if flags:
-            return page.search_for(query, quads=False, flags=flags)
-        return page.search_for(query, quads=False)
-    except TypeError:
-        try:
-            return page.search_for(query, quads=False)
-        except Exception:
-            return []
-    except Exception:
-        return []
-
-
-def _pick_best_rect(rects, pw, ph, existing_box):
-    if not rects:
-        return None
-    if len(rects) == 1:
-        return rects[0]
-    if existing_box and isinstance(existing_box, list) and len(existing_box) == 4:
-        best_r = None
-        best_iou = 0.0
-        for r in rects:
-            b = _rect_to_box2d(r, pw, ph)
-            if not b:
-                continue
-            iou = _box_iou_yxyx(existing_box, b)
-            if iou > best_iou:
-                best_iou = iou
-                best_r = r
-        if best_r is not None and best_iou >= 0.02:
-            return best_r
-
-    
-    # For text-only providers (Azure/OpenAI): pick largest rectangle as it usually gets most text
-    # This ensures we circle the complete field value, not just a part of it
-    def area(r):
-        return max(0.0, (r.x1 - r.x0) * (r.y1 - r.y0))
-    
-    return max(rects, key=area) if rects else None
-
-
-def refine_extracted_boxes_with_fitz(file_path, data):
-    """Snap model box_2d to PyMuPDF text hits so highlights match real glyphs.
-    
-    For PDFs with images (e.g., scanned documents), automatically applies OCR
-    to create a searchable text layer when text search fails, enabling bounding
-    box extraction for Azure AI and other providers that don't provide coordinates.
-    """
-    if not fitz or not isinstance(data, dict):
-        return data
-    path = str(file_path or '')
-    if not path.lower().endswith('.pdf') or not os.path.isfile(path):
-        return data
-    
-    doc = None
-    ocr_doc = None  # Fallback OCR'd PDF for image-heavy documents
-    
-    try:
-        doc = fitz.open(path)
-    except Exception as e:
-        _logger.debug('refine_extracted_boxes: open failed: %s', e)
-        return data
-    
-    try:
-        for key, item in list(data.items()):
-            if key == 'validations' or not isinstance(item, dict):
-                continue
-            val = item.get('value')
-            variants = _search_string_variants(val)
-            if not variants:
-                continue
-            if max(len(v) for v in variants) < 2:
-                continue
-            page_no = item.get('page_number', 1)
-            try:
-                pidx = int(page_no) - 1
-            except (TypeError, ValueError):
-                pidx = 0
-            if pidx < 0 or pidx >= len(doc):
-                continue
-            page = doc[pidx]
-            pw, ph = page.rect.width, page.rect.height
-            if pw <= 0 or ph <= 0:
-                continue
-            numericish = bool(re.match(r'^[\d\s.,₹$€+-]+$', str(val).strip()))
-            rects = []
-            for q in variants:
-                rects.extend(
-                    _page_search_hits(page, q, ignore_case=not numericish)
-                )
-            
-            # If no text found, PDF may contain images. Apply OCR once and retry search.
-            if not rects:
-                if ocr_doc is None:
-                    _logger.info("refine_extracted_boxes: Text search failed for field '%s' (value='%s') -> attempting OCR on %s", key, val, os.path.basename(path))
-                    try:
-                        ocr_doc = _apply_ocr_to_pdf(path)
-                        if ocr_doc is not None:
-                            _logger.info("refine_extracted_boxes: OCR applied successfully; retrying text search for '%s'", key)
-                        else:
-                            _logger.warning("refine_extracted_boxes: OCR returned None for %s", os.path.basename(path))
-                    except Exception as e:
-                        _logger.error("refine_extracted_boxes: OCR failed for %s: %s", os.path.basename(path), e)
-                
-                # Retry search on OCR'd PDF if available
-                if ocr_doc is not None and pidx < len(ocr_doc):
-                    ocr_page = ocr_doc[pidx]
-                    variants_found = []
-                    for q in variants:
-                        hits = _page_search_hits(ocr_page, q, ignore_case=not numericish)
-                        if hits:
-                            variants_found.append(q)
-                        rects.extend(hits)
-                    if rects:
-                        _logger.info("refine_extracted_boxes: SUCCESS - Field '%s' (value='%s') found in OCR'd PDF via variants: %s", key, val, variants_found)
-                    else:
-                        _logger.debug("refine_extracted_boxes: Field '%s' (value='%s') NOT found even in OCR'd PDF, tried variants: %s", key, val, variants)
-            
-            if not rects:
-                continue
-            existing = item.get('box_2d')
-            chosen = _pick_best_rect(rects, pw, ph, existing if isinstance(existing, list) else None)
-            if not chosen:
-                continue
-            new_box = _rect_to_box2d(chosen, pw, ph)
-            if new_box:
-                _logger.debug('Refined %s box_2d via PDF text: %s -> %s', key, existing, new_box)
-                item['box_2d'] = new_box
-        return data
-    except Exception as e:
-        _logger.warning('refine_extracted_boxes_with_fitz: %s', e)
-        return data
-    finally:
-        if doc is not None:
-            doc.close()
-        if ocr_doc is not None:
-            try:
-                ocr_doc.close()
-            except:
-                pass
-
-
-def _check_pdf_searchability(file_path):
-    """Check if PDF has searchable text or is image-heavy.
-    
-    Returns:
-        (is_searchable: bool, text_count: int)
-        - is_searchable=True if PDF has extractable text (not image-heavy)
-        - text_count = total characters found across all pages
-    """
-    if not fitz:
-        return True, 0  # Can't check, assume searchable
-    
-    try:
-        doc = fitz.open(file_path)
-        total_text = 0
-        
-        for page_num in range(min(len(doc), 5)):  # Check first 5 pages
-            page = doc[page_num]
-            text = page.get_text().strip()
-            total_text += len(text)
-        
-        doc.close()
-        
-        # If less than 100 characters found in 5 pages, it's image-heavy
-        is_searchable = total_text >= 100
-        _logger.debug("_check_pdf_searchability: %s - searchable=%s, text_count=%d", file_path, is_searchable, total_text)
-        return is_searchable, total_text
-        
-    except Exception as e:
-        _logger.warning("_check_pdf_searchability failed for %s: %s", file_path, e)
-        return True, 0  # Default to searchable if check fails
-
-
-def _apply_ocr_to_pdf(file_path):
-    """Apply OCR to PDF with images to create searchable text layer.
-    
-    Returns a PyMuPDF Document with OCR-generated text layer, or None on failure.
-    This enables bounding box detection for PDFs that primarily contain images.
-    
-    Uses system Tesseract installation with default language lookup.
-    Falls back gracefully if Tesseract or language data is unavailable.
-    """
-    try:
-        import pytesseract
-        from PIL import Image as PILImage
-    except ImportError:
-        _logger.warning("pytesseract not available; OCR skipped for image-heavy PDFs")
-        return None
-    
-    try:
-        doc = fitz.open(file_path)
-        if len(doc) == 0:
-            _logger.warning("_apply_ocr_to_pdf: PDF is empty - %s", file_path)
-            doc.close()
-            return None
-        
-        _logger.info("_apply_ocr_to_pdf: Starting OCR on %s (%d pages)", file_path, len(doc))
-        merged = fitz.open()
-        page_count = 0
-        extracted_data = []  # Collect OCR text for logging
-        
-        # Process all pages (not just first) for comprehensive searchability
-        for page_num in range(min(len(doc), 10)):  # Limit to first 10 pages to avoid long processing
-            try:
-                page = doc[page_num]
-                # Render page at 200 DPI for good OCR accuracy
-                mat = fitz.Matrix(200 / 72, 200 / 72)
-                pix = page.get_pixmap(matrix=mat, alpha=False)
-                img_bytes = pix.tobytes("jpeg")
-                
-                pil_img = PILImage.open(io.BytesIO(img_bytes))
-                if pil_img.mode not in ('RGB', 'L'):
-                    pil_img = pil_img.convert('RGB')
-                
-                # OCR with English + Hindi (same as apply_pdf_highlights)
-                _logger.debug("_apply_ocr_to_pdf: Running Tesseract on page %d (lang=hin+eng, DPI=200)", page_num)
-                pdf_bytes = pytesseract.image_to_pdf_or_hocr(
-                    pil_img,
-                    lang='hin+eng',
-                    extension='pdf',
-                )
-                
-                # Extract text from OCR'd PDF to log what was detected
-                try:
-                    ocr_page_doc = fitz.open("pdf", pdf_bytes)
-                    ocr_text = ocr_page_doc[0].get_text().strip()
-                    if ocr_text:
-                        extracted_data.append(ocr_text[:200])  # Log first 200 chars
-                        _logger.info("_apply_ocr_to_pdf: Page %d extracted text: %s", page_num, ocr_text[:300])
-                    else:
-                        _logger.warning("_apply_ocr_to_pdf: Page %d - Tesseract found NO text", page_num)
-                    ocr_page_doc.close()
-                except Exception as e:
-                    _logger.debug("_apply_ocr_to_pdf: Could not extract text from OCR PDF for logging: %s", e)
-                
-                page_pdf = fitz.open("pdf", pdf_bytes)
-                merged.insert_pdf(page_pdf)
-                page_pdf.close()
-                page_count += 1
-            except Exception as e:
-                _logger.error("_apply_ocr_to_pdf: OCR failed for page %d: %s", page_num, e)
-                continue
-        
-        doc.close()
-        
-        if len(merged) > 0:
-            _logger.info("_apply_ocr_to_pdf: SUCCESS - Created searchable PDF from %d pages with extracted text: %s", page_count, ', '.join(extracted_data[:3]))
-            return merged
-        else:
-            _logger.warning("_apply_ocr_to_pdf: Tesseract ran on %d pages but produced no searchable content", page_count)
-            merged.close()
-            return None
-            
-    except Exception as e:
-        _logger.error("_apply_ocr_to_pdf: FAILED for %s: %s", file_path, e)
-        return None
-
-
-def _crop_document_margins(file_path):
-    """
-    Crops the LEFT and RIGHT 20% margins of the first page of the document.
-    Returns a list of local paths to the cropped images.
-    """
-    if not fitz:
-        return []
-    
-    import tempfile
-    cropped_paths = []
-    
-    try:
-        doc = fitz.open(file_path)
-        if len(doc) == 0:
-            return []
-        page = doc[0]
-        rect = page.rect
-        
-        # Define crop regions (Left 20% and Right 20%)
-        # 20% is usually enough for margin marks and keeps the image focused
-        margin_width = rect.width * 0.22 
-        crops = [
-            ("left", fitz.Rect(rect.x0, rect.y0, rect.x0 + margin_width, rect.y1)),
-            ("right", fitz.Rect(rect.x1 - margin_width, rect.y0, rect.x1, rect.y1))
-        ]
-        
-        for side, crop_rect in crops:
-            # Render at high DPI (3.0 scale = approx 216 DPI) for crystal clear handwriting recognition
-            pix = page.get_pixmap(clip=crop_rect, matrix=fitz.Matrix(3, 3))
-            
-            temp = tempfile.NamedTemporaryFile(suffix=f'_zoom_{side}.png', delete=False)
-            temp_path = temp.name
-            pix.save(temp_path)
-            cropped_paths.append(temp_path)
-            
-        doc.close()
-        return cropped_paths
-    except Exception as e:
-        _logger.error("Failed to crop margins for %s: %s", file_path, str(e))
-        return cropped_paths
-
-
 def process_document(env, client, file_path, filename, existing_record=None):
     """
     Orchestrates the AI extraction and record creation for a file.
     Optimized to perform validation and highlighting in a single pass.
 
+    Args:
+        env: Odoo environment
+        client: purple_ai.client_master record
+        file_path: Path to source file (PDF or image)
+        filename: Human-readable filename
+        existing_record: Optional extraction result to update
+
+    Returns:
+        purple_ai.extraction_result record, or raises on fatal error
     """
     # 1. Prepare Prompt
     template = client.extraction_master_id
@@ -555,21 +200,25 @@ def process_document(env, client, file_path, filename, existing_record=None):
     
     if filename.lower().endswith('.pdf'):
         try:
-            is_searchable, text_count = _check_pdf_searchability(file_path)
+            is_searchable, text_count = ocr_service.check_pdf_searchability(file_path)
             if not is_searchable:
-                _logger.info("process_document: PDF '%s' is image-heavy (text_count=%d) -> applying OCR before sending to Azure", filename, text_count)
-                ocr_doc = _apply_ocr_to_pdf(file_path)
+                if _detailed_logging_enabled(env):
+                    _logger.info("process_document: PDF '%s' is image-heavy (text_count=%d) -> applying OCR before sending to Azure", filename, text_count)
+                ocr_doc = ocr_service.apply_ocr_to_pdf(file_path, env=env)
                 if ocr_doc is not None:
                     # Save OCR'd PDF to temp file
                     temp_ocr_file = f"/tmp/ocr_{int(time.time())}_{filename}"
                     ocr_doc.save(temp_ocr_file)
                     ocr_doc.close()
                     file_to_send = temp_ocr_file
-                    _logger.info("process_document: OCR'd PDF saved to temp for Azure: %s", temp_ocr_file)
+                    if _detailed_logging_enabled(env):
+                        _logger.info("process_document: OCR'd PDF saved to temp for Azure: %s", temp_ocr_file)
                 else:
-                    _logger.warning("process_document: OCR failed, falling back to original PDF")
+                    if _detailed_logging_enabled(env):
+                        _logger.warning("process_document: OCR failed, falling back to original PDF")
             else:
-                _logger.info("process_document: PDF '%s' is already searchable (text_count=%d), sending as-is to Azure", filename, text_count)
+                if _detailed_logging_enabled(env):
+                    _logger.info("process_document: PDF '%s' is already searchable (text_count=%d), sending as-is to Azure", filename, text_count)
         except Exception as e:
             _logger.warning("process_document: Searchability check failed: %s, sending original PDF", e)
     
@@ -579,7 +228,7 @@ def process_document(env, client, file_path, filename, existing_record=None):
     
     zoom_files = []
     if use_zoom:
-        zoom_files = _crop_document_margins(file_path)
+        zoom_files = pdf_utils._crop_document_margins(file_path)
         if zoom_files:
             _logger.info("Zoom-in requested: cropping %d margin(s) for %s", len(zoom_files), filename)
             for zf in zoom_files:
@@ -622,18 +271,21 @@ def process_document(env, client, file_path, filename, existing_record=None):
     usage = (res.get('usage') if isinstance(res, dict) else None) or {}
     p_tok = int(usage.get('promptTokens') or (res.get('prompt_tokens') if isinstance(res, dict) else 0) or 0)
     o_tok = int(usage.get('outputTokens') or (res.get('completion_tokens') if isinstance(res, dict) else 0) or 0)
-    
-    _logger.info(
-        "AI response for %s [%s tokens]: %.300s%s",
-        filename, p_tok + o_tok, raw_text, '...' if len(raw_text) > 300 else ''
-    )
+    detailed = _detailed_logging_enabled(env)
+    if detailed:
+        _logger.info(
+            "AI response for %s [%s tokens]: %.300s%s",
+            filename, p_tok + o_tok, raw_text, '...' if len(raw_text) > 300 else ''
+        )
+    else:
+        _logger.info("process_document: received AI response for %s (tokens=%d)", filename, p_tok + o_tok)
 
     # ── Robust JSON extraction ────────────────────────────────────────────────
     json_str = _extract_json(raw_text)
     if json_str:
         try:
             parsed = json.loads(json_str)
-            parsed = refine_extracted_boxes_with_fitz(file_path, parsed)
+            parsed = box_refinement_service.refine_extracted_boxes_with_fitz(file_path, parsed, env=env)
             json_str = json.dumps(parsed, ensure_ascii=False)
         except json.JSONDecodeError:
             pass
@@ -684,12 +336,23 @@ def process_document(env, client, file_path, filename, existing_record=None):
         'page_count': page_count,
     }
 
-    if existing_record:
-        existing_record.write(vals)
-        result_rec = existing_record
-    else:
-        vals['company_id'] = env.company.id
-        result_rec = ResultModel.create(vals)
+    # Create or update the extraction result inside a savepoint so that any
+    # DB-level errors here don't leave the outer transaction aborted for the
+    # rest of the processing (we still treat a failed write as fatal for the
+    # extraction flow and log it clearly).
+    result_rec = None
+    try:
+        with env.cr.savepoint():
+            if existing_record:
+                existing_record.write(vals)
+                result_rec = existing_record
+            else:
+                vals['company_id'] = env.company.id
+                result_rec = ResultModel.create(vals)
+    except Exception as e:
+        _logger.error("process_document: failed to create/update extraction result for %s: %s", filename, e)
+        # Bubble up the exception so the caller can surface an error state.
+        raise
 
     # ── Post-processing: invoice processor + PDF annotation (non-fatal) ──────
     # Each step is wrapped in its own savepoint so a failure here does NOT
@@ -709,7 +372,7 @@ def process_document(env, client, file_path, filename, existing_record=None):
     # Only the final write (fast) happens inside a savepoint.
     try:
         extracted_json = json.loads(json_str) if json_str else {}
-        annotated_pdf = apply_pdf_highlights(file_path, extracted_json, failures)
+        annotated_pdf = ocr_service.apply_pdf_highlights(file_path, extracted_json, failures, env=env)
     except Exception as e:
         _logger.warning("PDF preparation failed for %s (non-fatal): %s", filename, str(e))
         annotated_pdf = None
@@ -730,97 +393,35 @@ def process_document(env, client, file_path, filename, existing_record=None):
     except Exception as e:
         _logger.error("PDF storage write failed for %s (non-fatal): %s", filename, str(e))
 
-    return result_rec
-
-
-def apply_pdf_highlights(file_path, extracted_json, failures=None):
-    """Returns a SEARCHABLE PDF as base64.
-
-    If the source is an image or a non-searchable PDF (scanned image), Tesseract
-    OCR is applied to create a text layer so the document can be searched in the
-    PDF viewer and field highlights can be drawn by ai_evidence_viewer.js.
-
-    Flow:
-      1. Open with fitz and check every page for existing text.
-      2. If text found already -> return as-is (already searchable).
-      3. No text -> render each page at 200 DPI and OCR with Tesseract hin+eng.
-      4. Merge OCR pages into a single searchable PDF and return.
-      5. Any failure -> graceful fallback to the raw file bytes.
-    
-    Uses system Tesseract installation with default language paths.
-    """
-    IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.bmp', '.gif', '.webp'}
-
-    def _raw_bytes():
-        try:
-            with open(file_path, 'rb') as f:
-                return base64.b64encode(f.read())
-        except Exception:
-            return False
-
-    if not fitz:
-        return _raw_bytes()
-
-    ext = os.path.splitext(file_path)[1].lower()
-
+    # Move the processed source file into a `processed` subfolder under the
+    # client's folder to avoid accidental re-processing. This is a best-effort
+    # operation and never fatal for the extraction result.
     try:
-        doc = fitz.open(file_path)
-        has_text = (ext not in IMAGE_EXTS) and any(page.get_text().strip() for page in doc)
-    except Exception as e:
-        _logger.warning("apply_pdf_highlights: fitz error on %s: %s", file_path, e)
-        return _raw_bytes()
-
-    if has_text:
-        doc.close()
-        return _raw_bytes()
-
-    # No text layer - run OCR
-    try:
-        import pytesseract
-        from PIL import Image as PILImage
-    except ImportError:
-        _logger.warning("pytesseract not installed; storing file without OCR text layer")
-        doc.close()
-        return _raw_bytes()
-
-    merged = fitz.open()
-    try:
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            mat = fitz.Matrix(200 / 72, 200 / 72)
-            pix = page.get_pixmap(matrix=mat, alpha=False)
-            img_bytes = pix.tobytes("jpeg")
-
-            pil_img = PILImage.open(io.BytesIO(img_bytes))
-            if pil_img.mode not in ('RGB', 'L'):
-                pil_img = pil_img.convert('RGB')
-
-            pdf_bytes = pytesseract.image_to_pdf_or_hocr(
-                pil_img,
-                lang='hin+eng',
-                extension='pdf',
-            )
-            page_pdf = fitz.open("pdf", pdf_bytes)
-            merged.insert_pdf(page_pdf)
-            page_pdf.close()
-
-        doc.close()
-        if len(merged) == 0:
-            merged.close()
-            return _raw_bytes()
-
-        out = io.BytesIO()
-        merged.save(out, garbage=4, deflate=True)
-        n = len(merged)
-        merged.close()
-        _logger.info("apply_pdf_highlights: OCR applied -> searchable PDF (%d page(s))", n)
-        return base64.b64encode(out.getvalue())
-
-    except Exception as e:
-        _logger.error("apply_pdf_highlights: OCR failed for %s: %s", file_path, e)
-        for obj in (doc, merged):
+        client_folder = getattr(client, 'folder_path', None)
+        if client_folder and isinstance(client_folder, str) and client_folder.strip():
             try:
-                obj.close()
-            except Exception:
-                pass
-        return _raw_bytes()
+                abs_file = os.path.abspath(file_path)
+                abs_client = os.path.abspath(client_folder)
+                if abs_file.startswith(abs_client):
+                    proc_dir = os.path.join(abs_client, 'processed')
+                    os.makedirs(proc_dir, exist_ok=True)
+                    dest = os.path.join(proc_dir, os.path.basename(file_path))
+                    # If destination exists, append timestamp to avoid overwrite
+                    if os.path.exists(dest):
+                        base, ext = os.path.splitext(dest)
+                        dest = f"{base}_{int(time.time())}{ext}"
+                    try:
+                        if not os.path.exists(abs_file):
+                            _logger.debug("process_document: source file not found, skipping move: %s", abs_file)
+                        else:
+                            import shutil
+                            shutil.move(abs_file, dest)
+                            _logger.info("process_document: moved processed file to %s", dest)
+                    except Exception as e:
+                        _logger.warning("process_document: could not move file %s to processed folder: %s", file_path, e)
+            except Exception as e:
+                _logger.debug("process_document: skipping move to processed folder: %s", e)
+    except Exception:
+        pass
+
+    return result_rec

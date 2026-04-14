@@ -306,6 +306,12 @@ class ExtractionResult(models.Model):
                 if os.path.exists(file_path):
                     self._rescan_from_disk(file_path)
                     return True
+                # Also check processed subfolder where processed files are moved to
+                proc_path = os.path.join(folder_path, 'processed', self.filename)
+                if os.path.exists(proc_path):
+                    _log.info("action_retry_extraction: found file in processed folder, rescanning %s", proc_path)
+                    self._rescan_from_disk(proc_path)
+                    return True
             raise UserError(_("No document source found to retry extraction. Please re-upload."))
 
         # Extract to temp file for processing service
@@ -319,8 +325,18 @@ class ExtractionResult(models.Model):
             self.write({'state': 'processing', 'error_log': False})
             self.env.cr.commit()
 
-            from odoo.addons.invoiceai.services.document_processing_service import process_document
-            process_document(self.env, self.client_id, temp_path, self.filename, existing_record=self)
+            # Enqueue processing via queue_job if available; otherwise run inline.
+            try:
+                if hasattr(self.client_id, 'with_delay'):
+                    # Pass existing record id so the job updates this record
+                    self.client_id.with_delay()._process_file(temp_path, self.filename, self.id)
+                else:
+                    from odoo.addons.invoiceai.services.document_processing_service import process_document
+                    process_document(self.env, self.client_id, temp_path, self.filename, existing_record=self)
+            except Exception:
+                # If enqueue fails, fall back to synchronous processing
+                from odoo.addons.invoiceai.services.document_processing_service import process_document
+                process_document(self.env, self.client_id, temp_path, self.filename, existing_record=self)
         except Exception as e:
             _logger.error("action_retry_extraction failed: %s", str(e))
             self.write({'state': 'error', 'error_log': str(e)})

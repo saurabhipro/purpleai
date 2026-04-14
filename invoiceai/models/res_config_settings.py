@@ -82,6 +82,14 @@ class TendeAIResConfigSettings(models.TransientModel):
         help='The root directory for the Purple AI Folder Explorer.',
     )
 
+    # Toggle detailed logging for OCR / LLM requests and responses
+    purple_ai_detailed_logging = fields.Boolean(
+        string='Detailed Purple AI Logs',
+        config_parameter='purple_ai.detailed_logging',
+        default=False,
+        help='When enabled, Purple AI will emit detailed OCR and LLM request/response logs. Disable for minimal logging.',
+    )
+
     # ── Computed: available models as selection list ───────────────────────────
     tender_ai_model_choices = fields.Text(
         string='Available Models',

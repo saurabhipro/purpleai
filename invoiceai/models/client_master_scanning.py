@@ -89,14 +89,21 @@ class ClientMaster(models.Model):
             ], limit=1, order='create_date desc')
 
             try:
+                # Enqueue processing via queue_job if available (using with_delay),
+                # otherwise run synchronously.
                 if existing:
-                    # Overwrite existing record from disk — no new record created
-                    existing._rescan_from_disk(file_path)
+                    existing_id = existing.id
                 else:
-                    # First time seeing this file — create a fresh record
-                    document_processing_service.process_document(
-                        self.env, self, file_path, filename
-                    )
+                    existing_id = None
+
+                if hasattr(self, 'with_delay'):
+                    try:
+                        self.with_delay()._process_file(file_path, filename, existing_id)
+                    except Exception:
+                        # If enqueue fails, fall back to direct processing
+                        document_processing_service.process_document(self.env, self, file_path, filename, existing_record=existing)
+                else:
+                    document_processing_service.process_document(self.env, self, file_path, filename, existing_record=existing)
                 # Commit after each file so long OCR operations don't accumulate a massive
                 # uncommitted transaction (prevents DB transaction limits and deadlocks)
                 self.env.cr.commit()
@@ -128,6 +135,23 @@ class ClientMaster(models.Model):
             'status': self.scan_status
         }
         self.env['bus.bus']._sendone(self.env.user.partner_id, 'purple_ai_notification', msg)
+
+    def _process_file(self, file_path, filename, existing_id=None):
+        """Wrapper to process a single file. Designed to be enqueued via queue_job
+        using the `with_delay()` helper (if `queue_job` is installed)."""
+        self.ensure_one()
+        from odoo.addons.invoiceai.services import document_processing_service
+
+        existing = None
+        try:
+            if existing_id:
+                existing = self.env['purple_ai.extraction_result'].browse(existing_id)
+                if not existing.exists():
+                    existing = None
+        except Exception:
+            existing = None
+
+        return document_processing_service.process_document(self.env, self, file_path, filename, existing_record=existing)
 
     def action_reset_scan_status(self):
         """Force reset the scanning status back to idle if it gets stuck."""

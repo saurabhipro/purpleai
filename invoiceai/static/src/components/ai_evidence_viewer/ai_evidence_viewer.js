@@ -173,6 +173,7 @@ export class AIEvidenceViewer extends Component {
         return "other";
     }
 
+    
     getGroupedTabEntries() {
         const sections = this.getMainSections();
         const byId = {};
