@@ -183,14 +183,11 @@ def call_azure_openai(env, prompt, settings=None, enforce_html=True):
                 {"role": "system", "content": "You are an expert financial and legal analyst."},
                 {"role": "user", "content": _format_user_prompt(prompt, enforce_html)},
             ],
-            # Azure's reasoning models (gpt-5) need much higher max_completion_tokens
-            # The model uses extended thinking which consumes tokens for reasoning,
-            # so we set a high limit to ensure output space after reasoning
-            "max_completion_tokens": max(8000, int(settings.get('max_tokens', 4096)) * 2),
+            "max_completion_tokens": settings['max_tokens'],
         }
         user_content = payload["messages"][1]["content"]
-        _logger.info("Azure OpenAI request: model=%s, max_completion_tokens=%d, user_prompt_length=%d chars, api_version=%s", 
-                     settings['azure_deployment'], payload["max_completion_tokens"], len(user_content), settings['azure_api_version'])
+        _logger.info("Azure OpenAI request: model=%s, user_prompt_length=%d chars, api_version=%s", 
+                     settings['azure_deployment'], len(user_content), settings['azure_api_version'])
         try:
             response = client.chat.completions.create(**payload)
         except Exception as e:

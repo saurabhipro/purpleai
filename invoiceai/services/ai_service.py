@@ -10,12 +10,24 @@ AI Core provider is **gemini**, we use ``GeminiService`` with real file uploads
 
 import logging
 import os
+import base64
+import io
 
 from odoo.addons.ai_core.services.ai_core_service import (
     call_ai as _call_ai,
     get_embedding as _get_embedding,
     _get_ai_settings as _get_ai_settings,
 )
+
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
+
+try:
+    from PIL import Image as PILImage
+except ImportError:
+    PILImage = None
 
 _logger = logging.getLogger(__name__)
 
@@ -66,6 +78,155 @@ def _is_existing_file_path(part):
     return bool(p) and os.path.isfile(p)
 
 
+def _extract_text_from_pdf(file_path, max_pages=10, max_chars=3000):
+    """Extract text from a searchable PDF using PyMuPDF.
+    Limits output to first N characters to avoid bloating prompt.
+    Returns tuple (text, is_searchable) where is_searchable indicates if PDF has text layer."""
+    if not fitz:
+        return '', False
+    
+    doc = fitz.open(file_path)
+    all_text = []
+    total_chars = 0
+    
+    num_pages = min(len(doc), max_pages)
+    for page_num in range(num_pages):
+        if total_chars >= max_chars:
+            break
+        page = doc[page_num]
+        text = page.get_text("text")
+        if text:
+            all_text.append(text)
+            total_chars += len(text)
+    
+    doc.close()
+    
+    # Consider searchable if we found meaningful text (at least 50 chars)
+    extracted = '\n'.join(all_text)
+    if len(extracted) > max_chars:
+        extracted = extracted[:max_chars] + "\n[... text truncated ...]"
+    is_searchable = total_chars > 50
+    
+    _logger.info("PDF text extraction: %s, extracted=%d chars (limited to %d), searchable=%s", 
+                 os.path.basename(file_path), total_chars, max_chars, is_searchable)
+    
+    return extracted, is_searchable
+
+
+def _pdf_to_base64_images(file_path, max_pages=5, dpi=150):
+    """Convert PDF pages to base64-encoded PNG images for vision API."""
+    if not fitz:
+        raise ImportError("PyMuPDF (fitz) is required for PDF processing")
+    
+    images = []
+    doc = fitz.open(file_path)
+    num_pages = min(len(doc), max_pages)
+    
+    for page_num in range(num_pages):
+        page = doc[page_num]
+        # Render page to image
+        mat = fitz.Matrix(dpi / 72, dpi / 72)
+        pix = page.get_pixmap(matrix=mat)
+        
+        # Convert to PNG bytes
+        img_bytes = pix.tobytes("png")
+        
+        # Encode as base64
+        b64_str = base64.b64encode(img_bytes).decode('utf-8')
+        images.append({
+            'page': page_num + 1,
+            'base64': b64_str,
+            'media_type': 'image/png'
+        })
+    
+    doc.close()
+    return images
+
+
+def _image_to_base64(file_path):
+    """Convert image file to base64 for vision API."""
+    ext = os.path.splitext(file_path)[1].lower()
+    media_types = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+    }
+    media_type = media_types.get(ext, 'image/png')
+    
+    with open(file_path, 'rb') as f:
+        img_bytes = f.read()
+    
+    b64_str = base64.b64encode(img_bytes).decode('utf-8')
+    return [{
+        'page': 1,
+        'base64': b64_str,
+        'media_type': media_type
+    }]
+
+
+def _call_azure_vision(settings, prompt, file_paths):
+    """Call Azure OpenAI with vision (images) support."""
+    from openai import AzureOpenAI
+    
+    api_key = settings['azure_key']
+    endpoint = settings['azure_endpoint']
+    deployment = settings['azure_deployment']
+    api_version = settings.get('azure_api_version', '2024-12-01-preview')
+    
+    if not api_key or not endpoint:
+        raise ValueError("Azure OpenAI credentials not configured")
+    
+    client = AzureOpenAI(
+        api_key=api_key,
+        azure_endpoint=endpoint,
+        api_version=api_version,
+    )
+    
+    # Build messages with images
+    content_parts = [{"type": "text", "text": prompt}]
+    
+    for fp in file_paths:
+        ext = os.path.splitext(fp)[1].lower()
+        
+        if ext == '.pdf':
+            images = _pdf_to_base64_images(fp)
+        else:
+            images = _image_to_base64(fp)
+        
+        for img in images:
+            content_parts.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:{img['media_type']};base64,{img['base64']}",
+                    "detail": "high"
+                }
+            })
+    
+    _logger.info("Azure Vision API call: deployment=%s, images=%d", deployment, len(content_parts) - 1)
+    
+    response = client.chat.completions.create(
+        model=deployment,
+        messages=[
+            {"role": "user", "content": content_parts}
+        ],
+        max_tokens=settings.get('max_tokens', 4096),
+    )
+    
+    text = response.choices[0].message.content.strip()
+    usage = response.usage
+    pt = usage.prompt_tokens if usage else 0
+    ct = usage.completion_tokens if usage else 0
+    
+    return {
+        'text': text,
+        'prompt_tokens': pt,
+        'completion_tokens': ct,
+        'total_tokens': pt + ct,
+    }
+
+
 def generate(
     contents,
     *,
@@ -86,6 +247,15 @@ def generate(
     """
     settings = _get_ai_settings(env)
     resolved = (provider or settings.get('provider') or 'openai').lower().strip()
+
+    # Debug: Log which provider and credentials are being used
+    _logger.info(
+        "Invoice AI generate: provider=%s, azure_endpoint=%s, azure_key_present=%s, azure_deployment=%s",
+        resolved,
+        settings.get('azure_endpoint', 'NOT SET'),
+        'YES' if settings.get('azure_key') else 'NO',
+        settings.get('azure_deployment', 'NOT SET'),
+    )
 
     if resolved == 'gemini':
         from odoo.addons.ai_core.services.gemini_service import GeminiService
@@ -117,10 +287,30 @@ def generate(
         )
 
     if isinstance(contents, list):
-        prompt = '\n'.join(_content_part_to_text(msg) for msg in contents)
+        # For Azure/OpenAI: extract text from PDFs instead of just flattening paths
+        text_parts = []
+        for msg in contents:
+            if _is_existing_file_path(msg):
+                file_path = msg.strip()
+                ext = os.path.splitext(file_path)[1].lower()
+                if ext == '.pdf':
+                    extracted, is_searchable = _extract_text_from_pdf(file_path)
+                    if is_searchable and extracted:
+                        text_parts.append(extracted)
+                        _logger.info("Added PDF text to prompt: %d chars", len(extracted))
+                    else:
+                        _logger.warning("PDF not searchable or empty: %s", file_path)
+                else:
+                    # For images, just note the filename (text-only path)
+                    text_parts.append(f"[Image file: {os.path.basename(file_path)}]")
+            else:
+                text_parts.append(_content_part_to_text(msg) if isinstance(msg, dict) else str(msg))
+        prompt = '\n\n'.join(text_parts)
+        _logger.info("Final prompt for Azure/OpenAI: %d chars, provider=%s", len(prompt), resolved)
     else:
         prompt = str(contents)
     raw = _call_ai(env, prompt, enforce_html=enforce_html)
+    _logger.info("Azure/OpenAI response text length: %d chars", len(raw.get('text', '') if isinstance(raw, dict) else str(raw)))
     return _normalize_call_ai_response(raw, settings, resolved)
 
 

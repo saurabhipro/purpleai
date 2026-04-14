@@ -20,7 +20,7 @@
                     <!-- Folder & File Explorer Settings -->
                     <block title="Folder &amp; File Explorer" name="folder_config">
                         <setting title="Root Access" help="Specify the starting path for the file explorer">
-                            <div class="content-group">
+                            <div class="content-sgroup">
                                 <label for="purple_ai_root_path"/>
                                 <field name="purple_ai_root_path"/>
                                 <div class="text-muted">This folder will be the 'Home' for the DMS explorer.</div>

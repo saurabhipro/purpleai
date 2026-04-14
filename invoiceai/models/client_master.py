@@ -125,7 +125,8 @@ class ClientMaster(models.Model):
             if 'company_id' not in vals:
                 new_company = self.env['res.company'].sudo().create({
                     'name': vals.get('name', 'New Client Company'),
-                    'currency_id': (self.env.ref('base.INR').id if self.env.ref('base.INR', raise_if_not_found=False) else self.env.company.currency_id.id)
+                    'currency_id': (self.env.ref('base.INR').id if self.env.ref('base.INR', raise_if_not_found=False) else self.env.company.currency_id.id),
+                    'backend_theme_level': 'global_level'  # Default value for backend_theme_level
                 })
                 vals['company_id'] = new_company.id
                 new_company_ids.append(new_company.id)

@@ -234,6 +234,77 @@ class TendeAIResConfigSettings(models.TransientModel):
             },
         }
 
+    def action_test_ai_core(self):
+        """Test the AI Core Configuration by calling the configured AI provider."""
+        self.ensure_one()
+        
+        try:
+            provider = self.ai_provider
+            
+            if provider == 'gemini':
+                # Test Gemini
+                if not self.tender_ai_api_key:
+                    raise UserError(_('Please configure your Gemini API Key first.'))
+                
+                from ..services.gemini_service import generate_with_gemini
+                result = generate_with_gemini(
+                    contents='Say "Purple AI connected successfully!" in one sentence.',
+                    model=self.tender_ai_default_model or 'gemini-2.0-flash',
+                    env=self.env,
+                )
+                text = result.get('text', '').strip() if isinstance(result, dict) else str(result)
+                message = f'✅ Gemini Connection Successful\n\nResponse: {text}'
+                
+            elif provider == 'mistral':
+                # Test Mistral
+                if not self.mistral_api_key:
+                    raise UserError(_('Please configure your Mistral API Key first.'))
+                
+                import requests
+                response = requests.post(
+                    'https://api.mistral.ai/v1/chat/completions',
+                    headers={
+                        'Authorization': f'Bearer {self.mistral_api_key}',
+                        'Content-Type': 'application/json',
+                    },
+                    json={
+                        'model': self.mistral_default_model or 'mistral-large-latest',
+                        'messages': [{'role': 'user', 'content': 'Say "Purple AI connected via Mistral!" in one sentence.'}],
+                        'max_tokens': 30,
+                    },
+                    timeout=15,
+                )
+                data = response.json()
+                if response.status_code == 200:
+                    text = data['choices'][0]['message']['content'].strip()
+                    message = f'✅ Mistral Connection Successful\n\nResponse: {text}'
+                else:
+                    raise UserError(_('Mistral API Error: %s') % data.get('message', 'Unknown error'))
+                    
+            elif provider == 'azure':
+                raise UserError(_('Azure Cloud Foundry configuration not yet implemented.'))
+                
+            elif provider == 'openai':
+                raise UserError(_('OpenAI GPT configuration not yet implemented.'))
+            else:
+                raise UserError(_('Unknown AI provider: %s') % provider)
+                
+        except UserError:
+            raise
+        except Exception as e:
+            raise UserError(_('AI Core Configuration test failed: %s') % str(e))
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('✅ AI Core Test Successful'),
+                'message': message,
+                'type': 'success',
+                'sticky': True,
+            },
+        }
+
     # ── Mistral AI ─────────────────────────────────────────────────────────────
     mistral_api_key = fields.Char(
         string='Mistral API Key',

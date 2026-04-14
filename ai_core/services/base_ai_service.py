@@ -172,8 +172,18 @@ class BaseAIService(abc.ABC):
         }
 
     @classmethod
-    def _render_pdf_to_image(cls, pdf_bytes: bytes) -> tuple[str, str]:
-        """Convert the first page of a PDF to a base64-encoded PNG image."""
+    def _render_pdf_to_image(cls, pdf_bytes: bytes, page_num: int = 0, dpi_scale: float = 3.0) -> tuple[str, str]:
+        """Convert a specific page of a PDF to a base64-encoded PNG image.
+        
+        Args:
+            pdf_bytes: PDF file bytes
+            page_num: Page index to render (0-based). Default 0 = first page.
+            dpi_scale: Zoom factor for rendering. 3.0 = ~216 DPI for better Azure vision accuracy.
+                       Increase for scanned documents or complex layouts.
+        
+        Returns:
+            Tuple of (base64_png_string, 'image/png')
+        """
         import base64
         try:
             import fitz
@@ -184,9 +194,12 @@ class BaseAIService(abc.ABC):
         if len(doc) == 0:
             raise ValueError("PDF is empty")
 
-        # Render first page at high resolution
-        page = doc[0]
-        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom for better text legibility
+        if page_num < 0 or page_num >= len(doc):
+            page_num = 0  # Fall back to first page
+
+        # Render at high resolution (216 DPI) for better Azure vision model accuracy
+        page = doc[page_num]
+        pix = page.get_pixmap(matrix=fitz.Matrix(dpi_scale, dpi_scale))
         img_bytes = pix.tobytes("png")
         doc.close()
 

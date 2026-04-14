@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!-- Dummy data disabled
         <record id="client_demo_ap_team" model="purple_ai.client">
             <field name="name">Demo AP Team</field>
             <field name="extraction_master_id" ref="invoiceai.extraction_master_invoice"/>
@@ -92,6 +91,5 @@
             <field name="rejection_reason">HSN mismatch with supporting document.</field>
             <field name="rejected_by" ref="base.user_admin"/>
         </record>
-        -->
     </data>
 </odoo>

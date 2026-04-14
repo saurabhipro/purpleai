@@ -9,8 +9,10 @@ class ExtractionMaster(models.Model):
     name = fields.Char(string='Template Name', required=True, help="e.g. Invoice Template, Resume Template")
     active = fields.Boolean(default=True)
     
-    field_ids = fields.One2many('purple_ai.extraction_field', 'master_id', string='Fields to Extract')
-    rule_ids = fields.One2many('purple_ai.validation_rule', 'master_id', string='Validation Rules')
+    # Always show inactive records in these lists so users can reactivate them
+    field_ids = fields.One2many('purple_ai.extraction_field', 'master_id', string='Fields to Extract', context={'active_test': False})
+    rule_ids = fields.One2many('purple_ai.validation_rule', 'master_id', string='Validation Rules', context={'active_test': False})
+
 
 class ExtractionField(models.Model):
     _name = 'purple_ai.extraction_field'
@@ -28,6 +30,7 @@ class ExtractionField(models.Model):
     _sql_constraints = [
         ('field_key_unique', 'unique(master_id, field_key)', 'The JSON key must be unique per template!')
     ]
+
 
 class ValidationRule(models.Model):
     _name = 'purple_ai.validation_rule'

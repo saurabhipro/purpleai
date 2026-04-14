@@ -26,8 +26,8 @@
                     </group>
                     <notebook>
                         <page string="Fields to Extract">
-                            <field name="field_ids" context="{'active_test': False}">
-                                <list editable="bottom">
+                            <field name="field_ids" context="{'active_test': False}" force_save="1">
+                                <list editable="bottom" decoration-muted="not active">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="field_key"/>
@@ -38,8 +38,8 @@
                             </field>
                         </page>
                         <page string="Validation Rules">
-                            <field name="rule_ids" context="{'active_test': False}">
-                                <list editable="bottom">
+                            <field name="rule_ids" context="{'active_test': False}" force_save="1">
+                                <list editable="bottom" decoration-muted="not active">
                                     <field name="sequence" widget="handle"/>
                                     <field name="rule_code"/>
                                     <field name="name"/>
