@@ -117,7 +117,7 @@ file_list = [
     ('/tmp/inv2.pdf', 'invoice2.pdf', extraction_record),
 ]
 ```
-
+sssssss
 ## 💾 Example Integration
 
 ```python
