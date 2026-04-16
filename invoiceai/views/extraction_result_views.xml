@@ -16,9 +16,26 @@
                 <field name="client_id"/>
                 <field name="filename"/>
                 <field name="page_count" string="Pages"/>
+                <field name="pdf_dpi" string="DPI"/>
+                <field name="pdf_quality" string="Quality" widget="badge" 
+                       decoration-success="pdf_quality == 'high'" 
+                       decoration-info="pdf_quality == 'good'" 
+                       decoration-warning="pdf_quality == 'medium'" 
+                       decoration-danger="pdf_quality == 'low'"/>
+                <field name="fields_extracted_percent" string="% Extracted" 
+                       widget="progressbar" 
+                       decoration-success="fields_extracted_percent >= 80"
+                       decoration-warning="fields_extracted_percent >= 50 and fields_extracted_percent &lt; 80"
+                       decoration-danger="fields_extracted_percent &lt; 50"/>
+                <field name="extracted_fields_count" string="Fields" optional="hide"/>
+                <field name="total_fields_count" optional="hide"/>
                 <field name="state" widget="badge" decoration-success="state == 'done'" decoration-danger="state == 'error'" decoration-warning="state == 'processing'"/>
                 <field name="provider" string="AI Provider"/>
                 <field name="model_used" string="Model"/>
+                <field name="ocr_method" string="OCR Method" optional="show"/>
+                <field name="total_tokens" string="Tokens Used" optional="show"/>
+                <field name="processing_time_seconds" string="Processing Time (s)" widget="float_time" optional="show"/>
+                <field name="cost_inr" string="Cost (₹)" optional="show"/>
             </list>
         </field>
     </record>
@@ -45,6 +62,33 @@
                             <field name="extracted_data" widget="ai_evidence_viewer" nolabel="1" readonly="1"/>
                             
                             <div class="mt-4">
+                                <group string="Processing Details" class="mb-3">
+                                    <group>
+                                        <field name="provider" string="AI Provider"/>
+                                        <field name="model_used" string="AI Model"/>
+                                        <field name="ocr_method" widget="badge" 
+                                               decoration-info="ocr_method == 'tesseract'" 
+                                               decoration-success="ocr_method == 'paddle'" 
+                                               decoration-warning="ocr_method == 'mistral'"/>
+                                        <field name="fields_extracted_percent" widget="percentpie"/>
+                                    </group>
+                                    <group>
+                                        <field name="page_count"/>
+                                        <field name="pdf_dpi" string="Source PDF DPI"/>
+                                        <field name="pdf_quality" widget="badge" 
+                                               decoration-success="pdf_quality == 'high'" 
+                                               decoration-info="pdf_quality == 'good'" 
+                                               decoration-warning="pdf_quality == 'medium'" 
+                                               decoration-danger="pdf_quality == 'low'"/>
+                                        <field name="quality_enhancements" invisible="not quality_enhancements"/>
+                                        <field name="extracted_fields_count" string="Extracted"/>
+                                        <field name="total_fields_count" string="Total Fields"/>
+                                        <field name="processing_time_seconds" string="Total Time (s)" widget="float"/>
+                                        <field name="duration_ms" string="AI Call Time (ms)" optional="hide"/>
+                                        <field name="total_tokens" invisible="not total_tokens"/>
+                                        <field name="cost_inr" string="Estimated Cost (₹)" invisible="not cost_inr"/>
+                                    </group>
+                                </group>
                                 <notebook invisible="state != 'error'">
                                     <page string="Errors" name="errors">
                                         <field name="error_log" readonly="1" class="text-danger font-monospace"/>

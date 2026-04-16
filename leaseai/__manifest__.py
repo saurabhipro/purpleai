@@ -12,7 +12,7 @@
     'author': 'GT Bharat',
     'website': 'https://gtbharat.in',
     'images': ['static/description/icon.png'],
-    'depends': ['base', 'mail', 'ai_core'],
+    'depends': ['base', 'mail', 'web', 'ai_core', 'invoiceai'],
     'data': [
         'security/ir.model.access.csv',
         'data/lease_template_data.xml',
@@ -20,6 +20,12 @@
         'views/lease_template_views.xml',
         'views/lease_extraction_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'leaseai/static/src/css/lease_extraction_layout.scss',
+            'invoiceai/static/src/js/resizable_layout.js',
+        ],
+    },
     'installable': True,
     'application': True,
     'license': 'LGPL-3',

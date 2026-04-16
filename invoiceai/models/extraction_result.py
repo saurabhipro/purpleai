@@ -1,6 +1,10 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import json
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class ExtractionResult(models.Model):
     _name = 'purple_ai.extraction_result'
@@ -82,12 +86,151 @@ class ExtractionResult(models.Model):
     # Analytics Fields
     provider = fields.Char(string='AI Provider')
     model_used = fields.Char(string='AI Model')
-    duration_ms = fields.Integer(string='Processing Time (ms)')
+    ocr_method = fields.Selection([
+        ('tesseract', 'Tesseract OCR'),
+        ('paddle', 'Paddle OCR'),
+        ('mistral', 'Mistral OCR'),
+        ('none', 'No OCR Applied'),
+    ], string='OCR Method', help='OCR engine used for text extraction')
+    duration_ms = fields.Integer(string='AI Call Time (ms)', help='Time taken by AI API call only')
+    total_processing_time_ms = fields.Integer(string='Total Processing Time (ms)', help='End-to-end processing time including OCR, AI call, and post-processing')
+    processing_time_seconds = fields.Float(string='Processing Time (s)', compute='_compute_processing_time_seconds', store=True)
     prompt_tokens = fields.Integer(string='Prompt Tokens')
     output_tokens = fields.Integer(string='Output Tokens')
     total_tokens = fields.Integer(string='Total Tokens')
     cost = fields.Float(string='Estimated Cost ($)', digits=(12, 6))
+    cost_inr = fields.Float(string='Estimated Cost (₹)', compute='_compute_cost_inr', store=True, digits=(12, 2))
     page_count = fields.Integer(string='Pages', default=0)
+    pdf_dpi = fields.Integer(string='Source PDF DPI', help='Calculated DPI/resolution of the source PDF document')
+    pdf_quality = fields.Selection([
+        ('high', 'High Quality'),
+        ('good', 'Good'),
+        ('medium', 'Medium'),
+        ('low', 'Low Quality'),
+        ('unknown', 'Unknown'),
+    ], string='PDF Quality', compute='_compute_pdf_quality', store=True, help='Quality classification based on source PDF DPI')
+    quality_enhancements = fields.Char(string='Quality Enhancements', help='Dynamic OCR enhancements applied based on PDF quality')
+    
+    # Extraction completeness
+    fields_extracted_percent = fields.Float(
+        string='% Fields Extracted',
+        compute='_compute_extraction_stats',
+        store=True,
+        help='Percentage of fields successfully extracted with values'
+    )
+    total_fields_count = fields.Integer(
+        string='Total Fields',
+        compute='_compute_extraction_stats',
+        store=True
+    )
+    extracted_fields_count = fields.Integer(
+        string='Extracted Fields',
+        compute='_compute_extraction_stats',
+        store=True
+    )
+
+    @api.depends('total_processing_time_ms')
+    def _compute_processing_time_seconds(self):
+        """Convert milliseconds to seconds for better readability."""
+        for rec in self:
+            rec.processing_time_seconds = (rec.total_processing_time_ms / 1000.0) if rec.total_processing_time_ms else 0.0
+
+    @api.depends('cost')
+    def _compute_cost_inr(self):
+        """Convert USD cost to INR using exchange rate."""
+        # USD to INR exchange rate (configurable via system parameter)
+        exchange_rate = float(self.env['ir.config_parameter'].sudo().get_param('ai_core.usd_to_inr_rate', '85.0'))
+        for rec in self:
+            rec.cost_inr = rec.cost * exchange_rate if rec.cost else 0.0
+    
+    @api.depends('pdf_dpi')
+    def _compute_pdf_quality(self):
+        """Classify PDF quality based on DPI."""
+        for rec in self:
+            if not rec.pdf_dpi or rec.pdf_dpi == 0:
+                rec.pdf_quality = 'unknown'
+            elif rec.pdf_dpi >= 250:
+                rec.pdf_quality = 'high'
+            elif rec.pdf_dpi >= 200:
+                rec.pdf_quality = 'good'
+            elif rec.pdf_dpi >= 150:
+                rec.pdf_quality = 'medium'
+            else:
+                rec.pdf_quality = 'low'
+
+    @api.depends('extracted_data', 'pdf_quality')
+    def _compute_extraction_stats(self):
+        """Calculate extraction completeness based on fields with values.
+        
+        Rules for counting as extracted (HIT):
+        - Boolean values (true/false, yes/no) count as valid extractions
+        - Any non-empty value counts as extracted
+        - Only placeholder values ("--", "N/A", etc.) count as MISS
+        """
+        for rec in self:
+            if not rec.extracted_data:
+                rec.fields_extracted_percent = 0.0
+                rec.total_fields_count = 0
+                rec.extracted_fields_count = 0
+                rec._update_confidence_scores()
+                continue
+            
+            try:
+                data = json.loads(rec.extracted_data)
+                total = len(data)
+                extracted = 0
+                
+                # Placeholder values that indicate "not found" (count as MISS)
+                placeholder_values = {
+                    '--', '—', '–',  # Different dash types
+                    'n/a', 'na', 'not applicable',
+                    'not found', 'not available',
+                    'none', 'null', 'nil',
+                    '', ' ',  # Empty or whitespace
+                }
+                
+                for key, val_data in data.items():
+                    # Handle both old simple string format and new dict format
+                    if isinstance(val_data, dict):
+                        val = val_data.get('value', '')
+                    else:
+                        val = val_data
+                    
+                    # Convert to string for comparison
+                    val_str = str(val).strip().lower()
+                    
+                    # Boolean values (true/false, yes/no) count as valid extractions
+                    if isinstance(val, bool):
+                        extracted += 1
+                        continue
+                    
+                    # Check if it's a boolean string representation
+                    if val_str in ('true', 'false', 'yes', 'no', '0', '1'):
+                        extracted += 1
+                        continue
+                    
+                    # Count as MISS only if it's a known placeholder
+                    if val_str in placeholder_values:
+                        continue  # This is a miss, don't increment extracted counter
+                    
+                    # If we have any other non-empty value, count it as extracted
+                    if val_str:
+                        extracted += 1
+                
+                rec.total_fields_count = total
+                rec.extracted_fields_count = extracted
+                rec.fields_extracted_percent = (extracted / total * 100) if total > 0 else 0.0
+                
+                # Debug logging for low extraction cases
+                if rec.fields_extracted_percent < 50.0 and total > 0:
+                    _logger.info("Low extraction rate for %s: %.1f%% (%d/%d fields), sample_data: %s",
+                                rec.filename, rec.fields_extracted_percent, extracted, total, str(data)[:300])
+                
+            except Exception as e:
+                _logger.error("Error computing extraction stats for %s: %s", rec.filename, str(e))
+                rec.fields_extracted_percent = 0.0
+                rec.total_fields_count = 0
+                rec.extracted_fields_count = 0
 
     @api.depends('extracted_data')
     def _compute_data_html(self):
@@ -173,26 +316,67 @@ class ExtractionResult(models.Model):
         }
 
     def _get_estimated_cost(self, provider, model, prompt_tokens, output_tokens):
-        """Estimate cost based on current provider/model prices (as of 2024-2025)."""
-        provider = (provider or '').lower()
-        model = (model or '').lower()
+        """
+        Estimate cost based on configurable provider/model prices (per 1M tokens).
         
-        rates = {
-            'gemini': {'input': 0.075 / 1000000, 'output': 0.30 / 1000000},  # default flash
-            'openai': {'input': 2.50 / 1000000, 'output': 10.00 / 1000000},  # ~gpt-4o ballpark
-            'azure': {'input': 2.50 / 1000000, 'output': 10.00 / 1000000},
-            'mistral': {'input': 2.00 / 1000000, 'output': 6.00 / 1000000},
-        }
-
-        # Override specific models if known
-        if 'pro' in model:
-            rates['gemini'] = {'input': 1.25 / 1000000, 'output': 5.00 / 1000000}
-        if 'mini' in model:
-            rates['azure'] = {'input': 0.15 / 1000000, 'output': 0.60 / 1000000}
-            rates['openai'] = {'input': 0.15 / 1000000, 'output': 0.60 / 1000000}
-
-        config = rates.get(provider, rates['gemini'])
-        cost = (prompt_tokens * config['input']) + (output_tokens * config['output'])
+        Cost formula: (prompt_tokens / 1000000 * input_rate) + (output_tokens / 1000000 * output_rate)
+        
+        Examples:
+        - Gemini (cheapest): 3000 input + 1000 output = (3000 × $0.075/1M) + (1000 × $0.30/1M) = $0.000525 USD (₹0.045)
+        - Azure (40-60% cheaper than OpenAI): 3000 input + 1000 output = (3000 × $0.50/1M) + (1000 × $1.50/1M) = $0.002 USD (₹0.17)
+        - OpenAI (most expensive): 3000 input + 1000 output = (3000 × $2.50/1M) + (1000 × $10.00/1M) = $0.015 USD (₹1.28)
+        """
+        provider = (provider or '').lower().strip()
+        model = (model or '').lower().strip()
+        
+        # Get configurable rates from system parameters
+        icp = self.env['ir.config_parameter'].sudo()
+        
+        if provider == 'gemini':
+            input_rate = float(icp.get_param('ai_core.gemini_input_cost', '0.075') or '0.075')
+            output_rate = float(icp.get_param('ai_core.gemini_output_cost', '0.30') or '0.30')
+            
+            # Override for Pro models (more expensive)
+            if 'pro' in model:
+                input_rate = max(input_rate, 1.25)  # at least 1.25 for Pro
+                output_rate = max(output_rate, 5.00)
+        
+        elif provider == 'openai':
+            # Check if mini model (cheaper) or standard (more expensive)
+            if 'mini' in model:
+                input_rate = 0.15 / 1000000
+                output_rate = 0.60 / 1000000
+            else:
+                input_rate = float(icp.get_param('ai_core.openai_input_cost', '2.50') or '2.50')
+                output_rate = float(icp.get_param('ai_core.openai_output_cost', '10.00') or '10.00')
+        
+        elif provider == 'azure':
+            if 'mini' in model:
+                input_rate = 0.15 / 1000000
+                output_rate = 0.60 / 1000000
+            else:
+                input_rate = float(icp.get_param('ai_core.azure_input_cost', '0.50') or '0.50')
+                output_rate = float(icp.get_param('ai_core.azure_output_cost', '1.50') or '1.50')
+        
+        elif provider == 'mistral':
+            input_rate = 2.00 / 1000000
+            output_rate = 6.00 / 1000000
+        
+        else:
+            # Default to Gemini rates
+            input_rate = float(icp.get_param('ai_core.gemini_input_cost', '0.075') or '0.075')
+            output_rate = float(icp.get_param('ai_core.gemini_output_cost', '0.30') or '0.30')
+        
+        # Ensure rates are already per-token (divide by 1M if they're large numbers)
+        # If user enters "0.075", it's $ per 1M tokens, so divide by 1M
+        # If rates are already tiny like 0.000000075, don't divide again
+        if input_rate > 0.001:  # Likely per-million-tokens
+            input_rate = input_rate / 1000000
+        if output_rate > 0.001:
+            output_rate = output_rate / 1000000
+        
+        # Calculate total cost in USD
+        cost = (prompt_tokens * input_rate) + (output_tokens * output_rate)
         return round(cost, 6)
 
     @api.model

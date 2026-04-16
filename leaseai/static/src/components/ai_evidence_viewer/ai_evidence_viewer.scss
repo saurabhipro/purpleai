@@ -1,0 +1,668 @@
+// AI Evidence Viewer Stylesheet
+// For Lease AI and Invoice AI extraction UI
+
+.o_ai_evidence_viewer_root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 13px;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+// ============================================================================
+// TAB NAVIGATION
+// ============================================================================
+
+.audit-tab-nav {
+    display: flex;
+    background: linear-gradient(90deg, #f5f5f5 0%, #ffffff 100%);
+    border-bottom: 2px solid #e0e0e0;
+    gap: 0;
+    padding: 0;
+
+    .tab-btn {
+        flex: 1;
+        padding: 10px 12px;
+        margin: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+
+        i {
+            margin-right: 6px;
+        }
+
+        &:hover {
+            background-color: #eeeeee;
+            color: #333;
+        }
+
+        &.active {
+            color: #db2777;
+            background-color: #fff;
+            border-bottom: 3px solid #db2777;
+            box-shadow: inset 0 -2px 0 #db2777;
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: #db2777;
+            }
+        }
+    }
+}
+
+// ============================================================================
+// TAB CONTENT
+// ============================================================================
+
+.audit-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
+    background: #fafafa;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #bbb;
+        border-radius: 3px;
+
+        &:hover {
+            background: #999;
+        }
+    }
+}
+
+// ============================================================================
+// SECTIONS (EXTRACTED DATA TAB)
+// ============================================================================
+
+.audit-section {
+    margin-bottom: 12px;
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    .audit-section-title {
+        margin: 0;
+        padding: 10px 12px;
+        background: linear-gradient(90deg, #f0f5fb 0%, #ffffff 100%);
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 12px;
+        font-weight: 600;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        i {
+            margin-right: 6px;
+            color: #666;
+        }
+    }
+
+    .audit-section-body {
+        padding: 0;
+    }
+}
+
+// ============================================================================
+// EVIDENCE ROWS
+// ============================================================================
+
+.audit-row {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background-color: #ffffff;
+    border-left: 3px solid transparent;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    &:hover {
+        background-color: #f9f9f9;
+        border-left-color: #ddd;
+
+        .audit-row-actions {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    &.selected {
+        background-color: #fff3f8;
+        border-left-color: #db2777;
+        box-shadow: inset 0 0 8px rgba(219, 39, 119, 0.08);
+
+        .audit-row-header {
+            color: #db2777;
+            font-weight: 600;
+        }
+    }
+
+    &.hovered {
+        background-color: #f3f7ff;
+        border-left-color: #4f46e5;
+    }
+
+    &.editing-row {
+        background-color: #fffbf0;
+    }
+
+    .audit-row-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+
+        .audit-row-key {
+            font-weight: 600;
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            i {
+                color: #999;
+                min-width: 14px;
+            }
+        }
+
+        .audit-row-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease;
+
+            .btn-action {
+                background: transparent;
+                border: 1px solid #ddd;
+                color: #666;
+                padding: 3px 6px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 11px;
+                transition: all 0.15s ease;
+
+                i {
+                    margin-right: 2px;
+                }
+
+                &:hover {
+                    background-color: #f0f0f0;
+                    border-color: #999;
+                    color: #333;
+                }
+
+                &.btn-edit:hover {
+                    border-color: #4285f4;
+                    color: #4285f4;
+                }
+
+                &.btn-comment:hover {
+                    border-color: #db2777;
+                    color: #db2777;
+                }
+            }
+        }
+    }
+
+    .audit-row-value {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .value-text {
+            color: #555;
+            font-size: 12px;
+            word-break: break-word;
+            font-weight: 500;
+        }
+
+        .value-comment {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            padding: 4px 8px;
+            background-color: #f5f5f5;
+            border-left: 2px solid #ddd;
+            border-radius: 2px;
+
+            i {
+                margin-right: 4px;
+                color: #999;
+            }
+        }
+
+        .badge {
+            align-self: flex-start;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 3px;
+            text-transform: uppercase;
+
+            &.badge-page {
+                background-color: #e3f2fd;
+                color: #1976d2;
+            }
+        }
+    }
+}
+
+// ============================================================================
+// EDIT / COMMENT MODES
+// ============================================================================
+
+.audit-row-edit,
+.audit-row-comment {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+
+    .edit-input,
+    .comment-input {
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 12px;
+        font-family: inherit;
+
+        &:focus {
+            outline: none;
+            border-color: #db2777;
+            box-shadow: 0 0 0 2px rgba(219, 39, 119, 0.1);
+        }
+    }
+
+    .edit-input {
+        height: 32px;
+    }
+
+    .comment-input {
+        height: 60px;
+        resize: none;
+    }
+
+    .audit-row-edit-actions,
+    .audit-row-comment-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+
+        .btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+
+            &.btn-success {
+                background-color: #4caf50;
+                color: white;
+
+                &:hover {
+                    background-color: #45a049;
+                }
+            }
+
+            &.btn-secondary {
+                background-color: #f0f0f0;
+                color: #666;
+                border-color: #ddd;
+
+                &:hover {
+                    background-color: #e0e0e0;
+                }
+            }
+        }
+    }
+}
+
+// ============================================================================
+// VALIDATIONS TAB
+// ============================================================================
+
+.audit-marks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.audit-mark-item {
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    padding: 10px;
+    transition: all 0.15s ease;
+
+    &.passed {
+        border-left-color: #4caf50;
+        background-color: #f1f8f4;
+    }
+
+    &.warning {
+        border-left-color: #ff9800;
+        background-color: #fff8f1;
+    }
+
+    &.failed,
+    &.error {
+        border-left-color: #f44336;
+        background-color: #fef1f0;
+    }
+
+    .audit-mark-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        color: #333;
+        margin-bottom: 6px;
+
+        i {
+            font-size: 14px;
+        }
+
+        .mark-label {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    .audit-mark-body {
+        font-size: 12px;
+        color: #666;
+
+        p {
+            margin: 0 0 4px 0;
+        }
+
+        small {
+            display: block;
+            color: #999;
+            font-style: italic;
+            margin-top: 4px;
+        }
+    }
+}
+
+// ============================================================================
+// INFO TAB
+// ============================================================================
+
+.audit-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+
+    .info-item {
+        background: white;
+        padding: 10px;
+        border: 1px solid #e8e8e8;
+        border-radius: 4px;
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .info-value,
+        .badge {
+            display: block;
+            font-size: 12px;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .badge {
+            align-self: flex-start;
+            padding: 4px 10px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+    }
+}
+
+// ============================================================================
+// EMPTY STATES
+// ============================================================================
+
+.alert {
+    margin: 12px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 12px;
+
+    &.alert-info {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #90caf9;
+
+        i {
+            margin-right: 6px;
+        }
+    }
+}
+
+// ============================================================================
+// RESPONSIVE TWEAKS
+// ============================================================================
+
+@media (max-width: 768px) {
+    .audit-tab-nav {
+        .tab-btn {
+            padding: 8px 10px;
+            font-size: 11px;
+
+            i {
+                display: none;
+            }
+        }
+    }
+
+    .audit-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .audit-row-actions {
+        .btn-action {
+            padding: 2px 4px;
+            font-size: 10px;
+        }
+    }
+}
+
+// ============================================================================
+// HIGHLIGHT ANIMATION
+// ============================================================================
+
+@keyframes blinkBox {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.5) translateX(-50%);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateX(-50%);
+        opacity: 1;
+    }
+}
+
+// ============================================================================
+// PDF HIGHLIGHT STYLES (Injected dynamically via JS)
+// ============================================================================
+
+// These styles are injected into the PDF iframe document via _injectHighlightStyle()
+// Keeping reference here for documentation purposes
+
+// .audit-box {
+//     transition: all 0.2s;
+//     border: 1px solid transparent;
+// }
+//
+// .audit-box.yellow-box {
+//     background-color: rgba(255, 235, 59, 0.35) !important;
+//     border-color: rgba(255, 235, 59, 0.5);
+// }
+//
+// .audit-box.hover-box {
+//     background-color: rgba(99, 102, 241, 0.4) !important;
+//     border-color: #6366f1 !important;
+//     border-width: 2px !important;
+//     z-index: 150 !important;
+//     transform: scale(1.05);
+//     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+// }
+//
+// .audit-box.pink-box {
+//     background-color: rgba(255, 0, 127, 0.45) !important;
+//     border-color: rgba(255, 0, 127, 0.8);
+//     box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+//     z-index: 100;
+// }
+//
+// .audit-box.blink {
+//     animation: blinkBox 1.5s infinite;
+// }
+
+// ============================================================================
+// UTILITY CLASSES
+// ============================================================================
+
+.has-box {
+    .audit-row-key::after {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #4caf50;
+        border-radius: 50%;
+        margin-left: 4px;
+        vertical-align: middle;
+    }
+}
+
+// Dark theme support (optional)
+.dark-mode {
+    .o_ai_evidence_viewer_root {
+        background-color: #1e1e1e;
+        border-color: #444;
+
+        .audit-tab-nav {
+            background: #252525;
+
+            .tab-btn {
+                color: #aaa;
+
+                &:hover {
+                    background-color: #333;
+                    color: #fff;
+                }
+
+                &.active {
+                    background-color: #1e1e1e;
+                    color: #ff69b4;
+                }
+            }
+        }
+
+        .audit-tab-content {
+            background: #1e1e1e;
+        }
+
+        .audit-section {
+            background: #252525;
+            border-color: #444;
+
+            .audit-section-title {
+                background: #2a2a2a;
+                border-color: #444;
+                color: #fff;
+            }
+        }
+
+        .audit-row {
+            background-color: #252525;
+            border-color: #333;
+            color: #ccc;
+
+            &:hover {
+                background-color: #2a2a2a;
+                border-color: #444;
+            }
+
+            &.selected {
+                background-color: #3a2635;
+                border-left-color: #ff69b4;
+            }
+        }
+    }
+}

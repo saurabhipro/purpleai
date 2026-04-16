@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="leaseai.AIEvidenceViewer" owl="1">
+        <div class="o_audit_container o_ai_evidence_viewer_root">
+            <!-- Tab Navigation -->
+            <div class="audit-tab-nav">
+                <button class="tab-btn" t-att-class="{'active': state.activeTab === 'main'}" t-on-click="() => setActiveTab('main')">
+                    <i class="fa fa-list-ul"/> EXTRACTED DATA
+                </button>
+                <button class="tab-btn" t-att-class="{'active': state.activeTab === 'marks'}" t-on-click="() => setActiveTab('marks')">
+                    <i class="fa fa-check-square"/> VALIDATIONS
+                </button>
+                <button class="tab-btn" t-att-class="{'active': state.activeTab === 'info'}" t-on-click="() => setActiveTab('info')">
+                    <i class="fa fa-info-circle"/> DOCUMENT INFO
+                </button>
+            </div>
+
+            <!-- TAB - EXTRACTED DATA -->
+            <div t-if="state.activeTab === 'main'" class="audit-tab-content audit-main-tab">
+                <t t-foreach="getGroupedTabEntries()" t-as="section">
+                    <div class="audit-section">
+                        <h3 class="audit-section-title">
+                            <i class="fa fa-folder"/> <t t-esc="section.title"/>
+                        </h3>
+                        <div class="audit-section-body">
+                            <t t-foreach="section.entries" t-as="entry">
+                                <t t-set="key" t-value="entry[0]"/>
+                                <t t-set="val_data" t-value="state.data[key]"/>
+                                <t t-set="val" t-value="(val_data and typeof val_data === 'object' and not Array.isArray(val_data)) ? val_data.value : val_data"/>
+                                <t t-set="comment" t-value="(val_data and typeof val_data === 'object' and not Array.isArray(val_data)) ? val_data.comment : ''"/>
+                                <t t-set="page" t-value="(val_data and typeof val_data === 'object' and not Array.isArray(val_data)) ? val_data.page_number : null"/>
+                                <t t-set="box2d" t-value="(val_data and typeof val_data === 'object' and not Array.isArray(val_data)) ? val_data.box_2d : null"/>
+
+                                <div class="audit-row" t-att-class="{ 'selected': state.selectedKey === key || state.editedKeys.includes(key), 'hovered': state.hoveredKey === key, 'has-box': box2d, 'editing-row': state.editingKey === key }" t-on-click="(ev) => selectRow(key, ev)" t-on-mouseenter="() => onMouseEnterRow(key)" t-on-mouseleave="() => onMouseLeaveRow()">
+                                    <!-- Row Header -->
+                                    <div class="audit-row-header">
+                                        <span class="audit-row-key">
+                                            <i t-att-class="['fa', getFieldIcon(key)]"/>
+                                            <t t-esc="formatFieldLabel(key)"/>
+                                        </span>
+                                        <div class="audit-row-actions">
+                                            <button class="btn-action btn-edit" t-on-click="(ev) => startEdit(key, val, ev)" title="Edit">
+                                                <i class="fa fa-pencil"/>
+                                            </button>
+                                            <button class="btn-action btn-comment" t-on-click="(ev) => startComment(key, comment, ev)" title="Add comment">
+                                                <i class="fa fa-comments"/>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Row Value Display -->
+                                    <t t-if="not state.editingKey or state.editingKey !== key">
+                                        <div class="audit-row-value">
+                                            <span class="value-text"><t t-esc="formatValue(val)"/></span>
+                                            <t t-if="comment">
+                                                <div class="value-comment">
+                                                    <i class="fa fa-quote-left"/> <t t-esc="comment"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="page">
+                                                <span class="badge badge-page">Page <t t-esc="page"/></span>
+                                            </t>
+                                        </div>
+                                    </t>
+
+                                    <!-- Row Edit Mode -->
+                                    <t t-if="state.editingKey === key">
+                                        <div class="audit-row-edit">
+                                            <input class="form-control edit-input" type="text" t-model="state.editValue" placeholder="Edit value..."/>
+                                            <div class="audit-row-edit-actions">
+                                                <button class="btn btn-sm btn-success" t-on-click.stop="() => this.saveEdit()">
+                                                    <i class="fa fa-check"/> SAVE
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary" t-on-click.stop="() => this.cancelEdit()">
+                                                    <i class="fa fa-times"/> CANCEL
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- Row Comment Mode -->
+                                    <t t-if="state.commentingKey === key">
+                                        <div class="audit-row-comment">
+                                            <textarea class="form-control comment-input" t-model="state.commentValue" placeholder="Add a note..."/>
+                                            <div class="audit-row-comment-actions">
+                                                <button class="btn btn-sm btn-success" t-on-click.stop="() => this.saveComment()">
+                                                    <i class="fa fa-check"/> SAVE
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary" t-on-click.stop="() => this.cancelComment()">
+                                                    <i class="fa fa-times"/> CANCEL
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Empty state -->
+                <t t-if="Object.keys(state.data).length === 0 or getGroupedTabEntries().length === 0">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"/> No extracted data available. Run extraction first.
+                    </div>
+                </t>
+            </div>
+
+            <!-- TAB - VALIDATIONS -->
+            <div t-if="state.activeTab === 'marks'" class="audit-tab-content audit-marks-tab">
+                <t t-if="state.data.validations and state.data.validations.length">
+                    <div class="audit-marks-list">
+                        <t t-foreach="state.data.validations" t-as="mark">
+                            <div t-att-class="['audit-mark-item', mark.status or 'warning']">
+                                <div class="audit-mark-header">
+                                    <i t-att-class="['fa', mark.status === 'passed' ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning']"/>
+                                    <span class="mark-label"><t t-esc="mark.label"/></span>
+                                </div>
+                                <div class="audit-mark-body">
+                                    <p><t t-esc="mark.message"/></p>
+                                    <t t-if="mark.details">
+                                        <small><t t-esc="mark.details"/></small>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"/> No validation data available.
+                    </div>
+                </t>
+            </div>
+
+            <!-- TAB - DOCUMENT INFO -->
+            <div t-if="state.activeTab === 'info'" class="audit-tab-content audit-info-tab">
+                <div class="audit-info-grid">
+                    <div class="info-item">
+                        <label>File Name</label>
+                        <t t-if="props.record.data.name">
+                            <span class="info-value"><t t-esc="props.record.data.name"/></span>
+                        </t>
+                        <t t-else="">
+                            <span class="info-value">—</span>
+                        </t>
+                    </div>
+                    <div class="info-item">
+                        <label>Upload Date</label>
+                        <t t-if="props.record.data.create_date">
+                            <span class="info-value"><t t-esc="props.record.data.create_date"/></span>
+                        </t>
+                        <t t-else="">
+                            <span class="info-value">—</span>
+                        </t>
+                    </div>
+                    <div class="info-item">
+                        <label>Pages</label>
+                        <t t-if="state.data.num_pages">
+                            <span class="info-value"><t t-esc="state.data.num_pages"/></span>
+                        </t>
+                        <t t-else="">
+                            <span class="info-value">—</span>
+                        </t>
+                    </div>
+                    <div class="info-item">
+                        <label>Status</label>
+                        <t t-if="props.record.data.state">
+                            <span t-att-class="['badge', 'badge-' + props.record.data.state]"><t t-esc="props.record.data.state"/></span>
+                        </t>
+                        <t t-else="">
+                            <span class="info-value">—</span>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

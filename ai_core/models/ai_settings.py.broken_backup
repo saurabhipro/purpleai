@@ -1,0 +1,9 @@
+# -*- coding: utf-8 -*-
+from odoo import fields, models
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = res.config.settings
+
+    # OCR Engine Selection
+    ocr_engine = fields.Selection([
+        (tesseract, Tesseract

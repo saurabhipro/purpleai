@@ -77,8 +77,8 @@
                                                            t-model="state.editValue"
                                                            t-on-keydown="(ev) => ev.key === 'Enter' ? this.saveEdit() : (ev.key === 'Escape' ? this.cancelEdit() : null)"
                                                            autoFocus="true"/>
-                                                    <button class="btn btn-success" t-on-click="() => this.saveEdit()"><i class="fa fa-check"/></button>
-                                                    <button class="btn btn-danger" t-on-click="() => this.cancelEdit()"><i class="fa fa-times"/></button>
+                                                    <button class="btn btn-success" t-on-click.stop="() => this.saveEdit()"><i class="fa fa-check"/></button>
+                                                    <button class="btn btn-danger" t-on-click.stop="() => this.cancelEdit()"><i class="fa fa-times"/></button>
                                                 </div>
 
                                                 <!-- Comment Mode -->
@@ -88,8 +88,8 @@
                                                            t-model="state.commentValue"
                                                            t-on-keydown="(ev) => ev.key === 'Enter' ? this.saveComment() : (ev.key === 'Escape' ? this.cancelComment() : null)"
                                                            autoFocus="true"/>
-                                                    <button class="btn btn-info text-white" t-on-click="() => this.saveComment()"><i class="fa fa-pencil"/></button>
-                                                    <button class="btn btn-outline-secondary btn-sm" t-on-click="() => this.cancelComment()"><i class="fa fa-times"/></button>
+                                                    <button class="btn btn-info text-white" t-on-click.stop="() => this.saveComment()"><i class="fa fa-pencil"/></button>
+                                                    <button class="btn btn-outline-secondary btn-sm" t-on-click.stop="() => this.cancelComment()"><i class="fa fa-times"/></button>
                                                 </div>
 
                                                 <!-- View Mode -->
@@ -115,8 +115,9 @@
                                                             </span>
                                                         </t>
                                                         <span t-else=""
-                                                              t-attf-class="evidence-value fw-bold #{state.selectedKey === key ? 'text-danger' : 'text-primary'}"
+                                                              t-attf-class="evidence-value fw-bold #{(state.selectedKey === key || state.editedKeys.includes(key)) ? 'text-danger' : 'text-primary'}"
                                                               style="font-size: 0.9rem;" t-esc="val || '---'"/>
+                                                        
                                                         <div t-if="val_data and typeof val_data === 'object' and !Array.isArray(val_data) and val_data.comment"
                                                              class="text-muted small italic opacity-75 mt-1"
                                                              style="font-size: 0.75rem; border-left: 2px solid #2563eb; padding-left: 6px;">

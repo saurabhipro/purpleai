@@ -89,8 +89,17 @@
                                 <field name="max_tokens"/>
                             </setting>
 
-                            <!-- ✅ COST CONFIGURATION MOVED TO: Invoice AI Settings > "AI API Pricing" -->
-                            <!-- This consolidates all pricing in one place to avoid duplicates -->
+                            <setting title="Cost Controls" help="Per 1M token rates used for cost calculations and reporting.">
+                                <field name="prompt_cost"/>
+                                <field name="completion_cost"/>
+                            </setting>
+
+                            <setting title="Invoice AI Processing Cost" help="Used by Invoice AI processing calculations (per 1M tokens in INR).">
+                                <label for="tender_ai_input_cost" string="Processing Input Cost (per 1M tokens)"/>
+                                <field name="tender_ai_input_cost"/>
+                                <label for="tender_ai_output_cost" string="Processing Output Cost (per 1M tokens)"/>
+                                <field name="tender_ai_output_cost"/>
+                            </setting>
 
                             <setting title="React UI (development)" help="Optional integration for the Purple AI React app (folder purpleai_ui, script run_purpleai). Use a long random dev key; keep it private.">
                                 <field name="react_dev_api_key" password="True" placeholder="e.g. openssl rand -hex 32"/>
@@ -101,39 +110,7 @@
 
                 <xpath expr="//app[@name='general_settings']/block[1]" position="after">
                     <block title="OCR Settings" name="ocr_settings_block">
-                        <!-- OCR Engine Selection -->
-                        <setting title="OCR Engine" help="Choose which OCR engine to use for text extraction">
-                            <label for="ocr_engine" string="Select OCR Engine"/>
-                            <div class="content-group mt8">
-                                <field name="ocr_engine" widget="radio" options="{'horizontal': true}"/>
-                            </div>
-                        </setting>
-
-                        <!-- Mistral OCR Configuration -->
-                        <setting title="Mistral OCR API" help="API credentials for Mistral OCR service" invisible="ocr_engine != 'mistral'">
-                            <label for="mistral_ocr_url" string="Mistral OCR API URL"/>
-                            <field name="mistral_ocr_url" placeholder="https://your-resource.services.ai.azure.com/providers/mistral/azure/ocr"/>
-                            <label for="mistral_ocr_token" string="Mistral OCR Token"/>
-                            <field name="mistral_ocr_token" password="True" placeholder="Enter your API token"/>
-                            <label for="mistral_ocr_model" string="Mistral OCR Model"/>
-                            <field name="mistral_ocr_model" placeholder="mistral-document-ai-2505"/>
-                        </setting>
-
-                        <!-- Paddle OCR Configuration -->
-                        <setting title="Paddle OCR Settings" help="Paddle OCR advanced configuration" invisible="ocr_engine != 'paddle'">
-                            <field name="paddle_ocr_use_gpu" string="Enable GPU Acceleration"/>
-                            <field name="paddle_ocr_enable_angle" string="Enable Angle Detection"/>
-                            <label for="paddle_ocr_model_dir" string="Model Directory"/>
-                            <field name="paddle_ocr_model_dir" placeholder="~/.paddleocr"/>
-                            <label for="paddle_ocr_num_threads" string="CPU Threads"/>
-                            <field name="paddle_ocr_num_threads"/>
-                            <label for="paddle_ocr_cls_batch_num" string="Classification Batch Size"/>
-                            <field name="paddle_ocr_cls_batch_num"/>
-                            <label for="paddle_ocr_det_db_thresh" string="Detection Sensitivity (0.0-1.0)"/>
-                            <field name="paddle_ocr_det_db_thresh"/>
-                        </setting>
-
-                        <setting title="OCR Processing" help="Core OCR extraction settings" invisible="ocr_engine == 'mistral'">
+                        <setting title="OCR Processing" help="Core OCR extraction settings">
                             <label for="ocr_dpi" string="Image DPI"/>
                             <field name="ocr_dpi"/>
                             <label for="ocr_languages" string="Tesseract Languages"/>
@@ -153,30 +130,26 @@
                             <field name="ocr_image_mode"/>
                         </setting>
 
-                        <setting title="Tesseract Engine" help="OCR engine configuration" invisible="ocr_engine != 'tesseract'">
+                        <setting title="Tesseract Engine" help="OCR engine configuration">
                             <label for="ocr_psm_mode" string="Page Segmentation Mode (PSM)"/>
                             <field name="ocr_psm_mode"/>
                             <label for="ocr_oem_mode" string="OCR Engine Mode (OEM)"/>
                             <field name="ocr_oem_mode"/>
                         </setting>
 
-                        <setting title="Performance &amp; Resources" help="Memory and concurrency settings" invisible="ocr_engine == 'mistral'">
+                        <setting title="Performance &amp; Resources" help="Memory and concurrency settings">
                             <label for="ocr_max_memory_mb" string="Max Memory (MB)"/>
                             <field name="ocr_max_memory_mb"/>
                             <label for="ocr_concurrent_jobs" string="Concurrent Jobs"/>
                             <field name="ocr_concurrent_jobs"/>
                         </setting>
 
-                        <setting title="PDF Processing" help="Control when OCR is applied to PDFs">
+                        <setting title="PDF Processing" help="PDF-specific OCR options">
                             <label for="ocr_render_scale_factor" string="Render Scale Factor"/>
                             <field name="ocr_render_scale_factor"/>
-                            <div class="text-muted">
-                                <field name="ocr_check_searchability" string="Skip OCR for searchable PDFs (recommended)"/>
-                                <p class="text-info">When enabled: OCR only runs on scanned/image PDFs with less than 100 characters.<br/>
-                                When disabled: OCR runs on ALL PDFs regardless of existing text content.</p>
-                            </div>
-                            <label for="ocr_searchability_threshold" string="Searchability Threshold (chars)" invisible="not ocr_check_searchability"/>
-                            <field name="ocr_searchability_threshold" invisible="not ocr_check_searchability"/>
+                            <field name="ocr_check_searchability" string="Check Searchability First"/>
+                            <label for="ocr_searchability_threshold" string="Searchability Threshold (chars)"/>
+                            <field name="ocr_searchability_threshold"/>
                         </setting>
 
                         <setting title="Bounding Box Refinement" help="Text box detection refinement">

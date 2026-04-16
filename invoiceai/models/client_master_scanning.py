@@ -2,6 +2,7 @@
 import os
 import logging
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -76,6 +77,11 @@ class ClientMaster(models.Model):
                 'scan_current_file': filename,
             })
             self._send_scan_notification()
+            
+            # Log batch progress
+            _logger.info("#" * 80)
+            _logger.info("BATCH PROGRESS: [%d/%d] Processing: %s", i + 1, len(files), filename)
+            _logger.info("#" * 80)
 
             file_path = os.path.join(folder_path, filename)
             if not os.path.exists(file_path):
@@ -107,6 +113,12 @@ class ClientMaster(models.Model):
                 # Commit after each file so long OCR operations don't accumulate a massive
                 # uncommitted transaction (prevents DB transaction limits and deadlocks)
                 self.env.cr.commit()
+            except UserError as e:
+                # OCR configuration errors should stop batch processing and show popup to user
+                _logger.error("OCR configuration error processing %s for client %s: %s", filename, self.name, str(e))
+                self.env.cr.rollback()
+                # Re-raise to show popup and stop batch
+                raise
             except Exception as e:
                 _logger.error("Failed to process %s for client %s: %s", filename, self.name, str(e))
                 # Critical: If Postgres aborts the transaction (e.g., deadlock), we MUST rollback
@@ -123,6 +135,11 @@ class ClientMaster(models.Model):
             ['scan_status', 'scan_count', 'scan_current_file', 'last_scan']
         )
         self._send_scan_notification()
+        
+        # Log scan completion
+        _logger.info("$" * 80)
+        _logger.info("SCAN COMPLETE for client: %s | Total files: %d", self.name, len(files))
+        _logger.info("$" * 80)
 
     def _send_scan_notification(self):
         """Sends a bus notification to update the UI."""

@@ -95,7 +95,7 @@ class InvoiceProcessor(models.Model):
         ('validation_failed', 'Validation Failed'),
         ('posted', 'Posted'),
         ('cancelled', 'Cancelled'),
-    ], string='Status', compute='_compute_overall_status', store=True, tracking=True)
+    ], string='Overall Status', compute='_compute_overall_status', store=True, tracking=True)
     manager_user_id = fields.Many2one('res.users', related='client_id.manager_user_id', store=True, readonly=True)
     approved_by = fields.Many2one('res.users', string='Approved By', readonly=True)
     approved_on = fields.Datetime(string='Approved On', readonly=True)
@@ -106,7 +106,7 @@ class InvoiceProcessor(models.Model):
     is_manager_approved = fields.Boolean(string='Manager Approved', compute='_compute_boolean_flags')
     is_ready_for_tally = fields.Boolean(string='Ready for Tally', compute='_compute_boolean_flags')
     is_posted_to_tally = fields.Boolean(string='Posted to Tally', compute='_compute_boolean_flags')
-    status_with_icon = fields.Char(string='Status', compute='_compute_status_with_icon')
+    status_with_icon = fields.Char(string='Status with Icon', compute='_compute_status_with_icon')
     reconciliation_state = fields.Selection([
         ('pending', 'Pending'),
         ('reconciled', 'Reconciled'),

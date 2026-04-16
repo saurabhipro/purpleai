@@ -92,6 +92,7 @@ export class AIEvidenceViewer extends Component {
             hoveredKey: null,
             hoveredBox2d: null,
             activeTab: 'main',
+            editedKeys: [],  // Track which rows have been edited (stay red)
         });
         this._updateData(this.props);
         this.pdfApp = null;
@@ -173,7 +174,8 @@ export class AIEvidenceViewer extends Component {
         return "other";
     }
 
-    
+
+
     getGroupedTabEntries() {
         const sections = this.getMainSections();
         const byId = {};
@@ -327,22 +329,39 @@ export class AIEvidenceViewer extends Component {
         const key = this.state.editingKey;
         const newValue = this.state.editValue;
 
-        // Call backend for persistent save and audit trail
-        const success = await this.props.record.model.orm.call(
-            "purple_ai.invoice_processor",
-            "update_extracted_evidence",
-            [[this.props.record.resId], key, newValue]
-        );
+        try {
+            // Call backend for persistent save and audit trail
+            const success = await this.props.record.model.orm.call(
+                "purple_ai.invoice_processor",
+                "update_extracted_evidence",
+                [[this.props.record.resId], key, newValue]
+            );
 
-        if (success) {
-            // Update local state for immediate feedback
-            if (this.state.data[key] && typeof this.state.data[key] === 'object') {
-                this.state.data[key].value = newValue;
+            if (success) {
+                // Update local state for immediate feedback
+                if (this.state.data[key] && typeof this.state.data[key] === 'object') {
+                    this.state.data[key].value = newValue;
+                } else {
+                    this.state.data[key] = newValue;
+                }
+                
+                // Track this row as edited - keep it red permanently
+                if (!this.state.editedKeys.includes(key)) {
+                    this.state.editedKeys.push(key);
+                }
+                
+                // Success - exit edit mode + show red color
+                this.state.editingKey = null;
+                this.state.selectedKey = key;  // Keep row visible with red color
+                this._applyMultiHighlights();
             } else {
-                this.state.data[key] = newValue;
+                // Backend returned false - exit edit mode anyway
+                this.state.editingKey = null;
             }
+        } catch (e) {
+            console.error('Save failed:', e);
+            // Always exit edit mode even if save failed
             this.state.editingKey = null;
-            this._applyMultiHighlights();
         }
     }
 
@@ -520,6 +539,17 @@ export class AIEvidenceViewer extends Component {
 
                 // Skip array values (marks tables)
                 if (Array.isArray(rawValue)) return;
+                
+                // SKIP PLACEHOLDER VALUES - Don't highlight missing/empty data
+                const PLACEHOLDER_VALUES = [
+                    '', '--', '—', '–', 'n/a', 'na', 'not applicable',
+                    'not found', 'not available', 'not mentioned',
+                    'none', 'null', 'nil'
+                ];
+                const valueStr = (rawValue || '').toString().trim().toLowerCase();
+                if (PLACEHOLDER_VALUES.includes(valueStr)) {
+                    return; // Skip highlighting for placeholder values
+                }
 
                 const isSelected = this.state.selectedKey === key;
                 const isHovered = this.state.hoveredKey === key;
@@ -565,7 +595,8 @@ export class AIEvidenceViewer extends Component {
 
                         if (this.scrollRequested) {
                             this.scrollRequested = false;
-                            setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                            // Use 'nearest' to avoid jumping - only scrolls if not visible
+                            setTimeout(() => box.scrollIntoView({ behavior: 'auto', block: 'nearest' }), 50);
                         }
                     }
 

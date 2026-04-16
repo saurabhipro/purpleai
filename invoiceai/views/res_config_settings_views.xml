@@ -28,6 +28,135 @@
                         </setting>
                     </block>
 
+                    <!-- Parallel Processing Configuration -->
+                    <block title="Batch Processing &amp; Performance" name="parallel_processing_config">
+                        <setting title="Parallel Workers" help="Configure parallel document processing for batch imports">
+                            <div class="content-group">
+                                <group>
+                                    <field name="ai_core_max_parallel_workers"/>
+                                </group>
+                                <div class="text-muted mt-2">
+                                    <p><strong>Performance Guide:</strong></p>
+                                    <ul class="mb-0">
+                                        <li><strong>1 Worker:</strong> ~2 files/min (Sequential - debugging only)</li>
+                                        <li><strong>2 Workers:</strong> ~4 files/min (✅ Recommended - safe)</li>
+                                        <li><strong>3 Workers:</strong> ~6 files/min (Aggressive - good internet)</li>
+                                        <li><strong>4 Workers:</strong> ~8 files/min (⚠️ Maximum - monitor rate limits)</li>
+                                    </ul>
+                                    <p class="mt-2 mb-0"><strong>API:</strong> Use <code>process_documents_parallel(env, client, file_list, max_workers)</code> to batch process multiple invoices in parallel.</p>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- API Pricing Configuration -->
+                    <block title="AI API Pricing Configuration" name="pricing_config">
+                        <setting title="Set API Costs (per 1 Million tokens - USD)" help="These rates are used to calculate invoice processing costs. Update when API provider pricing changes.">
+                            <div class="content-group">
+                                <!-- Gemini Flash Section -->
+                                <div class="border-top pt-3 mb-3">
+                                    <div style="font-size: 1.1rem; font-weight: bold; color: #1f77b4; margin-bottom: 12px;">
+                                        💎 Gemini Flash 2.0 (Recommended - Cheapest)
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Input Cost ($ per 1M tokens)</div>
+                                            <field name="gemini_input_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 0.075</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Output Cost ($ per 1M tokens)</div>
+                                            <field name="gemini_output_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 0.30</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OpenAI Section -->
+                                <div class="border-top pt-3 mb-3">
+                                    <div style="font-size: 1.1rem; font-weight: bold; color: #ff7f0e; margin-bottom: 12px;">
+                                        🤖 OpenAI GPT-4o (Direct - Most Expensive)
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Input Cost ($ per 1M tokens)</div>
+                                            <field name="openai_input_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 2.50</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Output Cost ($ per 1M tokens)</div>
+                                            <field name="openai_output_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 10.00</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Azure Section -->
+                                <div class="border-top pt-3 mb-3">
+                                    <div style="font-size: 1.1rem; font-weight: bold; color: #0078d4; margin-bottom: 12px;">
+                                        ☁️ Azure OpenAI (40-60% Cheaper)
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Input Cost ($ per 1M tokens)</div>
+                                            <field name="azure_input_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 0.50 (region-dependent)</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">Output Cost ($ per 1M tokens)</div>
+                                            <field name="azure_output_cost_per_m_tokens" widget="monetary" style="width: 100%;"/>
+                                            <small class="text-muted">Default: 1.50 (region-dependent)</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Exchange Rate Section -->
+                                <div class="border-top pt-3 mb-3">
+                                    <div style="font-size: 1.1rem; font-weight: bold; color: #2ca02c; margin-bottom: 12px;">
+                                        💱 Currency Exchange Rate
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.95rem;">USD to INR Conversion Rate</div>
+                                            <field name="usd_to_inr_rate" widget="float" style="width: 100%;"/>
+                                            <small class="text-muted">Current: 85.0 (Update as per market rate)</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cost Calculation Example -->
+                                <div class="alert alert-info mt-4">
+                                    <h6 class="mb-3" style="font-size: 1rem; font-weight: bold;">📊 Cost Comparison (3,000 input + 1,000 output tokens):</h6>
+                                    <div style="background-color: #f0f7ff; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                                        <strong>💎 Gemini Flash (CHEAPEST):</strong>
+                                        <ul class="mb-2" style="font-size: 0.95rem; line-height: 1.5;">
+                                            <li>Input: (3,000 × $0.075 / 1M) = $0.000225</li>
+                                            <li>Output: (1,000 × $0.30 / 1M) = $0.0003</li>
+                                            <li><strong>→ Total: ₹0.045</strong> ✅</li>
+                                        </ul>
+                                    </div>
+                                    <div style="background-color: #e3f2fd; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                                        <strong>☁️ Azure OpenAI (40-60% cheaper than OpenAI Direct):</strong>
+                                        <ul class="mb-2" style="font-size: 0.95rem; line-height: 1.5;">
+                                            <li>Input: (3,000 × $0.50 / 1M) = $0.0015</li>
+                                            <li>Output: (1,000 × $1.50 / 1M) = $0.0015</li>
+                                            <li><strong>→ Total: ₹0.25</strong> 💰</li>
+                                        </ul>
+                                    </div>
+                                    <div style="background-color: #fff5f0; padding: 12px; border-radius: 4px;">
+                                        <strong>🤖 OpenAI Direct (Most Expensive):</strong>
+                                        <ul class="mb-0" style="font-size: 0.95rem; line-height: 1.5;">
+                                            <li>Input: (3,000 × $2.50 / 1M) = $0.0075</li>
+                                            <li>Output: (1,000 × $10.00 / 1M) = $0.01</li>
+                                            <li><strong>→ Total: ₹1.28</strong> ❌</li>
+                                        </ul>
+                                    </div>
+                                    <p class="mb-0 mt-3 small"><i class="fa fa-check-circle text-success"/> All costs are displayed in <strong>INR (₹)</strong> in the invoice extraction view. <strong>Gemini is 28x cheaper than OpenAI!</strong></p>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
                     <!-- Tally ERP / Prime Integration -->
                     <block title="Tally ERP / Prime Integration" name="tally_config">
                         <setting title="Tally Connectivity" help="Configure connection to Tally ERP/Prime">

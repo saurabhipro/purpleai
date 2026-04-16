@@ -1,0 +1,174 @@
+// Lease Extraction Layout Stylesheet
+// Two-column resizable layout with PDF viewer and evidence table
+
+.o_audit_container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    gap: 0;
+    background-color: #fafafa;
+    overflow: hidden;
+
+    .o_audit_left_panel {
+        display: flex;
+        flex-direction: column;
+        min-width: 300px;
+        max-width: 70%;
+        overflow-y: auto;
+        border-right: 1px solid #ddd;
+        background-color: #fff;
+        padding: 12px;
+
+        // Custom scrollbar
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 3px;
+
+            &:hover {
+                background: #999;
+            }
+        }
+
+        h5 {
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            align-items: center;
+
+            i {
+                margin-right: 6px;
+                color: #4285f4;
+            }
+        }
+    }
+
+    .o_audit_resizer {
+        width: 6px;
+        height: 100%;
+        background-color: #e0e0e0;
+        cursor: col-resize;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 50;
+
+        &:hover,
+        &.active {
+            background-color: #4285f4;
+            width: 8px;
+            box-shadow: 0 0 8px rgba(66, 133, 244, 0.4);
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 40px;
+            background: linear-gradient(90deg, transparent 30%, rgba(66, 133, 244, 0.3) 50%, transparent 70%);
+            border-radius: 4px;
+        }
+    }
+
+    .o_audit_right_panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 300px;
+        overflow: hidden;
+        background-color: #f5f5f5;
+
+        .o_audit_viewport_container {
+            flex: 1;
+            overflow: auto;
+            background-color: #2a2a2a;
+            position: relative;
+
+            // For PDF viewer
+            iframe {
+                width: 100%;
+                height: 100%;
+            }
+
+            // For image viewer
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
+    }
+}
+
+// Responsive: stack on smaller screens
+@media (max-width: 1024px) {
+    .o_audit_container {
+        flex-direction: column;
+
+        .o_audit_left_panel {
+            max-width: 100%;
+            max-height: 50%;
+            border-right: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .o_audit_resizer {
+            width: 100%;
+            height: 6px;
+            cursor: row-resize;
+
+            &:hover,
+            &.active {
+                background-color: #4285f4;
+                height: 8px;
+            }
+        }
+
+        .o_audit_right_panel {
+            flex: 1;
+            max-width: 100%;
+        }
+    }
+}
+
+// Dark mode support
+.dark-mode {
+    .o_audit_container {
+        background-color: #1a1a1a;
+
+        .o_audit_left_panel {
+            background-color: #252525;
+            border-right-color: #444;
+
+            h5 {
+                color: #fff;
+            }
+        }
+
+        .o_audit_resizer {
+            background-color: #444;
+
+            &:hover,
+            &.active {
+                background-color: #4285f4;
+            }
+        }
+
+        .o_audit_right_panel {
+            background-color: #1a1a1a;
+        }
+    }
+}

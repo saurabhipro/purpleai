@@ -47,9 +47,9 @@ def _get_ai_settings(env):
     # Settings are defined directly here; no need to call memo service.
     config = env['ir.config_parameter'].sudo()
     
-    # Debug: Log all ai_core parameters
+    # Debug: Log all ai_core parameters (debug level only, not info)
     all_params = config.search([('key', 'like', 'ai_core.%')])
-    _logger.info("AI Core parameters in database: %s", 
+    _logger.debug("AI Core parameters in database: %s", 
                  {p.key: (p.value[:20] + '...' if p.value and len(p.value) > 20 else p.value) for p in all_params})
     
     azure_endpoint = config.get_param('ai_core.azure_endpoint', '')

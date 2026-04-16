@@ -7,6 +7,7 @@ Provides utilities to precisely locate extracted field values within PDF text la
 
 Features:
   - Variant-based text search (numbers, currencies, partial matches)
+  - Fuzzy matching for OCR errors and variations
   - Bounding box IoU (Intersection over Union) calculation
   - Automatic OCR fallback for image-heavy PDFs
   - Hierarchical box selection (best IoU match or largest box)
@@ -14,6 +15,7 @@ Features:
 import os
 import re
 import logging
+import difflib
 
 try:
     import fitz
@@ -30,6 +32,47 @@ def _detailed_logging_enabled(env):
         return str(val).lower() in ('1', 'true', 'yes', 'y')
     except Exception:
         return False
+
+
+def fuzzy_search_in_text(page_text, search_value, threshold=0.8):
+    """Search for text using fuzzy matching to handle OCR errors.
+    
+    Uses difflib.get_close_matches to find similar strings in page text.
+    
+    Args:
+        page_text: Full text from PDF page
+        search_value: Value to search for
+        threshold: Similarity threshold (0.0 to 1.0, default 0.8)
+    
+    Returns:
+        List of matched strings found in page_text
+    """
+    if not page_text or not search_value or len(search_value) < 2:
+        return []
+    
+    search_value = str(search_value).strip()
+    
+    # Split page text into words and chunks
+    words = page_text.split()
+    
+    # Also create overlapping chunks for multi-word searches
+    chunks = []
+    for i in range(len(words)):
+        for j in range(i+1, min(i+6, len(words)+1)):  # Up to 5-word phrases
+            chunks.append(' '.join(words[i:j]))
+    
+    # Combine words and chunks
+    candidates = words + chunks
+    
+    # Find close matches
+    matches = difflib.get_close_matches(
+        search_value,
+        candidates,
+        n=10,  # Return up to 10 matches
+        cutoff=threshold
+    )
+    
+    return matches
 
 
 def search_string_variants(value):
@@ -231,6 +274,8 @@ def refine_extracted_boxes_with_fitz(file_path, data, env=None):
     to create a searchable text layer when text search fails, enabling bounding
     box extraction for Azure AI and other providers that don't provide coordinates.
     
+    FILTERING: Skips placeholder values (--, N/A, etc.) to avoid false positive highlights.
+    
     Args:
         file_path: Path to PDF file
         data: Extracted data dictionary with 'field_key': {value, box_2d, page_number, ...}
@@ -244,6 +289,15 @@ def refine_extracted_boxes_with_fitz(file_path, data, env=None):
     path = str(file_path or '')
     if not path.lower().endswith('.pdf') or not os.path.isfile(path):
         return data
+    
+    # Placeholder values that should NOT be highlighted (false positives)
+    PLACEHOLDER_VALUES = {
+        '--', '—', '–',  # Different dash types
+        'n/a', 'na', 'not applicable',
+        'not found', 'not available', 'not mentioned',
+        'none', 'null', 'nil',
+        '', ' ',  # Empty or whitespace
+    }
     
     doc = None
     ocr_doc = None  # Fallback OCR'd PDF for image-heavy documents
@@ -259,6 +313,23 @@ def refine_extracted_boxes_with_fitz(file_path, data, env=None):
             if key == 'validations' or not isinstance(item, dict):
                 continue
             val = item.get('value')
+            
+            # SKIP PLACEHOLDER VALUES - Don't create boxes for missing data
+            val_str = str(val).strip().lower() if val is not None else ''
+            if val_str in PLACEHOLDER_VALUES:
+                # Remove box_2d if it exists to prevent highlighting
+                if 'box_2d' in item:
+                    del item['box_2d']
+                    _logger.debug("Removed box_2d for placeholder value: field='%s', value='%s'", key, val)
+                continue
+            
+            # Also skip if value is empty after stripping
+            if not val or not val_str:
+                if 'box_2d' in item:
+                    del item['box_2d']
+                    _logger.debug("Removed box_2d for empty value: field='%s'", key)
+                continue
+            
             variants = search_string_variants(val)
             if not variants:
                 continue
@@ -282,13 +353,32 @@ def refine_extracted_boxes_with_fitz(file_path, data, env=None):
                     page_search_hits(page, q, ignore_case=not numericish)
                 )
             
+            # FUZZY MATCHING FALLBACK: If no exact match, try fuzzy search
+            if not rects and len(str(val).strip()) >= 3:
+                try:
+                    page_text = page.get_text()
+                    fuzzy_matches = fuzzy_search_in_text(page_text, str(val), threshold=0.75)
+                    
+                    if fuzzy_matches:
+                        _logger.info("refine_extracted_boxes: Fuzzy match found for '%s': %s", val, fuzzy_matches[:3])
+                        # Search for the fuzzy matched strings
+                        for fuzzy_val in fuzzy_matches[:5]:  # Try top 5 fuzzy matches
+                            fuzzy_rects = page_search_hits(page, fuzzy_val, ignore_case=True)
+                            if fuzzy_rects:
+                                rects.extend(fuzzy_rects)
+                                if _detailed_logging_enabled(env) and env is not None:
+                                    _logger.info("refine_extracted_boxes: Found via fuzzy match '%s' -> '%s'", val, fuzzy_val)
+                                break  # Use first successful fuzzy match
+                except Exception as e:
+                    _logger.debug("Fuzzy matching failed for '%s': %s", val, e)
+            
             # If no text found, PDF may contain images. Apply OCR once and retry search.
             if not rects:
                 if ocr_doc is None:
                     if _detailed_logging_enabled(env) and env is not None:
                         _logger.info("refine_extracted_boxes_with_fitz: Text search failed for field '%s' (value='%s') -> attempting OCR on %s", key, val, os.path.basename(path))
                     try:
-                        from odoo.addons.invoiceai.services import ocr_service
+                        from odoo.addons.ai_core.services import ocr_service
                         ocr_doc = ocr_service.apply_ocr_to_pdf(path, env=env)
                         if ocr_doc is not None:
                             if _detailed_logging_enabled(env) and env is not None:
