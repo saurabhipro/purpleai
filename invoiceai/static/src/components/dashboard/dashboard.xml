@@ -156,11 +156,11 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Matrix & Health (Primary Content) -->
+                <!-- Row 2: Activity Feed (Full Width) -->
                 <div class="row g-2" style="height: calc(100% - 130px);">
-                    <div class="col-lg-9 h-100 d-flex flex-column gap-2">
+                    <div class="col-lg-12 h-100 d-flex flex-column gap-2">
                         <!-- Performance Analysis Header -->
-                        <div class="card shadow-sm border-0 flex-grow-0" style="max-height: 48%;">
+                        <div class="card shadow-sm border-0 flex-grow-0" style="max-height: 35%; overflow-y: auto;">
                             <div class="card-header bg-primary py-2 d-flex justify-content-between align-items-center rounded-top" style="background-color: var(--primary) !important;">
                                 <h6 class="m-0 fw-bold x-small text-uppercase" style="letter-spacing: 0.5px; color: #ffffff !important;">
                                     <i class="fa fa-filter me-2"/> PERFORMANCE ANALYSIS (UNIFIED)
@@ -203,7 +203,7 @@
                         </div>
 
                         <!-- Latest Activity Feed Header -->
-                        <div class="card shadow-sm border-0 flex-grow-1 overflow-hidden" style="max-height: 48%;">
+                        <div class="card shadow-sm border-0 flex-grow-1 overflow-hidden" style="flex: 1; min-height: 0;">
                             <div class="card-header bg-primary py-2 d-flex justify-content-between align-items-center rounded-top" style="background-color: var(--primary) !important;">
                                 <h6 class="m-0 fw-bold x-small text-uppercase" style="letter-spacing: 0.5px; color: #ffffff !important;">
                                     <i class="fa fa-history me-2"/> LATEST ACTIVITY FEED
@@ -220,7 +220,8 @@
                                         <th class="text-center" style="color: #ffffff !important;">Pages</th>
                                         <th style="color: #ffffff !important;">Provider</th>
                                         <th style="color: #ffffff !important;">Model</th>
-                                        <th style="color: #ffffff !important;">Date &amp; Time</th>
+                                        <th style="color: #ffffff !important;">OCR Method</th>
+                                        <th style="color: #ffffff !important;">When</th>
                                         <th class="text-center" style="color: #ffffff !important;">Status</th>
                                         <th class="text-end pe-3" style="color: #ffffff !important;">Cost (INR)</th>
                                     </tr></thead>
@@ -232,58 +233,14 @@
                                                 <td class="text-center fw-bold text-muted x-small"><t t-esc="req.page_count"/></td>
                                                 <td class="text-capitalize x-small"><t t-esc="req.provider"/></td>
                                                 <td class="text-muted x-small" style="font-size:0.7rem; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><t t-esc="req.model"/></td>
-                                                <td class="text-muted x-small"><t t-esc="req.time"/></td>
+                                                <td class="text-muted x-small"><span t-att-class="'badge px-2 ' + (req.ocr_method == 'Tesseract' ? 'text-bg-info' : (req.ocr_method == 'Paddle' ? 'text-bg-success' : (req.ocr_method == 'Mistral' ? 'text-bg-warning' : 'text-bg-secondary')))" style="font-size: 0.65rem;"><t t-esc="req.ocr_method"/></span></td>
+                                                <td class="text-muted x-small" title="Created: {req.time}"><strong><t t-esc="req.relative_time"/></strong></td>
                                                 <td class="text-center"><span t-att-class="'badge rounded-pill px-2 ' + (req.status == 'done' ? 'text-bg-success' : (req.status == 'processing' ? 'text-bg-warning' : 'text-bg-danger'))" style="font-size: 0.65rem;"><t t-esc="req.status"/></span></td>
                                                 <td class="text-end text-dark fw-bold x-small pe-3"><t t-esc="this.formatINR(req.cost_inr)"/></td>
                                             </tr>
                                         </t>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- System Health Card (Professional Mix) -->
-                    <div class="col-lg-3 h-100">
-                        <div class="card shadow-sm border-0 h-100 bg-white">
-                            <div class="card-header bg-primary py-2 d-flex justify-content-between align-items-center rounded-top" style="background-color: var(--primary) !important;">
-                                <h6 class="m-0 fw-bold x-small text-uppercase" style="letter-spacing: 0.5px; color: #ffffff !important;">
-                                    <i class="fa fa-shield me-2"/> SYSTEM INTEGRITY
-                                </h6>
-                            </div>
-                            <div class="card-body text-center d-flex flex-column p-3">
-                                <!-- Prominent Health Circle -->
-                                <div class="my-auto">
-                                    <div class="position-relative mx-auto mb-3" style="width: 120px; height: 120px;">
-                                        <svg viewBox="0 0 36 36" class="circular-chart">
-                                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                            <path class="circle success" t-att-stroke-dasharray="((state.stats.status_breakdown.success / (state.stats.total_requests || 1)) * 100) + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                        </svg>
-                                        <div class="position-absolute top-50 start-50 translate-middle">
-                                            <div class="h4 fw-black m-0 text-dark"><t t-esc="Math.floor((state.stats.status_breakdown.success / (state.stats.total_requests || 1)) * 100)"/>%</div>
-                                            <div class="x-small text-muted fw-bold">HEALTH</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="badge rounded-pill bg-success-subtle text-success px-3 py-1 mb-2">
-                                        <i class="fa fa-check-circle me-1"/> All Systems Operational
-                                    </div>
-                                    <div class="text-muted small px-2">
-                                        No critical outages detected in the last <span class="fw-bold text-dark">24 hours</span>.
-                                    </div>
-                                </div>
-
-                                <!-- Bottom Status Stats -->
-                                <div class="mt-auto pt-3 border-top">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span class="x-small text-muted">Reliability Index</span>
-                                        <span class="x-small fw-bold text-primary">High</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="x-small text-muted">Recent Errors</span>
-                                        <span class="x-small fw-bold text-danger"><t t-esc="state.stats.status_breakdown.error"/></span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

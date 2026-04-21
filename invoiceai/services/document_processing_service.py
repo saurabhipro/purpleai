@@ -29,6 +29,7 @@ import base64
 import io
 import signal
 import threading
+from datetime import datetime
 from odoo import fields, _
 from odoo.exceptions import UserError
 from odoo.addons.invoiceai.services import ai_service
@@ -169,7 +170,7 @@ def _process_document_internal(env, client, file_path, filename, existing_record
     system_prompt = (
         "You are a specialized data extraction AI. "
         "Extract fields from the document. Return a JSON object with: "
-        "'value', 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
+        "'value' (may be a string, number, or array for line items), 'box_2d' ([ymin, xmin, ymax, xmax] 0-1000), 'page_number' (1-indexed).\n\n"
         "COORDINATE SYSTEM GUIDE:\n"
         "- [0, 0, 1000, 1000] represents [top, left, bottom, right] of the document page.\n"
         "- [0, 0] is top-left, [1000, 1000] is bottom-right.\n\n"
@@ -179,15 +180,16 @@ def _process_document_internal(env, client, file_path, filename, existing_record
         "3. Do NOT include surrounding whitespace, icons, logos, or borders.\n"
         "4. If a value spans multiple lines, ensure the bounding box covers the entire block precisely.\n"
         "5. The accuracy is used for visual highlighting; if the box is loose or covers other text, the audit will fail.\n"
+        "7. For array fields like 'line_items', return an array of objects. For each object, return the extracted values (no nested box_2d on array items).\n"
     )
     
-    if ai_provider != 'gemini':
-        system_prompt += "6. IMPORTANT: For your model, DO NOT guess coordinates. You MUST return null for all 'box_2d' values so the system can use exact text-search fallback.\n\n"
-    else:
+    if ai_provider in ('gemini', 'mistral'):
         system_prompt += (
             "6. Place each box_2d strictly over the printed value glyphs (digits, decimals, letters as shown), "
             "not over neighbouring empty table cells or labels. The UI will also snap boxes to PDF text when possible.\n\n"
         )
+    else:
+        system_prompt += "6. IMPORTANT: For your model, DO NOT guess coordinates. You MUST return null for all 'box_2d' values so the system can use exact text-search fallback.\n\n"
 
     if rule_list:
         system_prompt += (
@@ -288,14 +290,19 @@ def _process_document_internal(env, client, file_path, filename, existing_record
             _logger.info("  → Reason: %s", type(e).__name__)
     
     if pdf_quality_dpi == 0:
-        _logger.info("  • PDF DPI unknown/not calculated - will use default OCR settings")
+        _logger.info("  • PDF DPI could not be calculated - will use default OCR settings")
+        _logger.info("  • Reason: Non-standard PDF format or unable to extract image dimensions")
     
     # ──────────────────────────────────────────────────────────────────────────
     # STEP 3: OCR SEARCHABILITY CHECK
     # ──────────────────────────────────────────────────────────────────────────
     _logger.info("STEP 3️⃣  OCR SEARCHABILITY CHECK")
     
-    if filename.lower().endswith('.pdf'):
+    # When Mistral is the AI provider, Pixtral reads document images directly via
+    # its vision capability — no OCR pre-processing needed. Skip straight to AI.
+    if ai_provider == 'mistral':
+        _logger.info("  • AI Provider is Mistral (Pixtral vision) → Skipping OCR, document sent as images directly")
+    elif filename.lower().endswith('.pdf'):
         try:
             # Check if searchability checking is enabled
             check_searchability = env['ir.config_parameter'].sudo().get_param('ai_core.ocr_check_searchability', 'True').lower() in ('true', '1', 'yes')
@@ -303,6 +310,7 @@ def _process_document_internal(env, client, file_path, filename, existing_record
             _logger.info("  • Searchability check: %s", "ENABLED" if check_searchability else "DISABLED")
             
             should_apply_ocr = False
+            configured_ocr_engine = env['ir.config_parameter'].sudo().get_param('ai_core.ocr_engine', 'tesseract')
             
             if check_searchability:
                 # Check if PDF is searchable before applying OCR
@@ -314,7 +322,12 @@ def _process_document_internal(env, client, file_path, filename, existing_record
                     should_apply_ocr = True
                     _logger.info("  ✓ PDF is image-heavy → OCR required")
                 else:
-                    _logger.info("  ✓ PDF is already searchable → OCR not needed")
+                    # PDF is searchable, but check if user explicitly selected OCR engine
+                    if configured_ocr_engine and configured_ocr_engine.lower() != 'none':
+                        should_apply_ocr = True
+                        _logger.info("  • PDF is searchable BUT OCR engine '%s' explicitly selected → Applying OCR anyway", configured_ocr_engine)
+                    else:
+                        _logger.info("  ✓ PDF is already searchable and no OCR engine selected → OCR not needed")
             else:
                 # Force OCR on all PDFs regardless of searchability
                 should_apply_ocr = True
@@ -325,18 +338,15 @@ def _process_document_internal(env, client, file_path, filename, existing_record
             # ──────────────────────────────────────────────────────────────────────────
             if should_apply_ocr:
                 _logger.info("STEP 4️⃣  OCR PROCESSING")
-                
-                # Get configured OCR engine
-                configured_ocr_engine = env['ir.config_parameter'].sudo().get_param('ai_core.ocr_engine', 'tesseract')
                 _logger.info("  • OCR Engine: %s", configured_ocr_engine)
                 
                 # DYNAMIC QUALITY-BASED OCR ENHANCEMENT
                 # Get base OCR configuration
                 ocr_config = _get_ocr_config(env)
                 
-                # Check if dynamic enhancement is enabled (default: True)
+                # Check if dynamic enhancement is enabled (default: False - use stable settings)
                 enable_dynamic_enhancement = env['ir.config_parameter'].sudo().get_param(
-                    'ai_core.enable_dynamic_quality_enhancement', 'True'
+                    'ai_core.enable_dynamic_quality_enhancement', 'False'
                 ).lower() in ('true', '1', 'yes')
                 
                 # Check if forcing aggressive mode for all PDFs (useful when all are low quality)
@@ -346,12 +356,16 @@ def _process_document_internal(env, client, file_path, filename, existing_record
                 
                 if force_aggressive_all:
                     _logger.warning("🔴 FORCE MODE: Applying AGGRESSIVE OCR to ALL PDFs (best for low-quality documents)")
-                    ocr_config['dpi'] = 300
+                    # ⚠️ Cap DPI at 150 for Tesseract to prevent malloc failures
+                    if configured_ocr_engine == 'tesseract':
+                        ocr_config['dpi'] = 150  # Tesseract max: 150 DPI (not 300)
+                        _logger.info("   ✓ OCR DPI: 200 → 150 (Tesseract memory safety)")
+                    else:
+                        ocr_config['dpi'] = 300  # Paddle/Mistral can handle 300 DPI
+                        _logger.info("   ✓ OCR DPI: 200 → 300")
                     ocr_config['preprocess_denoise'] = True
                     ocr_config['preprocess_contrast'] = True
-                    quality_enhancements.extend(['FORCE: High DPI (300)', 'Denoise', 'Contrast'])
-                    _logger.info("   ✓ OCR DPI: 200 → 300")
-                    _logger.info("   ✓ Preprocessing: Denoise + Contrast (applied to ALL PDFs)")
+                    quality_enhancements.extend(['High DPI (%d)' % ocr_config['dpi'], 'Denoise', 'Contrast'])
                 
                 elif enable_dynamic_enhancement and pdf_quality_dpi > 0:
                     _logger.info("🎯 QUALITY-BASED OCR ENHANCEMENT: Source DPI=%d", pdf_quality_dpi)
@@ -359,22 +373,30 @@ def _process_document_internal(env, client, file_path, filename, existing_record
                     # LOW QUALITY: < 150 DPI (poor scans, photos of documents)
                     if pdf_quality_dpi < 150:
                         _logger.warning("⚠️ LOW QUALITY PDF detected (DPI=%d) - Applying CONSERVATIVE enhancements", pdf_quality_dpi)
-                        ocr_config['dpi'] = 300  # Increase OCR rendering to 300 DPI
+                        # ⚠️ Cap DPI at 150 for Tesseract (not 300) to prevent malloc failures
+                        if configured_ocr_engine == 'tesseract':
+                            ocr_config['dpi'] = 150  # Tesseract max: 150 DPI
+                        else:
+                            ocr_config['dpi'] = 300  # Paddle/Mistral can handle 300 DPI
                         ocr_config['preprocess_denoise'] = True   # Remove noise only
                         ocr_config['preprocess_contrast'] = True  # Enhance text/background contrast
                         # NOTE: Deskew and Threshold DISABLED - both can damage low-quality scans
-                        quality_enhancements.extend(['High DPI (300)', 'Denoise', 'Contrast'])
-                        _logger.info("   ✓ OCR DPI: 200 → 300")
+                        quality_enhancements.extend(['High DPI (%d)' % ocr_config['dpi'], 'Denoise', 'Contrast'])
+                        _logger.info("   ✓ OCR DPI: 200 → %d (%s)", ocr_config['dpi'], configured_ocr_engine)
                         _logger.info("   ✓ Preprocessing: Denoise + Contrast (deskew & threshold DISABLED for safety)")
                     
                     # MEDIUM-LOW QUALITY: 150-200 DPI (standard scans but needs help)
                     elif pdf_quality_dpi < 200:
                         _logger.info("📊 MEDIUM QUALITY PDF detected (DPI=%d) - Applying MODERATE enhancements", pdf_quality_dpi)
-                        ocr_config['dpi'] = 250  # Slight increase
+                        # ⚠️ Cap at 150 for Tesseract
+                        if configured_ocr_engine == 'tesseract':
+                            ocr_config['dpi'] = 150  # Tesseract: keep at 150
+                        else:
+                            ocr_config['dpi'] = 250  # Paddle can use 250
                         ocr_config['preprocess_denoise'] = True
                         ocr_config['preprocess_contrast'] = True
-                        quality_enhancements.extend(['Enhanced DPI (250)', 'Denoise', 'Contrast'])
-                        _logger.info("   ✓ OCR DPI: 200 → 250")
+                        quality_enhancements.extend(['Enhanced DPI (%d)' % ocr_config['dpi'], 'Denoise', 'Contrast'])
+                        _logger.info("   ✓ OCR DPI: 200 → %d (%s)", ocr_config['dpi'], configured_ocr_engine)
                         _logger.info("   ✓ Preprocessing: Denoise + Contrast")
                     
                     # GOOD QUALITY: 200-250 DPI (good scans)
@@ -389,18 +411,16 @@ def _process_document_internal(env, client, file_path, filename, existing_record
                         _logger.info("⭐ HIGH QUALITY PDF detected (DPI=%d) - Using STANDARD settings", pdf_quality_dpi)
                         quality_enhancements.append('No enhancement needed')
                 else:
-                    # Fallback: if  DPI calculation failed, apply conservative preprocessing if PDF looks low quality
-                    _logger.warning("⚠️ Dynamic quality enhancement unavailable (DPI=%d) - Applying FALLBACK safe preprocessing", pdf_quality_dpi)
-                    
-                    # Check if PDF is image-heavy (scanned/photo)
-                    is_searchable_check, _ = ocr_service.check_pdf_searchability(file_path, ocr_config, env)
-                    if not is_searchable_check:
-                        # Image-heavy PDF with no detection - apply minimal safe preprocessing
-                        _logger.info("   → Image-heavy PDF detected, enabling safe preprocessing: Denoise only")
-                        ocr_config['preprocess_denoise'] = True
-                        quality_enhancements.append('Fallback: Denoise (DPI detection failed)')
+                    # Dynamic enhancement disabled - use default stable settings for all PDFs
+                    if enable_dynamic_enhancement:
+                        # This block won't execute since enable_dynamic_enhancement is False
+                        _logger.warning("⚠️ Dynamic quality enhancement unavailable (DPI=%d) - Applying FALLBACK safe preprocessing", pdf_quality_dpi)
                     else:
-                        _logger.info("   → Searchable PDF, no enhancement needed")
+                        # Use default OCR config for ALL PDFs (most stable)
+                        _logger.info("✓ Dynamic quality enhancement DISABLED - Using default stable Tesseract settings for all PDFs")
+                        _logger.info("  • Default DPI: %d", ocr_config.get('dpi', 150))
+                        _logger.info("  • Preprocessing: NONE (all disabled for stability)")
+                        quality_enhancements.append('Stable: Default settings applied')
                 
                 if _detailed_logging_enabled(env):
                     _logger.info("process_document: Applying OCR (%s) to PDF '%s' with config: DPI=%d, Preprocessing=%s",
@@ -489,6 +509,60 @@ def _process_document_internal(env, client, file_path, filename, existing_record
         _logger.error("  ❌ STEP 6 FAILED - AI extraction failed: %s", str(e_ai))
         _logger.info("  → Reason: %s | Provider: %s", type(e_ai).__name__, ai_provider)
         raise
+    
+    # Extract markdown text BEFORE cleaning up temp OCR file
+    # (temp_ocr_file will be deleted later, after markdown extraction)
+    markdown_text = ''
+    try:
+        if fitz:
+            extract_from_path = temp_ocr_file if temp_ocr_file else file_path
+            if os.path.exists(extract_from_path):
+                pdf = fitz.open(extract_from_path)
+                text_parts = []
+                for page_num, page in enumerate(pdf):
+                    # Try multiple text extraction methods for better coverage
+                    page_text = ''
+                    
+                    # Method 1: Try simple text extraction (works for searchable PDFs)
+                    try:
+                        page_text = page.get_text("text")
+                    except:
+                        pass
+                    
+                    # Method 2: If simple text extraction failed, try dict-based extraction
+                    # This works better with OCR'd PDFs that have text blocks
+                    if not page_text.strip():
+                        try:
+                            text_dict = page.get_text("dict")
+                            blocks = text_dict.get("blocks", [])
+                            text_lines = []
+                            for block in blocks:
+                                if block.get("type") == 0:  # Text block
+                                    for line in block.get("lines", []):
+                                        for span in line.get("spans", []):
+                                            text = span.get("text", "").strip()
+                                            if text:
+                                                text_lines.append(text)
+                            page_text = '\n'.join(text_lines)
+                        except:
+                            pass
+                    
+                    # Method 3: If still no text, try block extraction (fallback for OCR PDFs)
+                    if not page_text.strip():
+                        try:
+                            page_text = page.get_text("blocks")
+                        except:
+                            pass
+                    
+                    # Add to text parts if we extracted anything
+                    if page_text.strip():
+                        text_parts.append(f"--- Page {page_num + 1} ---\n{page_text}")
+                
+                pdf.close()
+                markdown_text = '\n\n'.join(text_parts)
+                _logger.info("  • Extracted %d chars of markdown text from OCR/searchable PDF", len(markdown_text))
+    except Exception as e:
+        _logger.warning("  ⚠  Could not extract markdown text: %s", str(e))
     
     # Clean up temp zoom files if created
     for zf in zoom_files:
@@ -596,6 +670,7 @@ def _process_document_internal(env, client, file_path, filename, existing_record
         'filename': filename,
         'raw_response': raw_text,
         'extracted_data': json_str or '{}',
+        'markdown_text': markdown_text,
         'state': 'done' if json_str else 'error',
         'error_log': None if json_str else f'Could not parse JSON from AI response:\n{raw_text[:1000]}',
         'provider': prov,
@@ -604,6 +679,7 @@ def _process_document_internal(env, client, file_path, filename, existing_record
         'duration_ms': res.get('durationMs', 0),
         'total_processing_time_ms': total_processing_time_ms,
         'prompt_tokens': p_tok,
+        'last_extraction_date': datetime.now(),  # Track when extraction was last run
         'output_tokens': o_tok,
         'total_tokens': p_tok + o_tok,
         'cost': cost,
@@ -753,7 +829,30 @@ def process_document(env, client, file_path, filename, existing_record=None):
     """
     # 2-minute timeout per file (120 seconds)
     TIMEOUT_SECONDS = 600
-    result_holder = {'result': None, 'timed_out': False, 'exception': None}
+    result_holder = {'result': None, 'timed_out': False, 'exception': None, 'error_message': None, 'error_type': None}
+    
+    # Set initial 'processing' state for new records
+    if not existing_record:
+        try:
+            ResultModel = env['purple_ai.extraction_result']
+            existing_record = ResultModel.create({
+                'client_id': client.id,
+                'filename': filename,
+                'state': 'processing',
+                'error_log': None,
+            })
+            env.cr.commit()
+            _logger.info("process_document: Created initial record (ID=%d) with state='processing' for %s", existing_record.id, filename)
+        except Exception as e:
+            _logger.warning("process_document: Could not create initial processing record: %s", str(e))
+    else:
+        # For existing records, make sure state is set to 'processing'
+        try:
+            existing_record.write({'state': 'processing', 'error_log': None})
+            env.cr.commit()
+            _logger.info("process_document: Updated record (ID=%d) to state='processing' for %s", existing_record.id, filename)
+        except Exception as e:
+            _logger.warning("process_document: Could not update record to processing: %s", str(e))
     
     def _run_with_timeout():
         try:
@@ -762,8 +861,11 @@ def process_document(env, client, file_path, filename, existing_record=None):
             # Store UserError to re-raise in main thread
             result_holder['exception'] = e
         except Exception as e:
-            _logger.error("process_document: Unexpected error during processing: %s", str(e))
+            # Capture full error details for status update
+            _logger.error("process_document: ERROR during processing: %s | Type: %s", str(e), type(e).__name__)
             result_holder['result'] = None
+            result_holder['error_message'] = str(e)
+            result_holder['error_type'] = type(e).__name__
     
     # Run processing in a thread with timeout
     thread = threading.Thread(target=_run_with_timeout, daemon=True)
@@ -773,6 +875,21 @@ def process_document(env, client, file_path, filename, existing_record=None):
     # Check if UserError occurred in thread and re-raise it
     if result_holder.get('exception'):
         raise result_holder['exception']
+    
+    # Check if processing error occurred (non-timeout exception)
+    if result_holder.get('error_message') and existing_record:
+        _logger.error("process_document: PROCESSING ERROR detected for file '%s': %s", filename, result_holder['error_message'])
+        try:
+            existing_record.write({
+                'state': 'error',
+                'error_log': f"[{result_holder['error_type']}] {result_holder['error_message']}",
+            })
+            env.cr.commit()
+            _logger.info("process_document: Updated record (ID=%d) to state='error' with error log", existing_record.id)
+            return existing_record
+        except Exception as e:
+            _logger.error("process_document: Failed to update record status to 'error': %s", str(e))
+            return existing_record
     
     # Check if thread is still alive (timed out)
     if thread.is_alive():

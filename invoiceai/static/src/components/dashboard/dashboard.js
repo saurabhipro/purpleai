@@ -31,6 +31,8 @@ export class PurpleAIDashboard extends Component {
 
         onWillStart(async () => {
             await this.loadStats();
+            // Auto-refresh every 30 seconds
+            setInterval(() => this.loadStats(), 30000);
         });
     }
 
@@ -47,25 +49,7 @@ export class PurpleAIDashboard extends Component {
     }
 
     async openResults(domain = [], resId = false) {
-        if (resId) {
-            try {
-                const action = await this.orm.call(
-                    "purple_ai.extraction_result",
-                    "action_process_invoice",
-                    [[resId]]
-                );
-                if (action) {
-                    if (!action.views) {
-                        action.views = [[false, "form"]];
-                    }
-                    this.action.doAction(action);
-                    return;
-                }
-            } catch (e) {
-                console.warn("Direct workflow open failed, falling back to extraction form.", e);
-            }
-        }
-
+        // Always open the standard extraction_result form for consistency
         const action = {
             name: _t("Extraction Results"),
             type: "ir.actions.act_window",

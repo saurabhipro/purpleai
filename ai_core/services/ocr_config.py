@@ -21,7 +21,7 @@ def _get_ocr_config(env=None):
     """
     defaults = {
         'engine': 'tesseract',
-        'dpi': 200,
+        'dpi': 150,  # Reduced from 200 to prevent Tesseract malloc failures on systems with limited RAM
         'languages': 'hin+eng',
         'timeout_per_page': 30,
         'timeout_total': 300,

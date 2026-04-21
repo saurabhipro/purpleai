@@ -156,6 +156,7 @@ export class AIEvidenceViewer extends Component {
             financial: new Set([
                 "untaxed_amount", "gst_amount", "total_amount", "cgst_amount", "sgst_amount",
                 "igst_amount", "tds_amount", "rcm_amount", "net_payable", "gst_rate", "tds_rate",
+                "line_items",
             ]),
             boolean: new Set([
                 "is_foreign_invoice", "is_tds_applicable", "is_gst_applicable", "is_rcm_applicable",
@@ -270,6 +271,11 @@ export class AIEvidenceViewer extends Component {
         const page = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.page_number : null;
         const box2d = (val_data && typeof val_data === 'object' && !Array.isArray(val_data)) ? val_data.box_2d : null;
 
+        // Highlight field value in markdown view if markdown is visible
+        if (window.highlightFieldInMarkdown && val) {
+            window.highlightFieldInMarkdown(val);
+        }
+
         if (box2d && box2d.length === 4) {
             // Precise box_2d coords available — just navigate to page, no text-search
             this._navigateToPage(page);
@@ -381,6 +387,7 @@ export class AIEvidenceViewer extends Component {
             'vendor_bank_account': 'fa-credit-card',
             'po_number': 'fa-file-text-o',
             'service_type': 'fa-cog',
+            'line_items': 'fa-table',
             // Exam sheet fields
             'student_name': 'fa-user',
             'roll_no': 'fa-barcode',
@@ -396,6 +403,10 @@ export class AIEvidenceViewer extends Component {
     formatValue(val) {
         if (val === null || val === undefined) return '---';
         if (Array.isArray(val)) {
+            // Special handling for line_items
+            if (val.length > 0 && val[0].name !== undefined && val[0].qty !== undefined) {
+                return `${val.length} item(s)`;
+            }
             // Summarize as "Q1:3, Q2:1.5, ..."
             return val.map(item => {
                 if (item && item.q !== undefined) {

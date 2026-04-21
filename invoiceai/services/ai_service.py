@@ -41,6 +41,8 @@ def _model_for_provider(settings, provider):
         return (settings.get('openai_model') or '').strip() or None
     if p == 'azure':
         return (settings.get('azure_deployment') or '').strip() or None
+    if p == 'mistral':
+        return (settings.get('mistral_model') or '').strip() or None
     return None
 
 
@@ -286,6 +288,70 @@ def generate(
             env=env,
         )
 
+    if resolved == 'mistral':
+        from odoo.addons.ai_core.services.mistral_service import MistralService, _is_azure_ocr_endpoint, _get_mistral_endpoint
+
+        svc = MistralService()
+        api_endpoint = _get_mistral_endpoint(env)
+        is_azure_ocr = _is_azure_ocr_endpoint(api_endpoint)
+
+        parts = contents if isinstance(contents, list) else [contents]
+        text_segments = []
+        file_proxies = []
+        for part in parts:
+            if _is_existing_file_path(part):
+                fp = part.strip()
+                ext = os.path.splitext(fp)[1].lower()
+                if ext == '.pdf':
+                    if is_azure_ocr:
+                        # Azure OCR: send original PDF as base64 data-URI (not rendered images)
+                        import base64 as _b64
+                        with open(fp, 'rb') as f:
+                            pdf_b64 = _b64.b64encode(f.read()).decode('utf-8')
+                        file_proxies.append({
+                            "type": "file_proxy",
+                            "url": f"data:application/pdf;base64,{pdf_b64}",
+                        })
+                        _logger.info("Mistral Azure OCR: sending original PDF as base64 (%d chars)", len(pdf_b64))
+                    else:
+                        # Render ALL pages as images for Pixtral vision
+                        page_images = _pdf_to_base64_images(fp, max_pages=10, dpi=200)
+                        for img in page_images:
+                            file_proxies.append({
+                                "type": "file_proxy",
+                                "url": f"data:{img['media_type']};base64,{img['base64']}",
+                            })
+                        _logger.info("Mistral vision: rendered %d PDF pages as images", len(page_images))
+                else:
+                    # Image file - use upload_file which converts to data URL
+                    file_proxies.append(svc.upload_file(fp, env=env))
+            elif isinstance(part, dict) and part.get("type") == "file_proxy":
+                file_proxies.append(part)
+            else:
+                text_segments.append(_content_part_to_text(part) if isinstance(part, dict) else str(part))
+
+        prompt_text = '\n\n'.join(s for s in text_segments if s)
+        # Build multimodal content: text + images in a single user message
+        multimodal_content = []
+        if prompt_text:
+            multimodal_content.append(prompt_text)
+        multimodal_content.extend(file_proxies)
+
+        if not multimodal_content:
+            raise ValueError('Mistral generate: empty contents (no text and no files).')
+
+        mistral_model = model or (settings.get('mistral_model') or '').strip() or 'mistral-document-ai-2505'
+        temp = float(settings.get('temperature', temperature))
+        _logger.info("Mistral vision extraction: model=%s, images=%d, prompt=%d chars",
+                     mistral_model, len(file_proxies), len(prompt_text))
+        return svc.generate(
+            multimodal_content,
+            model=mistral_model,
+            temperature=temp,
+            max_retries=max_retries,
+            env=env,
+        )
+
     if isinstance(contents, list):
         # For Azure/OpenAI: extract text from PDFs instead of just flattening paths
         text_parts = []
@@ -329,7 +395,7 @@ def get_service(provider: str = None, env=None):
 
 
 def available_providers():
-    return ['openai', 'gemini', 'azure']
+    return ['openai', 'gemini', 'azure', 'mistral']
 
 
 def register_provider(name: str, cls):

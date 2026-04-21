@@ -79,6 +79,23 @@
                                 </div>
                             </setting>
 
+                            <setting title="Mistral AI" help="Credentials and model for Mistral AI (Pixtral vision). Handles extraction + bounding boxes in one call." invisible="provider != 'mistral'">
+                                <div class="content-group">
+                                    <label for="mistral_api_key"/>
+                                    <field name="mistral_api_key" password="True" placeholder="Enter your Mistral API key"/>
+                                    <label for="mistral_model"/>
+                                    <field name="mistral_model" placeholder="mistral-document-ai-2505"/>
+                                    <div class="text-muted small mt-2">
+                                        Pixtral models support vision — they read the document image directly and extract fields with bounding boxes. No separate OCR step needed.
+                                    </div>
+                                    <div class="text-muted small mt-2">
+                                        <a href="https://console.mistral.ai/api-keys/" class="oe_link" target="_blank" rel="noreferrer">Mistral Console — API keys</a>
+                                        ·
+                                        <a href="https://docs.mistral.ai/" class="oe_link" target="_blank" rel="noreferrer">Mistral AI docs</a>
+                                    </div>
+                                </div>
+                            </setting>
+
                             <setting title="Embedding Strategy" help="Choose local or cloud embeddings for vector search.">
                                 <field name="use_local_embeddings"/>
                                 <field name="local_embedding_model" invisible="not use_local_embeddings" placeholder="sentence-transformers/all-MiniLM-L6-v2"/>

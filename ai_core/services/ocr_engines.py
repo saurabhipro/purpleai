@@ -63,22 +63,21 @@ class MistralOCREngine(BaseOCREngine):
             img_buffer.seek(0)
             img_base64 = base64.b64encode(img_buffer.read()).decode('utf-8')
             
+            # Mistral Document AI OCR API expects document_url at top level
+            img_data_uri = f"data:image/png;base64,{img_base64}"
+            
             # Call Mistral OCR API
             headers = {
                 'Authorization': f"Bearer {self.token}",
                 'Content-Type': 'application/json'
             }
             
-            # Mistral OCR expects 'image' as a list/array of objects or specific structure 
-            # based on current Azure Mistral OCR API spec. 
-            # Updating to the standard Mistral Document AI OCR payload format.
+            # Mistral Document AI OCR API format:
+            # document_url with data URI at document level (no type field)
             payload = {
                 'model': self.model,
                 'document': {
-                    'type': 'content',
-                    'content': img_base64,
-                    'encoding': 'base64',
-                    'content_type': 'image/png'
+                    'document_url': img_data_uri
                 }
             }
             
@@ -94,16 +93,52 @@ class MistralOCREngine(BaseOCREngine):
             
             if response.status_code == 200:
                 result = response.json()
-                text = result.get('text', '')
+                
+                # Handle different possible response structures from Mistral OCR
+                text = ''
+                if 'pages' in result and result['pages']:  # Pages array response (primary format)
+                    pages_text = []
+                    for page in result['pages']:
+                        if isinstance(page, dict):
+                            # Mistral OCR returns 'markdown' per page
+                            if 'markdown' in page:
+                                pages_text.append(page['markdown'])
+                            elif 'text' in page:
+                                pages_text.append(page['text'])
+                        elif isinstance(page, str):
+                            pages_text.append(page)
+                    text = '\n'.join(pages_text)
+                elif 'text' in result:  # Direct text response
+                    text = result.get('text', '')
+                elif 'result' in result:  # Wrapped result
+                    if isinstance(result['result'], dict):
+                        text = result['result'].get('text', '')
+                    elif isinstance(result['result'], list) and result['result']:
+                        text = result['result'][0].get('text', '')
+                elif 'documents' in result and result['documents']:  # Document array response
+                    text = result['documents'][0].get('text', '')
+                
+                if not text:
+                    # If no text extracted, log the full response for debugging
+                    _logger.warning("Mistral OCR returned 200 but no text found: %s", str(result)[:200])
+                
                 _logger.debug("Mistral OCR extracted %d characters", len(text))
                 return text
             else:
                 # Extract error details from JSON response if available
                 try:
                     error_json = response.json()
-                    error_detail = error_json.get('error', {}).get('message', response.text[:200])
+                    error_detail = error_json.get('error', {})
+                    if isinstance(error_detail, dict):
+                        error_detail = error_detail.get('message', str(error_detail)[:200])
+                    else:
+                        error_detail = str(error_detail)[:200]
                 except Exception:
-                    error_detail = response.text[:200]
+                    error_detail = response.text[:300]
+                
+                # Log full error for debugging 422 issues
+                _logger.error("Mistral OCR API Error %d: %s | Full Response: %s", 
+                             response.status_code, error_detail, response.text[:500])
                 
                 error_msg = (
                     f"Mistral OCR API Error: {response.status_code}\\n\\n"

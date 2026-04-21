@@ -96,11 +96,41 @@
                                                 <t t-else="">
                                                     <div class="d-flex flex-column overflow-hidden me-2">
                                                         <!-- Array/JSON display (e.g. marks_table) -->
-                                                        <div t-if="isArray" style="font-size: 0.78rem; max-height: 80px; overflow-y: auto;">
-                                                            <t t-foreach="val_raw" t-as="item" t-key="item_index">
-                                                                <span class="badge bg-secondary text-white me-1 mb-1" style="font-size: 0.70rem;">
-                                                                    <t t-esc="this.formatArrayItem(item)"/>
-                                                                </span>
+                                                        <div t-if="isArray" style="font-size: 0.78rem; max-height: 200px; overflow-y: auto;">
+                                                            <!-- Special display for line_items -->
+                                                            <t t-if="key === 'line_items' and val_raw.length > 0">
+                                                                <div class="table-responsive" style="font-size: 0.75rem;">
+                                                                    <table class="table table-sm table-striped mb-0">
+                                                                        <thead class="table-light">
+                                                                            <tr>
+                                                                                <th style="padding: 4px 6px; border-bottom: 1px solid #dee2e6;">Item</th>
+                                                                                <th style="padding: 4px 6px; border-bottom: 1px solid #dee2e6; text-align: center;">Qty</th>
+                                                                                <th style="padding: 4px 6px; border-bottom: 1px solid #dee2e6; text-align: right;">Rate</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr t-foreach="val_raw" t-as="item" t-key="item_index" style="background-color: #f8f9fa;">
+                                                                                <td style="padding: 4px 6px; border-bottom: 1px solid #e9ecef;">
+                                                                                    <span class="text-truncate" t-esc="item.name or '---'"/>
+                                                                                </td>
+                                                                                <td style="padding: 4px 6px; border-bottom: 1px solid #e9ecef; text-align: center;">
+                                                                                    <strong t-esc="item.qty or '---'"/>
+                                                                                </td>
+                                                                                <td style="padding: 4px 6px; border-bottom: 1px solid #e9ecef; text-align: right;">
+                                                                                    <strong t-esc="item.rate or '---'"/>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </t>
+                                                            <!-- Generic array display for other arrays -->
+                                                            <t t-else="">
+                                                                <t t-foreach="val_raw" t-as="item" t-key="item_index">
+                                                                    <span class="badge bg-secondary text-white me-1 mb-1" style="font-size: 0.70rem;">
+                                                                        <t t-esc="this.formatArrayItem(item)"/>
+                                                                    </span>
+                                                                </t>
                                                             </t>
                                                         </div>
                                                         <!-- Plain value display -->

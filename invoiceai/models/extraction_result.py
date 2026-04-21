@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from datetime import datetime, timedelta
 from odoo.exceptions import UserError
 import json
 import logging
@@ -22,6 +23,10 @@ class ExtractionResult(models.Model):
     ], string='Status', default='processing')
     
     extracted_data = fields.Text(string='Extracted JSON')
+    markdown_text = fields.Text(string='Extracted Markdown', help='OCR/Mistral markdown extraction of document text')
+    markdown_text_display = fields.Text(string='Markdown Text (Display)', compute='_compute_markdown_text_display', help='Shows markdown_text or extracts from PDF if empty')
+    markdown_formatted = fields.Html(string='Formatted Markdown', compute='_compute_markdown_formatted', readonly=True, store=False)  # Don't store - compute on demand
+    display_markdown = fields.Boolean(string='Show Markdown', default=False, help='Toggle between PDF and Markdown view')
     data_html = fields.Html(string='Formatted View', compute='_compute_data_html')
     
     raw_response = fields.Text(string='Raw AI Response', readonly=True)
@@ -109,7 +114,10 @@ class ExtractionResult(models.Model):
         ('low', 'Low Quality'),
         ('unknown', 'Unknown'),
     ], string='PDF Quality', compute='_compute_pdf_quality', store=True, help='Quality classification based on source PDF DPI')
+    pdf_quality_display = fields.Char(string='Quality', compute='_compute_pdf_quality_display', help='Simplified quality display')
     quality_enhancements = fields.Char(string='Quality Enhancements', help='Dynamic OCR enhancements applied based on PDF quality')
+    last_extraction_date = fields.Datetime(string='Last Extraction', default=fields.Datetime.now, help='When this record was last extracted/updated')
+    create_date_relative = fields.Char(string='When', compute='_compute_create_date_relative', help='Time elapsed since extraction was created or last updated')
     
     # Extraction completeness
     fields_extracted_percent = fields.Float(
@@ -157,6 +165,52 @@ class ExtractionResult(models.Model):
                 rec.pdf_quality = 'medium'
             else:
                 rec.pdf_quality = 'low'
+
+    @api.depends('pdf_quality')
+    def _compute_pdf_quality_display(self):
+        """Display quality as simplified text: High, Medium, or Low."""
+        quality_map = {
+            'high': '⭐ High',
+            'good': '⭐ High',
+            'medium': '📊 Medium',
+            'low': '⚠️ Low',
+            'unknown': '❓ Unknown',
+        }
+        for rec in self:
+            rec.pdf_quality_display = quality_map.get(rec.pdf_quality, 'Unknown')
+
+    @api.depends('create_date')
+    def _compute_create_date_relative(self):
+        """Calculate relative time (e.g., '2 hrs ago', '1 day ago')."""
+        for rec in self:
+            # Use last_extraction_date if available, otherwise fall back to create_date
+            date_to_use = rec.last_extraction_date or rec.create_date
+            
+            if not date_to_use:
+                rec.create_date_relative = 'Unknown'
+                continue
+            
+            try:
+                now = datetime.now()
+                created = date_to_use.replace(tzinfo=None)
+                delta = now - created
+                
+                if delta.total_seconds() < 60:
+                    rec.create_date_relative = f"{int(delta.total_seconds())} sec ago"
+                elif delta.total_seconds() < 3600:
+                    mins = int(delta.total_seconds() / 60)
+                    rec.create_date_relative = f"{mins} min ago" if mins == 1 else f"{mins} mins ago"
+                elif delta.total_seconds() < 86400:
+                    hrs = int(delta.total_seconds() / 3600)
+                    rec.create_date_relative = f"{hrs} hr ago" if hrs == 1 else f"{hrs} hrs ago"
+                elif delta.days < 30:
+                    rec.create_date_relative = f"{delta.days} day ago" if delta.days == 1 else f"{delta.days} days ago"
+                else:
+                    months = delta.days // 30
+                    rec.create_date_relative = f"{months} month ago" if months == 1 else f"{months} months ago"
+            except Exception as e:
+                _logger.warning("Error computing relative date: %s", str(e))
+                rec.create_date_relative = 'Unknown'
 
     @api.depends('extracted_data', 'pdf_quality')
     def _compute_extraction_stats(self):
@@ -231,6 +285,68 @@ class ExtractionResult(models.Model):
                 rec.fields_extracted_percent = 0.0
                 rec.total_fields_count = 0
                 rec.extracted_fields_count = 0
+
+    @api.depends('markdown_text', 'pdf_file', 'filename')
+    def _compute_markdown_text_display(self):
+        """Return markdown_text, or extract from PDF if empty."""
+        for rec in self:
+            if rec.markdown_text:
+                # Already have markdown text
+                rec.markdown_text_display = rec.markdown_text
+            elif rec.pdf_file and rec.filename.lower().endswith('.pdf'):
+                # Try to extract markdown from PDF if available
+                try:
+                    import os
+                    import io
+                    try:
+                        import fitz
+                    except ImportError:
+                        fitz = None
+                    
+                    if not fitz:
+                        rec.markdown_text_display = ''
+                        continue
+                    
+                    # Open PDF from binary data
+                    pdf_bytes = rec.pdf_file
+                    if not pdf_bytes:
+                        rec.markdown_text_display = ''
+                        continue
+                    
+                    pdf_stream = io.BytesIO(pdf_bytes)
+                    pdf = fitz.open(stream=pdf_stream, filetype='pdf')
+                    text_parts = []
+                    
+                    for page_num, page in enumerate(pdf):
+                        page_text = page.get_text("text")
+                        if page_text.strip():
+                            text_parts.append(f"--- Page {page_num + 1} ---\n{page_text}")
+                    
+                    pdf.close()
+                    rec.markdown_text_display = '\n\n'.join(text_parts) if text_parts else ''
+                    
+                except Exception as e:
+                    _logger.debug("Could not extract markdown from PDF: %s", str(e))
+                    rec.markdown_text_display = ''
+            else:
+                rec.markdown_text_display = ''
+
+    @api.depends('markdown_text_display', 'extracted_data')
+    def _compute_markdown_formatted(self):
+        for rec in self:
+            markdown_to_format = rec.markdown_text_display or ''
+            if not markdown_to_format:
+                rec.markdown_formatted = ''
+            else:
+                try:
+                    # Enhance markdown with bounding box info if available
+                    rec.markdown_formatted = rec._format_markdown_with_bounding_boxes(
+                        markdown_to_format, 
+                        rec.extracted_data
+                    )
+                except Exception as e:
+                    _logger.warning("Error formatting markdown: %s", str(e))
+                    rec.markdown_formatted = '<div style="padding: 15px; color: #d9534f;">Error formatting text</div>'
 
     @api.depends('extracted_data')
     def _compute_data_html(self):
@@ -403,15 +519,36 @@ class ExtractionResult(models.Model):
 
         inr_rate = 83.5
         latest_requests = []
-        for reg in results.sorted('create_date', reverse=True)[:10]:
+        # Sort by last_extraction_date (most recent first) to show latest runs at the top
+        for reg in results.sorted('last_extraction_date', reverse=True)[:10]:
+            # Calculate relative time using last_extraction_date (updated on every extraction)
+            # or fall back to create_date for old records
+            now = datetime.now()
+            date_to_use = reg.last_extraction_date or reg.create_date
+            created = date_to_use.replace(tzinfo=None)
+            delta = now - created
+            
+            if delta.total_seconds() < 60:
+                relative_time = f"{int(delta.total_seconds())} sec ago"
+            elif delta.total_seconds() < 3600:
+                relative_time = f"{int(delta.total_seconds() / 60)} min ago"
+            elif delta.total_seconds() < 86400:
+                relative_time = f"{int(delta.total_seconds() / 3600)} hr{'s' if int(delta.total_seconds() / 3600) > 1 else ''} ago"
+            elif delta.days < 30:
+                relative_time = f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
+            else:
+                relative_time = f"{delta.days // 30} month{'s' if (delta.days // 30) > 1 else ''} ago"
+            
             latest_requests.append({
                 'id': reg.id,
                 'name': reg.filename or f"REQ-{reg.id}",
                 'provider': (reg.provider or 'unknown').capitalize(),
                 'model': reg.model_used or '—',
+                'ocr_method': (reg.ocr_method or 'N/A').capitalize(),
                 'status': reg.state,
                 'cost_inr': round(reg.cost * inr_rate, 2),
                 'time': reg.create_date.strftime('%d %b, %H:%M'),
+                'relative_time': relative_time,
                 'client_name': reg.client_id.name,
                 'page_count': reg.page_count,
             })
@@ -493,7 +630,7 @@ class ExtractionResult(models.Model):
                 # Also check processed subfolder where processed files are moved to
                 proc_path = os.path.join(folder_path, 'processed', self.filename)
                 if os.path.exists(proc_path):
-                    _log.info("action_retry_extraction: found file in processed folder, rescanning %s", proc_path)
+                    _logger.info("action_retry_extraction: found file in processed folder, rescanning %s", proc_path)
                     self._rescan_from_disk(proc_path)
                     return True
             raise UserError(_("No document source found to retry extraction. Please re-upload."))
@@ -540,3 +677,162 @@ class ExtractionResult(models.Model):
         _log = logging.getLogger(__name__)
         from odoo.addons.invoiceai.services.document_processing_service import process_document
         process_document(self.env, self.client_id, file_path, self.filename, existing_record=self)
+
+    def action_show_pdf(self):
+        """Show PDF view instead of markdown."""
+        self.ensure_one()
+        self.write({'display_markdown': False})
+
+    def action_show_markdown(self):
+        """Show markdown text view instead of PDF."""
+        self.ensure_one()
+        self.write({'display_markdown': True})
+
+    def _format_markdown_as_html(self):
+        """Format raw markdown text - return simple pre-formatted text."""
+        if not self.markdown_text:
+            return ""
+        
+        try:
+            import re
+            text = str(self.markdown_text)  # Ensure it's a string
+            
+            # Remove page headers
+            text = re.sub(r'--- Page \d+ ---\n*', '', text)
+            
+            # Escape HTML special characters to prevent injection
+            text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#39;')
+            
+            # Limit length to prevent issues with very large documents
+            if len(text) > 100000:
+                text = text[:100000] + '\n\n... (text truncated for display)'
+            
+            # Return as simple div with pre-formatted text
+            html = '<div style="font-family: monospace; white-space: pre-wrap; word-wrap: break-word; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; line-height: 1.5;">' + text + '</div>'
+            return html
+        except Exception as e:
+            _logger.error("Error in _format_markdown_as_html: %s", str(e))
+            return '<div>Unable to format text</div>'
+
+    def _format_markdown_as_html_with_text(self, text):
+        """Format markdown text with text parameter - helper for computed fields."""
+        if not text:
+            return ""
+        
+        try:
+            import re
+            text = str(text)  # Ensure it's a string
+            
+            # Remove page headers
+            text = re.sub(r'--- Page \d+ ---\n*', '', text)
+            
+            # Escape HTML special characters to prevent injection
+            text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#39;')
+            
+            # Limit length to prevent issues with very large documents
+            if len(text) > 100000:
+                text = text[:100000] + '\n\n... (text truncated for display)'
+            
+            # Return as simple div with pre-formatted text
+            html = '<div style="font-family: monospace; white-space: pre-wrap; word-wrap: break-word; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; line-height: 1.5;">' + text + '</div>'
+            return html
+        except Exception as e:
+            _logger.error("Error in _format_markdown_as_html_with_text: %s", str(e))
+            return '<div style="padding: 15px; color: #d9534f;">Error formatting text</div>'
+
+    def _format_markdown_with_bounding_boxes(self, text, extracted_data_json):
+        """Format markdown text and display bounding box information from extracted_data."""
+        if not text:
+            return ""
+        
+        try:
+            import re
+            text = str(text)
+            
+            # Remove page headers
+            text = re.sub(r'--- Page \d+ ---\n*', '', text)
+            
+            # Try to parse extracted_data to get bounding boxes
+            fields_with_boxes = {}
+            if extracted_data_json:
+                try:
+                    data = json.loads(extracted_data_json)
+                    for field_name, field_data in data.items():
+                        if isinstance(field_data, dict):
+                            value = field_data.get('value', '')
+                            box_2d = field_data.get('box_2d', None)
+                            if box_2d:
+                                fields_with_boxes[field_name] = {
+                                    'value': value,
+                                    'box_2d': box_2d
+                                }
+                except Exception as e:
+                    _logger.debug("Could not parse extracted_data for bounding boxes: %s", str(e))
+            
+            # Escape HTML
+            text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#39;')
+            
+            # Limit length
+            if len(text) > 100000:
+                text = text[:100000] + '\n\n... (text truncated for display)'
+            
+            # Build HTML with bounding box information
+            html_parts = [
+                '<div style="font-family: monospace; white-space: pre-wrap; word-wrap: break-word; padding: 15px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; line-height: 1.5;">',
+                text,
+                '</div>'
+            ]
+            
+            # Add bounding box annotations below the text if available
+            if fields_with_boxes:
+                html_parts.append('<div style="margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 4px solid #0288d1; border-radius: 4px;">')
+                html_parts.append('<h6 style="margin-top: 0; color: #0288d1; font-weight: bold;">📍 Extracted Fields with Bounding Boxes</h6>')
+                html_parts.append('<div style="font-size: 12px; font-family: monospace;">')
+                
+                for field_name, field_info in sorted(fields_with_boxes.items()):
+                    value = str(field_info['value'])[:100]  # Truncate long values
+                    box = field_info['box_2d']
+                    
+                    # Format bounding box coordinates
+                    if isinstance(box, (list, tuple)) and len(box) >= 4:
+                        x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
+                        box_str = f"({x1:.1f}, {y1:.1f}) → ({x2:.1f}, {y2:.1f})"
+                    else:
+                        box_str = str(box)
+                    
+                    html_parts.append(
+                        f'<div style="margin: 8px 0; padding: 8px; background: white; border-left: 3px solid #4caf50; border-radius: 2px;">'
+                        f'<strong style="color: #1b5e20;">{field_name}</strong><br/>'
+                        f'<span style="color: #555;">Value:</span> {value}<br/>'
+                        f'<span style="color: #0277bd;">Box:</span> {box_str}'
+                        f'</div>'
+                    )
+                
+                html_parts.append('</div>')
+                html_parts.append('</div>')
+            
+            return ''.join(html_parts)
+            
+        except Exception as e:
+            _logger.error("Error in _format_markdown_with_bounding_boxes: %s", str(e))
+            return '<div style="padding: 15px; color: #d9534f;">Error formatting markdown with bounding boxes</div>'
+
+    def action_view_markdown_popup(self):
+        """Open formatted markdown text in a popup dialog."""
+        self.ensure_one()
+        if not self.markdown_text:
+            raise UserError(_("No markdown text extracted for this document."))
+        
+        # Create temporary record with formatted HTML
+        formatted_html = self._format_markdown_as_html()
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Extracted Text - {self.filename}',
+            'res_model': 'purple_ai.extraction_result',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('invoiceai.view_extraction_result_markdown_popup').id,
+            'target': 'new',
+            'context': {'show_formatted_markdown': True},
+        }

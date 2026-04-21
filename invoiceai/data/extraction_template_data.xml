@@ -87,6 +87,14 @@
             <field name="instruction">Extract the nature of service or goods provided (e.g. Professional Services, Rent, Technical Services).</field>
         </record>
 
+        <record id="field_line_items" model="purple_ai.extraction_field">
+            <field name="master_id" ref="extraction_master_invoice"/>
+            <field name="sequence">110</field>
+            <field name="name">Line Items</field>
+            <field name="field_key">line_items</field>
+            <field name="instruction">Extract ALL line items from the invoice as a JSON array. Each item MUST have: "name" (item description), "qty" (quantity as a number), "rate" (unit price/rate as a number). Example: [{"name": "Item 1", "qty": 5, "rate": 100.00}, {"name": "Item 2", "qty": 2, "rate": 250.00}]. Return empty array [] if no items found.</field>
+        </record>
+
         <!-- Rules for Invoice Extraction -->
         <record id="rule_unique_invoice" model="purple_ai.validation_rule">
             <field name="master_id" ref="extraction_master_invoice"/>

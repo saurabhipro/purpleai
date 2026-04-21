@@ -157,6 +157,53 @@
                         </setting>
                     </block>
 
+                    <!-- AI Provider Connection Testing -->
+                    <block title="AI Provider Configuration" name="ai_provider_config">
+                        <setting title="Test AI Connection" help="Verify the configured AI provider is working correctly">
+                            <div class="content-group">
+                                <div class="text-muted mb-3">
+                                    Test connectivity and functionality of your configured AI provider:
+                                </div>
+                                <ul class="text-muted mb-3" style="font-size: 0.95rem;">
+                                    <li><strong>🚀 Mistral:</strong> Pixtral vision model (recommended)</li>
+                                    <li><strong>☁️ Azure:</strong> Azure OpenAI endpoint</li>
+                                    <li><strong>🤖 OpenAI:</strong> Direct OpenAI API</li>
+                                    <li><strong>💎 Gemini:</strong> Google Gemini API</li>
+                                </ul>
+                            </div>
+                            <div class="mt-2">
+                                <button name="action_test_ai_connection" string="Test AI Connection" type="object" class="btn-primary btn-sm" icon="fa-plug"/>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- OCR Engine Configuration & Testing -->
+                    <block title="OCR Engine Configuration" name="ocr_config">
+                        <setting title="OCR Engine Testing" help="Test connectivity and functionality of OCR engines">
+                            <div class="content-group">
+                                <div class="text-muted mb-3">
+                                    Test the OCR engines configured for document processing. This will verify:
+                                </div>
+                                <ul class="text-muted mb-3" style="font-size: 0.95rem;">
+                                    <li><strong>🔧 Tesseract:</strong> Local OCR engine (installed on server)</li>
+                                    <li><strong>🐉 Paddle OCR:</strong> Alternative local OCR (if installed)</li>
+                                    <li><strong>🚀 Mistral:</strong> Cloud-based vision API connectivity</li>
+                                </ul>
+                            </div>
+                            <div class="mt-2">
+                                <button name="action_test_ocr" string="Test OCR Engines" type="object" class="btn-primary btn-sm" icon="fa-flask"/>
+                            </div>
+                            <div class="alert alert-info mt-3" role="alert">
+                                <i class="fa fa-info-circle"/> <strong>Installation Requirements:</strong>
+                                <ul class="mb-0" style="margin-top: 8px; font-size: 0.95rem;">
+                                    <li>Tesseract: <code>apt-get install tesseract-ocr</code></li>
+                                    <li>Paddle OCR (optional): <code>pip install paddleocr</code></li>
+                                    <li>Mistral: API key in AI Core settings</li>
+                                </ul>
+                            </div>
+                        </setting>
+                    </block>
+
                     <!-- Tally ERP / Prime Integration -->
                     <block title="Tally ERP / Prime Integration" name="tally_config">
                         <setting title="Tally Connectivity" help="Configure connection to Tally ERP/Prime">
@@ -177,6 +224,42 @@
                         </setting>
                     </block>
 
+                </app>
+
+                <!-- General Settings App for Mistral Configuration -->
+                <app data-string="General Settings" string="General Settings" name="general_settings">
+                    <!-- Mistral API Configuration -->
+                    <block title="Mistral AI Configuration" name="mistral_config">
+                        <setting title="Mistral API Settings" help="Configure Mistral API endpoint and SSL verification">
+                            <div class="content-group">
+                                <div class="border-bottom pb-3 mb-3">
+                                    <label for="mistral_endpoint_url" style="display: block; margin-bottom: 6px; font-weight: 600;">🌐 Mistral Custom Endpoint URL (Optional)</label>
+                                    <field name="mistral_endpoint_url" placeholder="e.g. https://aif-cosec-dev.services.ai.azure.com/providers/mistral/azure/ocr" style="width: 100%;"/>
+                                    <small class="text-muted" style="display: block; margin-top: 4px;">
+                                        <strong>Leave empty</strong> to use default: <code>https://api.mistral.ai/v1/chat/completions</code><br/>
+                                        <strong>Azure OCR Endpoint (Document Extraction):</strong><br/>
+                                        • Base path: <code>https://aif-cosec-dev.services.ai.azure.com/providers/mistral/azure/ocr</code><br/>
+                                        • Full path: <code>https://aif-cosec-dev.services.ai.azure.com/providers/mistral/azure/ocr/v1/chat/completions</code><br/>
+                                        <strong>Standard Chat Endpoint:</strong><br/>
+                                        • Path: <code>https://api.mistral.ai/v1/chat/completions</code><br/>
+                                        <strong>ℹ️ Azure OCR:</strong> Designed for document extraction and OCR tasks with JSON schema support. The system will auto-complete the endpoint path if needed.
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <label for="mistral_verify_ssl" style="display: block; margin-bottom: 6px; font-weight: 600;">🔐 SSL Certificate Verification</label>
+                                    <field name="mistral_verify_ssl" style="width: 100%;"/>
+                                    <small class="text-muted" style="display: block; margin-top: 4px;">
+                                        <strong>✅ Verify SSL (Default):</strong> Secure option - validates SSL certificates<br/>
+                                        <strong>⚠️ Skip SSL:</strong> For self-signed certificates or custom gateways<br/><br/>
+                                        <strong>If you get certificate errors:</strong><br/>
+                                        1. First try: <code>apt-get install ca-certificates</code><br/>
+                                        2. If using Azure: Select "Skip SSL" and verify your endpoint URL
+                                    </small>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

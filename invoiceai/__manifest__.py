@@ -54,6 +54,7 @@
             'invoiceai/static/src/components/dashboard/dashboard.scss',
             'invoiceai/static/src/js/resizable_layout.js',
             'invoiceai/static/src/js/scan_progress_listener.js',
+            'invoiceai/static/src/js/markdown_search.js',
         ],
     },
     'installable': True,

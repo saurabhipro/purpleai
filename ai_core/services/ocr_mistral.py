@@ -3,10 +3,16 @@
 Mistral OCR Module
 
 Handles Mistral OCR API-based text extraction using ocr_engines.
+Creates proper searchable PDFs with original image + invisible text layer.
 """
 import io
 import logging
 from odoo.exceptions import UserError
+
+try:
+    import fitz
+except ImportError:
+    fitz = None
 
 try:
     from . import ocr_engines
@@ -61,7 +67,14 @@ def _extract_text_using_mistral(pil_img, config):
 
 
 def _extract_pdf_bytes_using_mistral(pil_img, config):
-    """Generate PDF bytes with text layer using Mistral OCR.
+    """Generate a searchable PDF: original image preserved for display.
+    
+    Mistral OCR returns markdown text WITHOUT position coordinates, so we cannot
+    place text at correct positions on the page. Instead we:
+    1. Create a PDF with the original image (so the PDF viewer shows the real document)
+    2. Do NOT add a fake text layer (it would have wrong positions, breaking bounding boxes)
+    3. The box_refinement_service will use its own OCR fallback (Tesseract) to create
+       a properly-positioned text layer for bounding box coordinate snapping.
     
     Args:
         pil_img: PIL Image object
@@ -74,25 +87,60 @@ def _extract_pdf_bytes_using_mistral(pil_img, config):
     if not text:
         return None
     
+    if not fitz:
+        _logger.error("PyMuPDF (fitz) not available; cannot create PDF for Mistral OCR")
+        return None
+    
     try:
-        from reportlab.pdfgen import canvas
-        from reportlab.lib.pagesizes import letter
+        # Convert PIL image to bytes
+        img_buffer = io.BytesIO()
+        pil_img.save(img_buffer, format='JPEG', quality=95)
+        img_buffer.seek(0)
+        img_bytes = img_buffer.read()
         
+        # Create a new PDF with the original image as the page background
+        doc = fitz.open()
+        
+        # Get image dimensions to set page size correctly
+        img_w, img_h = pil_img.size
+        
+        # Create page with same aspect ratio as the image (72 DPI base)
+        max_dim = 842  # A4 height in points
+        if img_h > img_w:
+            page_h = max_dim
+            page_w = int(img_w * max_dim / img_h)
+        else:
+            page_w = max_dim
+            page_h = int(img_h * max_dim / img_w)
+        
+        page = doc.new_page(width=page_w, height=page_h)
+        
+        # Insert the original image as the page background
+        page_rect = page.rect
+        page.insert_image(page_rect, stream=img_bytes)
+        
+        # NOTE: We intentionally do NOT add an invisible text layer here.
+        # Mistral OCR returns markdown text without position/coordinate data,
+        # so any text we insert would be at arbitrary positions, causing
+        # bounding boxes to be placed incorrectly.
+        #
+        # The box_refinement_service handles this gracefully:
+        # 1. It first tries to search text in this PDF (will find nothing)
+        # 2. It then falls back to apply_ocr_to_pdf() using Tesseract/Paddle
+        #    which creates a PROPER text layer with correct spatial positions
+        # 3. Bounding boxes are then snapped to the Tesseract text positions
+        
+        # Save PDF to bytes
         pdf_buffer = io.BytesIO()
-        c = canvas.Canvas(pdf_buffer, pagesize=letter)
-        y = 750
-        
-        for line in text.split('\n'):
-            if y < 50:
-                c.showPage()
-                y = 750
-            # Truncate long lines to prevent reportlab errors
-            c.drawString(50, y, line[:100])
-            y -= 12
-        
-        c.save()
+        doc.save(pdf_buffer, garbage=4, deflate=True)
+        doc.close()
         pdf_buffer.seek(0)
+        
+        _logger.info("Mistral OCR: Created image PDF (%d bytes) - text layer deferred to box refinement", 
+                     len(pdf_buffer.getvalue()))
+        
         return pdf_buffer.getvalue()
+        
     except Exception as e:
-        _logger.error("Mistral PDF generation failed: %s", e)
+        _logger.error("Mistral searchable PDF generation failed: %s", e)
         return None

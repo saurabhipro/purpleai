@@ -11,17 +11,16 @@
                     <button name="action_sync_invoice_queue_row" string="Start Invoice Workflow" type="object" class="btn-secondary"
                             title="Creates or updates rows in Extraction → All Invoices for selected successful extractions."/>
                 </header>
-                <field name="create_date" string="Processed Date"/>
+                <field name="create_date_relative" string="When"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="client_id"/>
                 <field name="filename"/>
                 <field name="page_count" string="Pages"/>
                 <field name="pdf_dpi" string="DPI"/>
-                <field name="pdf_quality" string="Quality" widget="badge" 
-                       decoration-success="pdf_quality == 'high'" 
-                       decoration-info="pdf_quality == 'good'" 
-                       decoration-warning="pdf_quality == 'medium'" 
-                       decoration-danger="pdf_quality == 'low'"/>
+                <field name="pdf_quality_display" string="Quality" widget="badge" 
+                       decoration-success="pdf_quality == 'high' or pdf_quality == 'good'" 
+                       decoration-info="pdf_quality == 'medium'" 
+                       decoration-warning="pdf_quality == 'low'"/>
                 <field name="fields_extracted_percent" string="% Extracted" 
                        widget="progressbar" 
                        decoration-success="fields_extracted_percent >= 80"
@@ -48,6 +47,8 @@
                 <header>
                     <button name="action_retry_extraction" string="Retry Extraction" type="object" class="btn-primary" invisible="state != 'error'"/>
                     <button name="action_retry_extraction" string="Re-Scan (Overwrite)" type="object" class="btn-secondary" invisible="state == 'error'"/>
+                    <button name="action_view_markdown_popup" string="📄 View Formatted Text" type="object" class="btn-info" 
+                            invisible="not is_pdf" title="View extracted OCR text (Retry extraction if empty)"/>
                     <field name="state" widget="statusbar"/>
                     <field name="review_workflow_status" widget="badge" string="Workflow"/>
                     <field name="review_approval_state" widget="badge" string="Approval"/>
@@ -74,12 +75,12 @@
                                     </group>
                                     <group>
                                         <field name="page_count"/>
+                                        <field name="create_date" string="Created" readonly="1"/>
                                         <field name="pdf_dpi" string="Source PDF DPI"/>
-                                        <field name="pdf_quality" widget="badge" 
-                                               decoration-success="pdf_quality == 'high'" 
-                                               decoration-info="pdf_quality == 'good'" 
-                                               decoration-warning="pdf_quality == 'medium'" 
-                                               decoration-danger="pdf_quality == 'low'"/>
+                                        <field name="pdf_quality_display" widget="badge" 
+                                               decoration-success="pdf_quality == 'high' or pdf_quality == 'good'" 
+                                               decoration-info="pdf_quality == 'medium'" 
+                                               decoration-warning="pdf_quality == 'low'"/>
                                         <field name="quality_enhancements" invisible="not quality_enhancements"/>
                                         <field name="extracted_fields_count" string="Extracted"/>
                                         <field name="total_fields_count" string="Total Fields"/>
@@ -102,24 +103,63 @@
 
                         <!-- Right Panel: PDF Preview (60%) -->
                         <div class="col-lg-7 bg-dark-subtle p-0 o_audit_right_panel">
-                            <div class="d-flex justify-content-between align-items-center bg-white border-bottom px-3 py-1">
+                            <div class="d-flex justify-content-between align-items-center bg-white border-bottom px-3 py-2">
                                 <h6 class="m-0 text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05rem;">
                                     <i class="fa fa-eye me-2"/> DOCUMENT PREVIEW
                                 </h6>
+                                <!-- View Toggle Buttons -->
+                                <button name="action_show_pdf" string="📄 PDF" type="object" class="btn btn-sm btn-outline-secondary me-1" 
+                                        invisible="not is_pdf"/>
+                                <button name="action_show_markdown" string="📝 Markdown" type="object" class="btn btn-sm btn-outline-secondary" 
+                                        invisible="not is_pdf" title="Extracted OCR text (Retry extraction if empty)"/>
                             </div>
                             <div style="height: calc(100vh - 120px); min-height: 800px; overflow: hidden; position: relative;" class="shadow-sm border o_audit_viewport_container bg-secondary">
                                 <field name="is_pdf" invisible="1"/>
                                 <field name="is_image" invisible="1"/>
-                                <!-- PDF Viewer -->
-                                <field name="pdf_file" widget="pdf_viewer" nolabel="1" filename="pdf_filename" class="h-100 w-100 p-0 m-0" invisible="not is_pdf"/>
-                                <!-- Image Viewer -->
-                                <field name="pdf_file" widget="image" nolabel="1" class="h-100 w-100 p-0 m-0" style="object-fit: contain; background: #333;" invisible="not is_image"/>
-                                <!-- Fallback -->
-                                <div invisible="is_pdf or is_image" class="d-flex align-items-center justify-content-center h-100 text-white p-5 text-center">
-                                    <div>
-                                        <i class="fa fa-file-o fa-5x mb-3 opacity-50" title="Document"/>
-                                        <h5>Preview unavailable for this format</h5>
-                                        <p class="opacity-75">Filename: <field name="filename"/></p>
+                                <field name="display_markdown" invisible="1"/>
+                                <field name="markdown_text" invisible="1"/>
+                                <field name="markdown_text_display" invisible="1"/>
+                                
+                                <!-- PDF View (default) -->
+                                <div invisible="display_markdown" class="h-100 w-100 p-0 m-0">
+                                    <!-- PDF Viewer -->
+                                    <field name="pdf_file" widget="pdf_viewer" nolabel="1" filename="pdf_filename" class="h-100 w-100 p-0 m-0" invisible="not is_pdf"/>
+                                    <!-- Image Viewer -->
+                                    <field name="pdf_file" widget="image" nolabel="1" class="h-100 w-100 p-0 m-0" style="object-fit: contain; background: #333;" invisible="not is_image"/>
+                                    <!-- Fallback -->
+                                    <div invisible="is_pdf or is_image" class="d-flex align-items-center justify-content-center h-100 text-white p-5 text-center">
+                                        <div>
+                                            <i class="fa fa-file-o fa-5x mb-3 opacity-50" title="Document"/>
+                                            <h5>Preview unavailable for this format</h5>
+                                            <p class="opacity-75">Filename: <field name="filename"/></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Markdown View -->
+                                <div invisible="not display_markdown" class="h-100 w-100 overflow-auto p-3 bg-white d-flex flex-column">
+                                    <!-- Search Box -->
+                                    <div style="margin-bottom: 15px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light" style="border: 1px solid #ddd;">
+                                                <i class="fa fa-search" style="color: #666;"></i>
+                                            </span>
+                                            <input type="text" id="markdown_search" class="form-control" placeholder="Search text in markdown..." 
+                                                   style="border: 1px solid #ddd; font-size: 12px;" 
+                                                   onkeyup="highlightSearchText(this.value)"/>
+                                            <span class="input-group-text bg-light" style="border: 1px solid #ddd; color: #666; font-size: 12px;" id="search_count"></span>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">💡 Type to search or use Ctrl+F</small>
+                                    </div>
+                                    
+                                    <!-- Formatted markdown with search highlighting -->
+                                    <div class="flex-grow-1 overflow-auto" id="markdown_container">
+                                        <field name="markdown_formatted" widget="html" nolabel="1" readonly="1" class="w-100"/>
+                                        
+                                        <!-- Fallback if formatted is empty -->
+                                        <div invisible="markdown_formatted" class="bg-light p-3" style="font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">
+                                            <field name="markdown_text_display" nolabel="1" readonly="1"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -135,5 +175,26 @@
         <field name="name">Extraction Results</field>
         <field name="res_model">purple_ai.extraction_result</field>
         <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Popup View for Formatted Markdown -->
+    <record id="view_extraction_result_markdown_popup" model="ir.ui.view">
+        <field name="name">purple_ai.extraction_result.markdown_popup</field>
+        <field name="model">purple_ai.extraction_result</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <h3 class="text-center mb-3">
+                        <i class="fa fa-file-text-o me-2"/>
+                        <field name="filename" class="fw-bold"/>
+                    </h3>
+                </header>
+                <sheet>
+                    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-y: auto; max-height: calc(100vh - 200px);">
+                        <field name="markdown_formatted" widget="html" nolabel="1" readonly="1"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
     </record>
 </odoo>

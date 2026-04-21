@@ -93,7 +93,23 @@ def apply_ocr_to_pdf(file_path, env=None, config_override=None):
         
         merged = fitz.open()
         page_count = 0
-        scale = config['dpi'] / 72.0
+        
+        # MEMORY SAFETY: Cap DPI for Tesseract (high DPI causes malloc failures)
+        # Tesseract memory usage grows quadratically with DPI
+        # At 200 DPI: ~180-200MB per page (unsafe for most systems)
+        # At 150 DPI: ~100-120MB per page (safe)
+        # At 120 DPI: ~60-80MB per page (safest)
+        dpi = config['dpi']
+        if engine == 'tesseract':
+            if dpi > 150:
+                _logger.warning(
+                    "DPI %d too high for Tesseract (memory usage ~%dMB per page). "
+                    "Reducing to 150 DPI for memory safety.", 
+                    dpi, int((dpi/72.0)**2 * 10)  # Rough estimate
+                )
+                dpi = 150
+            
+        scale = dpi / 72.0
         
         # Process pages
         for page_num in range(min(len(doc), 10)):  # Limit to 10 pages
@@ -130,11 +146,39 @@ def apply_ocr_to_pdf(file_path, env=None, config_override=None):
                     
             except UserError:
                 raise  # Always propagate UserError (config issues) to show popup
+            except MemoryError as e:
+                # Handle out-of-memory gracefully with helpful message
+                _logger.error("OUT OF MEMORY during OCR on page %d. Tesseract exhausted available RAM.", page_num)
+                raise UserError(
+                    _("❌ Out of Memory: Tesseract OCR ran out of memory on page %d.\n\n"
+                      "This is a Tesseract limitation with high-resolution PDFs.\n\n"
+                      "🛠️ SOLUTIONS:\n"
+                      "1. Switch to Paddle OCR (more memory efficient)\n"
+                      "2. Switch to Mistral OCR (cloud-based)\n"
+                      "3. Reduce DPI to 100-120 (but loses quality)\n\n"
+                      "⚠️ Current OCR DPI=%d is too high for this system's available RAM.\n"
+                      "Tesseract needs ~%dMB per page at this DPI.") 
+                    % (page_num + 1, dpi, int((dpi/72.0)**2 * 10))
+                )
             except Exception as e:
                 # Treat any engine-level exception (e.g., NetworkError, LibraryError) 
                 # as a reason to STOP immediately and show a popup.
-                _logger.error("OCR failed critically on page %d: %s", page_num, e)
-                raise UserError(_("OCR engine '%s' failed critically on page %d. Error: %s") % (engine, page_num + 1, str(e)))
+                error_str = str(e)
+                if 'malloc' in error_str.lower():
+                    _logger.error("MALLOC FAILURE on page %d: %s. System has insufficient RAM for Tesseract at %d DPI.", page_num, e, dpi)
+                    raise UserError(
+                        _("❌ Memory Allocation Failed on page %d.\n\n"
+                          "Tesseract couldn't allocate %s bytes.\n\n"
+                          "🛠️ SOLUTIONS:\n"
+                          "1. Best: Switch to Paddle OCR (handles high-res PDFs better)\n"
+                          "2. Alternative: Use Mistral OCR (cloud-based)\n"
+                          "3. Workaround: Reduce DPI to 100-120 DPI\n\n"
+                          "Current DPI=%d") 
+                        % (page_num + 1, error_str.split('malloc')[1].split(')')[0] if 'malloc' in error_str else '?', dpi)
+                    )
+                else:
+                    _logger.error("OCR failed critically on page %d: %s", page_num, e)
+                    raise UserError(_("OCR engine '%s' failed critically on page %d. Error: %s") % (engine, page_num + 1, str(e)))
         
         doc.close()
         
